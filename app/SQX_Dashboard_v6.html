@@ -2404,9 +2404,9 @@
         </div>
         <div class="edge-portfolio-head" id="edge-portfolio-master-contract">
           <div>
-            <span class="badge info">Portfolio Master Contract · portfolio-master-contract-v1</span>
+            <span class="badge info">Portfolio Master Contract · portfolio-master-contract-v1 · portfolio-master-inputs-pending-v1</span>
             <h3>Readback Portfolio Master sin despliegue vivo</h3>
-            <p>Codifica el contrato posterior al Lab: Lab report, Forward CSV, equity/returns comparables para riesgo agregado real y contexto publico cuenta/broker. El resultado queda bloqueado si falta cualquier prerrequisito y no autoriza despliegue real.</p>
+            <p>Codifica el contrato posterior al Lab: Lab report, Forward CSV, equity/returns comparables para riesgo agregado real, contexto publico de cuenta y contexto publico broker/simbolos. El resultado queda bloqueado si falta cualquier prerrequisito y no autoriza despliegue real.</p>
           </div>
           <div class="edge-portfolio-contract">
             <strong>Contrato Portfolio Master</strong>
@@ -2430,12 +2430,19 @@
           </div>
           <div class="edge-portfolio-input-panel">
             <div class="edge-portfolio-panel-title">
-              <strong>Cuenta/broker publico</strong>
-              <span>Sin login, balance, servidor, token ni rutas.</span>
+              <strong>Cuenta publica</strong>
+              <span>Sin login, balance, equity real, servidor, token ni rutas.</span>
             </div>
-            <textarea id="edge-master-account-input" rows="4" placeholder="accountModel=demo-forward-review; brokerProfile=ECN; baseCurrency=USD; riskBudgetMode=0.2 pct base"></textarea>
+            <textarea id="edge-master-account-input" rows="4" placeholder="accountModel=demo-forward-review; environment=demo-first; baseCurrency=USD; riskBudgetMode=0.2 pct base"></textarea>
+          </div>
+          <div class="edge-portfolio-input-panel">
+            <div class="edge-portfolio-panel-title">
+              <strong>Broker/simbolos publico</strong>
+              <span>Compatibilidad publica sin credenciales ni datos privados.</span>
+            </div>
+            <textarea id="edge-master-broker-input" rows="4" placeholder="brokerProfile=ECN; executionModel=hedging-netting reviewed; leverageMode=broker-context-known"></textarea>
             <div class="edge-portfolio-actions">
-              <button class="filter-btn" type="button" id="edge-master-sample">Cargar muestra Master</button>
+              <button class="filter-btn" type="button" id="edge-master-sample">Ver formato ejemplo</button>
               <button class="filter-btn active" type="button" id="edge-master-run">Construir contrato</button>
               <button class="filter-btn" type="button" id="edge-master-export">Descargar contrato</button>
               <button class="filter-btn danger" type="button" id="edge-master-reset">Limpiar Master</button>
@@ -2445,7 +2452,7 @@
         <div class="edge-portfolio-results" id="edge-master-results">
           <div class="edge-portfolio-empty">
             <strong>Sin contrato Portfolio Master.</strong>
-            <span>El readback requerido bloquea Lab report ausente, Forward CSV ausente, equity/returns no comparables o contexto cuenta/broker faltante.</span>
+            <span>El readback requerido bloquea Lab report ausente, Forward CSV ausente, equity/returns no comparables, cuenta publica faltante o contexto broker/simbolos faltante.</span>
           </div>
         </div>
       </section>

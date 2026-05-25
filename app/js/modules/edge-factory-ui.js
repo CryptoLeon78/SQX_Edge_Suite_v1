@@ -308,8 +308,37 @@
     return [header].concat(rows).join('\n');
   }
 
+  function portfolioMasterForwardSample(report) {
+    var winners = report && Array.isArray(report.rows)
+      ? report.rows.filter(function(row) { return row.diversityStatus === 'portfolio'; })
+      : [];
+    var header = 'strategy,asset,timeframe,profitFactor,retDd,maxDd,trades,Source Databank,Forward Status,Pass Source,Example Only';
+    var rows = winners.map(function(row) {
+      return [
+        row.strategy || row.id || '',
+        row.asset || '',
+        row.timeframe || '',
+        row.profitFactor || '',
+        row.retDd || '',
+        row.maxDd || '',
+        row.trades || '',
+        row.forwardSource || 'Foward',
+        row.forwardStatus || 'PASSED',
+        row.passSource || 'natural',
+        'true'
+      ].map(function(value) {
+        return '"' + String(value == null ? '' : value).replace(/"/g, '""') + '"';
+      }).join(',');
+    });
+    return [header].concat(rows).join('\n');
+  }
+
   function portfolioMasterAccountSample() {
-    return 'accountModel=demo-forward-review; brokerProfile=ECN/low-spread; executionModel=hedging-netting reviewed; baseCurrency=USD; riskBudgetMode=0.2 pct base, 0.30 pct cap; leverageMode=broker-context-known';
+    return 'accountModel=demo-forward-review; environment=demo-first; baseCurrency=USD; riskBudgetMode=0.2 pct base, 0.30 pct cap';
+  }
+
+  function portfolioMasterBrokerSample() {
+    return 'brokerProfile=ECN/low-spread; executionModel=hedging-netting reviewed; leverageMode=broker-context-known; notes=symbol specs reviewed outside browser';
   }
 
   function statusClass(status) {
@@ -330,6 +359,7 @@
       return;
     }
     var risk = contract.outputReadback && contract.outputReadback.aggregateRisk ? contract.outputReadback.aggregateRisk : {};
+    var intake = contract.inputIntake || {};
     var inputs = Array.isArray(contract.requiredInputs) ? contract.requiredInputs : [];
     var blocked = Array.isArray(contract.blockedReasons) ? contract.blockedReasons : [];
     output.innerHTML =
@@ -343,7 +373,7 @@
       '</div>' +
       '<div class="edge-portfolio-empty">' +
         '<strong>Readback: ' + escapeHtml(contract.statusLabel || contract.status) + '</strong>' +
-        '<span>Contrato publico sanitizado · ' + escapeHtml(risk.status || 'unavailable') + ' · no autoriza despliegue real.</span>' +
+        '<span>' + escapeHtml(intake.version || 'portfolio-master-inputs-pending-v1') + ' · ' + escapeHtml(risk.status || 'unavailable') + ' · no autoriza despliegue real.</span>' +
       '</div>' +
       '<div class="edge-portfolio-empty">' +
         '<strong>Prerrequisitos</strong>' +
@@ -385,7 +415,8 @@
     return {
       forwardCsv: (byId('edge-master-forward-input') || {}).value || '',
       comparableSeriesCsv: (byId('edge-master-series-input') || {}).value || '',
-      accountBrokerContext: (byId('edge-master-account-input') || {}).value || ''
+      accountContext: (byId('edge-master-account-input') || {}).value || '',
+      brokerContext: (byId('edge-master-broker-input') || {}).value || ''
     };
   }
 
@@ -414,9 +445,11 @@
     var forward = byId('edge-master-forward-input');
     var series = byId('edge-master-series-input');
     var account = byId('edge-master-account-input');
-    if (forward) forward.value = (portfolioInput && portfolioInput.value) || portfolioSample();
+    var broker = byId('edge-master-broker-input');
+    if (forward) forward.value = portfolioMasterForwardSample(lab);
     if (series) series.value = portfolioMasterSeriesSample(lab);
     if (account) account.value = portfolioMasterAccountSample();
+    if (broker) broker.value = portfolioMasterBrokerSample();
     runPortfolioMasterContract();
   }
 
@@ -514,11 +547,13 @@
     var masterForward = byId('edge-master-forward-input');
     var masterSeries = byId('edge-master-series-input');
     var masterAccount = byId('edge-master-account-input');
+    var masterBroker = byId('edge-master-broker-input');
     if (input) input.value = '';
     if (file) file.value = '';
     if (masterForward) masterForward.value = '';
     if (masterSeries) masterSeries.value = '';
     if (masterAccount) masterAccount.value = '';
+    if (masterBroker) masterBroker.value = '';
     if (output) output.innerHTML = '<div class="edge-portfolio-empty"><strong>Sin lote Capa 2 cargado.</strong><span>Carga CSV, pega datos o usa la muestra para calcular ranking y diversidad.</span></div>';
     renderPortfolioMasterContract(null);
     if (SQX.edgeFactory) SQX.edgeFactory.savePatch({ portfolioLab: null, portfolioMasterContract: null }, 'portfolio-lab-reset');
@@ -545,7 +580,7 @@
     if (reset && !reset.__edgeMasterBound) {
       reset.__edgeMasterBound = true;
       reset.addEventListener('click', function() {
-        ['edge-master-forward-input', 'edge-master-series-input', 'edge-master-account-input'].forEach(function(id) {
+        ['edge-master-forward-input', 'edge-master-series-input', 'edge-master-account-input', 'edge-master-broker-input'].forEach(function(id) {
           var node = byId(id);
           if (node) node.value = '';
         });

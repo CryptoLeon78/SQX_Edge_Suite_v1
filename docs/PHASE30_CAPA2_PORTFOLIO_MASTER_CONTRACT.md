@@ -22,6 +22,8 @@ Actual SQX artifact generation remains blocked until governed Lab output and ope
 
 Current input status: `pending_inputs`. Missing inputs are governed Lab output, natural Forward CSV, comparable equity/return series, account context and broker context. The gate must not fabricate winners, fabricate input files, infer lot sizes, run SQX, rerun retests, optimize or generate Portfolio Master artifacts.
 
+Edge Factory readback mirrors this contract with five explicit prerequisites. Account context and broker/symbol context are separated, the browser state exposes `portfolio-master-inputs-pending-v1`, and built-in examples are marked `Example Only` so they cannot unlock operator review.
+
 ## Guardrails
 
 - No SQX execution, smoke, retest rerun, optimization or Portfolio Master artifact generation in this phase.

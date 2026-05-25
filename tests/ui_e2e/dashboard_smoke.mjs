@@ -428,7 +428,11 @@ async function run() {
     await desktop.waitForFunction(() => document.getElementById('edge-portfolio-results')?.innerText.toUpperCase().includes('SIMILAR'));
     await desktop.waitForFunction(() => {
       const state = JSON.parse(localStorage.getItem('sqx_edge_factory_state_v1') || '{}');
-      return state.portfolioLab && state.portfolioLab.winners > 0 && (state.completedSteps || []).includes('portfolio');
+      return state.portfolioLab &&
+        state.portfolioLab.winners > 0 &&
+        state.portfolioMasterContract &&
+        state.portfolioMasterContract.status === 'blocked_pending_operator_inputs' &&
+        !(state.completedSteps || []).includes('portfolio');
     });
     await desktop.locator('#edge-portfolio-export-csv').click();
     await saveShot(desktop, 'e2e-edge-factory-desktop.png');

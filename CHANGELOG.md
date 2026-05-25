@@ -6,6 +6,7 @@
 - Records local evidence `phase30_capa2_portfolio_master_inputs_pending_20260525_154242.json` with `processes=[]`, `cfxGuard=true`, no Capa2 `.cfx` mutation and all five required operator inputs still missing.
 - Keeps Portfolio Master blocked until governed Lab output, natural Forward CSV, comparable equity/return series, account context and broker context exist.
 - Prevents fake winners, fake inputs, lot sizing, SQX execution, smoke/retest/optimization, artifact generation and `FitPortfolio` drift while inputs are pending.
+- Aligns Edge Factory Portfolio Master readback with the five-input pending contract, separates account and broker context, exposes `portfolio-master-inputs-pending-v1`, and marks browser examples as `Example Only` so samples cannot unlock operator review.
 
 ## 2026-05-25 - C1-CONFIG1 Capa2 Portfolio Master Contract
 

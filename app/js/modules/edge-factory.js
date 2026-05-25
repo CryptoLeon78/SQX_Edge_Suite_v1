@@ -6,6 +6,7 @@
   var FALLBACK_KEY = 'sqx_edge_factory_state_v1';
   var PORTFOLIO_LAB_VERSION = 'portfolio-lab-governed-v1';
   var PORTFOLIO_MASTER_VERSION = 'portfolio-master-contract-v1';
+  var PORTFOLIO_MASTER_INPUTS_VERSION = 'portfolio-master-inputs-pending-v1';
   var PORTFOLIO_TARGET_MIN = 8;
   var PORTFOLIO_TARGET_MAX = 12;
   var PORTFOLIO_MASTER_MIN_OBSERVATIONS = 3;
@@ -321,7 +322,6 @@
     }));
     var master = buildPortfolioMasterContract({ labReport: clean });
     var completed = clean.total ? ['capa2-analyze'] : [];
-    if (clean.riskPlan && clean.riskPlan.status === 'target-ready') completed.push('portfolio');
     return saveEvent({ portfolioLab: clean, portfolioMasterContract: master }, completed, 'portfolio', 'edge-factory-portfolio-lab');
   }
 
@@ -691,6 +691,7 @@
       row.forwardSource = valueByAliases(row, ['forwardSource', 'Forward Source', 'Foward Source', 'source', 'Source', 'databank', 'Databank', 'Result Databank', 'Output', 'output', 'Stage', 'Test']) || row.sourceDatabank;
       row.forwardStatus = valueByAliases(row, ['forwardStatus', 'Forward Status', 'status', 'Status', 'result', 'Result', 'Filters Result', 'passed', 'Passed']);
       row.passSource = valueByAliases(row, ['passSource', 'Pass Source', 'resultSource', 'Result Source', 'validationMode', 'Validation Mode', 'passType', 'Pass Type']);
+      row.sampleOnly = markerIsExplicitTrue(valueByAliases(row, ['exampleOnly', 'Example Only', 'sampleOnly', 'Sample Only', 'demoOnly', 'Demo Only']));
       row.equitySeries = parsePortfolioSeries(valueByAliases(row, ['equitySeries', 'Equity Series', 'EquityCurve', 'Equity Curve', 'Balance Curve']));
       row.returnSeries = parsePortfolioSeries(valueByAliases(row, ['returnSeries', 'Return Series', 'Returns', 'returns', 'Monthly Returns']));
       row.forwardContract = portfolioForwardContract(row);
@@ -790,6 +791,7 @@
       netProfit: roundMetric(row.netProfit, 2),
       equitySeries: Array.isArray(row.equitySeries) ? row.equitySeries.slice(0, 240) : [],
       returnSeries: Array.isArray(row.returnSeries) ? row.returnSeries.slice(0, 240) : [],
+      sampleOnly: !!row.sampleOnly || markerIsExplicitTrue(valueByAliases(row, ['exampleOnly', 'Example Only', 'sampleOnly', 'Sample Only', 'demoOnly', 'Demo Only'])),
       forwardSource: contract.source,
       forwardStatus: contract.status,
       passSource: contract.passSource,
@@ -1066,7 +1068,9 @@
       provided: false,
       status: 'blocked',
       publicSummary: '',
+      accountType: '',
       accountModel: '',
+      environment: '',
       brokerProfile: '',
       executionModel: '',
       baseCurrency: '',
@@ -1088,19 +1092,31 @@
       output.publicSummary = sanitizePrivateText(context, '', 260);
       output.privateFieldsRemoved += countPrivacyMarkers(context);
     }
-    output.provided = !!(output.publicSummary || output.accountModel || output.brokerProfile || output.executionModel || output.baseCurrency || output.riskBudgetMode || output.leverageMode);
+    output.provided = !!(output.publicSummary || output.accountType || output.accountModel || output.environment || output.brokerProfile || output.executionModel || output.baseCurrency || output.riskBudgetMode || output.leverageMode);
     output.status = output.provided ? 'ready' : 'blocked';
     return output;
+  }
+
+  function sanitizePortfolioMasterContext(context, kind) {
+    var clean = sanitizeAccountBrokerContext(context);
+    var accountProvided = !!(clean.publicSummary || clean.accountType || clean.accountModel || clean.environment || clean.baseCurrency || clean.riskBudgetMode);
+    var brokerProvided = !!(clean.publicSummary || clean.brokerProfile || clean.executionModel || clean.leverageMode);
+    clean.kind = kind;
+    clean.provided = kind === 'broker' ? brokerProvided : accountProvided;
+    clean.status = clean.provided ? 'ready' : 'blocked';
+    return clean;
   }
 
   function buildForwardCsvReadback(input, selected) {
     var rows = parseMasterRows(input);
     var byKey = {};
     var validRows = 0;
+    var sampleRows = 0;
     rows.forEach(function(row) {
       var key = portfolioIdentity(row);
-      if (row.eligibleForPortfolio) validRows += 1;
-      if (key && row.eligibleForPortfolio && !byKey[key]) byKey[key] = row;
+      if (row.sampleOnly) sampleRows += 1;
+      if (row.eligibleForPortfolio && !row.sampleOnly) validRows += 1;
+      if (key && row.eligibleForPortfolio && !row.sampleOnly && !byKey[key]) byKey[key] = row;
     });
     var missing = (selected || []).filter(function(row) {
       return !byKey[portfolioIdentity(row)];
@@ -1113,12 +1129,13 @@
       status: status,
       rowCount: rows.length,
       validRows: validRows,
-      rejectedRows: Math.max(0, rows.length - validRows),
+      sampleRows: sampleRows,
+      rejectedRows: Math.max(0, rows.length - validRows - sampleRows),
       matchedPortfolioWinners: Math.max(0, selectedCount - missing.length),
       missingPortfolioWinners: missing.slice(0, 12),
       detail: status === 'ready'
         ? 'Forward/Foward CSV reconciliado con la shortlist portfolio.'
-        : (rows.length ? 'Faltan ganadores de la shortlist en el CSV Forward/Foward.' : 'Falta CSV Forward/Foward de readback.')
+        : (sampleRows ? 'CSV de ejemplo detectado; falta evidencia Forward/Foward real del operador.' : (rows.length ? 'Faltan ganadores de la shortlist en el CSV Forward/Foward.' : 'Falta CSV Forward/Foward de readback.'))
     };
   }
 
@@ -1216,7 +1233,8 @@
     var labReady = !!(lab && lab.version === PORTFOLIO_LAB_VERSION && lab.total && selected.length >= PORTFOLIO_TARGET_MIN && selected.length <= PORTFOLIO_TARGET_MAX);
     var forwardCsv = buildForwardCsvReadback(payload.forwardCsv || payload.forwardRows || '', selected);
     var comparableSeries = buildComparableSeriesReadback(payload.comparableSeriesCsv || payload.comparableSeries || payload.returnSeriesCsv || payload.equityReturns || '', selected);
-    var accountBrokerContext = sanitizeAccountBrokerContext(payload.accountBrokerContext || payload.accountContext || payload.brokerContext || '');
+    var accountContext = sanitizePortfolioMasterContext(payload.accountContext || payload.accountBrokerContext || '', 'account');
+    var brokerContext = sanitizePortfolioMasterContext(payload.brokerContext || payload.accountBrokerContext || '', 'broker');
     var requiredInputs = [
       requirement(
         'lab-report',
@@ -1227,10 +1245,16 @@
       requirement('forward-csv', 'Forward CSV readback', forwardCsv.status, forwardCsv.detail),
       requirement('comparable-equity-returns', 'Equity/returns comparables', comparableSeries.status, comparableSeries.detail),
       requirement(
-        'account-broker-context',
-        'Contexto cuenta/broker publico',
-        accountBrokerContext.status,
-        accountBrokerContext.provided ? 'Contexto publico suficiente para readback.' : 'Falta contexto cuenta/broker sin campos privados.'
+        'account-context',
+        'Contexto cuenta publico',
+        accountContext.status,
+        accountContext.provided ? 'Contexto publico de cuenta suficiente para readback.' : 'Falta contexto de cuenta sin campos privados.'
+      ),
+      requirement(
+        'broker-context',
+        'Contexto broker/simbolos publico',
+        brokerContext.status,
+        brokerContext.provided ? 'Contexto publico broker/simbolos suficiente para readback.' : 'Falta contexto broker/simbolos sin campos privados.'
       )
     ];
     var blockedReasons = requiredInputs.filter(function(item) {
@@ -1247,6 +1271,16 @@
       sourceDatabank: lab ? lab.sourceDatabank : 'Foward',
       status: ready ? 'ready_for_master_review' : 'blocked_pending_operator_inputs',
       statusLabel: ready ? 'listo para readback en Portfolio Master' : 'bloqueado por prerrequisitos',
+      inputIntake: {
+        version: PORTFOLIO_MASTER_INPUTS_VERSION,
+        phase: 'phase30_capa2_portfolio_master_inputs_pending',
+        status: ready ? 'ready_for_operator_review' : 'pending_inputs',
+        readyForOperatorReview: ready,
+        providedInputs: requiredInputs.filter(function(item) { return item.status === 'ready'; }).map(function(item) { return item.id; }),
+        missingInputs: requiredInputs.filter(function(item) { return item.status !== 'ready'; }).map(function(item) { return item.id; }),
+        cfxGuardRequired: true,
+        processesRequired: []
+      },
       artifactGenerationStatus: 'blocked',
       artifactGenerationAllowed: false,
       sqxExecutionAllowed: false,
@@ -1269,7 +1303,12 @@
       inputReadback: {
         forwardCsv: forwardCsv,
         comparableSeries: comparableSeries,
-        accountBrokerContext: accountBrokerContext
+        accountContext: accountContext,
+        brokerContext: brokerContext,
+        accountBrokerContext: {
+          status: accountContext.status === 'ready' && brokerContext.status === 'ready' ? 'ready' : 'blocked',
+          privateFieldsRemoved: accountContext.privateFieldsRemoved + brokerContext.privateFieldsRemoved
+        }
       },
       outputReadback: {
         contract: 'sanitized-readback-only',
@@ -1301,7 +1340,7 @@
         publicSafe: true,
         rawLocalPathsAllowed: false,
         privateFieldsAllowed: false,
-        privateFieldsRemoved: accountBrokerContext.privateFieldsRemoved
+        privateFieldsRemoved: accountContext.privateFieldsRemoved + brokerContext.privateFieldsRemoved
       },
       readbackSteps: [
         { id: 'master-prerequisites', label: 'Confirmar prerrequisitos Portfolio Master', status: ready ? 'ready' : 'blocked' },
@@ -1420,6 +1459,7 @@
     version: VERSION,
     portfolioLabVersion: PORTFOLIO_LAB_VERSION,
     portfolioMasterVersion: PORTFOLIO_MASTER_VERSION,
+    portfolioMasterInputsVersion: PORTFOLIO_MASTER_INPUTS_VERSION,
     storageKey: storageKey,
     defaultState: defaultState,
     getState: readState,
