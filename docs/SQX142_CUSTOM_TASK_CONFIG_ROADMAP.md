@@ -1,7 +1,8 @@
 # SQX142 Custom Task Config Roadmap
 
-Estado: C1-CONFIG1 con Fase 25
-`Capa2 Synthetic` cerrada el 2026-05-25 con
+Estado: C1-CONFIG1 con Fase 26
+`Capa2 SPP` cerrada el 2026-05-25 con
+`phase26_capa2_spp_target_20260525_123915.json`, despues de cerrar
 `phase25_capa2_synthetic_target_20260525_111540.json`, despues de cerrar
 `phase24_capa2_monkey_target_20260525_105731.json`, despues de cerrar
 `phase23_capa2_sequential_target_20260525_032418.json`, despues de cerrar
@@ -108,7 +109,18 @@ especial `MC SYNTHETIC RETEST`, `testPrecision=1 fastest`,
 `SyntheticBootstrapV3`, 100 simulaciones, muestra completa,
 `MCBacktestPrecision=-1`, `BlockSize=20`, `WarmupBars=200`, `PreservePct=85`,
 sin portfolio/custom-analysis/ranking filters y `ExitAfterBars=false` con
-SL/PT/trailing activos. El siguiente bloque exacto es `phase26_capa2_spp`.
+SL/PT/trailing activos. SPP Capa2 queda cerrado como
+`AutomaticRetest-Task4.xml`, `Input=Syntetic`, `Output=SPP`, view
+`RETEST ROBUST REVIEW`, periodo `ROBUSTNESS_C2 2017.10.02-2023.12.31`,
+portador dual `Data+CustomData`, data Darwinex `AUDCAD_darwinex` source `4`
+broker `4`, `testPrecision=1 fastest`, `No Session`, sin OOS interno, solo
+`OptProfileSysParamPermutation` activo (`MaxTests=3000`,
+`DistributionUp=20`, `DistributionDown=20`, `Steps=25`), aceptacion
+`NetProfit >= 50%` y `DrawdownPct <= 200%` frente a main, sin metodos
+activos, sin portfolio/custom-analysis/ranking filters y
+`ExitAfterBars=false` con SL/PT/trailing activos. `currentPhase=phase26_capa2_spp`;
+`nextPhase=phase27_capa2_wfm`. El siguiente bloque exacto es
+`phase27_capa2_wfm`.
 Capa1 Fastest Precision Correction Before Capa2 SPP queda aplicada como
 correccion importante tras `phase25_capa2_synthetic` y antes de empezar
 `phase26_capa2_spp`: Capa1 MC, MC2, Sequential, Monkey, Synthetic, SPP and
@@ -2730,6 +2742,41 @@ Siguiente bloque exacto: `phase25_capa2_synthetic`.
   `nextPhase=phase26_capa2_spp`, `scope=capa2`.
 
 Siguiente bloque exacto: `phase26_capa2_spp`.
+
+## Estado Fase 26 - Capa2 SPP
+
+- `phase26_capa2_spp` queda cerrada con
+  `phase26_capa2_spp_target_20260525_123915.json`.
+- Comando aplicado: `capa2-spp-target --target both --apply`, con dry-run
+  previo, backup/diff local, dry-run posterior idempotente y `processes=[]`.
+- Contrato tecnico: `AutomaticRetest-Task4.xml`, `Input=Syntetic`,
+  `Output=SPP`, view `RETEST ROBUST REVIEW`, `ROBUSTNESS_C2
+  2017.10.02-2023.12.31`, portador dual `Data+CustomData`,
+  `testPrecision=1 fastest`, `No Session`, sin OOS interno.
+- Contrato de datos: SPP queda en Darwinex (`AUDCAD_darwinex`, source `4`,
+  broker `4`); Dukascopy sigue limitado a `phase19_capa2_retest1`.
+- Contrato de robustez: `CrossChecks use=true/evaluateAll=true`, solo
+  `OptProfileSysParamPermutation` activo con `MaxTests=3000`,
+  `DistributionUp=20`, `DistributionDown=20`, `Steps=25`, aceptacion
+  `NetProfit >= 50%` y `DrawdownPct <= 200%` frente a main, y cero metodos
+  activos.
+- Contrato anti-overfit: `StrategyType` pasivo desde `Syntetic`, sin
+  `FitPortfolio`, sin `CustomAnalysis`, sin condiciones de Rankings, sin split
+  OOS interno, sin ejecucion SQX y sin forzar estados de resultado.
+- Contrato Capa2 de salidas: `ExitAfterBars=false` y SL/PT/trailing activos.
+- `generator_profiles.json` mapea layer 2 `AutomaticRetest-Task4.xml` a
+  `ROBUSTNESS_C2`, y `CAPA2_NO_EXIT_AFTER_BARS_TASKS` protege que la
+  generacion no reactive `ExitAfterBars`.
+- Politica aclarada: SPP y WFM siguen con precision-data `fastest`; Forward
+  vuelve a precision tick.
+- Ambos targets quedan idempotentes tras apply: `changedActionCount=0`,
+  `guardOk=true`, `issues=[]`, `warnings=[]`, `processes=[]`.
+- No hubo lanzamiento SQX, smoke, optimizacion ni ejecucion real; no se fuerza
+  `Results=passed`.
+- El estado local queda en `currentPhase=phase26_capa2_spp`,
+  `nextPhase=phase27_capa2_wfm`, `scope=capa2`.
+
+Siguiente bloque exacto: `phase27_capa2_wfm`.
 
 ## Disciplina Operativa
 

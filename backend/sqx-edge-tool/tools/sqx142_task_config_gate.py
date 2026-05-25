@@ -57,6 +57,10 @@ PHASES = [
     {"id": "phase21", "label": "Capa2 MC validation gate"},
     {"id": "phase22", "label": "Capa2 MC2 validation gate"},
     {"id": "phase23", "label": "Capa2 Sequential validation gate"},
+    {"id": "phase24", "label": "Capa2 Monkey validation gate"},
+    {"id": "phase25", "label": "Capa2 Synthetic validation gate"},
+    {"id": "phase26", "label": "Capa2 SPP validation gate"},
+    {"id": "phase27", "label": "Capa2 WFM validation gate"},
 ]
 
 SECTION_ALIASES = {
@@ -15866,6 +15870,7 @@ CAPA2_MC_NEXT = "phase22_capa2_mc2"
 CAPA2_MC2_NEXT = "phase23_capa2_sequential"
 CAPA2_SEQUENTIAL_NEXT = "phase24_capa2_monkey"
 CAPA2_MONKEY_NEXT = "phase25_capa2_synthetic"
+CAPA2_SPP_NEXT = "phase27_capa2_wfm"
 CAPA2_BUILD_TASK_XML = "Build-Task1.xml"
 CAPA2_BUILD_TASK_TITLE = "Build strategies"
 CAPA2_RETEST0_TASK_XML = "Retest-Task1.xml"
@@ -16161,6 +16166,23 @@ CAPA2_SYNTHETIC_STRATEGY_TYPE_TARGET = {
     "improveDatabank": "Monkey Test",
 }
 CAPA2_SYNTHETIC_BANNED_TOKENS = CAPA2_MC_BANNED_TOKENS
+CAPA2_SPP_TASK_XML = "AutomaticRetest-Task4.xml"
+CAPA2_SPP_TASK_TITLE = "SPP"
+CAPA2_SPP_PERIOD_KEY = "ROBUSTNESS_C2"
+CAPA2_SPP_DATA_TEST_PRECISION = CAPA2_FASTEST_DATA_TEST_PRECISION
+CAPA2_SPP_DATABANKS_TARGET = {"Input": "Syntetic", "Output": "SPP"}
+CAPA2_SPP_RESOURCE_SYMBOL = CAPA2_MC_RESOURCE_SYMBOL
+CAPA2_SPP_RESOURCE_SPREAD = CAPA2_MC_RESOURCE_SPREAD
+CAPA2_SPP_STRATEGY_TYPE_TARGET = {
+    "type": "simple",
+    "additionalCharts": "2",
+    "templateFile": "",
+    "improveType": "strategy",
+    "strategyFile": "",
+    "architecture": "sq4",
+    "improveDatabank": "Syntetic",
+}
+CAPA2_SPP_BANNED_TOKENS = CAPA2_MC_BANNED_TOKENS
 CAPA2_BUILD_TAB_ORDER = [
     "WhatToBuild",
     "Data",
@@ -24303,6 +24325,480 @@ def promote_capa2_synthetic_target(root142: Path, project_root: Path, target: st
     return payload
 
 
+def load_capa2_spp_task_root(cfx: Path) -> tuple[str, ET.Element | None, str]:
+    task_xml, root, title = load_task_root_by_xml(cfx, CAPA2_SPP_TASK_XML)
+    if task_xml and root is not None:
+        return task_xml, root, title or CAPA2_SPP_TASK_TITLE
+    fallback_task_xml, fallback_root = load_task_root(cfx, CAPA2_SPP_TASK_TITLE)
+    return fallback_task_xml, fallback_root, CAPA2_SPP_TASK_TITLE if fallback_root is not None else ""
+
+
+def capa2_spp_summary(root: ET.Element | None) -> dict[str, Any]:
+    if root is None:
+        return {"exists": False}
+    summary = spp_static_tabs_summary(root)
+    summary["data"] = capa2_tick_real_data_summary(root)
+    summary["customData"] = capa2_retest1_custom_data_summary(root)
+    summary["databanks"] = {item.get("name", ""): item.get("value", "") for item in databank_summary(root)}
+    summary["resources"] = _tick_real_resource_summary(root)
+    summary["optionsParams"] = {
+        param.get("key", ""): (param.text or "")
+        for param in root.findall(".//BuildTradingOptions/Params/Param")
+        if param.get("key") in SPP_OPTIONS_PARAMS_TARGET
+    }
+    summary["crossChecks"] = spp_crosschecks_summary(root)
+    summary["strategyType"] = task_strategy_type_summary(root)
+    summary["buildMode"] = synthetic_passive_generation_summary(root).get("buildMode", {})
+    summary["orderTypes"] = task_order_type_detail_summary(root)
+    summary["exitTypes"] = task_exit_type_detail_summary(root)
+    return summary
+
+
+def set_capa2_spp_databanks(root: ET.Element, actions: list[dict[str, Any]]) -> None:
+    databanks = find_section(root, "Databanks")
+    if databanks is None:
+        databanks = ET.SubElement(root, "Databanks", {"retestSelected": "false"})
+        actions.append({"field": "Databanks", "from": None, "to": dict(databanks.attrib), "changed": True})
+    existing = {node.get("name", ""): node for node in databanks.findall("Databank") if node.get("name")}
+    for name, value in CAPA2_SPP_DATABANKS_TARGET.items():
+        node = existing.get(name)
+        before = dict(node.attrib) if node is not None else None
+        if node is None:
+            node = ET.SubElement(databanks, "Databank", {"name": name})
+        node.set("name", name)
+        node.set("value", value)
+        node.set("label", f"{name} databank")
+        actions.append({"field": f"Databanks/{name}:capa2-spp", "from": before, "to": dict(node.attrib), "changed": before != dict(node.attrib)})
+
+
+def normalize_capa2_spp_crosscheck_setups(root: ET.Element, actions: list[dict[str, Any]]) -> None:
+    period = generator_period(CAPA2_SPP_PERIOD_KEY)
+    before: list[dict[str, Any]] = []
+    after: list[dict[str, Any]] = []
+    for setup in root.findall(".//CrossChecks/*/Settings/Setups/Setup"):
+        before.append({"attrs": dict(setup.attrib), "charts": [dict(chart.attrib) for chart in setup.findall("Chart")]})
+        for key, wanted in {
+            "dateFrom": period[0],
+            "dateTo": period[1],
+            "testPrecision": CAPA2_SPP_DATA_TEST_PRECISION,
+            "session": SPP_DATA_SESSION,
+            "slippage": "0",
+            "minDist": "0",
+        }.items():
+            setup.set(key, wanted)
+        charts = setup.findall("Chart")
+        if not charts:
+            charts = [ET.SubElement(setup, "Chart")]
+        for chart in charts:
+            chart.attrib.clear()
+            chart.attrib.update({"symbol": CAPA2_SPP_RESOURCE_SYMBOL, "timeframe": CAPA2_BUILD_SEED_TIMEFRAME, "spread": CAPA2_SPP_RESOURCE_SPREAD})
+        after.append({"attrs": dict(setup.attrib), "charts": [dict(chart.attrib) for chart in setup.findall("Chart")]})
+    actions.append({"field": "CrossChecks/*/Settings/Setups/Setup:capa2-spp", "from": before, "to": after, "changed": before != after})
+
+
+def apply_capa2_spp_crosschecks_to_root(root: ET.Element) -> list[dict[str, Any]]:
+    actions: list[dict[str, Any]] = []
+    parent = find_section(root, "CrossChecks")
+    if parent is None:
+        parent = ET.SubElement(root, "CrossChecks")
+        actions.append({"field": "CrossChecks", "from": None, "to": dict(parent.attrib), "changed": True})
+    set_attrs_on_node(parent, SPP_CROSSCHECK_PARENT_TARGET, actions, "CrossChecks:attrs")
+    active = parent.find(SPP_ACTIVE_CROSSCHECK)
+    if active is None:
+        active = ET.SubElement(parent, SPP_ACTIVE_CROSSCHECK, {"use": "true"})
+        actions.append({"field": f"CrossChecks/{SPP_ACTIVE_CROSSCHECK}", "from": None, "to": dict(active.attrib), "changed": True})
+    for check in list(parent):
+        if not isinstance(check.tag, str) or check.get("use") is None:
+            continue
+        before_use = check.get("use", "")
+        wanted_use = "true" if check.tag == SPP_ACTIVE_CROSSCHECK else "false"
+        check.set("use", wanted_use)
+        actions.append({"field": f"CrossChecks/{check.tag}:use", "from": before_use, "to": wanted_use, "changed": before_use != wanted_use})
+        for method in check.findall("./Settings/Methods/Method"):
+            before_method = method.get("use", "")
+            method.set("use", "false")
+            actions.append({"field": f"CrossChecks/{check.tag}/Method:{method.get('type', '')}:use", "from": before_method, "to": "false", "changed": before_method != "false"})
+    settings = ensure_direct_child(active, "Settings")
+    for key, wanted in SPP_CROSSCHECK_SETTINGS_TARGET.items():
+        set_or_create_text_child(settings, key, wanted, actions, f"CrossChecks/{SPP_ACTIVE_CROSSCHECK}/Settings/{key}")
+    what_to_parametrize = settings.find("WhatToParametrize")
+    if what_to_parametrize is None:
+        what_to_parametrize = ET.SubElement(settings, "WhatToParametrize")
+        actions.append({"field": f"CrossChecks/{SPP_ACTIVE_CROSSCHECK}/WhatToParametrize", "from": None, "to": dict(what_to_parametrize.attrib), "changed": True})
+    before_attrs = dict(what_to_parametrize.attrib)
+    what_to_parametrize.attrib.clear()
+    what_to_parametrize.attrib.update(SPP_WHAT_TO_PARAMETRIZE_ATTR_TARGET)
+    actions.append({"field": f"CrossChecks/{SPP_ACTIVE_CROSSCHECK}/WhatToParametrize:attrs", "from": before_attrs, "to": dict(what_to_parametrize.attrib), "changed": before_attrs != dict(what_to_parametrize.attrib)})
+    for key, wanted in SPP_PARAMETRIZE_FLAGS_TARGET.items():
+        set_or_create_text_child(what_to_parametrize, key, wanted, actions, f"CrossChecks/{SPP_ACTIVE_CROSSCHECK}/WhatToParametrize/{key}")
+    remove_unknown_text_children(what_to_parametrize, set(SPP_PARAMETRIZE_FLAGS_TARGET), actions, f"CrossChecks/{SPP_ACTIVE_CROSSCHECK}/WhatToParametrize:unknown")
+    set_spp_acceptance_conditions(active, actions)
+    normalize_capa2_spp_crosscheck_setups(root, actions)
+    rankings = find_section(root, "Rankings")
+    if rankings is not None:
+        set_or_create_text_child(rankings, "ForceRunCrossChecks", "false", actions, "Rankings/ForceRunCrossChecks")
+    return actions
+
+
+def apply_capa2_spp_what_to_build_to_root(root: ET.Element, actions: list[dict[str, Any]]) -> None:
+    what_to_build = find_section(root, "WhatToBuild")
+    if what_to_build is None:
+        what_to_build = ET.SubElement(root, "WhatToBuild")
+        actions.append({"field": "WhatToBuild", "from": None, "to": "created", "changed": True})
+    set_or_create_attrs_child(
+        what_to_build,
+        "StrategyType",
+        CAPA2_SPP_STRATEGY_TYPE_TARGET,
+        actions,
+        "WhatToBuild/StrategyType:capa2-spp",
+    )
+    build_mode = what_to_build.find("BuildMode")
+    if build_mode is None:
+        build_mode = ET.SubElement(what_to_build, "BuildMode", {"generationType": "random-generation"})
+        actions.append({"field": "WhatToBuild/BuildMode", "from": None, "to": dict(build_mode.attrib), "changed": True})
+    else:
+        actions.append({
+            "field": "WhatToBuild/BuildMode:generationType",
+            "from": build_mode.get("generationType", ""),
+            "to": build_mode.get("generationType", ""),
+            "changed": False,
+            "note": "left as SQX-known placeholder; SPP passive behavior is enforced by Syntetic input, disabled improve parts and disabled evolution toggles",
+        })
+    for tag, value in SYNTHETIC_PASSIVE_BUILDMODE_TEXT_TARGET.items():
+        set_or_create_text_child(build_mode, tag, value, actions, f"WhatToBuild/BuildMode/{tag}")
+    for tag, attrs in SYNTHETIC_PASSIVE_BUILDMODE_ATTR_TARGET.items():
+        set_or_update_attrs_child(build_mode, tag, attrs, actions, f"WhatToBuild/BuildMode/{tag}")
+
+
+def apply_capa2_spp_target_to_root(root: ET.Element) -> list[dict[str, Any]]:
+    actions: list[dict[str, Any]] = []
+    data_setup = ensure_capa2_tick_real_setup(
+        root,
+        "Data",
+        SYNTHETIC_DATA_ENGINE,
+        actions,
+        test_precision=CAPA2_SPP_DATA_TEST_PRECISION,
+    )
+    ensure_capa2_tick_real_setup(
+        root,
+        "CustomData",
+        SYNTHETIC_CUSTOM_DATA_ENGINE,
+        actions,
+        test_precision=CAPA2_SPP_DATA_TEST_PRECISION,
+        custom_main_values=SPP_CUSTOM_DATA_MAIN_TEST_VALUES_TARGET,
+    )
+    ensure_capa2_tick_real_resources(root, data_setup, actions)
+    set_capa2_spp_databanks(root, actions)
+    for key, value in SPP_OPTIONS_PARAMS_TARGET.items():
+        set_or_create_option_param_text(root, key, value, actions, "Options")
+    actions.extend(apply_capa2_spp_crosschecks_to_root(root))
+    apply_retest1_parts_to_improve_to_root(root, actions)
+    apply_capa2_spp_what_to_build_to_root(root, actions)
+    apply_capa2_mc_blocks_to_root(root, actions)
+    blocks = find_blocks(root)
+    if blocks is not None:
+        enforce_disabled_build_block_categories(blocks, actions)
+    apply_spp_rankings_to_root(root, actions)
+    apply_capa2_retest_risk_money_management_to_root(root, actions)
+    apply_mc_atms_to_root(root, actions)
+    apply_mc_selected_strategies_to_root(root, actions)
+    actions.append({"field": "Notes", "changed": False, "sha256": section_sha256(root, "Notes"), "note": "audited and preserved"})
+    return actions
+
+
+def capa2_spp_generator_period_issues() -> list[str]:
+    config = read_json(GENERATOR_PROFILES_PATH, {})
+    periods = config.get("retestPeriods") or {}
+    layer2 = (config.get("taskPeriodMaps") or {}).get("2") or {}
+    cross = (config.get("crossBrokerRetests") or {}).get("2") or {}
+    disabled_ranges = set(((config.get("disableTradingTimeRanges") or {}).get("2") or []))
+    issues: list[str] = []
+    if periods.get(CAPA2_SPP_PERIOD_KEY) != ["2017.10.02", "2023.12.31"]:
+        issues.append(f"generator_profiles.json retestPeriods.{CAPA2_SPP_PERIOD_KEY} must be 2017.10.02-2023.12.31")
+    if layer2.get(CAPA2_SPP_TASK_XML) != CAPA2_SPP_PERIOD_KEY:
+        issues.append(f"generator_profiles.json taskPeriodMaps.2.{CAPA2_SPP_TASK_XML} must map to {CAPA2_SPP_PERIOD_KEY}")
+    if CAPA2_SPP_TASK_XML in cross:
+        issues.append(f"generator_profiles.json must not cross-broker route {CAPA2_SPP_TASK_XML}; Capa2 SPP stays Darwinex/SQ default")
+    if CAPA2_SPP_TASK_XML not in disabled_ranges:
+        issues.append(f"generator_profiles.json disableTradingTimeRanges.2 must include {CAPA2_SPP_TASK_XML}")
+    return issues
+
+
+def enforce_capa2_spp_guard(root: ET.Element | None, target_name: str) -> list[str]:
+    if root is None:
+        return [f"{target_name}: Capa2 SPP task missing"]
+    issues: list[str] = []
+    period = generator_period(CAPA2_SPP_PERIOD_KEY)
+    summary = capa2_spp_summary(root)
+    for label in ("data", "customData"):
+        carrier = summary.get(label) or {}
+        setup = carrier.get("setup") or {}
+        chart = carrier.get("chart") or {}
+        if setup.get("dateFrom") != period[0] or setup.get("dateTo") != period[1]:
+            issues.append(f"{target_name}: Capa2 SPP {label} dates must be {CAPA2_SPP_PERIOD_KEY} {period[0]}-{period[1]}")
+        if setup.get("testPrecision") != CAPA2_SPP_DATA_TEST_PRECISION:
+            issues.append(f"{target_name}: Capa2 SPP {label} testPrecision must be fastest code {CAPA2_SPP_DATA_TEST_PRECISION}")
+        if setup.get("session") != SPP_DATA_SESSION:
+            issues.append(f"{target_name}: Capa2 SPP {label} session must be No Session")
+        if chart != {"symbol": CAPA2_SPP_RESOURCE_SYMBOL, "timeframe": CAPA2_BUILD_SEED_TIMEFRAME, "spread": CAPA2_SPP_RESOURCE_SPREAD}:
+            issues.append(f"{target_name}: Capa2 SPP {label} chart seed drifted: {chart!r}")
+    if (summary.get("data") or {}).get("outOfSampleRanges"):
+        issues.append(f"{target_name}: Capa2 SPP must not add an internal OOS split")
+    if (summary.get("customData") or {}).get("mainTestValues") != SPP_CUSTOM_DATA_MAIN_TEST_VALUES_TARGET:
+        issues.append(f"{target_name}: Capa2 SPP CustomData MainTestValues drifted")
+    if (summary.get("databanks") or {}) != CAPA2_SPP_DATABANKS_TARGET:
+        issues.append(f"{target_name}: Capa2 SPP databanks are {summary.get('databanks')!r}, expected {CAPA2_SPP_DATABANKS_TARGET!r}")
+    resources = summary.get("resources") or {}
+    symbols = resources.get("symbols") or []
+    if {item.get("name") for item in symbols} != {CAPA2_SPP_RESOURCE_SYMBOL}:
+        issues.append(f"{target_name}: Capa2 SPP resources must contain only {CAPA2_SPP_RESOURCE_SYMBOL}")
+    if any(item.get("source") != CAPA2_BUILD_RESOURCE_SOURCE_ID or item.get("broker") != CAPA2_BUILD_RESOURCE_BROKER_ID for item in symbols):
+        issues.append(f"{target_name}: Capa2 SPP resources must use Darwinex source 4 / broker 4")
+    if resources.get("sessions"):
+        issues.append(f"{target_name}: Capa2 SPP resources must not keep sessions")
+    if (summary.get("optionsParams") or {}) != SPP_OPTIONS_PARAMS_TARGET:
+        issues.append(f"{target_name}: Capa2 SPP options drifted: {summary.get('optionsParams')!r}")
+    cross = summary.get("crossChecks") or {}
+    if (cross.get("attributes") or {}) != SPP_CROSSCHECK_PARENT_TARGET:
+        issues.append(f"{target_name}: Capa2 SPP CrossChecks attrs drifted: {cross.get('attributes')!r}")
+    if cross.get("active") != [SPP_ACTIVE_CROSSCHECK]:
+        issues.append(f"{target_name}: Capa2 SPP active crosschecks are {cross.get('active')!r}, expected [{SPP_ACTIVE_CROSSCHECK!r}]")
+    checks = {item.get("id"): item for item in cross.get("checks") or []}
+    active = checks.get(SPP_ACTIVE_CROSSCHECK) or {}
+    if active.get("activeMethodTypes"):
+        issues.append(f"{target_name}: Capa2 SPP {SPP_ACTIVE_CROSSCHECK} must not have active methods")
+    settings = active.get("settings") or {}
+    for key, wanted in SPP_CROSSCHECK_SETTINGS_TARGET.items():
+        if settings.get(key) != wanted:
+            issues.append(f"{target_name}: Capa2 SPP {key} is {settings.get(key)!r}, expected {wanted!r}")
+    if (settings.get("WhatToParametrize") or {}) != SPP_WHAT_TO_PARAMETRIZE_ATTR_TARGET:
+        issues.append(f"{target_name}: Capa2 SPP WhatToParametrize attrs drifted")
+    if (settings.get("ParametrizeFlags") or {}) != SPP_PARAMETRIZE_FLAGS_TARGET:
+        issues.append(f"{target_name}: Capa2 SPP ParametrizeFlags drifted")
+    if (active.get("acceptanceSettings") or {}) != SPP_ACCEPTANCE_SETTINGS_TARGET:
+        issues.append(f"{target_name}: Capa2 SPP AcceptanceSettings drifted")
+    if not spp_acceptance_conditions_ok(root):
+        issues.append(f"{target_name}: Capa2 SPP acceptance conditions drifted from OptProfileSysParamPermutation policy")
+    for check in cross.get("checks") or []:
+        if check.get("id") == SPP_ACTIVE_CROSSCHECK:
+            continue
+        if check.get("activeMethodTypes"):
+            issues.append(f"{target_name}: inactive Capa2 SPP crosscheck {check.get('id')} still has active methods")
+    for nested_setup in root.findall(".//CrossChecks/*/Settings/Setups/Setup"):
+        if nested_setup.get("dateFrom") != period[0] or nested_setup.get("dateTo") != period[1]:
+            issues.append(f"{target_name}: Capa2 SPP nested CrossChecks dates drifted")
+        if nested_setup.get("testPrecision") != CAPA2_SPP_DATA_TEST_PRECISION:
+            issues.append(f"{target_name}: Capa2 SPP nested CrossChecks precision must be fastest code {CAPA2_SPP_DATA_TEST_PRECISION}")
+    parts = synthetic_passive_generation_summary(root).get("partsToImprove") or {}
+    for group_name in ("EntryRules", "OrderTypes", "ExitRules"):
+        group = parts.get(group_name) or {}
+        for side in ("LongImprovement", "ShortImprovement"):
+            if (group.get(side) or {}).get("use") != "false":
+                issues.append(f"{target_name}: Capa2 SPP {group_name}/{side} must be passive use=false")
+    if task_strategy_type_summary(root) != CAPA2_SPP_STRATEGY_TYPE_TARGET:
+        issues.append(f"{target_name}: Capa2 SPP StrategyType must point passively to Syntetic")
+    build_text = (summary.get("buildMode") or {}).get("text") or {}
+    for tag, value in SYNTHETIC_PASSIVE_BUILDMODE_TEXT_TARGET.items():
+        if build_text.get(tag) != value:
+            issues.append(f"{target_name}: Capa2 SPP BuildMode {tag} is {build_text.get(tag)!r}, expected {value!r}")
+    order = task_order_type_summary(root)
+    if {key: order.get(key) for key in CAPA2_BUILD_BLOCKS_ORDER_TARGET} != CAPA2_BUILD_BLOCKS_ORDER_TARGET:
+        issues.append(f"{target_name}: Capa2 SPP order types drifted from EnterAtMarket-only contract")
+    exits = task_exit_type_detail_summary(root)
+    if (exits.get("ExitAfterBars.ExitAfterBars") or {}).get("use") != "false":
+        issues.append(f"{target_name}: Capa2 SPP ExitAfterBars must stay false")
+    for key in CAPA2_MC_ALLOWED_ACTIVE_EXITS:
+        if (exits.get(key) or {}).get("use") != "true":
+            issues.append(f"{target_name}: Capa2 SPP {key} must stay active")
+    ranking = summary.get("rankings") or {}
+    if ranking.get("type") != "never":
+        issues.append(f"{target_name}: Capa2 SPP Rankings type must be never")
+    for key in ("DeleteFailedStrategies", "ForceRunCrossChecks"):
+        if ranking.get(key) != "false":
+            issues.append(f"{target_name}: Capa2 SPP Rankings {key} must be false")
+    if (ranking.get("FitPortfolio") or {}).get("active") != "false":
+        issues.append(f"{target_name}: Capa2 SPP FitPortfolio must stay disabled")
+    if (ranking.get("CustomAnalysis") or {}).get("filter") != "false":
+        issues.append(f"{target_name}: Capa2 SPP CustomAnalysis must stay disabled")
+    if ranking.get("conditions"):
+        issues.append(f"{target_name}: Capa2 SPP Rankings must not add extra conditions")
+    rmm = task_risk_method_summary(root)
+    for method_name, wanted in CAPA2_RETEST1_RISK_MONEY_MANAGEMENT_METHOD_TARGET.items():
+        if rmm.get(method_name) != wanted:
+            issues.append(f"{target_name}: Capa2 SPP RiskMoneyManagement {method_name} is {rmm.get(method_name)!r}, expected {wanted!r}")
+    atms = find_section(root, "ATMs")
+    if atms is not None and atms.get("enable") != "false":
+        issues.append(f"{target_name}: Capa2 SPP ATMs must stay disabled")
+    selected = find_section(root, "SelectedStrategies")
+    if selected is not None and ((selected.text or "").strip() or list(selected)):
+        issues.append(f"{target_name}: Capa2 SPP SelectedStrategies must stay empty")
+    guarded_text = serialize_xml(root)
+    for token in CAPA2_SPP_BANNED_TOKENS:
+        if token in guarded_text:
+            issues.append(f"{target_name}: Forbidden token leaked into Capa2 SPP: {token}")
+    if re.search(r"[A-Za-z]:\\", guarded_text):
+        issues.append(f"{target_name}: local absolute path leaked into Capa2 SPP")
+    issues.extend(capa2_spp_generator_period_issues())
+    return issues
+
+
+def update_capa2_spp_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "sha256Before": file_sha256(cfx) if cfx.is_file() else "",
+        "actions": [],
+        "backup": "",
+        "willWrite": apply,
+    }
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        payload["error"] = "missing_or_not_zip"
+        return payload
+    config_before = ""
+    config_after = ""
+    config_actions: list[dict[str, Any]] = []
+    config_issues: list[str] = []
+    with zipfile.ZipFile(cfx, "r") as zf:
+        config_before = safe_zip_text(zf, "config.xml")
+        config_root = xml_root_from_zip(zf, "config.xml")
+    if config_root is None:
+        config_issues.append("config.xml missing")
+    else:
+        databank = next((node for node in config_root.findall(".//Databank") if node.get("name") == CAPA2_SPP_DATABANKS_TARGET["Output"]), None)
+        if databank is None:
+            config_issues.append("config.xml SPP databank missing")
+        else:
+            before_view = databank.get("view", "")
+            wanted_view = VIEW_PROMOTION_TARGETS[CAPA2_SPP_DATABANKS_TARGET["Output"]]
+            databank.set("view", wanted_view)
+            config_actions.append({"field": "config.xml/Databanks/SPP:view", "from": before_view, "to": wanted_view, "changed": before_view != wanted_view})
+        config_after = serialize_xml(config_root)
+    payload["configActions"] = config_actions
+    task_xml_name, root, title = load_capa2_spp_task_root(cfx)
+    payload["taskXml"] = task_xml_name
+    payload["displayTitle"] = title
+    if not task_xml_name or root is None:
+        payload["error"] = "capa2_spp_task_not_found"
+        payload["sha256After"] = payload["sha256Before"]
+        return payload
+    before_text = serialize_xml(root)
+    payload["before"] = capa2_spp_summary(root)
+    payload["actions"] = apply_capa2_spp_target_to_root(root)
+    payload["after"] = capa2_spp_summary(root)
+    payload["issues"] = config_issues + enforce_capa2_spp_guard(root, payload.get("displayTitle") or "Capa2 SPP")
+    payload["guardOk"] = not payload["issues"]
+    after_text = serialize_xml(root)
+    config_changed = bool(config_before and config_after and config_before != config_after)
+    payload["changed"] = before_text != after_text or config_changed
+    payload["changedActionCount"] = sum(1 for item in payload["actions"] if item.get("changed")) + sum(1 for item in config_actions if item.get("changed"))
+    payload["targetValues"] = {
+        "taskXml": CAPA2_SPP_TASK_XML,
+        "title": CAPA2_SPP_TASK_TITLE,
+        "period": CAPA2_SPP_PERIOD_KEY,
+        "testPrecision": CAPA2_SPP_DATA_TEST_PRECISION,
+        "precisionPolicy": "fastest for Capa2 SPP and pending robustness retests; Forward returns to tick precision.",
+        "databanks": CAPA2_SPP_DATABANKS_TARGET,
+        "dataCarrier": "Data + CustomData synchronized",
+        "view": VIEW_PROMOTION_TARGETS[CAPA2_SPP_DATABANKS_TARGET["Output"]],
+        "resource": {"symbol": CAPA2_SPP_RESOURCE_SYMBOL, "source": CAPA2_BUILD_RESOURCE_SOURCE_ID, "broker": CAPA2_BUILD_RESOURCE_BROKER_ID},
+        "activeCrossCheck": SPP_ACTIVE_CROSSCHECK,
+        "settings": SPP_CROSSCHECK_SETTINGS_TARGET,
+        "acceptanceConditions": SPP_ACCEPTANCE_CONDITIONS_TARGET,
+        "strategyType": CAPA2_SPP_STRATEGY_TYPE_TARGET,
+        "exitTypes": CAPA2_BUILD_BLOCKS_EXIT_TARGET,
+    }
+    payload["targetRationale"] = {
+        "validation": "Capa2 SPP consumes Syntetic survivors and reviews parameter sensitivity with OptProfileSysParamPermutation; it is not a search or tuning block.",
+        "antiOverfit": "No internal OOS split, no portfolio fitting, no custom analysis and no ranking filters are added.",
+        "view": "SPP uses RETEST ROBUST REVIEW; Monkey and Synthetic keep their dedicated views.",
+        "precision": "Operator decision: from MC through pending robustness retests use fastest; Forward returns to tick precision.",
+        "capa2Exits": "Capa2 keeps ExitAfterBars=false and preserves SL/PT/trailing risk exits.",
+        "naturalResults": "No SQX launch, no smoke, no optimization and no forced Results=passed.",
+    }
+    if apply and payload["changed"] and payload["guardOk"]:
+        backup = backup_file(cfx, backup_root)
+        payload["backup"] = str(backup)
+        if config_changed:
+            replace_config_xml_in_cfx(cfx, config_after)
+        if before_text != after_text:
+            replace_zip_text_entry(cfx, task_xml_name, serialize_xml(root))
+        payload["sha256After"] = file_sha256(cfx)
+    else:
+        payload["sha256After"] = payload["sha256Before"]
+    return payload
+
+
+def promote_capa2_spp_target(root142: Path, project_root: Path, target: str, apply: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    previous_gate = promote_capa2_synthetic_target(root142, project_root, target=target, apply=False)
+    issues = list(previous_gate.get("issues") or [])
+    if previous_gate.get("ok") is not True:
+        issues.append("capa2-synthetic-target: previous gate ok=false")
+    process_probe = process_snapshot()
+    if process_probe.get("processes"):
+        issues.append("SQX processes are alive; close SQX before applying phase26 Capa2 SPP")
+    backup_root = ledger_root(project_root) / "backups" / f"phase26_capa2_spp_{stamp()}"
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = capa2_base_project_path(root142)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_CAPA2_TEMPLATE
+    results = {name: update_capa2_spp_target_in_cfx(path, backup_root / name, apply=apply) for name, path in targets.items()}
+    for target_name, result in results.items():
+        for issue in result.get("issues") or []:
+            issues.append(f"{target_name}: {issue}")
+    payload: dict[str, Any] = {
+        "ok": not issues and all(item.get("exists") and item.get("isZip") and not item.get("error") and item.get("guardOk") for item in results.values()),
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase26_capa2_spp",
+        "operation": "capa2_spp_target",
+        "apply": apply,
+        "target": target,
+        "previousGate": {
+            "phase": previous_gate.get("phase"),
+            "ok": previous_gate.get("ok"),
+            "issues": previous_gate.get("issues", []),
+            "warnings": previous_gate.get("warnings", []),
+            "nextPhase": previous_gate.get("nextPhase"),
+            "written": previous_gate.get("written", ""),
+        },
+        "processProbe": process_probe,
+        "issues": issues,
+        "warnings": [],
+        "results": results,
+        "summary": {
+            "decision": "Close Capa2 SPP as validation-only OptProfileSysParamPermutation gate after Synthetic/Syntetic.",
+            "taskXml": CAPA2_SPP_TASK_XML,
+            "chain": "Input=Syntetic, Output=SPP.",
+            "data": f"Darwinex ROBUSTNESS_C2 window 2017.10.02-2023.12.31, testPrecision={CAPA2_SPP_DATA_TEST_PRECISION} fastest, Data+CustomData, No Session.",
+            "crossChecks": "CrossChecks use=true/evaluateAll=true; only OptProfileSysParamPermutation active with dedicated SPP NetProfit/DrawdownPct acceptance rows.",
+            "view": "config.xml databank SPP uses RETEST ROBUST REVIEW.",
+            "passive": "StrategyType reads Syntetic passively; PartsToImprove/fresh-blood/evolution are inactive; ExitAfterBars remains false and SL/PT/trailing remain active for Capa2.",
+            "naturalResults": "No SQX launch, no smoke, no optimization and no forced Results=passed.",
+            "nextPhase": CAPA2_SPP_NEXT,
+        },
+        "academicSources": CAPA2_ACADEMIC_SOURCES,
+        "nextPhase": "phase26_capa2_spp_diff_review" if not apply else CAPA2_SPP_NEXT,
+    }
+    evidence_target = ledger_root(project_root) / "diffs" / f"phase26_capa2_spp_target_{stamp()}.json"
+    write_json(evidence_target, payload)
+    payload["written"] = str(evidence_target)
+    if apply and payload["ok"]:
+        state_path = ledger_root(project_root) / "session_state.json"
+        state = read_json(state_path, {})
+        state.update({
+            "updatedAt": now_iso(),
+            "currentPhase": "phase26_capa2_spp",
+            "nextPhase": CAPA2_SPP_NEXT,
+            "scope": "capa2",
+            "phase26Capa2SppReport": str(evidence_target),
+        })
+        write_json(state_path, state)
+    return payload
+
+
 def update_build_data_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
     date_from, date_to = generator_period(BUILD_DATA_PERIOD_KEY)
     payload: dict[str, Any] = {
@@ -25764,6 +26260,10 @@ def build_parser() -> argparse.ArgumentParser:
     capa2_synthetic.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     capa2_synthetic.add_argument("--apply", action="store_true")
 
+    capa2_spp = sub.add_parser("capa2-spp-target")
+    capa2_spp.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    capa2_spp.add_argument("--apply", action="store_true")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -26054,6 +26554,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "capa2-synthetic-target":
         json_print(promote_capa2_synthetic_target(root142, project_root, target=args.target, apply=args.apply))
+        return 0
+    if args.command == "capa2-spp-target":
+        json_print(promote_capa2_spp_target(root142, project_root, target=args.target, apply=args.apply))
         return 0
     if args.command == "archive-exit-day-snippets":
         json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))

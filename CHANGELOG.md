@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-05-25 - C1-CONFIG1 Capa2 SPP
+
+- Adds `capa2-spp-target` as the Phase 26 OptProfileSysParamPermutation validation guard for Capa2.
+- Records evidence `phase26_capa2_spp_target_20260525_123915.json` and closes `AutomaticRetest-Task4.xml` as `Input=Syntetic` / `Output=SPP` with the `RETEST ROBUST REVIEW` databank view.
+- Pins SPP to Darwinex `ROBUSTNESS_C2 2017.10.02-2023.12.31`, dual `Data+CustomData`, `testPrecision=1 fastest`, `No Session` and no internal OOS ranges.
+- Keeps SPP passive and anti-overfit: only `OptProfileSysParamPermutation` is active, `MaxTests=3000`, `DistributionUp=20`, `DistributionDown=20`, `Steps=25`, SPP acceptance rows stay broad (`NetProfit >= 50%` and `DrawdownPct <= 200%` versus main), no active methods, no ranking filters, `FitPortfolio=false`, `CustomAnalysis=false`, no SQX launch, no smoke, no optimization and no forced `Results=passed`.
+- Preserves Capa2 exits with `ExitAfterBars=false` and SL/PT/trailing active; maps generator layer 2 `AutomaticRetest-Task4.xml` to `ROBUSTNESS_C2` and adds Task4 to `CAPA2_NO_EXIT_AFTER_BARS_TASKS`.
+- Keeps the precision policy explicit: SPP and WFM remain `testPrecision=1 fastest`, while Forward returns to tick precision.
+- Sets the next exact block to `phase27_capa2_wfm`.
+
 ## 2026-05-25 - C1-CONFIG1 Capa1 Fastest Precision Correction Before Capa2 SPP
 
 - Corrects the live Capa1 robustness precision policy after Phase 25 `phase25_capa2_synthetic` and before starting `phase26_capa2_spp`.

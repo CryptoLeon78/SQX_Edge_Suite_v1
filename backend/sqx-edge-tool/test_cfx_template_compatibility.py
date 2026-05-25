@@ -1019,6 +1019,74 @@ def _assert_capa2_synthetic_contract(
     assert exit_types["TrailingStop.TrailingStop"] == "true"
 
 
+def _assert_capa2_spp_contract(
+    spp: ET.Element,
+    expected_symbol: str,
+    expected_timeframe: str,
+    expected_source: str,
+    expected_broker: str,
+    expected_spread: str,
+) -> None:
+    databanks = {
+        databank.get("name"): databank.get("value")
+        for databank in spp.findall(".//Databanks/Databank")
+    }
+    assert databanks == {"Output": "SPP", "Input": "Syntetic"}
+    assert spp.findall("./Data/OutOfSample/Range") == []
+
+    for section in ("Data", "CustomData"):
+        setup = spp.find(f"./{section}/Setups/Setup")
+        assert setup is not None
+        assert setup.get("dateFrom") == "2017.10.02"
+        assert setup.get("dateTo") == "2023.12.31"
+        assert setup.get("testPrecision") == C1_FASTEST_ROBUSTNESS_TEST_PRECISION
+        assert setup.get("session") == "No Session"
+        chart = setup.find("Chart")
+        assert chart is not None
+        assert chart.get("symbol") == expected_symbol
+        assert chart.get("timeframe") == expected_timeframe
+        assert chart.get("spread") == expected_spread
+
+    resources = spp.find(".//Resources")
+    assert resources is not None
+    symbols = resources.findall("./Symbols/Symbol")
+    assert {node.get("name") for node in symbols} == {expected_symbol}
+    assert {node.get("source") for node in symbols} == {expected_source}
+    assert {node.get("broker") for node in symbols} == {expected_broker}
+    assert {node.get("precision") for node in symbols} == {"TICK"}
+    assert {node.get("timezone") for node in symbols} == {"EETUS"}
+    assert resources.findall("./Sessions/Session") == []
+    assert "dukascopy" not in ET.tostring(resources, encoding="unicode").lower()
+
+    params = {
+        node.get("key"): node.text
+        for node in spp.findall(".//BuildTradingOptions/Params/Param")
+        if node.get("key") in {"Session", "MarketOpenSession", "LimitTimeRange", "RealisticGapsHandling", "StoreChartData"}
+    }
+    assert params == {
+        "Session": "No Session",
+        "MarketOpenSession": "No Session",
+        "LimitTimeRange": "false",
+        "RealisticGapsHandling": "false",
+        "StoreChartData": "false",
+    }
+
+    _assert_spp_crosschecks_contract(spp)
+    for nested_setup in spp.findall(".//CrossChecks/*/Settings/Setups/Setup"):
+        assert nested_setup.get("dateFrom") == "2017.10.02"
+        assert nested_setup.get("dateTo") == "2023.12.31"
+        assert nested_setup.get("testPrecision") == C1_FASTEST_ROBUSTNESS_TEST_PRECISION
+        assert nested_setup.get("session") == "No Session"
+
+    _assert_mc2_static_tabs_contract(spp)
+    assert spp.find(".//WhatToBuild/StrategyType").get("improveDatabank") == "Syntetic"
+    exit_types = {block.get("key"): block.get("use") for block in spp.findall(".//Blocks/ExitTypes/Block")}
+    assert exit_types["ExitAfterBars.ExitAfterBars"] == "false"
+    assert exit_types["StopLoss.StopLoss"] == "true"
+    assert exit_types["ProfitTarget.ProfitTarget"] == "true"
+    assert exit_types["TrailingStop.TrailingStop"] == "true"
+
+
 def _assert_mc2_static_tabs_contract(mc2: ET.Element) -> None:
     rankings = mc2.find(".//Rankings")
     assert rankings is not None
@@ -1915,6 +1983,27 @@ def test_capa2_base_synthetic_matches_phase25_methodology():
     )
 
 
+def test_capa2_base_spp_matches_phase26_methodology():
+    roots = dict(_xml_roots(TEMPLATE_DIR / "Capa2_Base.cfx"))
+    config = roots["config.xml"]
+    task = next(task for task in config.findall(".//Task") if task.get("taskXMLFile") == "AutomaticRetest-Task4.xml")
+    databanks = {
+        databank.get("name"): databank.get("view")
+        for databank in config.findall(".//Databank")
+    }
+
+    assert task.get("title") == "SPP"
+    assert databanks["SPP"] == "RETEST ROBUST REVIEW"
+    _assert_capa2_spp_contract(
+        roots["AutomaticRetest-Task4.xml"],
+        expected_symbol="AUDCAD_darwinex",
+        expected_timeframe="H1",
+        expected_source="4",
+        expected_broker="4",
+        expected_spread="2.0",
+    )
+
+
 def test_capa1_build_resources_are_generic_generator_owned_placeholder():
     roots = dict(_xml_roots(TEMPLATE_DIR / "Capa1_Long.cfx"))
     build = roots["Build-Task1.xml"]
@@ -2704,6 +2793,17 @@ def test_generate_capa2_project_applies_layer2_build_window_and_disables_heavy_r
         expected_spread="10",
     )
     assert "dukascopy" not in ET.tostring(synthetic, encoding="unicode").lower()
+
+    spp = roots["AutomaticRetest-Task4.xml"]
+    _assert_capa2_spp_contract(
+        spp,
+        expected_symbol="AUDCAD",
+        expected_timeframe="H4",
+        expected_source="0",
+        expected_broker="-1",
+        expected_spread="10",
+    )
+    assert "dukascopy" not in ET.tostring(spp, encoding="unicode").lower()
 
 
 def test_generate_project_defaults_to_sq_default_exact_symbol_for_user_downloads():
