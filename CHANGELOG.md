@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-05-25 - C1-CONFIG1 Capa2 Sequential
+
+- Adds `capa2-sequential-target` as the Phase 23 SequentialOptimization validation guard for Capa2.
+- Records evidence `phase23_capa2_sequential_target_20260525_032418.json` and closes `AutomaticRetest-Task3.xml` as `Input=MC2` / `Output=Sequential`.
+- Pins Sequential to Darwinex `ROBUSTNESS_C2 2017.10.02-2023.12.31`, dual `Data+CustomData`, `testPrecision=1 fastest`, `No Session` and no internal OOS ranges.
+- Keeps Sequential passive and anti-overfit: only `SequentialOptimization` is active, `ApplyToStrategy=false`, `DistributionUp=130`, `DistributionDown=70`, `Steps=12`, acceptance `80/5/25`, no acceptance/ranking conditions, `FitPortfolio=false`, `CustomAnalysis=false`, no SQX launch, no smoke, no optimization and no forced `Results=passed`.
+- Preserves Capa2 exits with `ExitAfterBars=false` and SL/PT/trailing active; maps generator layer 2 `AutomaticRetest-Task3.xml` to `ROBUSTNESS_C2` and adds Task3 to `CAPA2_NO_EXIT_AFTER_BARS_TASKS`.
+- Keeps the precision policy explicit: pending Capa2 robustness retests inherit fastest data precision, while Forward returns to tick precision.
+- Sets the next exact block to `phase24_capa2_monkey`.
+
 ## 2026-05-25 - C1-CONFIG1 Capa2 MC2
 
 - Adds `capa2-mc2-target` as the Phase 22 MonteCarloRetest validation guard for Capa2.

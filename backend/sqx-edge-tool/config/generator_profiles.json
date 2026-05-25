@@ -204,6 +204,7 @@
       "AutomaticRetest-Task2.xml": "ROBUSTNESS_C2",
       "AutomaticRetest-Task1.xml": "ROBUSTNESS_C2",
       "AutomaticRetest-Task8.xml": "ROBUSTNESS_C2",
+      "AutomaticRetest-Task3.xml": "ROBUSTNESS_C2",
       "Retest-Task2.xml": "FOWARD",
       "Optimize-Task1.xml": "BUILD"
     }

@@ -1,7 +1,8 @@
 # SQX142 Custom Task Config Roadmap
 
-Estado: C1-CONFIG1 con Fase 22
-`Capa2 MC2` cerrada el 2026-05-25 con
+Estado: C1-CONFIG1 con Fase 23
+`Capa2 Sequential` cerrada el 2026-05-25 con
+`phase23_capa2_sequential_target_20260525_032418.json`, despues de cerrar
 `phase22_capa2_mc2_target_20260525_030124.json`, despues de cerrar
 `phase21_capa2_mc_target_20260525_022738.json`, despues de cerrar
 `phase20_capa2_tick_real_target_20260525_013436.json`, despues de cerrar
@@ -2600,6 +2601,41 @@ Siguiente bloque exacto: `phase22_capa2_mc2`.
   `nextPhase=phase23_capa2_sequential`, `scope=capa2`.
 
 Siguiente bloque exacto: `phase23_capa2_sequential`.
+
+## Estado Fase 23 - Capa2 Sequential
+
+- `phase23_capa2_sequential` queda cerrada con
+  `phase23_capa2_sequential_target_20260525_032418.json`.
+- Comando aplicado: `capa2-sequential-target --target both --apply`, con
+  dry-run previo, backup/diff local, dry-run posterior idempotente y
+  `processes=[]`.
+- Contrato tecnico: `AutomaticRetest-Task3.xml`, `Input=MC2`,
+  `Output=Sequential`, `ROBUSTNESS_C2 2017.10.02-2023.12.31`, portador dual
+  `Data+CustomData`, `testPrecision=1 fastest`, `No Session`, sin OOS
+  interno.
+- Contrato de datos: Sequential vuelve a Darwinex (`AUDCAD_darwinex`, source
+  `4`, broker `4`); Dukascopy queda limitado a `phase19_capa2_retest1`.
+- Contrato de robustez: `CrossChecks use=true/evaluateAll=true`, solo
+  `SequentialOptimization` activo, `ApplyToStrategy=false`,
+  `DistributionUp=130`, `DistributionDown=70`, `Steps=12`, aceptacion
+  `PctToPass=80`, `ResultsCount=5`, `StabilityRange=25`, sin condiciones.
+- Contrato anti-overfit: `StrategyType` pasivo desde `MC2`, sin
+  `FitPortfolio`, sin `CustomAnalysis`, sin condiciones de Rankings, sin
+  split OOS interno, sin ejecucion SQX y sin forzar estados de resultado.
+- Contrato Capa2 de salidas: `ExitAfterBars=false` y SL/PT/trailing activos.
+- `generator_profiles.json` mapea layer 2 `AutomaticRetest-Task3.xml` a
+  `ROBUSTNESS_C2`, y `CAPA2_NO_EXIT_AFTER_BARS_TASKS` protege que la
+  generacion no reactive `ExitAfterBars`.
+- Politica aclarada: los retests de robustez Capa2 pendientes siguen con
+  precision-data `fastest`; Forward vuelve a precision tick.
+- Ambos targets quedan idempotentes tras apply: `changedActionCount=0`,
+  `guardOk=true`, `issues=[]`, `warnings=[]`, `processes=[]`.
+- No hubo lanzamiento SQX, smoke, optimizacion ni ejecucion real; no se fuerza
+  `Results=passed`.
+- El estado local queda en `currentPhase=phase23_capa2_sequential`,
+  `nextPhase=phase24_capa2_monkey`, `scope=capa2`.
+
+Siguiente bloque exacto: `phase24_capa2_monkey`.
 
 ## Disciplina Operativa
 

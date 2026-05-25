@@ -739,6 +739,91 @@ def _assert_capa2_mc2_contract(
     assert exit_types["TrailingStop.TrailingStop"] == "true"
 
 
+def _assert_capa2_sequential_contract(
+    sequential: ET.Element,
+    expected_symbol: str,
+    expected_timeframe: str,
+    expected_source: str,
+    expected_broker: str,
+    expected_spread: str,
+) -> None:
+    for section in ("Data", "CustomData"):
+        setup = sequential.find(f"./{section}/Setups/Setup")
+        assert setup is not None
+        assert setup.get("dateFrom") == "2017.10.02"
+        assert setup.get("dateTo") == "2023.12.31"
+        assert setup.get("testPrecision") == "1"
+        assert setup.get("session") == "No Session"
+        chart = setup.find("Chart")
+        assert chart is not None
+        assert chart.get("symbol") == expected_symbol
+        assert chart.get("timeframe") == expected_timeframe
+        assert chart.get("spread") == expected_spread
+    assert sequential.findall("./Data/OutOfSample/Range") == []
+    assert {
+        databank.get("name"): databank.get("value")
+        for databank in sequential.findall(".//Databanks/Databank")
+    } == {"Output": "Sequential", "Input": "MC2"}
+    symbols = sequential.findall(".//Resources/Symbols/Symbol")
+    assert {node.get("name") for node in symbols} == {expected_symbol}
+    assert {node.get("source") for node in symbols} == {expected_source}
+    assert {node.get("broker") for node in symbols} == {expected_broker}
+    assert sequential.findall(".//Resources/Sessions/Session") == []
+
+    params = {
+        node.get("key"): node.text
+        for node in sequential.findall(".//BuildTradingOptions/Params/Param")
+        if node.get("key") in {"Session", "MarketOpenSession", "LimitTimeRange", "RealisticGapsHandling", "StoreChartData"}
+    }
+    assert params == {
+        "Session": "No Session",
+        "MarketOpenSession": "No Session",
+        "LimitTimeRange": "false",
+        "RealisticGapsHandling": "false",
+        "StoreChartData": "false",
+    }
+
+    crosschecks = sequential.find(".//CrossChecks")
+    assert crosschecks is not None
+    assert crosschecks.attrib == {"use": "true", "evaluateAll": "true"}
+    active = [
+        child.tag
+        for child in list(crosschecks)
+        if isinstance(child.tag, str) and child.get("use") == "true"
+    ]
+    assert active == ["SequentialOptimization"]
+    sequential_optimization = crosschecks.find("SequentialOptimization")
+    assert sequential_optimization is not None
+    assert sequential_optimization.findtext("./Settings/ParameterSettings/DistributionUp") == "130"
+    assert sequential_optimization.findtext("./Settings/ParameterSettings/DistributionDown") == "70"
+    assert sequential_optimization.findtext("./Settings/ParameterSettings/Steps") == "12"
+    assert sequential_optimization.findtext("./Settings/ParameterSettings/ApplyToStrategy") == "false"
+    assert sequential_optimization.findtext("./AcceptanceSettings/PctToPass") == "80"
+    assert sequential_optimization.findtext("./AcceptanceSettings/ResultsCount") == "5"
+    assert sequential_optimization.findtext("./AcceptanceSettings/StabilityRange") == "25"
+    assert sequential_optimization.findall("./AcceptanceSettings/Conditions/Condition") == []
+    for nested_setup in crosschecks.findall(".//Settings/Setups/Setup"):
+        assert nested_setup.get("dateFrom") == "2017.10.02"
+        assert nested_setup.get("dateTo") == "2023.12.31"
+        assert nested_setup.get("testPrecision") == "1"
+        assert nested_setup.get("session") == "No Session"
+
+    rankings = sequential.find(".//Rankings")
+    assert rankings is not None
+    assert rankings.get("type") == "never"
+    assert rankings.findtext("DeleteFailedStrategies") == "false"
+    assert rankings.findtext("ForceRunCrossChecks") == "false"
+    assert rankings.find("FitPortfolio").get("active") == "false"
+    assert rankings.find("CustomAnalysis").get("filter") == "false"
+    assert rankings.findall("./Conditions/Condition") == []
+    assert sequential.find(".//WhatToBuild/StrategyType").get("improveDatabank") == "MC2"
+    exit_types = {block.get("key"): block.get("use") for block in sequential.findall(".//Blocks/ExitTypes/Block")}
+    assert exit_types["ExitAfterBars.ExitAfterBars"] == "false"
+    assert exit_types["StopLoss.StopLoss"] == "true"
+    assert exit_types["ProfitTarget.ProfitTarget"] == "true"
+    assert exit_types["TrailingStop.TrailingStop"] == "true"
+
+
 def _assert_mc2_static_tabs_contract(mc2: ET.Element) -> None:
     rankings = mc2.find(".//Rankings")
     assert rankings is not None
@@ -1572,6 +1657,27 @@ def test_capa2_base_mc2_matches_phase22_methodology():
     )
 
 
+def test_capa2_base_sequential_matches_phase23_methodology():
+    roots = dict(_xml_roots(TEMPLATE_DIR / "Capa2_Base.cfx"))
+    config = roots["config.xml"]
+    task = next(task for task in config.findall(".//Task") if task.get("taskXMLFile") == "AutomaticRetest-Task3.xml")
+    databanks = {
+        databank.get("name"): databank.get("view")
+        for databank in config.findall(".//Databank")
+    }
+
+    assert task.get("title") == "Sequential"
+    assert databanks["Sequential"] == "GENERAL"
+    _assert_capa2_sequential_contract(
+        roots["AutomaticRetest-Task3.xml"],
+        expected_symbol="AUDCAD_darwinex",
+        expected_timeframe="H1",
+        expected_source="4",
+        expected_broker="4",
+        expected_spread="2.0",
+    )
+
+
 def test_capa1_build_resources_are_generic_generator_owned_placeholder():
     roots = dict(_xml_roots(TEMPLATE_DIR / "Capa1_Long.cfx"))
     build = roots["Build-Task1.xml"]
@@ -2324,6 +2430,17 @@ def test_generate_capa2_project_applies_layer2_build_window_and_disables_heavy_r
         expected_spread_max="50",
     )
     assert "dukascopy" not in ET.tostring(mc2, encoding="unicode").lower()
+
+    sequential = roots["AutomaticRetest-Task3.xml"]
+    _assert_capa2_sequential_contract(
+        sequential,
+        expected_symbol="AUDCAD",
+        expected_timeframe="H4",
+        expected_source="0",
+        expected_broker="-1",
+        expected_spread="10",
+    )
+    assert "dukascopy" not in ET.tostring(sequential, encoding="unicode").lower()
 
 
 def test_generate_project_defaults_to_sq_default_exact_symbol_for_user_downloads():

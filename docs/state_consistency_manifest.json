@@ -5427,6 +5427,133 @@
       }
     },
     {
+      "id": "sqx142_c2_phase23_sequential_validation",
+      "description": "C1-CONFIG1 Phase 23 Capa2 Sequential must stay closed as a fastest Darwinex SequentialOptimization validation-only gate, with no tuning, no Dukascopy outside Retest 1 and no execution claims.",
+      "required": {
+        "README.md": [
+          "phase23_capa2_sequential",
+          "phase23_capa2_sequential_target_20260525_032418.json",
+          "`AutomaticRetest-Task3.xml`",
+          "`Input=MC2`",
+          "`Output=Sequential`",
+          "`ROBUSTNESS_C2 2017.10.02-2023.12.31`",
+          "`Data+CustomData`",
+          "`AUDCAD_darwinex` source `4` broker `4`",
+          "`testPrecision=1 fastest`",
+          "`SequentialOptimization`",
+          "`ApplyToStrategy=false`",
+          "aceptacion `80/5/25`",
+          "`ExitAfterBars=false` con SL/PT/trailing activos",
+          "Forward vuelve a precision tick",
+          "phase24_capa2_monkey"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Phase 23 `phase23_capa2_sequential` is closed",
+          "Phase 23 `Capa2 Sequential` is closed",
+          "phase23_capa2_sequential_target_20260525_032418.json",
+          "`capa2-sequential-target --target both --apply`",
+          "`AutomaticRetest-Task3.xml`",
+          "`Input=MC2`",
+          "`Output=Sequential`",
+          "`testPrecision=1 fastest`",
+          "only `SequentialOptimization` active",
+          "`ApplyToStrategy=false`",
+          "acceptance `80/5/25`",
+          "Forward returns to tick precision",
+          "phase24_capa2_monkey"
+        ],
+        "docs/ARCHITECTURE.md": [
+          "phase23_capa2_sequential",
+          "Capa2 Sequential `AutomaticRetest-Task3.xml`",
+          "`Input=MC2`",
+          "`Output=Sequential`",
+          "dual `Data+CustomData`",
+          "`testPrecision=1 fastest`",
+          "only `SequentialOptimization` active",
+          "`ApplyToStrategy=false`",
+          "acceptance `80/5/25`",
+          "Forward returns to tick precision"
+        ],
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "Estado Fase 23 - Capa2 Sequential",
+          "phase23_capa2_sequential_target_20260525_032418.json",
+          "`capa2-sequential-target --target both --apply`",
+          "`AutomaticRetest-Task3.xml`",
+          "`Input=MC2`",
+          "`Output=Sequential`",
+          "`Data+CustomData`",
+          "`testPrecision=1 fastest`",
+          "`SequentialOptimization` activo",
+          "`ApplyToStrategy=false`",
+          "`currentPhase=phase23_capa2_sequential`",
+          "`nextPhase=phase24_capa2_monkey`"
+        ],
+        "CHANGELOG.md": [
+          "2026-05-25 - C1-CONFIG1 Capa2 Sequential",
+          "`capa2-sequential-target`",
+          "phase23_capa2_sequential_target_20260525_032418.json",
+          "`AutomaticRetest-Task3.xml`",
+          "`Input=MC2` / `Output=Sequential`",
+          "`testPrecision=1 fastest`",
+          "`ApplyToStrategy=false`",
+          "Forward returns to tick precision",
+          "phase24_capa2_monkey"
+        ],
+        "backend/sqx-edge-tool/config/generator_profiles.json": [
+          "\"AutomaticRetest-Task3.xml\"",
+          "\"ROBUSTNESS_C2\""
+        ],
+        "backend/sqx-edge-tool/core/project_generator.py": [
+          "CAPA2_NO_EXIT_AFTER_BARS_TASKS",
+          "CAPA2_FASTEST_PRECISION_TASKS",
+          "\"AutomaticRetest-Task3.xml\"",
+          "\"Retest-Task2.xml\""
+        ],
+        "backend/sqx-edge-tool/tools/sqx142_task_config_gate.py": [
+          "CAPA2_SEQUENTIAL_NEXT = \"phase24_capa2_monkey\"",
+          "CAPA2_SEQUENTIAL_TASK_XML = \"AutomaticRetest-Task3.xml\"",
+          "CAPA2_SEQUENTIAL_DATA_TEST_PRECISION = CAPA2_FASTEST_DATA_TEST_PRECISION",
+          "def promote_capa2_sequential_target",
+          "def enforce_capa2_sequential_guard",
+          "capa2-sequential-target"
+        ],
+        "backend/sqx-edge-tool/test_sqx142_task_config_gate.py": [
+          "test_capa2_sequential_target_applies_and_is_idempotent",
+          "test_capa2_sequential_guard_rejects_overfit_and_drift",
+          "test_capa2_sequential_cli_is_registered"
+        ],
+        "backend/sqx-edge-tool/test_cfx_template_compatibility.py": [
+          "test_capa2_base_sequential_matches_phase23_methodology",
+          "_assert_capa2_sequential_contract",
+          "testPrecision\") == \"1\""
+        ]
+      },
+      "forbidden": {
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "Capa2 Sequential usa Dukascopy",
+          "phase23_capa2_sequential usa Dukascopy",
+          "Capa2 Sequential ejecuta SQX",
+          "Capa2 Sequential lanza smoke",
+          "Capa2 Sequential inicia optimizacion",
+          "Capa2 Sequential fuerza Results=passed",
+          "Capa2 Sequential optimiza parametros",
+          "Capa2 Sequential ExitAfterBars=true",
+          "Forward hereda fastest"
+        ],
+        "CHANGELOG.md": [
+          "Capa2 Sequential uses Dukascopy",
+          "phase23_capa2_sequential uses Dukascopy",
+          "Capa2 Sequential ran SQX",
+          "Capa2 Sequential ran smoke",
+          "Capa2 Sequential optimization completed",
+          "Capa2 Sequential forced Results=passed",
+          "Capa2 Sequential optimized parameters",
+          "Capa2 Sequential ExitAfterBars=true",
+          "Forward inherits fastest"
+        ]
+      }
+    },
+    {
       "id": "sqx_agent_per_message_bootstrap_g9",
       "description": "G9/G9R must keep per-message specialist activation, new-session bootstrap and explicit parallel subagent runtime loading proactive but orchestrator-owned, compaction-resilient and mutation-gated.",
       "required": {

@@ -56,6 +56,7 @@ PHASES = [
     {"id": "phase20", "label": "Capa2 TICK REAL validation gate"},
     {"id": "phase21", "label": "Capa2 MC validation gate"},
     {"id": "phase22", "label": "Capa2 MC2 validation gate"},
+    {"id": "phase23", "label": "Capa2 Sequential validation gate"},
 ]
 
 SECTION_ALIASES = {
@@ -15815,6 +15816,7 @@ CAPA2_RETEST1_NEXT = "phase20_capa2_tick_real"
 CAPA2_TICK_REAL_NEXT = "phase21_capa2_mc"
 CAPA2_MC_NEXT = "phase22_capa2_mc2"
 CAPA2_MC2_NEXT = "phase23_capa2_sequential"
+CAPA2_SEQUENTIAL_NEXT = "phase24_capa2_monkey"
 CAPA2_BUILD_TASK_XML = "Build-Task1.xml"
 CAPA2_BUILD_TASK_TITLE = "Build strategies"
 CAPA2_RETEST0_TASK_XML = "Retest-Task1.xml"
@@ -16058,6 +16060,23 @@ CAPA2_MC2_STRATEGY_TYPE_TARGET = {
     "improveDatabank": "MC",
 }
 CAPA2_MC2_BANNED_TOKENS = CAPA2_MC_BANNED_TOKENS
+CAPA2_SEQUENTIAL_TASK_XML = "AutomaticRetest-Task3.xml"
+CAPA2_SEQUENTIAL_TASK_TITLE = "Sequential"
+CAPA2_SEQUENTIAL_PERIOD_KEY = "ROBUSTNESS_C2"
+CAPA2_SEQUENTIAL_DATA_TEST_PRECISION = CAPA2_FASTEST_DATA_TEST_PRECISION
+CAPA2_SEQUENTIAL_DATABANKS_TARGET = {"Input": "MC2", "Output": "Sequential"}
+CAPA2_SEQUENTIAL_RESOURCE_SYMBOL = CAPA2_MC_RESOURCE_SYMBOL
+CAPA2_SEQUENTIAL_RESOURCE_SPREAD = CAPA2_MC_RESOURCE_SPREAD
+CAPA2_SEQUENTIAL_STRATEGY_TYPE_TARGET = {
+    "type": "simple",
+    "additionalCharts": "2",
+    "templateFile": "",
+    "improveType": "strategy",
+    "strategyFile": "",
+    "architecture": "sq4",
+    "improveDatabank": "MC2",
+}
+CAPA2_SEQUENTIAL_BANNED_TOKENS = CAPA2_MC_BANNED_TOKENS
 CAPA2_BUILD_TAB_ORDER = [
     "WhatToBuild",
     "Data",
@@ -22872,6 +22891,427 @@ def promote_capa2_mc2_target(root142: Path, project_root: Path, target: str, app
     return payload
 
 
+def load_capa2_sequential_task_root(cfx: Path) -> tuple[str, ET.Element | None, str]:
+    task_xml, root, title = load_task_root_by_xml(cfx, CAPA2_SEQUENTIAL_TASK_XML)
+    if task_xml and root is not None:
+        return task_xml, root, title or CAPA2_SEQUENTIAL_TASK_TITLE
+    fallback_task_xml, fallback_root = load_task_root(cfx, CAPA2_SEQUENTIAL_TASK_TITLE)
+    return fallback_task_xml, fallback_root, CAPA2_SEQUENTIAL_TASK_TITLE if fallback_root is not None else ""
+
+
+def capa2_sequential_summary(root: ET.Element | None) -> dict[str, Any]:
+    if root is None:
+        return {"exists": False}
+    summary = sequential_static_tabs_summary(root)
+    summary["data"] = capa2_tick_real_data_summary(root)
+    summary["customData"] = capa2_retest1_custom_data_summary(root)
+    summary["databanks"] = {item.get("name", ""): item.get("value", "") for item in databank_summary(root)}
+    summary["resources"] = _tick_real_resource_summary(root)
+    summary["optionsParams"] = {
+        param.get("key", ""): (param.text or "")
+        for param in root.findall(".//BuildTradingOptions/Params/Param")
+        if param.get("key") in SEQUENTIAL_OPTIONS_PARAMS_TARGET
+    }
+    summary["crossChecks"] = sequential_crosschecks_summary(root).get("crossChecks", {})
+    summary["strategyType"] = task_strategy_type_summary(root)
+    summary["buildMode"] = sequential_passive_generation_summary(root).get("buildMode", {})
+    summary["orderTypes"] = task_order_type_detail_summary(root)
+    summary["exitTypes"] = task_exit_type_detail_summary(root)
+    return summary
+
+
+def set_capa2_sequential_databanks(root: ET.Element, actions: list[dict[str, Any]]) -> None:
+    databanks = find_section(root, "Databanks")
+    if databanks is None:
+        databanks = ET.SubElement(root, "Databanks", {"retestSelected": "false"})
+        actions.append({"field": "Databanks", "from": None, "to": dict(databanks.attrib), "changed": True})
+    existing = {node.get("name", ""): node for node in databanks.findall("Databank") if node.get("name")}
+    for name, value in CAPA2_SEQUENTIAL_DATABANKS_TARGET.items():
+        node = existing.get(name)
+        before = dict(node.attrib) if node is not None else None
+        if node is None:
+            node = ET.SubElement(databanks, "Databank", {"name": name})
+        node.set("name", name)
+        node.set("value", value)
+        node.set("label", f"{name} databank")
+        actions.append({"field": f"Databanks/{name}:capa2-sequential", "from": before, "to": dict(node.attrib), "changed": before != dict(node.attrib)})
+
+
+def normalize_capa2_sequential_crosscheck_setups(root: ET.Element, actions: list[dict[str, Any]]) -> None:
+    period = generator_period(CAPA2_SEQUENTIAL_PERIOD_KEY)
+    before: list[dict[str, Any]] = []
+    after: list[dict[str, Any]] = []
+    for setup in root.findall(".//CrossChecks/*/Settings/Setups/Setup"):
+        before.append({"attrs": dict(setup.attrib), "charts": [dict(chart.attrib) for chart in setup.findall("Chart")]})
+        for key, wanted in {
+            "dateFrom": period[0],
+            "dateTo": period[1],
+            "testPrecision": CAPA2_SEQUENTIAL_DATA_TEST_PRECISION,
+            "session": SEQUENTIAL_DATA_SESSION,
+            "slippage": "0",
+            "minDist": "0",
+        }.items():
+            setup.set(key, wanted)
+        charts = setup.findall("Chart")
+        if not charts:
+            charts = [ET.SubElement(setup, "Chart")]
+        for chart in charts:
+            chart.attrib.clear()
+            chart.attrib.update({"symbol": CAPA2_SEQUENTIAL_RESOURCE_SYMBOL, "timeframe": CAPA2_BUILD_SEED_TIMEFRAME, "spread": CAPA2_SEQUENTIAL_RESOURCE_SPREAD})
+        after.append({"attrs": dict(setup.attrib), "charts": [dict(chart.attrib) for chart in setup.findall("Chart")]})
+    actions.append({"field": "CrossChecks/*/Settings/Setups/Setup:capa2-sequential", "from": before, "to": after, "changed": before != after})
+
+
+def apply_capa2_sequential_crosschecks_to_root(root: ET.Element) -> list[dict[str, Any]]:
+    actions: list[dict[str, Any]] = []
+    parent = find_section(root, "CrossChecks")
+    if parent is None:
+        parent = ET.SubElement(root, "CrossChecks")
+        actions.append({"field": "CrossChecks", "from": None, "to": dict(parent.attrib), "changed": True})
+    set_attrs_on_node(parent, SEQUENTIAL_CROSSCHECK_PARENT_TARGET, actions, "CrossChecks:attrs")
+    active = parent.find(SEQUENTIAL_ACTIVE_CROSSCHECK)
+    if active is None:
+        active = ET.SubElement(parent, SEQUENTIAL_ACTIVE_CROSSCHECK, {"use": "true"})
+        actions.append({"field": f"CrossChecks/{SEQUENTIAL_ACTIVE_CROSSCHECK}", "from": None, "to": dict(active.attrib), "changed": True})
+    for check in list(parent):
+        if not isinstance(check.tag, str) or check.get("use") is None:
+            continue
+        before_use = check.get("use", "")
+        wanted_use = "true" if check.tag == SEQUENTIAL_ACTIVE_CROSSCHECK else "false"
+        check.set("use", wanted_use)
+        actions.append({"field": f"CrossChecks/{check.tag}:use", "from": before_use, "to": wanted_use, "changed": before_use != wanted_use})
+        if check.tag != SEQUENTIAL_ACTIVE_CROSSCHECK:
+            for method in check.findall("./Settings/Methods/Method"):
+                before_method = method.get("use", "")
+                method.set("use", "false")
+                actions.append({"field": f"CrossChecks/{check.tag}/Method:{method.get('type', '')}:use", "from": before_method, "to": "false", "changed": before_method != "false"})
+    settings = ensure_direct_child(active, "Settings")
+    parameter_settings = ensure_direct_child(settings, "ParameterSettings")
+    for key, wanted in SEQUENTIAL_PARAMETER_SETTINGS_TARGET.items():
+        set_or_create_text_child(parameter_settings, key, wanted, actions, f"CrossChecks/{SEQUENTIAL_ACTIVE_CROSSCHECK}/ParameterSettings/{key}")
+    remove_unknown_text_children(parameter_settings, set(SEQUENTIAL_PARAMETER_SETTINGS_TARGET), actions, f"CrossChecks/{SEQUENTIAL_ACTIVE_CROSSCHECK}/ParameterSettings:unknown")
+    what_to_parametrize = settings.find("WhatToParametrize")
+    if what_to_parametrize is None:
+        what_to_parametrize = ET.SubElement(settings, "WhatToParametrize")
+        actions.append({"field": f"CrossChecks/{SEQUENTIAL_ACTIVE_CROSSCHECK}/WhatToParametrize", "from": None, "to": dict(what_to_parametrize.attrib), "changed": True})
+    before_attrs = dict(what_to_parametrize.attrib)
+    what_to_parametrize.attrib.clear()
+    what_to_parametrize.attrib.update(SEQUENTIAL_WHAT_TO_PARAMETRIZE_ATTR_TARGET)
+    actions.append({"field": f"CrossChecks/{SEQUENTIAL_ACTIVE_CROSSCHECK}/WhatToParametrize:attrs", "from": before_attrs, "to": dict(what_to_parametrize.attrib), "changed": before_attrs != dict(what_to_parametrize.attrib)})
+    for key, wanted in SEQUENTIAL_WHAT_TO_PARAMETRIZE_VALUES_TARGET.items():
+        set_or_create_text_child(what_to_parametrize, key, wanted, actions, f"CrossChecks/{SEQUENTIAL_ACTIVE_CROSSCHECK}/WhatToParametrize/{key}")
+    remove_unknown_text_children(what_to_parametrize, set(SEQUENTIAL_WHAT_TO_PARAMETRIZE_VALUES_TARGET), actions, f"CrossChecks/{SEQUENTIAL_ACTIVE_CROSSCHECK}/WhatToParametrize:unknown")
+    acceptance = ensure_direct_child(active, "AcceptanceSettings")
+    for key, wanted in SEQUENTIAL_ACCEPTANCE_SETTINGS_TARGET.items():
+        set_or_create_text_child(acceptance, key, wanted, actions, f"CrossChecks/{SEQUENTIAL_ACTIVE_CROSSCHECK}/AcceptanceSettings/{key}")
+    remove_unknown_text_children(acceptance, set(SEQUENTIAL_ACCEPTANCE_SETTINGS_TARGET) | {"Conditions"}, actions, f"CrossChecks/{SEQUENTIAL_ACTIVE_CROSSCHECK}/AcceptanceSettings:unknown")
+    conditions = acceptance.find("Conditions")
+    if conditions is None:
+        conditions = ET.SubElement(acceptance, "Conditions")
+        actions.append({"field": f"CrossChecks/{SEQUENTIAL_ACTIVE_CROSSCHECK}/AcceptanceSettings/Conditions", "from": None, "to": "created_empty", "changed": True})
+    clear_conditions_node(conditions, actions, f"CrossChecks/{SEQUENTIAL_ACTIVE_CROSSCHECK}/AcceptanceSettings/Conditions")
+    normalize_capa2_sequential_crosscheck_setups(root, actions)
+    return actions
+
+
+def apply_capa2_sequential_target_to_root(root: ET.Element) -> list[dict[str, Any]]:
+    actions: list[dict[str, Any]] = []
+    data_setup = ensure_capa2_tick_real_setup(
+        root,
+        "Data",
+        SEQUENTIAL_DATA_ENGINE,
+        actions,
+        test_precision=CAPA2_SEQUENTIAL_DATA_TEST_PRECISION,
+    )
+    ensure_capa2_tick_real_setup(
+        root,
+        "CustomData",
+        SEQUENTIAL_CUSTOM_DATA_ENGINE,
+        actions,
+        test_precision=CAPA2_SEQUENTIAL_DATA_TEST_PRECISION,
+        custom_main_values=SEQUENTIAL_CUSTOM_DATA_MAIN_TEST_VALUES_TARGET,
+    )
+    ensure_capa2_tick_real_resources(root, data_setup, actions)
+    set_capa2_sequential_databanks(root, actions)
+    for key, value in SEQUENTIAL_OPTIONS_PARAMS_TARGET.items():
+        set_or_create_option_param_text(root, key, value, actions, "Options")
+    actions.extend(apply_capa2_sequential_crosschecks_to_root(root))
+    apply_retest1_parts_to_improve_to_root(root, actions)
+    apply_sequential_what_to_build_to_root(root, actions)
+    strategy = root.find("./WhatToBuild/StrategyType")
+    before_strategy = dict(strategy.attrib) if strategy is not None else None
+    if strategy is not None:
+        strategy.attrib.clear()
+        strategy.attrib.update(CAPA2_SEQUENTIAL_STRATEGY_TYPE_TARGET)
+        actions.append({"field": "WhatToBuild/StrategyType:capa2-sequential", "from": before_strategy, "to": dict(strategy.attrib), "changed": before_strategy != dict(strategy.attrib)})
+    apply_capa2_mc_blocks_to_root(root, actions)
+    blocks = find_blocks(root)
+    if blocks is not None:
+        enforce_disabled_build_block_categories(blocks, actions)
+    apply_mc_rankings_to_root(root, actions, conditions_note="Capa2 Sequential pass/fail is owned by SequentialOptimization")
+    apply_capa2_retest_risk_money_management_to_root(root, actions)
+    apply_mc_atms_to_root(root, actions)
+    apply_mc_selected_strategies_to_root(root, actions)
+    actions.append({"field": "Notes", "changed": False, "sha256": section_sha256(root, "Notes"), "note": "audited and preserved"})
+    return actions
+
+
+def capa2_sequential_generator_period_issues() -> list[str]:
+    config = read_json(GENERATOR_PROFILES_PATH, {})
+    periods = config.get("retestPeriods") or {}
+    layer2 = (config.get("taskPeriodMaps") or {}).get("2") or {}
+    cross = (config.get("crossBrokerRetests") or {}).get("2") or {}
+    issues: list[str] = []
+    if periods.get(CAPA2_SEQUENTIAL_PERIOD_KEY) != ["2017.10.02", "2023.12.31"]:
+        issues.append(f"generator_profiles.json retestPeriods.{CAPA2_SEQUENTIAL_PERIOD_KEY} must be 2017.10.02-2023.12.31")
+    if layer2.get(CAPA2_SEQUENTIAL_TASK_XML) != CAPA2_SEQUENTIAL_PERIOD_KEY:
+        issues.append(f"generator_profiles.json taskPeriodMaps.2.{CAPA2_SEQUENTIAL_TASK_XML} must map to {CAPA2_SEQUENTIAL_PERIOD_KEY}")
+    if CAPA2_SEQUENTIAL_TASK_XML in cross:
+        issues.append(f"generator_profiles.json must not cross-broker route {CAPA2_SEQUENTIAL_TASK_XML}; Capa2 Sequential stays Darwinex/SQ default")
+    return issues
+
+
+def enforce_capa2_sequential_guard(root: ET.Element | None, target_name: str) -> list[str]:
+    if root is None:
+        return [f"{target_name}: Capa2 Sequential task missing"]
+    issues: list[str] = []
+    period = generator_period(CAPA2_SEQUENTIAL_PERIOD_KEY)
+    summary = capa2_sequential_summary(root)
+    for label in ("data", "customData"):
+        carrier = summary.get(label) or {}
+        setup = carrier.get("setup") or {}
+        chart = carrier.get("chart") or {}
+        if setup.get("dateFrom") != period[0] or setup.get("dateTo") != period[1]:
+            issues.append(f"{target_name}: Capa2 Sequential {label} dates must be {CAPA2_SEQUENTIAL_PERIOD_KEY} {period[0]}-{period[1]}")
+        if setup.get("testPrecision") != CAPA2_SEQUENTIAL_DATA_TEST_PRECISION:
+            issues.append(f"{target_name}: Capa2 Sequential {label} testPrecision must be fastest code {CAPA2_SEQUENTIAL_DATA_TEST_PRECISION}")
+        if setup.get("session") != SEQUENTIAL_DATA_SESSION:
+            issues.append(f"{target_name}: Capa2 Sequential {label} session must be No Session")
+        if chart != {"symbol": CAPA2_SEQUENTIAL_RESOURCE_SYMBOL, "timeframe": CAPA2_BUILD_SEED_TIMEFRAME, "spread": CAPA2_SEQUENTIAL_RESOURCE_SPREAD}:
+            issues.append(f"{target_name}: Capa2 Sequential {label} chart seed drifted: {chart!r}")
+    if (summary.get("data") or {}).get("outOfSampleRanges"):
+        issues.append(f"{target_name}: Capa2 Sequential must not add an internal OOS split")
+    if (summary.get("customData") or {}).get("mainTestValues") != SEQUENTIAL_CUSTOM_DATA_MAIN_TEST_VALUES_TARGET:
+        issues.append(f"{target_name}: Capa2 Sequential CustomData MainTestValues drifted")
+    if (summary.get("databanks") or {}) != CAPA2_SEQUENTIAL_DATABANKS_TARGET:
+        issues.append(f"{target_name}: Capa2 Sequential databanks are {summary.get('databanks')!r}, expected {CAPA2_SEQUENTIAL_DATABANKS_TARGET!r}")
+    resources = summary.get("resources") or {}
+    symbols = resources.get("symbols") or []
+    if {item.get("name") for item in symbols} != {CAPA2_SEQUENTIAL_RESOURCE_SYMBOL}:
+        issues.append(f"{target_name}: Capa2 Sequential resources must contain only {CAPA2_SEQUENTIAL_RESOURCE_SYMBOL}")
+    if any(item.get("source") != CAPA2_BUILD_RESOURCE_SOURCE_ID or item.get("broker") != CAPA2_BUILD_RESOURCE_BROKER_ID for item in symbols):
+        issues.append(f"{target_name}: Capa2 Sequential resources must use Darwinex source 4 / broker 4")
+    if resources.get("sessions"):
+        issues.append(f"{target_name}: Capa2 Sequential resources must not keep sessions")
+    if (summary.get("optionsParams") or {}) != SEQUENTIAL_OPTIONS_PARAMS_TARGET:
+        issues.append(f"{target_name}: Capa2 Sequential options drifted: {summary.get('optionsParams')!r}")
+    cross = summary.get("crossChecks") or {}
+    if (cross.get("attrs") or {}) != SEQUENTIAL_CROSSCHECK_PARENT_TARGET:
+        issues.append(f"{target_name}: Capa2 Sequential CrossChecks attrs drifted: {cross.get('attrs')!r}")
+    if cross.get("active") != [SEQUENTIAL_ACTIVE_CROSSCHECK]:
+        issues.append(f"{target_name}: Capa2 Sequential active crosschecks are {cross.get('active')!r}, expected [{SEQUENTIAL_ACTIVE_CROSSCHECK!r}]")
+    sequential = cross.get("sequentialOptimization") or {}
+    if (sequential.get("parameterSettings") or {}) != SEQUENTIAL_PARAMETER_SETTINGS_TARGET:
+        issues.append(f"{target_name}: Capa2 Sequential ParameterSettings drifted")
+    if ((sequential.get("whatToParametrize") or {}).get("values") or {}) != SEQUENTIAL_WHAT_TO_PARAMETRIZE_VALUES_TARGET:
+        issues.append(f"{target_name}: Capa2 Sequential WhatToParametrize drifted")
+    if (sequential.get("acceptanceSettings") or {}).get("values") != SEQUENTIAL_ACCEPTANCE_SETTINGS_TARGET:
+        issues.append(f"{target_name}: Capa2 Sequential AcceptanceSettings drifted")
+    if (sequential.get("acceptanceSettings") or {}).get("conditions"):
+        issues.append(f"{target_name}: Capa2 Sequential AcceptanceSettings must not add optimization/ranking conditions")
+    for check in cross.get("checks") or []:
+        if check.get("id") == SEQUENTIAL_ACTIVE_CROSSCHECK:
+            continue
+        if check.get("activeMethodTypes"):
+            issues.append(f"{target_name}: inactive Capa2 Sequential crosscheck {check.get('id')} still has active methods")
+    for nested_setup in root.findall(".//CrossChecks/*/Settings/Setups/Setup"):
+        if nested_setup.get("dateFrom") != period[0] or nested_setup.get("dateTo") != period[1]:
+            issues.append(f"{target_name}: Capa2 Sequential nested CrossChecks dates drifted")
+        if nested_setup.get("testPrecision") != CAPA2_SEQUENTIAL_DATA_TEST_PRECISION:
+            issues.append(f"{target_name}: Capa2 Sequential nested CrossChecks precision must be fastest code {CAPA2_SEQUENTIAL_DATA_TEST_PRECISION}")
+    parts = sequential_passive_generation_summary(root).get("partsToImprove") or {}
+    for group_name in ("EntryRules", "OrderTypes", "ExitRules"):
+        group = parts.get(group_name) or {}
+        for side in ("LongImprovement", "ShortImprovement"):
+            if (group.get(side) or {}).get("use") != "false":
+                issues.append(f"{target_name}: Capa2 Sequential {group_name}/{side} must be passive use=false")
+    if task_strategy_type_summary(root) != CAPA2_SEQUENTIAL_STRATEGY_TYPE_TARGET:
+        issues.append(f"{target_name}: Capa2 Sequential StrategyType must point passively to MC2")
+    build_text = (summary.get("buildMode") or {}).get("text") or {}
+    for tag, value in SEQUENTIAL_PASSIVE_BUILDMODE_TEXT_TARGET.items():
+        if build_text.get(tag) != value:
+            issues.append(f"{target_name}: Capa2 Sequential BuildMode {tag} is {build_text.get(tag)!r}, expected {value!r}")
+    order = task_order_type_summary(root)
+    if {key: order.get(key) for key in CAPA2_BUILD_BLOCKS_ORDER_TARGET} != CAPA2_BUILD_BLOCKS_ORDER_TARGET:
+        issues.append(f"{target_name}: Capa2 Sequential order types drifted from EnterAtMarket-only contract")
+    exits = task_exit_type_detail_summary(root)
+    if (exits.get("ExitAfterBars.ExitAfterBars") or {}).get("use") != "false":
+        issues.append(f"{target_name}: Capa2 Sequential ExitAfterBars must stay false")
+    for key in CAPA2_MC_ALLOWED_ACTIVE_EXITS:
+        if (exits.get(key) or {}).get("use") != "true":
+            issues.append(f"{target_name}: Capa2 Sequential {key} must stay active")
+    ranking = summary.get("rankings") or {}
+    if ranking.get("type") != "never":
+        issues.append(f"{target_name}: Capa2 Sequential Rankings type must be never")
+    for key in ("DeleteFailedStrategies", "ForceRunCrossChecks"):
+        if ranking.get(key) != "false":
+            issues.append(f"{target_name}: Capa2 Sequential Rankings {key} must be false")
+    if (ranking.get("FitPortfolio") or {}).get("active") != "false":
+        issues.append(f"{target_name}: Capa2 Sequential FitPortfolio must stay disabled")
+    if (ranking.get("CustomAnalysis") or {}).get("filter") != "false":
+        issues.append(f"{target_name}: Capa2 Sequential CustomAnalysis must stay disabled")
+    if ranking.get("conditions"):
+        issues.append(f"{target_name}: Capa2 Sequential Rankings must not add extra conditions")
+    rmm = task_risk_method_summary(root)
+    for method, wanted in CAPA2_RETEST1_RISK_MONEY_MANAGEMENT_METHOD_TARGET.items():
+        if rmm.get(method) != wanted:
+            issues.append(f"{target_name}: Capa2 Sequential RiskMoneyManagement {method} is {rmm.get(method)!r}, expected {wanted!r}")
+    atms = find_section(root, "ATMs")
+    if atms is not None and atms.get("enable") != "false":
+        issues.append(f"{target_name}: Capa2 Sequential ATMs must stay disabled")
+    selected = find_section(root, "SelectedStrategies")
+    if selected is not None and ((selected.text or "").strip() or list(selected)):
+        issues.append(f"{target_name}: Capa2 Sequential SelectedStrategies must stay empty")
+    guarded_text = serialize_xml(root)
+    for token in CAPA2_SEQUENTIAL_BANNED_TOKENS:
+        if token in guarded_text:
+            issues.append(f"{target_name}: Forbidden token leaked into Capa2 Sequential: {token}")
+    if re.search(r"[A-Za-z]:\\", guarded_text):
+        issues.append(f"{target_name}: local absolute path leaked into Capa2 Sequential")
+    issues.extend(capa2_sequential_generator_period_issues())
+    return issues
+
+
+def update_capa2_sequential_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "sha256Before": file_sha256(cfx) if cfx.is_file() else "",
+        "actions": [],
+        "backup": "",
+        "willWrite": apply,
+    }
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        payload["error"] = "missing_or_not_zip"
+        return payload
+    task_xml_name, root, title = load_capa2_sequential_task_root(cfx)
+    payload["taskXml"] = task_xml_name
+    payload["displayTitle"] = title
+    if not task_xml_name or root is None:
+        payload["error"] = "capa2_sequential_task_not_found"
+        payload["sha256After"] = payload["sha256Before"]
+        return payload
+    before_text = serialize_xml(root)
+    payload["before"] = capa2_sequential_summary(root)
+    payload["actions"] = apply_capa2_sequential_target_to_root(root)
+    payload["after"] = capa2_sequential_summary(root)
+    payload["issues"] = enforce_capa2_sequential_guard(root, payload.get("displayTitle") or "Capa2 Sequential")
+    payload["guardOk"] = not payload["issues"]
+    after_text = serialize_xml(root)
+    payload["changed"] = before_text != after_text
+    payload["changedActionCount"] = sum(1 for item in payload["actions"] if item.get("changed"))
+    payload["targetValues"] = {
+        "taskXml": CAPA2_SEQUENTIAL_TASK_XML,
+        "title": CAPA2_SEQUENTIAL_TASK_TITLE,
+        "period": CAPA2_SEQUENTIAL_PERIOD_KEY,
+        "testPrecision": CAPA2_SEQUENTIAL_DATA_TEST_PRECISION,
+        "precisionPolicy": "fastest for Capa2 Sequential and pending robustness retests; Forward returns to tick precision.",
+        "databanks": CAPA2_SEQUENTIAL_DATABANKS_TARGET,
+        "dataCarrier": "Data + CustomData synchronized",
+        "resource": {"symbol": CAPA2_SEQUENTIAL_RESOURCE_SYMBOL, "source": CAPA2_BUILD_RESOURCE_SOURCE_ID, "broker": CAPA2_BUILD_RESOURCE_BROKER_ID},
+        "activeCrossCheck": SEQUENTIAL_ACTIVE_CROSSCHECK,
+        "parameterSettings": SEQUENTIAL_PARAMETER_SETTINGS_TARGET,
+        "acceptanceSettings": SEQUENTIAL_ACCEPTANCE_SETTINGS_TARGET,
+        "strategyType": CAPA2_SEQUENTIAL_STRATEGY_TYPE_TARGET,
+        "exitTypes": CAPA2_BUILD_BLOCKS_EXIT_TARGET,
+    }
+    payload["targetRationale"] = {
+        "validation": "Capa2 Sequential consumes MC2 survivors and writes Sequential using SequentialOptimization stability checks; it is not a new optimizer.",
+        "antiOverfit": "ApplyToStrategy=false, no internal OOS split, no portfolio fitting, no custom analysis and no ranking filters are added.",
+        "precision": "Operator decision: MC and remaining Capa2 robustness retests use fastest; Forward returns to tick precision.",
+        "capa2Exits": "Unlike Capa1 Sequential, Capa2 keeps ExitAfterBars=false and preserves SL/PT/trailing risk exits.",
+        "naturalResults": "No SQX launch, no smoke, no optimization and no forced Results=passed.",
+    }
+    if apply and payload["changed"] and payload["guardOk"]:
+        backup = backup_file(cfx, backup_root)
+        payload["backup"] = str(backup)
+        replace_zip_text_entry(cfx, task_xml_name, serialize_xml(root))
+        payload["sha256After"] = file_sha256(cfx)
+    else:
+        payload["sha256After"] = payload["sha256Before"]
+    return payload
+
+
+def promote_capa2_sequential_target(root142: Path, project_root: Path, target: str, apply: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    previous_gate = promote_capa2_mc2_target(root142, project_root, target=target, apply=False)
+    issues = list(previous_gate.get("issues") or [])
+    if previous_gate.get("ok") is not True:
+        issues.append("capa2-mc2-target: previous gate ok=false")
+    process_probe = process_snapshot()
+    if process_probe.get("processes"):
+        issues.append("SQX processes are alive; close SQX before applying phase23 Capa2 Sequential")
+    backup_root = ledger_root(project_root) / "backups" / f"phase23_capa2_sequential_{stamp()}"
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = capa2_base_project_path(root142)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_CAPA2_TEMPLATE
+    results = {name: update_capa2_sequential_target_in_cfx(path, backup_root / name, apply=apply) for name, path in targets.items()}
+    for target_name, result in results.items():
+        for issue in result.get("issues") or []:
+            issues.append(f"{target_name}: {issue}")
+    payload: dict[str, Any] = {
+        "ok": not issues and all(item.get("exists") and item.get("isZip") and not item.get("error") and item.get("guardOk") for item in results.values()),
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase23_capa2_sequential",
+        "operation": "capa2_sequential_target",
+        "apply": apply,
+        "target": target,
+        "previousGate": {
+            "phase": previous_gate.get("phase"),
+            "ok": previous_gate.get("ok"),
+            "issues": previous_gate.get("issues", []),
+            "warnings": previous_gate.get("warnings", []),
+            "nextPhase": previous_gate.get("nextPhase"),
+            "written": previous_gate.get("written", ""),
+        },
+        "processProbe": process_probe,
+        "issues": issues,
+        "warnings": [],
+        "results": results,
+        "summary": {
+            "decision": "Close Capa2 Sequential as validation-only stability gate after MC2.",
+            "taskXml": CAPA2_SEQUENTIAL_TASK_XML,
+            "chain": "Input=MC2, Output=Sequential.",
+            "data": f"Darwinex ROBUSTNESS_C2 window 2017.10.02-2023.12.31, testPrecision={CAPA2_SEQUENTIAL_DATA_TEST_PRECISION} fastest, Data+CustomData, No Session.",
+            "crossChecks": "CrossChecks use=true/evaluateAll=true; only SequentialOptimization active, ApplyToStrategy=false, acceptance 80/5/25 and no acceptance conditions.",
+            "passive": "StrategyType reads MC2 passively; PartsToImprove/fresh-blood/evolution are inactive; ExitAfterBars remains false and SL/PT/trailing remain active for Capa2.",
+            "naturalResults": "No SQX launch, no smoke, no optimization and no forced Results=passed.",
+            "nextPhase": CAPA2_SEQUENTIAL_NEXT,
+        },
+        "academicSources": CAPA2_ACADEMIC_SOURCES,
+        "nextPhase": "phase23_capa2_sequential_diff_review" if not apply else CAPA2_SEQUENTIAL_NEXT,
+    }
+    evidence_target = ledger_root(project_root) / "diffs" / f"phase23_capa2_sequential_target_{stamp()}.json"
+    write_json(evidence_target, payload)
+    payload["written"] = str(evidence_target)
+    if apply and payload["ok"]:
+        state_path = ledger_root(project_root) / "session_state.json"
+        state = read_json(state_path, {})
+        state.update({
+            "updatedAt": now_iso(),
+            "currentPhase": "phase23_capa2_sequential",
+            "nextPhase": CAPA2_SEQUENTIAL_NEXT,
+            "scope": "capa2",
+            "phase23Capa2SequentialReport": str(evidence_target),
+        })
+        write_json(state_path, state)
+    return payload
+
+
 def update_build_data_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
     date_from, date_to = generator_period(BUILD_DATA_PERIOD_KEY)
     payload: dict[str, Any] = {
@@ -24321,6 +24761,10 @@ def build_parser() -> argparse.ArgumentParser:
     capa2_mc2.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     capa2_mc2.add_argument("--apply", action="store_true")
 
+    capa2_sequential = sub.add_parser("capa2-sequential-target")
+    capa2_sequential.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    capa2_sequential.add_argument("--apply", action="store_true")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -24602,6 +25046,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "capa2-mc2-target":
         json_print(promote_capa2_mc2_target(root142, project_root, target=args.target, apply=args.apply))
+        return 0
+    if args.command == "capa2-sequential-target":
+        json_print(promote_capa2_sequential_target(root142, project_root, target=args.target, apply=args.apply))
         return 0
     if args.command == "archive-exit-day-snippets":
         json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))
