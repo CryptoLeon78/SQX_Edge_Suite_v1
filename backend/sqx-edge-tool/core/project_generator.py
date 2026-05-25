@@ -42,7 +42,19 @@ ADAPTIVE_SPREAD_STRESS = {
 CAPA2_NO_EXIT_AFTER_BARS_TASKS = {
     "Build-Task1.xml",
     "Retest-Task1.xml",
+    "AutomaticRetest-Task1.xml",
     "AutomaticRetest-Task2.xml",
+}
+CAPA2_FASTEST_PRECISION_TASKS = {
+    "AutomaticRetest-Task1.xml",
+    "AutomaticRetest-Task8.xml",
+    "AutomaticRetest-Task3.xml",
+    "AutomaticRetest-Task6.xml",
+    "AutomaticRetest-Task5.xml",
+    "AutomaticRetest-Task4.xml",
+}
+CAPA2_TICK_PRECISION_TASKS = {
+    "Retest-Task2.xml",
 }
 BROKER_PROFILES = _GENERATOR_PROFILE.get("brokerProfiles") or {}
 TARGET_PROFILES = _GENERATOR_PROFILE.get("targetProfiles") or {}
@@ -91,6 +103,14 @@ def _spread_stress_for(capa: int, filename: str) -> Optional[tuple[float, float]
     if min_multiplier <= 0 or max_multiplier <= 0 or min_multiplier > max_multiplier:
         return None
     return min_multiplier, max_multiplier
+
+
+def _backtest_precision_for_file(capa: int, filename: str) -> str:
+    if capa == 2 and filename in CAPA2_FASTEST_PRECISION_TASKS:
+        return "1"
+    if capa == 2 and filename in CAPA2_TICK_PRECISION_TASKS:
+        return "4"
+    return "2"
 
 
 def _build_task_title(blocksetting_id: str, capa: int, direction: str, timeframe: str) -> str:
@@ -529,6 +549,7 @@ def generate_project(
             period=period,
             trading_window=_trading_window_for_file(capa, filename, mining.tf),
             spread_stress_multipliers=_spread_stress_for(capa, filename),
+            backtest_precision=_backtest_precision_for_file(capa, filename),
             clean_paths=True,
         )
         if apply_blocksetting_to_xml(root, blocksetting_entry):

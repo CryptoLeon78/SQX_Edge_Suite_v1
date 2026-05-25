@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-05-25 - C1-CONFIG1 Capa2 MC
+
+- Adds `capa2-mc-target` as the Phase 21 MonteCarloManipulation validation guard for Capa2.
+- Records evidence `phase21_capa2_mc_target_20260525_022738.json` and closes `AutomaticRetest-Task1.xml` as `Input=TICK` / `Output=MC`.
+- Pins MC to Darwinex `ROBUSTNESS_C2 2017.10.02-2023.12.31`, `testPrecision=1 fastest`, `No Session`, no internal OOS ranges and data `AUDCAD_darwinex` source `4`, broker `4`.
+- Keeps MC passive and anti-overfit: only `MonteCarloManipulation` is active, `NumberOfSimulations=200`, `MCUseFullSample=true`, `RandomizeTradesOrder=resampling`, `RandomlySkipTrades=false`, `MonteCarloRetest=false`, no ranking filters, `FitPortfolio=false`, `CustomAnalysis=false`, no SQX launch, no smoke, no optimization and no forced `Results=passed`.
+- Preserves Capa2 exits with `ExitAfterBars=false` and SL/PT/trailing active; maps generator layer 2 `AutomaticRetest-Task1.xml` to `ROBUSTNESS_C2` and adds it to `CAPA2_NO_EXIT_AFTER_BARS_TASKS`.
+- Records the precision policy from this block onward: MC and pending Capa2 robustness retests inherit fastest data precision, while Forward returns to tick precision.
+- Sets the next exact block to `phase22_capa2_mc2`.
+
 ## 2026-05-25 - C1-CONFIG1 Capa2 TICK REAL
 
 - Adds `capa2-tick-real-target` as the Phase 20 precision-data validation guard for Capa2.

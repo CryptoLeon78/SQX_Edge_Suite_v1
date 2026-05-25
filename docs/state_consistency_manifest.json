@@ -5164,6 +5164,133 @@
       }
     },
     {
+      "id": "sqx142_c2_phase21_mc_validation",
+      "description": "C1-CONFIG1 Phase 21 Capa2 MC must stay closed as a fastest Darwinex MonteCarloManipulation validation-only gate, with no tuning, no MC2 spread stress and no execution claims.",
+      "required": {
+        "README.md": [
+          "phase21_capa2_mc",
+          "phase21_capa2_mc_target_20260525_022738.json",
+          "`AutomaticRetest-Task1.xml`",
+          "`Input=TICK`",
+          "`Output=MC`",
+          "`ROBUSTNESS_C2 2017.10.02-2023.12.31`",
+          "`AUDCAD_darwinex` source `4` broker `4`",
+          "`testPrecision=1 fastest`",
+          "`RandomizeTradesOrder=resampling`",
+          "`RandomlySkipTrades=false`",
+          "`MonteCarloRetest=false`",
+          "`ExitAfterBars=false` con SL/PT/trailing activos",
+          "Forward vuelve a precision tick",
+          "phase22_capa2_mc2"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Phase 21 `Capa2 MC` is closed",
+          "phase21_capa2_mc_target_20260525_022738.json",
+          "`capa2-mc-target --target both --apply`",
+          "`AutomaticRetest-Task1.xml`",
+          "`Input=TICK`",
+          "`Output=MC`",
+          "`testPrecision=1 fastest`",
+          "only `MonteCarloManipulation` active",
+          "`MonteCarloRetest=false`",
+          "Forward returns to tick precision",
+          "phase22_capa2_mc2"
+        ],
+        "docs/ARCHITECTURE.md": [
+          "phase21_capa2_mc",
+          "Capa2 MC `AutomaticRetest-Task1.xml`",
+          "`Input=TICK`",
+          "`Output=MC`",
+          "`testPrecision=1 fastest`",
+          "only `MonteCarloManipulation` active",
+          "`RandomizeTradesOrder=resampling`",
+          "`RandomlySkipTrades=false`",
+          "`MonteCarloRetest=false`",
+          "Forward returns to tick precision"
+        ],
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "Estado Fase 21 - Capa2 MC",
+          "phase21_capa2_mc_target_20260525_022738.json",
+          "`capa2-mc-target --target both --apply`",
+          "`AutomaticRetest-Task1.xml`",
+          "`Input=TICK`",
+          "`Output=MC`",
+          "`testPrecision=1 fastest`",
+          "`RandomizeTradesOrder=resampling`",
+          "`RandomlySkipTrades=false`",
+          "`MonteCarloRetest=false`",
+          "`currentPhase=phase21_capa2_mc`",
+          "`nextPhase=phase22_capa2_mc2`"
+        ],
+        "CHANGELOG.md": [
+          "2026-05-25 - C1-CONFIG1 Capa2 MC",
+          "`capa2-mc-target`",
+          "phase21_capa2_mc_target_20260525_022738.json",
+          "`AutomaticRetest-Task1.xml`",
+          "`Input=TICK` / `Output=MC`",
+          "`testPrecision=1 fastest`",
+          "`MonteCarloRetest=false`",
+          "Forward returns to tick precision",
+          "phase22_capa2_mc2"
+        ],
+        "backend/sqx-edge-tool/config/generator_profiles.json": [
+          "\"AutomaticRetest-Task1.xml\"",
+          "\"ROBUSTNESS_C2\""
+        ],
+        "backend/sqx-edge-tool/core/project_generator.py": [
+          "CAPA2_NO_EXIT_AFTER_BARS_TASKS",
+          "CAPA2_FASTEST_PRECISION_TASKS",
+          "CAPA2_TICK_PRECISION_TASKS",
+          "\"AutomaticRetest-Task1.xml\"",
+          "\"Retest-Task2.xml\""
+        ],
+        "backend/sqx-edge-tool/tools/sqx142_task_config_gate.py": [
+          "CAPA2_MC_NEXT = \"phase22_capa2_mc2\"",
+          "CAPA2_MC_TASK_XML = \"AutomaticRetest-Task1.xml\"",
+          "CAPA2_MC_DATA_TEST_PRECISION = CAPA2_FASTEST_DATA_TEST_PRECISION",
+          "def promote_capa2_mc_target",
+          "def enforce_capa2_mc_guard",
+          "capa2-mc-target"
+        ],
+        "backend/sqx-edge-tool/test_sqx142_task_config_gate.py": [
+          "test_capa2_mc_target_applies_and_is_idempotent",
+          "test_capa2_mc_guard_rejects_overfit_and_drift",
+          "test_capa2_mc_cli_is_registered"
+        ],
+        "backend/sqx-edge-tool/test_cfx_template_compatibility.py": [
+          "test_capa2_base_mc_matches_phase21_methodology",
+          "_assert_capa2_mc_contract",
+          "testPrecision\") == \"1\""
+        ]
+      },
+      "forbidden": {
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "Capa2 MC usa Dukascopy",
+          "phase21_capa2_mc usa Dukascopy",
+          "Capa2 MC ejecuta SQX",
+          "Capa2 MC lanza smoke",
+          "Capa2 MC inicia optimizacion",
+          "Capa2 MC fuerza Results=passed",
+          "Capa2 MC optimiza parametros",
+          "Capa2 MC ExitAfterBars=true",
+          "Capa2 MC activa MonteCarloRetest",
+          "Capa2 MC aplica MC2 spread stress"
+        ],
+        "CHANGELOG.md": [
+          "Capa2 MC uses Dukascopy",
+          "phase21_capa2_mc uses Dukascopy",
+          "Capa2 MC ran SQX",
+          "Capa2 MC ran smoke",
+          "Capa2 MC optimization completed",
+          "Capa2 MC forced Results=passed",
+          "Capa2 MC optimized parameters",
+          "Capa2 MC ExitAfterBars=true",
+          "Capa2 MC activates MonteCarloRetest",
+          "Capa2 MC applies MC2 spread stress"
+        ]
+      }
+    },
+    {
       "id": "sqx_agent_per_message_bootstrap_g9",
       "description": "G9/G9R must keep per-message specialist activation, new-session bootstrap and explicit parallel subagent runtime loading proactive but orchestrator-owned, compaction-resilient and mutation-gated.",
       "required": {

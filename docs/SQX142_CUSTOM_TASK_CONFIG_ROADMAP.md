@@ -1,7 +1,8 @@
 # SQX142 Custom Task Config Roadmap
 
-Estado: C1-CONFIG1 con Fase 20
-`Capa2 TICK REAL` cerrada el 2026-05-25 con
+Estado: C1-CONFIG1 con Fase 21
+`Capa2 MC` cerrada el 2026-05-25 con
+`phase21_capa2_mc_target_20260525_022738.json`, despues de cerrar
 `phase20_capa2_tick_real_target_20260525_013436.json`, despues de cerrar
 `phase19_capa2_retest1_target_20260525_003750.json`, despues de
 cerrar `phase18_capa2_retest0_target_20260524_234752.json`, despues de
@@ -2522,6 +2523,40 @@ Siguiente bloque exacto: `phase20_capa2_tick_real`.
   `nextPhase=phase21_capa2_mc`, `scope=capa2`.
 
 Siguiente bloque exacto: `phase21_capa2_mc`.
+
+## Estado Fase 21 - Capa2 MC
+
+- `phase21_capa2_mc` queda cerrada con
+  `phase21_capa2_mc_target_20260525_022738.json`.
+- Comando aplicado: `capa2-mc-target --target both --apply`, con dry-run
+  previo, backup/diff local, dry-run posterior idempotente y `processes=[]`.
+- Contrato tecnico: `AutomaticRetest-Task1.xml`, `Input=TICK`,
+  `Output=MC`, `ROBUSTNESS_C2 2017.10.02-2023.12.31`,
+  `testPrecision=1 fastest`, `No Session`, sin OOS interno.
+- Contrato de datos: MC vuelve y se mantiene en Darwinex
+  (`AUDCAD_darwinex`, source `4`, broker `4`); Dukascopy queda limitado a
+  `phase19_capa2_retest1`.
+- Contrato de robustez: `CrossChecks use=true/evaluateAll=true`, solo
+  `MonteCarloManipulation` activo, `NumberOfSimulations=200`,
+  `MCUseFullSample=true`, `RandomizeTradesOrder=resampling`,
+  `RandomlySkipTrades=false` y `MonteCarloRetest=false`.
+- Contrato anti-overfit: `StrategyType` pasivo desde `TICK`, sin
+  `FitPortfolio`, sin `CustomAnalysis`, sin condiciones de Rankings, sin
+  MC2 spread stress en esta fase y sin split OOS interno.
+- Contrato Capa2 de salidas: `ExitAfterBars=false` y SL/PT/trailing activos.
+- `generator_profiles.json` mapea layer 2 `AutomaticRetest-Task1.xml` a
+  `ROBUSTNESS_C2`, y `CAPA2_NO_EXIT_AFTER_BARS_TASKS` protege que la
+  generacion no reactive `ExitAfterBars`.
+- Politica aclarada: desde MC los retests de robustez Capa2 pendientes heredan
+  precision-data `fastest`; Forward vuelve a precision tick.
+- Ambos targets quedan idempotentes tras apply: `changedActionCount=0`,
+  `guardOk=true`, `issues=[]`, `warnings=[]`, `processes=[]`.
+- No hubo lanzamiento SQX, smoke, optimizacion ni ejecucion real; no se fuerza
+  `Results=passed`.
+- El estado local queda en `currentPhase=phase21_capa2_mc`,
+  `nextPhase=phase22_capa2_mc2`, `scope=capa2`.
+
+Siguiente bloque exacto: `phase22_capa2_mc2`.
 
 ## Disciplina Operativa
 

@@ -536,6 +536,7 @@ def apply_mining_to_xml(
     period: tuple[str, str] = RETEST_PERIODS["BUILD"],
     trading_window: Optional[tuple[str, str]] = None,
     spread_stress_multipliers: Optional[tuple[float, float]] = None,
+    backtest_precision: str = "2",
     clean_paths: bool = True,
 ) -> dict:
     """Aplica el set completo de patches por mining a un XML root."""
@@ -549,7 +550,7 @@ def apply_mining_to_xml(
         )
     stats = {
         "sessions": patch_no_session(root),
-        "precision": patch_backtest_precision(root),
+        "precision": patch_backtest_precision(root, backtest_precision),
         "charts": patch_symbol_tf_spread(root, symbol, timeframe, spread),
         "embedded_strategy": patch_embedded_strategy_metadata(root, symbol, timeframe),
         "swaps": patch_swap(root, swap_long, swap_short, swap_type),
