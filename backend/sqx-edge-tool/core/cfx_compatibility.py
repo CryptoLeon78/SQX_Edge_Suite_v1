@@ -109,6 +109,10 @@ def _safe_project_name(config_root: ET.Element | None, cfx_path: Path) -> str:
 
 def _summarize_xml(name: str, root: ET.Element) -> CfxXmlSummary:
     summary = CfxXmlSummary(file=name)
+    for node in root.iter():
+        for value in node.attrib.values():
+            if _is_abs_path(str(value)):
+                summary.absolute_path_refs += 1
     for chart in root.findall(".//Setup/Chart"):
         if chart.get("symbol"):
             summary.chart_symbols.add(str(chart.get("symbol")))
@@ -136,10 +140,6 @@ def _summarize_xml(name: str, root: ET.Element) -> CfxXmlSummary:
     for node in root.findall(".//BackupStrategyTemplate//symbol"):
         if node.text:
             summary.embedded_symbols.add(str(node.text))
-    for strategy_type in root.findall(".//StrategyType"):
-        for attr in ("templateFile", "strategyFile"):
-            if _is_abs_path(strategy_type.get(attr) or ""):
-                summary.absolute_path_refs += 1
     return summary
 
 
@@ -184,7 +184,7 @@ def _inspect_summary(summary: CfxXmlSummary, issues: list[CfxCompatibilityIssue]
         if timezone != "EETUS":
             _issue(issues, "non_darwinex_timezone", "warn", file, f"symbol timezone is {timezone}")
     if summary.absolute_path_refs:
-        _issue(issues, "absolute_strategytype_path", "warn", file, "StrategyType keeps absolute paths from the source machine")
+        _issue(issues, "absolute_xml_path", "warn", file, "XML keeps absolute paths from the source machine")
     if len(summary.chart_symbols) > 1:
         _issue(issues, "mixed_chart_symbols", "warn", file, "multiple chart symbols appear in one task")
 

@@ -1921,6 +1921,15 @@ def _resource_issues(cfx_path: Path) -> list[str]:
     return issues
 
 
+def _config_absolute_path_attrs(config_root: ET.Element) -> list[tuple[str, str, str]]:
+    refs: list[tuple[str, str, str]] = []
+    for node in config_root.iter():
+        for key, value in node.attrib.items():
+            if ":\\" in value or ":/" in value:
+                refs.append((node.tag, key, value))
+    return refs
+
+
 def test_base_cfx_templates_have_sqx142_resolvable_resources():
     for template_name in ("Capa1_Long.cfx", "Capa2_Base.cfx"):
         issues = _resource_issues(TEMPLATE_DIR / template_name)
@@ -2605,6 +2614,7 @@ def test_generate_project_names_build_task_and_applies_capa1_time_window():
     config = roots["config.xml"]
     build_task = next(task for task in config.findall(".//Task") if task.get("type") == "Build")
     assert build_task.get("title") == "Build BS_Volatilidad_v6 · Capa1 L+S H4"
+    assert _config_absolute_path_attrs(config) == []
 
     build = roots["Build-Task1.xml"]
     setup = build.find(".//Data/Setups/Setup")
@@ -2870,6 +2880,7 @@ def test_generate_capa2_project_applies_layer2_build_window_and_disables_heavy_r
     tick_task = next(task for task in config.findall(".//Task") if task.get("taskXMLFile") == "AutomaticRetest-Task2.xml")
     config_databanks = {databank.get("name") for databank in config.findall(".//Databank")}
     assert tick_task.get("title") == "TICK REAL"
+    assert _config_absolute_path_attrs(config) == []
     assert "TICK" in config_databanks
     assert "HBP" not in config_databanks
 

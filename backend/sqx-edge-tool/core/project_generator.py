@@ -17,7 +17,7 @@ from .blocksettings import apply_blocksetting_to_xml, blocksetting_trace, resolv
 from .config_loader import load_manifest
 from .plan import Mining
 from .sqx_db import SqxDb
-from .xml_patcher import RETEST_PERIODS, apply_mining_to_xml, patch_dates
+from .xml_patcher import RETEST_PERIODS, apply_mining_to_xml, clean_external_paths, patch_dates
 
 
 _GENERATOR_PROFILE = load_manifest("generator_profiles.json")
@@ -589,6 +589,7 @@ def generate_project(
         for task in config_root.findall(".//Task"):
             if task.get("type") == "Build":
                 task.set("title", build_title)
+        total_stats["paths_cleaned"] += clean_external_paths(config_root)
         editor.update_xml("config.xml", config_tree)
 
     # Guardar el .cfx

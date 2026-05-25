@@ -8,6 +8,7 @@ para que el .cfx sea coherente extremo a extremo.
 from __future__ import annotations
 
 from datetime import datetime, timezone
+import re
 from typing import Optional
 from xml.etree import ElementTree as ET
 
@@ -18,6 +19,8 @@ RETEST_PERIODS = {
     key: tuple(value)
     for key, value in (_GENERATOR_PROFILE.get("retestPeriods") or {}).items()
 }
+_WINDOWS_ABSOLUTE_PATH_RE = re.compile(r"[A-Za-z]:[\\/]")
+_EXTERNAL_PATH_ATTRS = ("templateFile", "strategyFile")
 
 
 # ── Helpers ───────────────────────────────────────────────────────
@@ -507,15 +510,25 @@ def patch_dates(
 
 def clean_external_paths(root: ET.Element) -> int:
     """
-    Quita los paths absolutos del PC original en <StrategyType>.
-    El usuario tendrá que re-seleccionarlos manualmente en SQX Builder
-    (templateFile y strategyFile), pero al menos no apuntan a un PC ajeno.
+    Quita referencias absolutas del PC original.
+
+    SQX guarda templateFile/strategyFile tanto en StrategyType como en la lista
+    maestra de Tasks del config.xml. Los generados no deben apuntar a rutas de
+    otra máquina antes de importarlos en una instalación real.
     """
     n = 0
     for st in _all_strategy_types(root):
-        for attr in ("templateFile", "strategyFile"):
+        for attr in _EXTERNAL_PATH_ATTRS:
             if st.get(attr):
                 st.set(attr, "")
+                n += 1
+    for node in root.iter():
+        if node.tag == "StrategyType":
+            continue
+        for attr in _EXTERNAL_PATH_ATTRS:
+            value = node.get(attr)
+            if value and _WINDOWS_ABSOLUTE_PATH_RE.search(value):
+                node.set(attr, "")
                 n += 1
     return n
 
