@@ -6078,6 +6078,137 @@
       }
     },
     {
+      "id": "sqx142_c2_phase28_forward_validation",
+      "description": "C1-CONFIG1 Phase 28 Capa2 Forward must stay closed as the final Darwinex tick-precision holdout before portfolio construction, using Retest-Task2.xml without adding selection pressure.",
+      "required": {
+        "README.md": [
+          "phase28_capa2_forward",
+          "phase28_capa2_forward_target_20260525_140929.json",
+          "`Retest-Task2.xml`",
+          "`Input=WFM`",
+          "`Output=Foward`",
+          "RETEST QUICK REVIEW",
+          "`FOWARD 2025.01.01-2026.04.30`",
+          "`testPrecision=2 tick`",
+          "`NumberOfTrades >= 30`",
+          "`RExpectancy > 0`",
+          "`NetProfit >= 0`",
+          "`ExitAfterBars=false`",
+          "phase29_capa2_portfolio"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Phase 28 `Capa2 Forward` is closed",
+          "phase28_capa2_forward_target_20260525_140929.json",
+          "`capa2-forward-target --target both --apply`",
+          "`Retest-Task2.xml`",
+          "`Input=WFM`",
+          "`Output=Foward`",
+          "RETEST QUICK REVIEW",
+          "`FOWARD 2025.01.01-2026.04.30`",
+          "`testPrecision=2 tick`",
+          "`NumberOfTrades >= 30`",
+          "`RExpectancy > 0`",
+          "`NetProfit >= 0`",
+          "phase29_capa2_portfolio"
+        ],
+        "docs/ARCHITECTURE.md": [
+          "phase28_capa2_forward",
+          "`Input=WFM`",
+          "`Output=Foward`",
+          "RETEST QUICK REVIEW",
+          "`FOWARD 2025.01.01-2026.04.30`",
+          "`testPrecision=2 tick`",
+          "`NumberOfTrades >= 30`",
+          "`RExpectancy > 0`",
+          "`NetProfit >= 0`",
+          "portfolio construction starts after Forward"
+        ],
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "Estado Fase 28 - Capa2 Forward",
+          "phase28_capa2_forward_target_20260525_140929.json",
+          "`capa2-forward-target --target both --apply`",
+          "`Retest-Task2.xml`",
+          "`Input=WFM`",
+          "`Output=Foward`",
+          "RETEST QUICK REVIEW",
+          "`FOWARD 2025.01.01-2026.04.30`",
+          "`testPrecision=2 tick`",
+          "`NumberOfTrades >= 30`",
+          "`RExpectancy > 0`",
+          "`NetProfit >= 0`",
+          "`currentPhase=phase28_capa2_forward`",
+          "`nextPhase=phase29_capa2_portfolio`"
+        ],
+        "CHANGELOG.md": [
+          "2026-05-25 - C1-CONFIG1 Capa2 Forward",
+          "`capa2-forward-target`",
+          "phase28_capa2_forward_target_20260525_140929.json",
+          "`Retest-Task2.xml`",
+          "`Input=WFM` / `Output=Foward`",
+          "RETEST QUICK REVIEW",
+          "`testPrecision=2 tick`",
+          "`NumberOfTrades >= 30`",
+          "`RExpectancy > 0`",
+          "`NetProfit >= 0`",
+          "phase29_capa2_portfolio"
+        ],
+        "backend/sqx-edge-tool/config/generator_profiles.json": [
+          "\"Retest-Task2.xml\"",
+          "\"FOWARD\""
+        ],
+        "backend/sqx-edge-tool/core/project_generator.py": [
+          "CAPA2_NO_EXIT_AFTER_BARS_TASKS",
+          "CAPA2_TICK_PRECISION_TASKS",
+          "\"Retest-Task2.xml\"",
+          "return \"2\""
+        ],
+        "backend/sqx-edge-tool/tools/sqx142_task_config_gate.py": [
+          "CAPA2_FORWARD_NEXT = \"phase29_capa2_portfolio\"",
+          "CAPA2_FORWARD_TASK_XML = \"Retest-Task2.xml\"",
+          "CAPA2_FORWARD_DATA_TEST_PRECISION = CAPA2_TICK_REAL_DATA_TEST_PRECISION",
+          "def promote_capa2_forward_target",
+          "def enforce_capa2_forward_guard",
+          "capa2-forward-target"
+        ],
+        "backend/sqx-edge-tool/test_sqx142_task_config_gate.py": [
+          "test_capa2_forward_target_applies_tick_precision_and_is_idempotent",
+          "test_capa2_forward_guard_rejects_fastest_and_portfolio_drift",
+          "test_capa2_forward_cli_is_registered"
+        ],
+        "backend/sqx-edge-tool/test_cfx_template_compatibility.py": [
+          "test_capa2_base_forward_matches_phase28_methodology",
+          "_assert_capa2_forward_contract",
+          "testPrecision\") == C1_TICK_TEST_PRECISION"
+        ]
+      },
+      "forbidden": {
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "Forward hereda fastest",
+          "Capa2 Forward usa Dukascopy",
+          "phase28_capa2_forward usa Dukascopy",
+          "Capa2 Forward ejecuta SQX",
+          "Capa2 Forward lanza smoke",
+          "Capa2 Forward inicia optimizacion",
+          "Capa2 Forward fuerza Results=passed",
+          "Capa2 Forward FitPortfolio=true",
+          "Capa2 Forward CustomAnalysis=true",
+          "Capa2 Forward ExitAfterBars=true"
+        ],
+        "CHANGELOG.md": [
+          "Forward inherits fastest",
+          "Capa2 Forward uses Dukascopy",
+          "phase28_capa2_forward uses Dukascopy",
+          "Capa2 Forward ran SQX",
+          "Capa2 Forward ran smoke",
+          "Capa2 Forward optimization completed",
+          "Capa2 Forward forced Results=passed",
+          "Capa2 Forward FitPortfolio=true",
+          "Capa2 Forward CustomAnalysis=true",
+          "Capa2 Forward ExitAfterBars=true"
+        ]
+      }
+    },
+    {
       "id": "sqx142_c1_fastest_precision_correction_before_c2_spp",
       "description": "C1-CONFIG1 must record the important Capa1 precision correction after Capa2 Synthetic and before Capa2 SPP: MC through WFM use fastest/testPrecision=1, while Foward remains tick/testPrecision=2.",
       "required": {

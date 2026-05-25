@@ -50,6 +50,7 @@ CAPA2_NO_EXIT_AFTER_BARS_TASKS = {
     "AutomaticRetest-Task4.xml",
     "Optimize-Task1.xml",
     "AutomaticRetest-Task2.xml",
+    "Retest-Task2.xml",
 }
 CAPA2_FASTEST_PRECISION_TASKS = {
     "AutomaticRetest-Task1.xml",
@@ -127,7 +128,7 @@ def _backtest_precision_for_file(capa: int, filename: str) -> str:
     if capa == 2 and filename in CAPA2_FASTEST_PRECISION_TASKS:
         return "1"
     if capa == 2 and filename in CAPA2_TICK_PRECISION_TASKS:
-        return "4"
+        return "2"
     return "2"
 
 

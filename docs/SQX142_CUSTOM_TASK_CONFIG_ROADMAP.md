@@ -1,7 +1,8 @@
 # SQX142 Custom Task Config Roadmap
 
-Estado: C1-CONFIG1 con Fase 27
-`Capa2 WFM` cerrada el 2026-05-25 con
+Estado: C1-CONFIG1 con Fase 28
+`Capa2 Forward` cerrada el 2026-05-25 con
+`phase28_capa2_forward_target_20260525_140929.json`, despues de cerrar
 `phase27_capa2_wfm_target_20260525_133852.json`, despues de cerrar
 `phase26_capa2_spp_target_20260525_123915.json`, despues de cerrar
 `phase25_capa2_synthetic_target_20260525_111540.json`, despues de cerrar
@@ -129,9 +130,18 @@ WFM `10/15`, distribuciones `20/20`, `maxSteps=8`), aceptacion
 `NetProfit > 0`, `NetProfit > 60`, `WFPctOfProfitableRuns > 70`,
 `WFMaxProfitByRunInPct < 50`, `WFMinTradesInRun > 20` y
 `WFMaxPctDDbyRun <= 25`, sin portfolio/custom-analysis/ranking filters y
-`ExitAfterBars=false` con SL/PT/trailing activos. `currentPhase=phase27_capa2_wfm`;
-`nextPhase=phase28_capa2_forward`. El siguiente bloque exacto es
-`phase28_capa2_forward`.
+`ExitAfterBars=false` con SL/PT/trailing activos. Forward Capa2 queda cerrado
+como `Retest-Task2.xml`, `Input=WFM`, `Output=Foward`, view
+`RETEST QUICK REVIEW`, periodo `FOWARD 2025.01.01-2026.04.30`, portador
+`Data` con `CustomData` superior inerte, data Darwinex `AUDCAD_darwinex`
+source `4` broker `4`, `testPrecision=2 tick`, `No Session`, comision
+`SizeBased=0.0`, OOS internos `2025.01.01-2026.01.01` y
+`2026.01.01-2026.04.30`, `CrossChecks use=false`, `FitPortfolio=false`,
+`CustomAnalysis=false`, filtros finales amplios `NumberOfTrades >= 30`,
+`RExpectancy > 0`, `NetProfit >= 0` y `ExitAfterBars=false` con
+SL/PT/trailing activos. `currentPhase=phase28_capa2_forward`;
+`nextPhase=phase29_capa2_portfolio`. El siguiente bloque exacto es
+`phase29_capa2_portfolio`.
 Capa1 Fastest Precision Correction Before Capa2 SPP queda aplicada como
 correccion importante tras `phase25_capa2_synthetic` y antes de empezar
 `phase26_capa2_spp`: Capa1 MC, MC2, Sequential, Monkey, Synthetic, SPP and
@@ -2826,6 +2836,39 @@ Siguiente bloque exacto: `phase27_capa2_wfm`.
   `nextPhase=phase28_capa2_forward`, `scope=capa2`.
 
 Siguiente bloque exacto: `phase28_capa2_forward`.
+
+## Estado Fase 28 - Capa2 Forward
+
+- `phase28_capa2_forward` queda cerrada con
+  `phase28_capa2_forward_target_20260525_140929.json`.
+- Comando aplicado: `capa2-forward-target --target both --apply`, con dry-run
+  previo, backup/diff local, dry-run posterior idempotente y `processes=[]`.
+- Contrato tecnico: `Retest-Task2.xml`, `Input=WFM`, `Output=Foward`, view
+  `RETEST QUICK REVIEW`, `FOWARD 2025.01.01-2026.04.30`, portador `Data` con
+  `CustomData` superior inerte, `testPrecision=2 tick`, `No Session`,
+  comision `SizeBased=0.0` y dos rangos OOS internos
+  `2025.01.01-2026.01.01` / `2026.01.01-2026.04.30`.
+- Contrato de datos: Forward queda en Darwinex (`AUDCAD_darwinex`, source `4`,
+  broker `4`); Dukascopy sigue limitado a `phase19_capa2_retest1`.
+- Contrato de validacion final: `CrossChecks use=false/evaluateAll=false`,
+  `StrategyType` pasivo desde `WFM`, sin nested robustness, sin
+  `FitPortfolio`, sin `CustomAnalysis` y sin portfolio fitting dentro de
+  Forward.
+- Filtros finales predeclarados y amplios: `NumberOfTrades >= 30`,
+  `RExpectancy > 0` y `NetProfit >= 0`; el portfolio empieza despues de este
+  holdout y consume resultados naturales.
+- Contrato Capa2 de salidas: `ExitAfterBars=false` y SL/PT/trailing activos.
+- `generator_profiles.json` mapea layer 2 `Retest-Task2.xml` a `FOWARD`;
+  `CAPA2_TICK_PRECISION_TASKS` conserva Forward en tick y
+  `CAPA2_NO_EXIT_AFTER_BARS_TASKS` protege la generacion.
+- Ambos targets quedan idempotentes tras apply: `changedActionCount=0`,
+  `guardOk=true`, `issues=[]`, `warnings=[]`, `processes=[]`.
+- No hubo lanzamiento SQX, smoke, optimizacion, nested robustness ni ejecucion
+  real; no se fuerza `Results=passed`.
+- El estado local queda en `currentPhase=phase28_capa2_forward`,
+  `nextPhase=phase29_capa2_portfolio`, `scope=capa2`.
+
+Siguiente bloque exacto: `phase29_capa2_portfolio`.
 
 ## Disciplina Operativa
 

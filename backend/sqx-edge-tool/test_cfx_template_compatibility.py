@@ -1552,6 +1552,102 @@ def _assert_capa2_wfm_contract(
     assert exit_types["TrailingStop.TrailingStop"] == "true"
 
 
+def _assert_capa2_forward_contract(
+    forward: ET.Element,
+    expected_symbol: str,
+    expected_timeframe: str,
+    expected_source: str,
+    expected_broker: str,
+    expected_spread: str,
+    expected_window: tuple[str, str] = ("7200", "79200"),
+) -> None:
+    setup = forward.find("./Data/Setups/Setup")
+    assert setup is not None
+    assert setup.get("dateFrom") == "2025.01.01"
+    assert setup.get("dateTo") == "2026.04.30"
+    assert setup.get("testPrecision") == C1_TICK_TEST_PRECISION
+    assert setup.get("session") == "No Session"
+    assert setup.get("engine") == "MetaTrader5 (hedged)"
+    chart = setup.find("Chart")
+    assert chart is not None
+    assert chart.attrib == {"symbol": expected_symbol, "timeframe": expected_timeframe, "spread": expected_spread}
+    assert setup.find("./Commissions/Method[@type='SizeBased']").get("use") == "true"
+    assert setup.find("./Commissions/Method[@type='SizeBased']/Params/Param[@key='Commission']").text == "0.0"
+    assert [node.attrib for node in forward.findall("./Data/OutOfSample/Range")] == [
+        {"dateFrom": "2025.01.01", "dateTo": "2026.01.01"},
+        {"dateFrom": "2026.01.01", "dateTo": "2026.04.30"},
+    ]
+    assert forward.find("./CustomData").attrib == {"showAll": "false"}
+    assert list(forward.find("./CustomData")) == []
+    databanks = {
+        databank.get("name"): databank.get("value")
+        for databank in forward.findall(".//Databanks/Databank")
+    }
+    assert databanks == {"Output": "Foward", "Input": "WFM"}
+
+    resources = forward.find(".//Resources")
+    assert resources is not None
+    symbols = resources.findall("./Symbols/Symbol")
+    assert {symbol.get("name") for symbol in symbols} == {expected_symbol}
+    assert {symbol.get("source") for symbol in symbols} == {expected_source}
+    assert {symbol.get("broker") for symbol in symbols} == {expected_broker}
+    assert {symbol.get("precision") for symbol in symbols} == {"TICK"}
+    assert {symbol.get("timezone") for symbol in symbols} == {"EETUS"}
+    assert resources.findall("./Sessions/Session") == []
+    assert "dukascopy" not in ET.tostring(resources, encoding="unicode").lower()
+
+    options = {
+        node.get("key"): node.text
+        for node in forward.findall(".//BuildTradingOptions/Params/Param")
+        if node.get("key") in {"LimitTimeRange", "SignalTimeRangeFrom", "SignalTimeRangeTo", "RealisticGapsHandling", "StoreChartData"}
+    }
+    assert options == {
+        "LimitTimeRange": "true",
+        "SignalTimeRangeFrom": expected_window[0],
+        "SignalTimeRangeTo": expected_window[1],
+        "RealisticGapsHandling": "true",
+        "StoreChartData": "false",
+    }
+
+    crosschecks = forward.find(".//CrossChecks")
+    assert crosschecks is not None
+    assert crosschecks.attrib == {"use": "false", "evaluateAll": "false"}
+    assert [
+        check.tag
+        for check in list(crosschecks)
+        if isinstance(check.tag, str) and check.get("use") == "true"
+    ] == []
+    for method in crosschecks.findall(".//Settings/Methods/Method"):
+        assert method.get("use") == "false"
+
+    rankings = forward.find(".//Rankings")
+    assert rankings is not None
+    assert rankings.get("type") == "never"
+    assert rankings.findtext("DeleteFailedStrategies") == "false"
+    assert rankings.findtext("ForceRunCrossChecks") == "false"
+    assert rankings.find("FitPortfolio").get("active") == "false"
+    assert rankings.find("CustomAnalysis").get("filter") == "false"
+    assert [
+        (
+            condition.find(".//Column-Value").get("column"),
+            condition.find(".//Column-Value").get("sampleType"),
+            condition.find(".//Comparator").get("value"),
+            condition.find(".//Numeric-Value").get("value"),
+        )
+        for condition in rankings.findall("./Conditions/Condition")
+    ] == [
+        ("NumberOfTrades", "20", ">=", "30"),
+        ("RExpectancy", "20", ">", "0"),
+        ("NetProfit", "20", ">=", "0"),
+    ]
+    assert forward.find(".//WhatToBuild/StrategyType").get("improveDatabank") == "WFM"
+    exit_types = {block.get("key"): block.get("use") for block in forward.findall(".//Blocks/ExitTypes/Block")}
+    assert exit_types["ExitAfterBars.ExitAfterBars"] == "false"
+    assert exit_types["StopLoss.StopLoss"] == "true"
+    assert exit_types["ProfitTarget.ProfitTarget"] == "true"
+    assert exit_types["TrailingStop.TrailingStop"] == "true"
+
+
 def _assert_foward_contract(
     forward: ET.Element,
     expected_symbol: str | None = None,
@@ -2094,6 +2190,27 @@ def test_capa2_base_wfm_matches_phase27_methodology():
     assert databanks["WFM"] == "RETEST ROBUST REVIEW"
     _assert_capa2_wfm_contract(
         roots["Optimize-Task1.xml"],
+        expected_symbol="AUDCAD_darwinex",
+        expected_timeframe="H1",
+        expected_source="4",
+        expected_broker="4",
+        expected_spread="2.0",
+    )
+
+
+def test_capa2_base_forward_matches_phase28_methodology():
+    roots = dict(_xml_roots(TEMPLATE_DIR / "Capa2_Base.cfx"))
+    config = roots["config.xml"]
+    task = next(task for task in config.findall(".//Task") if task.get("taskXMLFile") == "Retest-Task2.xml")
+    databanks = {
+        databank.get("name"): databank.get("view")
+        for databank in config.findall(".//Databank")
+    }
+
+    assert task.get("title") == "FOWARD"
+    assert databanks["Foward"] == "RETEST QUICK REVIEW"
+    _assert_capa2_forward_contract(
+        roots["Retest-Task2.xml"],
         expected_symbol="AUDCAD_darwinex",
         expected_timeframe="H1",
         expected_source="4",
@@ -2913,6 +3030,18 @@ def test_generate_capa2_project_applies_layer2_build_window_and_disables_heavy_r
         expected_spread="10",
     )
     assert "dukascopy" not in ET.tostring(wfm, encoding="unicode").lower()
+
+    forward = roots["Retest-Task2.xml"]
+    _assert_capa2_forward_contract(
+        forward,
+        expected_symbol="AUDCAD",
+        expected_timeframe="H4",
+        expected_source="0",
+        expected_broker="-1",
+        expected_spread="10",
+        expected_window=("14400", "72000"),
+    )
+    assert "dukascopy" not in ET.tostring(forward, encoding="unicode").lower()
 
 
 def test_generate_project_defaults_to_sq_default_exact_symbol_for_user_downloads():

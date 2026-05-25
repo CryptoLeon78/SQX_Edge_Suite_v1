@@ -16216,6 +16216,38 @@ CAPA2_WFM_STRATEGY_TYPE_TARGET = {
     "improveDatabank": "SPP",
 }
 CAPA2_WFM_BANNED_TOKENS = CAPA2_MC_BANNED_TOKENS
+CAPA2_FORWARD_NEXT = "phase29_capa2_portfolio"
+CAPA2_FORWARD_TASK_XML = "Retest-Task2.xml"
+CAPA2_FORWARD_TASK_TITLE = "FOWARD"
+CAPA2_FORWARD_PERIOD_KEY = "FOWARD"
+CAPA2_FORWARD_DATA_TEST_PRECISION = CAPA2_TICK_REAL_DATA_TEST_PRECISION
+CAPA2_FORWARD_DATABANKS_TARGET = {"Input": "WFM", "Output": "Foward"}
+CAPA2_FORWARD_RESOURCE_SYMBOL = CAPA2_MC_RESOURCE_SYMBOL
+CAPA2_FORWARD_RESOURCE_SPREAD = CAPA2_MC_RESOURCE_SPREAD
+CAPA2_FORWARD_OOS_RANGES = [
+    {"dateFrom": "2025.01.01", "dateTo": "2026.01.01"},
+    {"dateFrom": "2026.01.01", "dateTo": "2026.04.30"},
+]
+CAPA2_FORWARD_OPTIONS_PARAMS_TARGET = dict(CAPA2_RETEST1_OPTIONS_PARAMS_TARGET)
+CAPA2_FORWARD_RANKING_TARGET = dict(CAPA2_RETEST1_RANKING_TARGET)
+CAPA2_FORWARD_RANKING_CONDITIONS_TARGET = [
+    {"column": "NumberOfTrades", "comparator": ">=", "value": "30", "format": "Integer", "sampleType": "20"},
+    {"column": "RExpectancy", "comparator": ">", "value": "0", "format": "Decimal2", "sampleType": "20"},
+    {"column": "NetProfit", "comparator": ">=", "value": "0", "format": "Decimal2PL", "sampleType": "20"},
+]
+CAPA2_FORWARD_STRATEGY_TYPE_TARGET = {
+    "type": "simple",
+    "additionalCharts": "2",
+    "templateFile": "",
+    "improveType": "strategy",
+    "strategyFile": "",
+    "architecture": "sq4",
+    "improveDatabank": "WFM",
+}
+CAPA2_FORWARD_BANNED_TOKENS = CAPA2_MC_BANNED_TOKENS + (
+    "testPrecision=\"1\"",
+    "Strategies to improve",
+)
 CAPA2_BUILD_TAB_ORDER = [
     "WhatToBuild",
     "Data",
@@ -25338,6 +25370,437 @@ def promote_capa2_wfm_target(root142: Path, project_root: Path, target: str, app
     return payload
 
 
+def load_capa2_forward_task_root(cfx: Path) -> tuple[str, ET.Element | None, str]:
+    task_xml, root, title = load_task_root_by_xml(cfx, CAPA2_FORWARD_TASK_XML)
+    if root is not None:
+        return task_xml, root, title or CAPA2_FORWARD_TASK_TITLE
+    fallback_task_xml, fallback_root = load_task_root(cfx, CAPA2_FORWARD_TASK_TITLE)
+    return fallback_task_xml, fallback_root, CAPA2_FORWARD_TASK_TITLE if fallback_root is not None else ""
+
+
+def capa2_forward_summary(root: ET.Element | None) -> dict[str, Any]:
+    if root is None:
+        return {"exists": False}
+    custom_data = root.find("./CustomData")
+    summary = {
+        "exists": True,
+        "data": capa2_tick_real_data_summary(root),
+        "databanks": {item.get("name", ""): item.get("value", "") for item in databank_summary(root)},
+        "resources": _tick_real_resource_summary(root),
+        "optionsParams": {
+            param.get("key", ""): (param.text or "")
+            for param in root.findall(".//BuildTradingOptions/Params/Param")
+            if param.get("key") in CAPA2_FORWARD_OPTIONS_PARAMS_TARGET
+        },
+        "crossChecks": capa2_retest1_crosschecks_summary(root),
+        "rankings": capa2_retest1_rankings_summary(root),
+        "strategyType": task_strategy_type_summary(root),
+        "orderTypes": task_order_type_detail_summary(root),
+        "exitTypes": task_exit_type_detail_summary(root),
+        "riskMoneyManagement": task_risk_method_summary(root),
+        "customData": {
+            "exists": custom_data is not None,
+            "attrs": dict(custom_data.attrib) if custom_data is not None else {},
+            "children": len(list(custom_data)) if custom_data is not None else 0,
+            "text": (custom_data.text or "").strip() if custom_data is not None else "",
+        },
+    }
+    return summary
+
+
+def set_capa2_forward_databanks(root: ET.Element, actions: list[dict[str, Any]]) -> None:
+    databanks = find_section(root, "Databanks")
+    if databanks is None:
+        databanks = ET.SubElement(root, "Databanks", {"retestSelected": "false"})
+        actions.append({"field": "Databanks", "from": None, "to": dict(databanks.attrib), "changed": True})
+    existing = {node.get("name", ""): node for node in databanks.findall("Databank") if node.get("name")}
+    for name, value in CAPA2_FORWARD_DATABANKS_TARGET.items():
+        node = existing.get(name)
+        before = dict(node.attrib) if node is not None else None
+        if node is None:
+            node = ET.SubElement(databanks, "Databank", {"name": name})
+        node.set("name", name)
+        node.set("value", value)
+        node.set("label", f"{name} databank")
+        actions.append({"field": f"Databanks/{name}:capa2-forward", "from": before, "to": dict(node.attrib), "changed": before != dict(node.attrib)})
+
+
+def ensure_capa2_forward_data(root: ET.Element, actions: list[dict[str, Any]]) -> ET.Element:
+    period = generator_period(CAPA2_FORWARD_PERIOD_KEY)
+    data = find_section(root, "Data")
+    if data is None:
+        data = ET.SubElement(root, "Data")
+        actions.append({"field": "Data", "from": None, "to": "created", "changed": True})
+    setup = ensure_setup_under(data, actions, "Data")
+    for key, wanted in {
+        "dateFrom": period[0],
+        "dateTo": period[1],
+        "testPrecision": CAPA2_FORWARD_DATA_TEST_PRECISION,
+        "session": CAPA2_TICK_REAL_DATA_SESSION,
+        "slippage": "0",
+        "minDist": "0",
+        "engine": CAPA2_TICK_REAL_DATA_ENGINE,
+    }.items():
+        before = setup.get(key, "")
+        setup.set(key, wanted)
+        actions.append({"field": f"Data/Setup:{key}:capa2-forward", "from": before, "to": wanted, "changed": before != wanted})
+    chart = setup.find("Chart")
+    before_chart = dict(chart.attrib) if chart is not None else None
+    if chart is None:
+        chart = ET.SubElement(setup, "Chart")
+    chart.attrib.clear()
+    chart.attrib.update({"symbol": CAPA2_FORWARD_RESOURCE_SYMBOL, "timeframe": CAPA2_BUILD_SEED_TIMEFRAME, "spread": CAPA2_FORWARD_RESOURCE_SPREAD})
+    actions.append({"field": "Data/Setup/Chart:capa2-forward", "from": before_chart, "to": dict(chart.attrib), "changed": before_chart != dict(chart.attrib)})
+    ensure_commission_method(setup, actions, "Data/Setup")
+
+    out_of_sample = data.find("OutOfSample")
+    before_attrs = dict(out_of_sample.attrib) if out_of_sample is not None else None
+    before_ranges = [dict(node.attrib) for node in out_of_sample.findall("Range")] if out_of_sample is not None else []
+    if out_of_sample is None:
+        out_of_sample = ET.SubElement(data, "OutOfSample", {"showGraph": "false"})
+    out_of_sample.set("showGraph", "false")
+    for node in list(out_of_sample.findall("Range")):
+        out_of_sample.remove(node)
+    for index, attrs in enumerate(CAPA2_FORWARD_OOS_RANGES):
+        node = ET.SubElement(out_of_sample, "Range", attrs)
+        node.tail = "\n      " if index == len(CAPA2_FORWARD_OOS_RANGES) - 1 else "\n        "
+    actions.append({
+        "field": "Data/OutOfSample:capa2-forward",
+        "from": {"attrs": before_attrs, "ranges": before_ranges},
+        "to": {"attrs": dict(out_of_sample.attrib), "ranges": CAPA2_FORWARD_OOS_RANGES},
+        "changed": before_attrs != dict(out_of_sample.attrib) or before_ranges != CAPA2_FORWARD_OOS_RANGES,
+    })
+    return setup
+
+
+def apply_capa2_forward_rankings_to_root(root: ET.Element, actions: list[dict[str, Any]]) -> None:
+    rankings = find_section(root, "Rankings")
+    if rankings is None:
+        rankings = ET.SubElement(root, "Rankings", {"type": "never"})
+        actions.append({"field": "Rankings", "from": None, "to": dict(rankings.attrib), "changed": True})
+    before_attrs = dict(rankings.attrib)
+    rankings.set("type", "never")
+    actions.append({"field": "Rankings:type:capa2-forward", "from": before_attrs, "to": dict(rankings.attrib), "changed": before_attrs != dict(rankings.attrib)})
+    set_or_create_text_child(rankings, "MaxStrategies", CAPA2_FORWARD_RANKING_TARGET["MaxStrategies"], actions, "Rankings/MaxStrategies:capa2-forward")
+    set_or_create_attrs_child(rankings, "FitnessCriteria", CAPA2_FORWARD_RANKING_TARGET["FitnessCriteria"], actions, "Rankings/FitnessCriteria:capa2-forward")
+    set_or_create_text_child(rankings, "ConditionsType", CAPA2_FORWARD_RANKING_TARGET["ConditionsType"], actions, "Rankings/ConditionsType:capa2-forward")
+    set_or_create_text_child(rankings, "DeleteFailedStrategies", CAPA2_FORWARD_RANKING_TARGET["DeleteFailedStrategies"], actions, "Rankings/DeleteFailedStrategies:capa2-forward")
+    set_or_create_text_child(rankings, "ForceRunCrossChecks", CAPA2_FORWARD_RANKING_TARGET["ForceRunCrossChecks"], actions, "Rankings/ForceRunCrossChecks:capa2-forward")
+    set_or_create_attrs_child(rankings, "AutomaticDismissal", CAPA2_FORWARD_RANKING_TARGET["AutomaticDismissal"], actions, "Rankings/AutomaticDismissal:capa2-forward")
+    set_or_create_attrs_child(rankings, "StopCondition", CAPA2_FORWARD_RANKING_TARGET["StopCondition"], actions, "Rankings/StopCondition:capa2-forward")
+    set_or_create_attrs_child(rankings, "FitPortfolio", CAPA2_FORWARD_RANKING_TARGET["FitPortfolio"], actions, "Rankings/FitPortfolio:capa2-forward")
+    set_or_create_attrs_child(rankings, "CustomAnalysis", CAPA2_FORWARD_RANKING_TARGET["CustomAnalysis"], actions, "Rankings/CustomAnalysis:capa2-forward")
+    set_ranking_conditions_from_target(rankings, CAPA2_FORWARD_RANKING_CONDITIONS_TARGET, actions, "Rankings/Conditions:capa2-forward")
+
+
+def apply_capa2_forward_strategy_type_to_root(root: ET.Element, actions: list[dict[str, Any]]) -> None:
+    what_to_build = find_section(root, "WhatToBuild")
+    if what_to_build is None:
+        what_to_build = ET.SubElement(root, "WhatToBuild")
+        actions.append({"field": "WhatToBuild", "from": None, "to": "created", "changed": True})
+    set_or_create_attrs_child(what_to_build, "StrategyType", CAPA2_FORWARD_STRATEGY_TYPE_TARGET, actions, "WhatToBuild/StrategyType:capa2-forward")
+    build_mode = what_to_build.find("BuildMode")
+    if build_mode is None:
+        build_mode = ET.SubElement(what_to_build, "BuildMode", {"generationType": "random-generation"})
+        actions.append({"field": "WhatToBuild/BuildMode", "from": None, "to": dict(build_mode.attrib), "changed": True})
+    for tag, value in RETEST1_PASSIVE_BUILDMODE_TEXT_TARGET.items():
+        set_or_create_text_child(build_mode, tag, value, actions, f"WhatToBuild/BuildMode/{tag}:capa2-forward")
+    for tag, attrs in RETEST1_PASSIVE_BUILDMODE_ATTR_TARGET.items():
+        set_or_update_attrs_child(build_mode, tag, attrs, actions, f"WhatToBuild/BuildMode/{tag}:capa2-forward")
+
+
+def apply_capa2_forward_custom_data_inert(root: ET.Element, actions: list[dict[str, Any]]) -> None:
+    custom = root.find("./CustomData")
+    if custom is None:
+        custom = ET.SubElement(root, "CustomData", {"showAll": "false"})
+        actions.append({"field": "CustomData", "from": None, "to": dict(custom.attrib), "changed": True})
+    before = {"attrs": dict(custom.attrib), "children": len(list(custom)), "text": (custom.text or "").strip()}
+    custom.attrib.clear()
+    custom.set("showAll", "false")
+    for child in list(custom):
+        custom.remove(child)
+    custom.text = None
+    after = {"attrs": dict(custom.attrib), "children": len(list(custom)), "text": (custom.text or "").strip()}
+    actions.append({"field": "CustomData:inert:capa2-forward", "from": before, "to": after, "changed": before != after})
+
+
+def apply_capa2_forward_target_to_root(root: ET.Element) -> list[dict[str, Any]]:
+    actions: list[dict[str, Any]] = []
+    setup = ensure_capa2_forward_data(root, actions)
+    ensure_capa2_tick_real_resources(root, setup, actions)
+    set_capa2_forward_databanks(root, actions)
+    for key, value in CAPA2_FORWARD_OPTIONS_PARAMS_TARGET.items():
+        set_or_create_option_param_text(root, key, value, actions, "Options")
+    apply_retest1_crosschecks_to_root(root, actions)
+    apply_capa2_forward_rankings_to_root(root, actions)
+    apply_capa2_forward_strategy_type_to_root(root, actions)
+    apply_retest1_parts_to_improve_to_root(root, actions)
+    apply_capa2_mc_blocks_to_root(root, actions)
+    apply_capa2_retest_risk_money_management_to_root(root, actions)
+    apply_mc_atms_to_root(root, actions)
+    apply_mc_selected_strategies_to_root(root, actions)
+    apply_capa2_forward_custom_data_inert(root, actions)
+    actions.append({"field": "Notes", "changed": False, "sha256": section_sha256(root, "Notes"), "note": "audited and preserved"})
+    return actions
+
+
+def capa2_forward_generator_period_issues() -> list[str]:
+    config = read_json(GENERATOR_PROFILES_PATH, {})
+    periods = config.get("retestPeriods") or {}
+    layer2 = (config.get("taskPeriodMaps") or {}).get("2") or {}
+    disabled_ranges = set(((config.get("disableTradingTimeRanges") or {}).get("2") or []))
+    issues: list[str] = []
+    if periods.get(CAPA2_FORWARD_PERIOD_KEY) != ["2025.01.01", "2026.04.30"]:
+        issues.append("generator_profiles.json retestPeriods.FOWARD must be 2025.01.01-2026.04.30")
+    if layer2.get(CAPA2_FORWARD_TASK_XML) != CAPA2_FORWARD_PERIOD_KEY:
+        issues.append(f"generator_profiles.json taskPeriodMaps.2.{CAPA2_FORWARD_TASK_XML} must map to {CAPA2_FORWARD_PERIOD_KEY}")
+    if CAPA2_FORWARD_TASK_XML in disabled_ranges:
+        issues.append(f"generator_profiles.json disableTradingTimeRanges.2 must not include {CAPA2_FORWARD_TASK_XML}; Forward keeps timeframe-owned trading windows")
+    return issues
+
+
+def enforce_capa2_forward_guard(root: ET.Element | None, target_name: str) -> list[str]:
+    if root is None:
+        return [f"{target_name}: Capa2 Forward task missing"]
+    issues: list[str] = []
+    period = generator_period(CAPA2_FORWARD_PERIOD_KEY)
+    summary = capa2_forward_summary(root)
+    data = summary.get("data") or {}
+    setup = data.get("setup") or {}
+    chart = data.get("chart") or {}
+    if setup.get("dateFrom") != period[0] or setup.get("dateTo") != period[1]:
+        issues.append(f"{target_name}: Capa2 Forward dates must be {CAPA2_FORWARD_PERIOD_KEY} {period[0]}-{period[1]}")
+    if setup.get("testPrecision") != CAPA2_FORWARD_DATA_TEST_PRECISION:
+        issues.append(f"{target_name}: Capa2 Forward testPrecision must return to tick/simulated code {CAPA2_FORWARD_DATA_TEST_PRECISION}")
+    if setup.get("session") != CAPA2_TICK_REAL_DATA_SESSION:
+        issues.append(f"{target_name}: Capa2 Forward session must be No Session")
+    if setup.get("engine") != CAPA2_TICK_REAL_DATA_ENGINE:
+        issues.append(f"{target_name}: Capa2 Forward engine drifted: {setup.get('engine')!r}")
+    if chart != {"symbol": CAPA2_FORWARD_RESOURCE_SYMBOL, "timeframe": CAPA2_BUILD_SEED_TIMEFRAME, "spread": CAPA2_FORWARD_RESOURCE_SPREAD}:
+        issues.append(f"{target_name}: Capa2 Forward chart seed drifted: {chart!r}")
+    if data.get("commission") != MC_CUSTOM_DATA_COMMISSION_TARGET:
+        issues.append(f"{target_name}: Capa2 Forward Data SizeBased commission must be {MC_CUSTOM_DATA_COMMISSION_TARGET!r}")
+    if data.get("outOfSampleRanges") != CAPA2_FORWARD_OOS_RANGES:
+        issues.append(f"{target_name}: Capa2 Forward OOS ranges drifted: {data.get('outOfSampleRanges')!r}")
+    if (summary.get("databanks") or {}) != CAPA2_FORWARD_DATABANKS_TARGET:
+        issues.append(f"{target_name}: Capa2 Forward databanks are {summary.get('databanks')!r}, expected {CAPA2_FORWARD_DATABANKS_TARGET!r}")
+    resources = summary.get("resources") or {}
+    symbols = resources.get("symbols") or []
+    if {item.get("name") for item in symbols} != {CAPA2_FORWARD_RESOURCE_SYMBOL}:
+        issues.append(f"{target_name}: Capa2 Forward resources must contain only {CAPA2_FORWARD_RESOURCE_SYMBOL}")
+    if any(item.get("source") != CAPA2_BUILD_RESOURCE_SOURCE_ID or item.get("broker") != CAPA2_BUILD_RESOURCE_BROKER_ID for item in symbols):
+        issues.append(f"{target_name}: Capa2 Forward resources must use Darwinex source 4 / broker 4")
+    if resources.get("sessions"):
+        issues.append(f"{target_name}: Capa2 Forward resources must not keep sessions")
+    if (summary.get("optionsParams") or {}) != CAPA2_FORWARD_OPTIONS_PARAMS_TARGET:
+        issues.append(f"{target_name}: Capa2 Forward options drifted: {summary.get('optionsParams')!r}")
+    cross = summary.get("crossChecks") or {}
+    if cross.get("attrs") != CAPA2_RETEST1_CROSSCHECK_PARENT_TARGET:
+        issues.append(f"{target_name}: Capa2 Forward CrossChecks attrs must be inactive")
+    if cross.get("active"):
+        issues.append(f"{target_name}: Capa2 Forward must not run nested crosschecks: {cross.get('active')!r}")
+    for check in cross.get("checks") or []:
+        if check.get("activeMethodTypes"):
+            issues.append(f"{target_name}: inactive Capa2 Forward crosscheck {check.get('id')} still has active methods")
+    ranking = summary.get("rankings") or {}
+    if ranking.get("type") != "never":
+        issues.append(f"{target_name}: Capa2 Forward Rankings type must be never")
+    for key in ("MaxStrategies", "ConditionsType", "DeleteFailedStrategies", "ForceRunCrossChecks"):
+        if ranking.get(key) != CAPA2_FORWARD_RANKING_TARGET[key]:
+            issues.append(f"{target_name}: Capa2 Forward Rankings {key} drifted")
+    if (ranking.get("FitPortfolio") or {}).get("active") != "false":
+        issues.append(f"{target_name}: Capa2 Forward FitPortfolio must stay disabled; portfolio starts after Forward")
+    if (ranking.get("CustomAnalysis") or {}).get("filter") != "false":
+        issues.append(f"{target_name}: Capa2 Forward CustomAnalysis must stay disabled")
+    expected_conditions = [{**item, "use": "true"} for item in CAPA2_FORWARD_RANKING_CONDITIONS_TARGET]
+    if ranking.get("conditions") != expected_conditions:
+        issues.append(f"{target_name}: Capa2 Forward final sanity ranking conditions drifted")
+    if task_strategy_type_summary(root) != CAPA2_FORWARD_STRATEGY_TYPE_TARGET:
+        issues.append(f"{target_name}: Capa2 Forward StrategyType must point passively to WFM")
+    exits = task_exit_type_detail_summary(root)
+    if (exits.get("ExitAfterBars.ExitAfterBars") or {}).get("use") != "false":
+        issues.append(f"{target_name}: Capa2 Forward ExitAfterBars must stay false")
+    for key in CAPA2_MC_ALLOWED_ACTIVE_EXITS:
+        if (exits.get(key) or {}).get("use") != "true":
+            issues.append(f"{target_name}: Capa2 Forward {key} must stay active")
+    active_other_exits = [
+        key for key, data_item in exits.items()
+        if key not in CAPA2_MC_ALLOWED_ACTIVE_EXITS and key != "ExitAfterBars.ExitAfterBars" and (data_item or {}).get("use") == "true"
+    ]
+    if active_other_exits:
+        issues.append(f"{target_name}: Capa2 Forward has unexpected active exits: {active_other_exits}")
+    rmm = summary.get("riskMoneyManagement") or {}
+    for method_name, wanted in CAPA2_RETEST1_RISK_MONEY_MANAGEMENT_METHOD_TARGET.items():
+        if rmm.get(method_name) != wanted:
+            issues.append(f"{target_name}: Capa2 Forward RiskMoneyManagement {method_name} is {rmm.get(method_name)!r}, expected {wanted!r}")
+    custom = summary.get("customData") or {}
+    if custom.get("attrs") != {"showAll": "false"} or custom.get("children") != 0 or custom.get("text"):
+        issues.append(f"{target_name}: Capa2 Forward CustomData must stay inert/empty")
+    selected = find_section(root, "SelectedStrategies")
+    if selected is not None and ((selected.text or "").strip() or list(selected)):
+        issues.append(f"{target_name}: Capa2 Forward SelectedStrategies must stay empty")
+    guarded_text = serialize_xml(root)
+    for token in CAPA2_FORWARD_BANNED_TOKENS:
+        if token in guarded_text:
+            issues.append(f"{target_name}: Forbidden token leaked into Capa2 Forward: {token}")
+    if re.search(r"[A-Za-z]:\\", guarded_text):
+        issues.append(f"{target_name}: local absolute path leaked into Capa2 Forward")
+    issues.extend(capa2_forward_generator_period_issues())
+    return issues
+
+
+def update_capa2_forward_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "sha256Before": file_sha256(cfx) if cfx.is_file() else "",
+        "actions": [],
+        "backup": "",
+        "willWrite": apply,
+    }
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        payload["error"] = "missing_or_not_zip"
+        return payload
+    config_issues: list[str] = []
+    config_actions: list[dict[str, Any]] = []
+    config_changed = False
+    config_after = ""
+    with zipfile.ZipFile(cfx, "r") as zf:
+        config_root = xml_root_from_zip(zf, "config.xml")
+    if config_root is None:
+        config_issues.append("config.xml missing")
+    else:
+        databank = next((node for node in config_root.findall(".//Databank") if node.get("name") == CAPA2_FORWARD_DATABANKS_TARGET["Output"]), None)
+        if databank is None:
+            config_issues.append("config.xml Foward databank missing")
+        else:
+            before_view = databank.get("view", "")
+            wanted_view = VIEW_PROMOTION_TARGETS[CAPA2_FORWARD_DATABANKS_TARGET["Output"]]
+            databank.set("view", wanted_view)
+            config_actions.append({"field": "config.xml/Databanks/Foward:view", "from": before_view, "to": wanted_view, "changed": before_view != wanted_view})
+        config_after = serialize_xml(config_root)
+        config_changed = any(item.get("changed") for item in config_actions)
+    payload["configActions"] = config_actions
+    task_xml_name, root, display_title = load_capa2_forward_task_root(cfx)
+    payload["taskXml"] = task_xml_name
+    payload["displayTitle"] = display_title
+    if not task_xml_name or root is None:
+        payload["error"] = "capa2_forward_task_not_found"
+        payload["sha256After"] = payload["sha256Before"]
+        return payload
+    before_text = serialize_xml(root)
+    payload["before"] = capa2_forward_summary(root)
+    payload["actions"] = apply_capa2_forward_target_to_root(root)
+    payload["after"] = capa2_forward_summary(root)
+    payload["issues"] = config_issues + enforce_capa2_forward_guard(root, "capa2Forward")
+    payload["guardOk"] = not payload["issues"]
+    after_text = serialize_xml(root)
+    payload["changed"] = before_text != after_text or config_changed
+    payload["changedActionCount"] = sum(1 for item in payload["actions"] + config_actions if item.get("changed"))
+    payload["targetValues"] = {
+        "taskXml": CAPA2_FORWARD_TASK_XML,
+        "title": CAPA2_FORWARD_TASK_TITLE,
+        "period": CAPA2_FORWARD_PERIOD_KEY,
+        "testPrecision": CAPA2_FORWARD_DATA_TEST_PRECISION,
+        "databanks": CAPA2_FORWARD_DATABANKS_TARGET,
+        "resource": {"symbol": CAPA2_FORWARD_RESOURCE_SYMBOL, "source": CAPA2_BUILD_RESOURCE_SOURCE_ID, "broker": CAPA2_BUILD_RESOURCE_BROKER_ID},
+        "oosRanges": CAPA2_FORWARD_OOS_RANGES,
+        "rankingConditions": CAPA2_FORWARD_RANKING_CONDITIONS_TARGET,
+        "strategyType": CAPA2_FORWARD_STRATEGY_TYPE_TARGET,
+        "exitTypes": CAPA2_BUILD_BLOCKS_EXIT_TARGET,
+    }
+    payload["targetRationale"] = {
+        "validation": "Capa2 Forward is the final tick-precision holdout before portfolio construction.",
+        "antiOverfit": "No portfolio fitting, no custom analysis, no internal robustness checks and only broad predeclared sanity filters are used.",
+        "precision": "Operator decision: Forward breaks the fastest inheritance and returns to tick/testPrecision=2.",
+        "portfolioBoundary": "Forward labels natural final survivors; portfolio selection starts after this phase.",
+        "naturalResults": "No SQX launch, no smoke, no optimization and no forced Results=passed.",
+    }
+    if apply and payload["changed"] and payload["guardOk"]:
+        backup = backup_file(cfx, backup_root)
+        payload["backup"] = str(backup)
+        if config_changed:
+            replace_config_xml_in_cfx(cfx, config_after)
+        if before_text != after_text:
+            replace_zip_text_entry(cfx, task_xml_name, serialize_xml(root))
+        payload["sha256After"] = file_sha256(cfx)
+    else:
+        payload["sha256After"] = payload["sha256Before"]
+    return payload
+
+
+def promote_capa2_forward_target(root142: Path, project_root: Path, target: str, apply: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    previous_gate = promote_capa2_wfm_target(root142, project_root, target=target, apply=False)
+    issues = list(previous_gate.get("issues") or [])
+    if previous_gate.get("ok") is not True:
+        issues.append("capa2-wfm-target: previous gate ok=false")
+    process_probe = process_snapshot()
+    if process_probe.get("processes"):
+        issues.append("SQX processes are alive; close SQX before applying phase28 Capa2 Forward")
+    backup_root = ledger_root(project_root) / "backups" / f"phase28_capa2_forward_{stamp()}"
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = capa2_base_project_path(root142)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_CAPA2_TEMPLATE
+    results = {name: update_capa2_forward_target_in_cfx(path, backup_root / name, apply=apply) for name, path in targets.items()}
+    for target_name, result in results.items():
+        for issue in result.get("issues") or []:
+            issues.append(f"{target_name}: {issue}")
+    payload: dict[str, Any] = {
+        "ok": not issues and all(item.get("exists") and item.get("isZip") and not item.get("error") and item.get("guardOk") for item in results.values()),
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase28_capa2_forward",
+        "operation": "capa2_forward_target",
+        "apply": apply,
+        "target": target,
+        "previousGate": {
+            "phase": previous_gate.get("phase"),
+            "ok": previous_gate.get("ok"),
+            "issues": previous_gate.get("issues", []),
+            "warnings": previous_gate.get("warnings", []),
+            "nextPhase": previous_gate.get("nextPhase"),
+            "written": previous_gate.get("written", ""),
+        },
+        "processProbe": process_probe,
+        "issues": issues,
+        "warnings": [],
+        "results": results,
+        "summary": {
+            "decision": "Close Capa2 Forward as the final tick-precision holdout before portfolio construction.",
+            "taskXml": CAPA2_FORWARD_TASK_XML,
+            "chain": "Input=WFM, Output=Foward.",
+            "data": "Darwinex FOWARD window 2025.01.01-2026.04.30, testPrecision=2 tick, Data carrier, No Session.",
+            "oosRanges": CAPA2_FORWARD_OOS_RANGES,
+            "filters": "Only broad final sanity filters: NumberOfTrades >= 30, RExpectancy > 0 and NetProfit >= 0.",
+            "passive": "StrategyType reads WFM passively; CrossChecks/FitPortfolio/CustomAnalysis stay off; ExitAfterBars remains false and SL/PT/trailing remain active for Capa2.",
+            "portfolioBoundary": "Forward produces natural final survivors for the later portfolio phase; it does not build the portfolio.",
+            "naturalResults": "No SQX launch, no smoke, no optimization and no forced Results=passed.",
+            "nextPhase": CAPA2_FORWARD_NEXT,
+        },
+        "academicSources": CAPA2_ACADEMIC_SOURCES,
+        "nextPhase": "phase28_capa2_forward_diff_review" if not apply else CAPA2_FORWARD_NEXT,
+    }
+    evidence_target = ledger_root(project_root) / "diffs" / f"phase28_capa2_forward_target_{stamp()}.json"
+    write_json(evidence_target, payload)
+    payload["written"] = str(evidence_target)
+    if apply and payload["ok"]:
+        state_path = ledger_root(project_root) / "session_state.json"
+        state = read_json(state_path, {})
+        state.update({
+            "updatedAt": now_iso(),
+            "currentPhase": "phase28_capa2_forward",
+            "nextPhase": CAPA2_FORWARD_NEXT,
+            "scope": "capa2",
+            "phase28Capa2ForwardReport": str(evidence_target),
+        })
+        write_json(state_path, state)
+    return payload
+
+
 def update_build_data_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
     date_from, date_to = generator_period(BUILD_DATA_PERIOD_KEY)
     payload: dict[str, Any] = {
@@ -26807,6 +27270,10 @@ def build_parser() -> argparse.ArgumentParser:
     capa2_wfm.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     capa2_wfm.add_argument("--apply", action="store_true")
 
+    capa2_forward = sub.add_parser("capa2-forward-target")
+    capa2_forward.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    capa2_forward.add_argument("--apply", action="store_true")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -27103,6 +27570,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "capa2-wfm-target":
         json_print(promote_capa2_wfm_target(root142, project_root, target=args.target, apply=args.apply))
+        return 0
+    if args.command == "capa2-forward-target":
+        json_print(promote_capa2_forward_target(root142, project_root, target=args.target, apply=args.apply))
         return 0
     if args.command == "archive-exit-day-snippets":
         json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))

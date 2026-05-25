@@ -5304,6 +5304,158 @@ def test_capa2_wfm_cli_is_registered():
     assert args.target == "both"
 
 
+def _write_capa2_forward_generator_profile(path: Path, *, include_map: bool = True, disabled: bool = False) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    task_map = {"Retest-Task2.xml": "FOWARD"} if include_map else {}
+    path.write_text(
+        json.dumps({
+            "retestPeriods": {
+                "ROBUSTNESS_C2": ["2017.10.02", "2023.12.31"],
+                "FOWARD": ["2025.01.01", "2026.04.30"],
+            },
+            "disableTradingTimeRanges": {"2": ["Retest-Task2.xml"] if disabled else []},
+            "taskPeriodMaps": {"2": task_map},
+            "crossBrokerRetests": {"2": {}},
+        }),
+        encoding="utf-8",
+    )
+
+
+def _write_minimal_capa2_forward_cfx(path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    config_xml = """
+    <Project>
+      <Tasks><Task title="FOWARD" taskXMLFile="Retest-Task2.xml" active="true" /></Tasks>
+      <Databanks><Databank name="WFM" view="RETEST ROBUST REVIEW" /><Databank name="Foward" view="GENERAL" /></Databanks>
+    </Project>
+    """
+    task_xml = """
+    <Task>
+      <Data><Setups><Setup dateFrom="2017.10.02" dateTo="2023.12.31" testPrecision="1" session="Old Session" engine="MetaTrader4"><Chart symbol="AUDCAD_dukascopy" timeframe="H4" spread="1.9" /></Setup></Setups><OutOfSample><Range dateFrom="2024.01.01" dateTo="2025.01.01" /></OutOfSample></Data>
+      <CustomData showAll="true"><Legacy /></CustomData>
+      <Databanks><Databank name="Input" value="SPP" /><Databank name="Output" value="Foward" /></Databanks>
+      <Resources><Symbols><Symbol name="AUDCAD_dukascopy" source="2" broker="3" precision="TICK" timezone="EETUS"><InstrumentInfo instrument="AUDCAD_dukascopy" broker="3" /></Symbol></Symbols><Brokers><Broker id="3" /></Brokers><Instruments /><Sessions><Session name="Old Session" /></Sessions></Resources>
+      <Options><BuildTradingOptions><Params><Param key="LimitTimeRange">false</Param><Param key="RealisticGapsHandling">false</Param><Param key="StoreChartData">true</Param><Param key="Session">Old Session</Param><Param key="MarketOpenSession">Old Session</Param><Param key="SignalTimeRangeFrom">28800</Param><Param key="SignalTimeRangeTo">57600</Param></Params></BuildTradingOptions></Options>
+      <Rankings type="top"><MaxStrategies>1</MaxStrategies><DeleteFailedStrategies>true</DeleteFailedStrategies><ForceRunCrossChecks>true</ForceRunCrossChecks><FitPortfolio active="true" /><CustomAnalysis filter="true" method="script" inputArgs="C:\\private\\x" /><Conditions><Condition use="true" /></Conditions></Rankings>
+      <CrossChecks use="true" evaluateAll="true"><MonteCarloRetest use="true"><Settings><Methods><Method type="RandomizeSpread" use="true" /></Methods></Settings></MonteCarloRetest></CrossChecks>
+      <WhatToBuild><StrategyType type="template" templateFile="C:\\private\\c2.sqx" improveDatabank="Strategies to improve" /><BuildMode><ShowLastGenerationDatabank>true</ShowLastGenerationDatabank><FreshBloodReplaceSimilar>true</FreshBloodReplaceSimilar><FreshBloodReplaceWeakest>true</FreshBloodReplaceWeakest><EvoRestartOnFinish status="true" /><EvoRestartOnStagnation status="true" fitnessType="10" generations="30" /></BuildMode></WhatToBuild>
+      <PartsToImprove improveATM="true"><EntryRules><LongImprovement use="true" /><ShortImprovement use="true" /></EntryRules><OrderTypes><LongImprovement use="true" /><ShortImprovement use="true" /></OrderTypes><ExitRules><LongImprovement use="true" /><ShortImprovement use="true" /></ExitRules></PartsToImprove>
+      <Blocks><BuildingBlocks><Category name="Indicators"><Block key="Indicators.ATR" use="true" /></Category></BuildingBlocks><OrderTypes><Block key="EnterAtMarket" use="false" /><Block key="EnterAtStop" use="true" /></OrderTypes><ExitTypes><Block key="ExitAfterBars.ExitAfterBars" use="true" /><Block key="StopLoss.StopLoss" use="false" /><Block key="ProfitTarget.ProfitTarget" use="false" /><Block key="TrailingStop.TrailingStop" use="false" /></ExitTypes><CustomData showAll="true"><X /></CustomData></Blocks>
+      <RiskMoneyManagement><MoneyManagement><Method type="FixedSize" use="false" /><Method type="FixedAmount" use="true" /></MoneyManagement><RiskManagement><Method type="AllowAllTrades" use="false" /></RiskManagement></RiskMoneyManagement>
+      <ATMs enable="true" />
+      <SelectedStrategies><Strategy /></SelectedStrategies>
+      <Notes />
+    </Task>
+    """
+    with zipfile.ZipFile(path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+        archive.writestr("config.xml", config_xml)
+        archive.writestr("Retest-Task2.xml", task_xml)
+
+
+def test_capa2_forward_target_applies_tick_precision_and_is_idempotent(monkeypatch, tmp_path):
+    local_cfx = tmp_path / "local" / "project.cfx"
+    repo_cfx = tmp_path / "repo" / "Capa2_Base.cfx"
+    generator_profile = tmp_path / "generator_profiles.json"
+    _write_minimal_capa2_forward_cfx(local_cfx)
+    _write_minimal_capa2_forward_cfx(repo_cfx)
+    _write_capa2_forward_generator_profile(generator_profile)
+
+    monkeypatch.setattr(gate, "promote_capa2_wfm_target", lambda *args, **kwargs: {
+        "phase": "phase27_capa2_wfm",
+        "ok": True,
+        "issues": [],
+        "warnings": [],
+        "nextPhase": "phase28_capa2_forward",
+    })
+    monkeypatch.setattr(gate, "process_snapshot", lambda: {"processes": []})
+    monkeypatch.setattr(gate, "capa2_base_project_path", lambda root142: local_cfx)
+    monkeypatch.setattr(gate, "DEFAULT_CAPA2_TEMPLATE", repo_cfx)
+    monkeypatch.setattr(gate, "GENERATOR_PROFILES_PATH", generator_profile)
+
+    payload = gate.promote_capa2_forward_target(tmp_path, tmp_path, target="both", apply=True)
+
+    assert payload["ok"] is True
+    assert payload["phase"] == "phase28_capa2_forward"
+    assert payload["nextPhase"] == "phase29_capa2_portfolio"
+    task_xml, root, title = gate.load_capa2_forward_task_root(local_cfx)
+    assert task_xml == "Retest-Task2.xml"
+    assert title == "FOWARD"
+    assert gate.enforce_capa2_forward_guard(root, "localBase") == []
+    with zipfile.ZipFile(local_cfx, "r") as archive:
+        config = ET.fromstring(archive.read("config.xml"))
+    views = {databank.get("name"): databank.get("view") for databank in config.findall(".//Databank")}
+    assert views["Foward"] == "RETEST QUICK REVIEW"
+    setup = root.find("./Data/Setups/Setup")
+    assert setup.get("dateFrom") == "2025.01.01"
+    assert setup.get("dateTo") == "2026.04.30"
+    assert setup.get("testPrecision") == "2"
+    assert setup.find("Chart").attrib == {"symbol": "AUDCAD_darwinex", "timeframe": "H1", "spread": "2.0"}
+    assert [node.attrib for node in root.findall("./Data/OutOfSample/Range")] == [
+        {"dateFrom": "2025.01.01", "dateTo": "2026.01.01"},
+        {"dateFrom": "2026.01.01", "dateTo": "2026.04.30"},
+    ]
+    assert {node.get("name"): node.get("value") for node in root.findall(".//Databanks/Databank")} == {
+        "Input": "WFM",
+        "Output": "Foward",
+    }
+    assert root.find(".//CrossChecks").attrib == {"use": "false", "evaluateAll": "false"}
+    assert root.find(".//WhatToBuild/StrategyType").get("improveDatabank") == "WFM"
+    assert root.find(".//Rankings/FitPortfolio").get("active") == "false"
+    assert root.find(".//Rankings/CustomAnalysis").get("filter") == "false"
+    assert [
+        (
+            condition.find(".//Column-Value").get("column"),
+            condition.find(".//Column-Value").get("sampleType"),
+            condition.find(".//Comparator").get("value"),
+            condition.find(".//Numeric-Value").get("value"),
+        )
+        for condition in root.findall(".//Rankings/Conditions/Condition")
+    ] == [
+        ("NumberOfTrades", "20", ">=", "30"),
+        ("RExpectancy", "20", ">", "0"),
+        ("NetProfit", "20", ">=", "0"),
+    ]
+    assert root.find(".//ExitTypes/Block[@key='ExitAfterBars.ExitAfterBars']").get("use") == "false"
+    assert root.find(".//ExitTypes/Block[@key='StopLoss.StopLoss']").get("use") == "true"
+    assert root.find(".//ExitTypes/Block[@key='ProfitTarget.ProfitTarget']").get("use") == "true"
+    assert root.find(".//ExitTypes/Block[@key='TrailingStop.TrailingStop']").get("use") == "true"
+
+    dry_run = gate.promote_capa2_forward_target(tmp_path, tmp_path, target="both", apply=False)
+
+    assert dry_run["ok"] is True
+    assert all(result["changedActionCount"] == 0 for result in dry_run["results"].values())
+
+
+def test_capa2_forward_guard_rejects_fastest_and_portfolio_drift(monkeypatch, tmp_path):
+    cfx = tmp_path / "Capa2_Base.cfx"
+    generator_profile = tmp_path / "generator_profiles.json"
+    _write_minimal_capa2_forward_cfx(cfx)
+    _write_capa2_forward_generator_profile(generator_profile, include_map=False, disabled=True)
+    monkeypatch.setattr(gate, "GENERATOR_PROFILES_PATH", generator_profile)
+    _, root, _ = gate.load_capa2_forward_task_root(cfx)
+
+    issues = gate.enforce_capa2_forward_guard(root, "repoTemplate")
+
+    assert any("testPrecision" in issue or "tick" in issue for issue in issues)
+    assert any("databanks" in issue for issue in issues)
+    assert any("Dukascopy" in issue or "Darwinex" in issue for issue in issues)
+    assert any("nested crosschecks" in issue or "active methods" in issue for issue in issues)
+    assert any("FitPortfolio" in issue for issue in issues)
+    assert any("CustomAnalysis" in issue for issue in issues)
+    assert any("StrategyType" in issue for issue in issues)
+    assert any("ExitAfterBars" in issue for issue in issues)
+    assert any("Forbidden token" in issue for issue in issues)
+    assert any("taskPeriodMaps" in issue for issue in issues)
+    assert any("disableTradingTimeRanges" in issue for issue in issues)
+
+
+def test_capa2_forward_cli_is_registered():
+    args = gate.build_parser().parse_args(["capa2-forward-target", "--target", "both"])
+
+    assert args.command == "capa2-forward-target"
+    assert args.target == "both"
+
+
 def test_synthetic_closeout_report_requires_green_phase10_dry_runs(monkeypatch, tmp_path):
     calls = []
 

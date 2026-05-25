@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-05-25 - C1-CONFIG1 Capa2 Forward
+
+- Adds `capa2-forward-target` as the Phase 28 final Capa2 Forward holdout guard before portfolio construction.
+- Records evidence `phase28_capa2_forward_target_20260525_140929.json` and closes `Retest-Task2.xml` as `Input=WFM` / `Output=Foward` with the `RETEST QUICK REVIEW` databank view.
+- Pins Forward to Darwinex `FOWARD 2025.01.01-2026.04.30`, `Data` carrier, `testPrecision=2 tick`, `No Session`, explicit `SizeBased=0.0` commissions and two internal OOS review ranges: `2025.01.01-2026.01.01` and `2026.01.01-2026.04.30`.
+- Keeps Forward as pure validation, not selection/tuning: `StrategyType` reads WFM passively, `CrossChecks use=false`, `FitPortfolio=false`, `CustomAnalysis=false`, no nested robustness, no SQX launch, no smoke, no optimization and no forced `Results=passed`.
+- Uses only broad predeclared final sanity filters: `NumberOfTrades >= 30`, `RExpectancy > 0` and `NetProfit >= 0`.
+- Preserves Capa2 exits with `ExitAfterBars=false` and SL/PT/trailing active; maps generator layer 2 `Retest-Task2.xml` to `FOWARD`, keeps it in `CAPA2_TICK_PRECISION_TASKS` and adds it to `CAPA2_NO_EXIT_AFTER_BARS_TASKS`.
+- Sets the next exact block to `phase29_capa2_portfolio`.
+
 ## 2026-05-25 - C1-CONFIG1 Capa2 WFM
 
 - Adds `capa2-wfm-target` as the Phase 27 WalkForwardMatrix validation guard for Capa2.
