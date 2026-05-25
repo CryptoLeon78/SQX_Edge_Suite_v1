@@ -1,7 +1,8 @@
 # SQX142 Custom Task Config Roadmap
 
-Estado: C1-CONFIG1 con Fase 23
-`Capa2 Sequential` cerrada el 2026-05-25 con
+Estado: C1-CONFIG1 con Fase 24
+`Capa2 Monkey` cerrada el 2026-05-25 con
+`phase24_capa2_monkey_target_20260525_105731.json`, despues de cerrar
 `phase23_capa2_sequential_target_20260525_032418.json`, despues de cerrar
 `phase22_capa2_mc2_target_20260525_030124.json`, despues de cerrar
 `phase21_capa2_mc_target_20260525_022738.json`, despues de cerrar
@@ -92,8 +93,16 @@ desde `retest 1`, `CrossChecks use=false/evaluateAll=false`,
 sin `Data`, `testPrecision=1 fastest`, `MonteCarloRetest` con
 `RandomizeHistoryData=true`, `RandomizeSpread` adaptativo base spread x2-x5,
 `RandomizeSlippage=false`, `ExitAfterBars=false` con SL/PT/trailing activos y
-sin portfolio/custom-analysis/ranking filters. El siguiente bloque exacto es
-`phase23_capa2_sequential`. Fase 0 dejo
+sin portfolio/custom-analysis/ranking filters. Sequential Capa2 queda cerrado
+como `AutomaticRetest-Task3.xml`, `Input=MC2`, `Output=Sequential`,
+`testPrecision=1 fastest`, `SequentialOptimization` activo sin aplicar a la
+estrategia y `ExitAfterBars=false` con SL/PT/trailing activos. Monkey Capa2
+queda cerrado como `AutomaticRetest-Task6.xml`, `Input=Sequential`,
+`Output=Monkey Test`, `testPrecision=1 fastest`, `MonteCarloRetest` con
+`RealMonkeyTest`, 200 simulaciones, muestra completa, `MCBacktestPrecision=-1`,
+`MaxChange=90`, sin portfolio/custom-analysis/ranking filters y
+`ExitAfterBars=false` con SL/PT/trailing activos. El siguiente bloque exacto es
+`phase25_capa2_synthetic`. Fase 0 dejo
 preflight, snapshots y diff semantico en `.local/sqx142_task_config/`; Fase 1
 promociono las views ligeras/especializadas desde Mining15 a la base local y al
 template repo; Fase 2 genero los cuestionarios completos de Build Capa1 y cerro
@@ -2636,6 +2645,40 @@ Siguiente bloque exacto: `phase23_capa2_sequential`.
   `nextPhase=phase24_capa2_monkey`, `scope=capa2`.
 
 Siguiente bloque exacto: `phase24_capa2_monkey`.
+
+## Estado Fase 24 - Capa2 Monkey
+
+- `phase24_capa2_monkey` queda cerrada con
+  `phase24_capa2_monkey_target_20260525_105731.json`.
+- Comando aplicado: `capa2-monkey-target --target both --apply`, con dry-run
+  previo, backup/diff local, dry-run posterior idempotente y `processes=[]`.
+- Contrato tecnico: `AutomaticRetest-Task6.xml`, `Input=Sequential`,
+  `Output=Monkey Test`, view dedicada `MC MONKEY RETEST`, `ROBUSTNESS_C2
+  2017.10.02-2023.12.31`, portador dual `Data+CustomData`,
+  `testPrecision=1 fastest`, `No Session`, sin OOS interno.
+- Contrato de datos: Monkey vuelve a Darwinex (`AUDCAD_darwinex`, source `4`,
+  broker `4`); Dukascopy queda limitado a `phase19_capa2_retest1`.
+- Contrato de robustez: `CrossChecks use=true/evaluateAll=true`, solo
+  `MonteCarloRetest` activo con `RealMonkeyTest`, `NumberOfSimulations=200`,
+  `MCUseFullSample=true`, `MCBacktestPrecision=-1`, `MaxChange=90` y filtros
+  de aceptacion propios de Monkey.
+- Contrato anti-overfit: `StrategyType` pasivo desde `Sequential`, sin
+  `FitPortfolio`, sin `CustomAnalysis`, sin condiciones de Rankings, sin split
+  OOS interno, sin ejecucion SQX y sin forzar estados de resultado.
+- Contrato Capa2 de salidas: `ExitAfterBars=false` y SL/PT/trailing activos.
+- `generator_profiles.json` mapea layer 2 `AutomaticRetest-Task6.xml` a
+  `ROBUSTNESS_C2`, y `CAPA2_NO_EXIT_AFTER_BARS_TASKS` protege que la
+  generacion no reactive `ExitAfterBars`.
+- Politica aclarada: los retests de robustez Capa2 pendientes siguen con
+  precision-data `fastest`; Forward vuelve a precision tick.
+- Ambos targets quedan idempotentes tras apply: `changedActionCount=0`,
+  `guardOk=true`, `issues=[]`, `warnings=[]`, `processes=[]`.
+- No hubo lanzamiento SQX, smoke, optimizacion ni ejecucion real; no se fuerza
+  `Results=passed`.
+- El estado local queda en `currentPhase=phase24_capa2_monkey`,
+  `nextPhase=phase25_capa2_synthetic`, `scope=capa2`.
+
+Siguiente bloque exacto: `phase25_capa2_synthetic`.
 
 ## Disciplina Operativa
 

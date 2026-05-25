@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-05-25 - C1-CONFIG1 Capa2 Monkey
+
+- Adds `capa2-monkey-target` as the Phase 24 RealMonkeyTest validation guard for Capa2.
+- Records evidence `phase24_capa2_monkey_target_20260525_105731.json` and closes `AutomaticRetest-Task6.xml` as `Input=Sequential` / `Output=Monkey Test` with the dedicated `MC MONKEY RETEST` databank view.
+- Pins Monkey to Darwinex `ROBUSTNESS_C2 2017.10.02-2023.12.31`, dual `Data+CustomData`, `testPrecision=1 fastest`, `No Session` and no internal OOS ranges.
+- Keeps Monkey passive and anti-overfit: only `MonteCarloRetest` is active with `RealMonkeyTest`, `NumberOfSimulations=200`, `MCUseFullSample=true`, `MCBacktestPrecision=-1`, `MaxChange=90`, no ranking filters, `FitPortfolio=false`, `CustomAnalysis=false`, no SQX launch, no smoke, no optimization and no forced `Results=passed`.
+- Preserves Capa2 exits with `ExitAfterBars=false` and SL/PT/trailing active; maps generator layer 2 `AutomaticRetest-Task6.xml` to `ROBUSTNESS_C2` and adds Task6 to `CAPA2_NO_EXIT_AFTER_BARS_TASKS`.
+- Keeps the precision policy explicit: pending Capa2 robustness retests inherit fastest data precision, while Forward returns to tick precision.
+- Sets the next exact block to `phase25_capa2_synthetic`.
+
 ## 2026-05-25 - C1-CONFIG1 Capa2 Sequential
 
 - Adds `capa2-sequential-target` as the Phase 23 SequentialOptimization validation guard for Capa2.

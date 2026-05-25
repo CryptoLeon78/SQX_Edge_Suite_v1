@@ -15817,6 +15817,7 @@ CAPA2_TICK_REAL_NEXT = "phase21_capa2_mc"
 CAPA2_MC_NEXT = "phase22_capa2_mc2"
 CAPA2_MC2_NEXT = "phase23_capa2_sequential"
 CAPA2_SEQUENTIAL_NEXT = "phase24_capa2_monkey"
+CAPA2_MONKEY_NEXT = "phase25_capa2_synthetic"
 CAPA2_BUILD_TASK_XML = "Build-Task1.xml"
 CAPA2_BUILD_TASK_TITLE = "Build strategies"
 CAPA2_RETEST0_TASK_XML = "Retest-Task1.xml"
@@ -16077,6 +16078,23 @@ CAPA2_SEQUENTIAL_STRATEGY_TYPE_TARGET = {
     "improveDatabank": "MC2",
 }
 CAPA2_SEQUENTIAL_BANNED_TOKENS = CAPA2_MC_BANNED_TOKENS
+CAPA2_MONKEY_TASK_XML = "AutomaticRetest-Task6.xml"
+CAPA2_MONKEY_TASK_TITLE = "Monkey Test"
+CAPA2_MONKEY_PERIOD_KEY = "ROBUSTNESS_C2"
+CAPA2_MONKEY_DATA_TEST_PRECISION = CAPA2_FASTEST_DATA_TEST_PRECISION
+CAPA2_MONKEY_DATABANKS_TARGET = {"Input": "Sequential", "Output": "Monkey Test"}
+CAPA2_MONKEY_RESOURCE_SYMBOL = CAPA2_MC_RESOURCE_SYMBOL
+CAPA2_MONKEY_RESOURCE_SPREAD = CAPA2_MC_RESOURCE_SPREAD
+CAPA2_MONKEY_STRATEGY_TYPE_TARGET = {
+    "type": "simple",
+    "additionalCharts": "2",
+    "templateFile": "",
+    "improveType": "strategy",
+    "strategyFile": "",
+    "architecture": "sq4",
+    "improveDatabank": "Sequential",
+}
+CAPA2_MONKEY_BANNED_TOKENS = CAPA2_MC_BANNED_TOKENS
 CAPA2_BUILD_TAB_ORDER = [
     "WhatToBuild",
     "Data",
@@ -23312,6 +23330,460 @@ def promote_capa2_sequential_target(root142: Path, project_root: Path, target: s
     return payload
 
 
+def load_capa2_monkey_task_root(cfx: Path) -> tuple[str, ET.Element | None, str]:
+    task_xml, root, title = load_task_root_by_xml(cfx, CAPA2_MONKEY_TASK_XML)
+    if task_xml and root is not None:
+        return task_xml, root, title or CAPA2_MONKEY_TASK_TITLE
+    fallback_task_xml, fallback_root = load_task_root(cfx, CAPA2_MONKEY_TASK_TITLE)
+    return fallback_task_xml, fallback_root, CAPA2_MONKEY_TASK_TITLE if fallback_root is not None else ""
+
+
+def capa2_monkey_summary(root: ET.Element | None) -> dict[str, Any]:
+    if root is None:
+        return {"exists": False}
+    summary = monkey_static_tabs_summary(root)
+    summary["data"] = capa2_tick_real_data_summary(root)
+    summary["customData"] = capa2_retest1_custom_data_summary(root)
+    summary["databanks"] = {item.get("name", ""): item.get("value", "") for item in databank_summary(root)}
+    summary["resources"] = _tick_real_resource_summary(root)
+    summary["optionsParams"] = {
+        param.get("key", ""): (param.text or "")
+        for param in root.findall(".//BuildTradingOptions/Params/Param")
+        if param.get("key") in MONKEY_OPTIONS_PARAMS_TARGET
+    }
+    summary["crossChecks"] = monkey_crosschecks_summary(root)
+    summary["strategyType"] = task_strategy_type_summary(root)
+    summary["buildMode"] = monkey_passive_generation_summary(root).get("buildMode", {})
+    summary["orderTypes"] = task_order_type_detail_summary(root)
+    summary["exitTypes"] = task_exit_type_detail_summary(root)
+    return summary
+
+
+def set_capa2_monkey_databanks(root: ET.Element, actions: list[dict[str, Any]]) -> None:
+    databanks = find_section(root, "Databanks")
+    if databanks is None:
+        databanks = ET.SubElement(root, "Databanks", {"retestSelected": "false"})
+        actions.append({"field": "Databanks", "from": None, "to": dict(databanks.attrib), "changed": True})
+    existing = {node.get("name", ""): node for node in databanks.findall("Databank") if node.get("name")}
+    for name, value in CAPA2_MONKEY_DATABANKS_TARGET.items():
+        node = existing.get(name)
+        before = dict(node.attrib) if node is not None else None
+        if node is None:
+            node = ET.SubElement(databanks, "Databank", {"name": name})
+        node.set("name", name)
+        node.set("value", value)
+        node.set("label", f"{name} databank")
+        actions.append({"field": f"Databanks/{name}:capa2-monkey", "from": before, "to": dict(node.attrib), "changed": before != dict(node.attrib)})
+
+
+def normalize_capa2_monkey_crosscheck_setups(root: ET.Element, actions: list[dict[str, Any]]) -> None:
+    period = generator_period(CAPA2_MONKEY_PERIOD_KEY)
+    before: list[dict[str, Any]] = []
+    after: list[dict[str, Any]] = []
+    for setup in root.findall(".//CrossChecks/*/Settings/Setups/Setup"):
+        before.append({"attrs": dict(setup.attrib), "charts": [dict(chart.attrib) for chart in setup.findall("Chart")]})
+        for key, wanted in {
+            "dateFrom": period[0],
+            "dateTo": period[1],
+            "testPrecision": CAPA2_MONKEY_DATA_TEST_PRECISION,
+            "session": MONKEY_DATA_SESSION,
+            "slippage": "0",
+            "minDist": "0",
+        }.items():
+            setup.set(key, wanted)
+        charts = setup.findall("Chart")
+        if not charts:
+            charts = [ET.SubElement(setup, "Chart")]
+        for chart in charts:
+            chart.attrib.clear()
+            chart.attrib.update({"symbol": CAPA2_MONKEY_RESOURCE_SYMBOL, "timeframe": CAPA2_BUILD_SEED_TIMEFRAME, "spread": CAPA2_MONKEY_RESOURCE_SPREAD})
+        after.append({"attrs": dict(setup.attrib), "charts": [dict(chart.attrib) for chart in setup.findall("Chart")]})
+    actions.append({"field": "CrossChecks/*/Settings/Setups/Setup:capa2-monkey", "from": before, "to": after, "changed": before != after})
+
+
+def apply_capa2_monkey_crosschecks_to_root(root: ET.Element) -> list[dict[str, Any]]:
+    actions: list[dict[str, Any]] = []
+    parent = find_section(root, "CrossChecks")
+    if parent is None:
+        parent = ET.SubElement(root, "CrossChecks")
+        actions.append({"field": "CrossChecks", "from": None, "to": dict(parent.attrib), "changed": True})
+    set_attrs_on_node(parent, MONKEY_CROSSCHECK_PARENT_TARGET, actions, "CrossChecks:attrs")
+    active = parent.find(MONKEY_ACTIVE_CROSSCHECK)
+    if active is None:
+        active = ET.SubElement(parent, MONKEY_ACTIVE_CROSSCHECK, {"use": "true"})
+        actions.append({"field": f"CrossChecks/{MONKEY_ACTIVE_CROSSCHECK}", "from": None, "to": dict(active.attrib), "changed": True})
+    for check in list(parent):
+        if not isinstance(check.tag, str) or check.get("use") is None:
+            continue
+        before_use = check.get("use", "")
+        wanted_use = "true" if check.tag == MONKEY_ACTIVE_CROSSCHECK else "false"
+        check.set("use", wanted_use)
+        actions.append({"field": f"CrossChecks/{check.tag}:use", "from": before_use, "to": wanted_use, "changed": before_use != wanted_use})
+        for method in check.findall("./Settings/Methods/Method"):
+            before_method = method.get("use", "")
+            wanted_method = "true" if check.tag == MONKEY_ACTIVE_CROSSCHECK and method.get("type") == MONKEY_ACTIVE_METHOD else "false"
+            method.set("use", wanted_method)
+            actions.append({"field": f"CrossChecks/{check.tag}/Method:{method.get('type', '')}:use", "from": before_method, "to": wanted_method, "changed": before_method != wanted_method})
+    settings = ensure_direct_child(active, "Settings")
+    for tag, wanted in (
+        ("NumberOfSimulations", MONKEY_NUMBER_OF_SIMULATIONS),
+        ("MCUseFullSample", MONKEY_USE_FULL_SAMPLE),
+        ("MCBacktestPrecision", "-1"),
+    ):
+        set_or_create_text_child(settings, tag, wanted, actions, f"CrossChecks/{MONKEY_ACTIVE_CROSSCHECK}/Settings/{tag}")
+    methods = ensure_direct_child(settings, "Methods")
+    method = next((item for item in methods.findall("Method") if item.get("type") == MONKEY_ACTIVE_METHOD), None)
+    before_method = dict(method.attrib) if method is not None else None
+    if method is None:
+        method = ET.SubElement(methods, "Method", {"type": MONKEY_ACTIVE_METHOD})
+    method.set("type", MONKEY_ACTIVE_METHOD)
+    method.set("use", "true")
+    actions.append({"field": f"CrossChecks/{MONKEY_ACTIVE_CROSSCHECK}/Method:{MONKEY_ACTIVE_METHOD}:ensure", "from": before_method, "to": dict(method.attrib), "changed": before_method != dict(method.attrib)})
+    set_method_param(
+        method,
+        "MaxChange",
+        MONKEY_METHOD_MAX_CHANGE,
+        "Integer",
+        actions,
+        f"CrossChecks/{MONKEY_ACTIVE_CROSSCHECK}/Method:{MONKEY_ACTIVE_METHOD}/Param:MaxChange",
+    )
+    set_monkey_acceptance_conditions(active, actions)
+    normalize_capa2_monkey_crosscheck_setups(root, actions)
+    return actions
+
+
+def apply_capa2_monkey_target_to_root(root: ET.Element) -> list[dict[str, Any]]:
+    actions: list[dict[str, Any]] = []
+    data_setup = ensure_capa2_tick_real_setup(
+        root,
+        "Data",
+        MONKEY_DATA_ENGINE,
+        actions,
+        test_precision=CAPA2_MONKEY_DATA_TEST_PRECISION,
+    )
+    ensure_capa2_tick_real_setup(
+        root,
+        "CustomData",
+        MONKEY_CUSTOM_DATA_ENGINE,
+        actions,
+        test_precision=CAPA2_MONKEY_DATA_TEST_PRECISION,
+        custom_main_values=MONKEY_CUSTOM_DATA_MAIN_TEST_VALUES_TARGET,
+    )
+    ensure_capa2_tick_real_resources(root, data_setup, actions)
+    set_capa2_monkey_databanks(root, actions)
+    for key, value in MONKEY_OPTIONS_PARAMS_TARGET.items():
+        set_or_create_option_param_text(root, key, value, actions, "Options")
+    actions.extend(apply_capa2_monkey_crosschecks_to_root(root))
+    apply_retest1_parts_to_improve_to_root(root, actions)
+    apply_monkey_what_to_build_to_root(root, actions)
+    strategy = root.find("./WhatToBuild/StrategyType")
+    before_strategy = dict(strategy.attrib) if strategy is not None else None
+    if strategy is not None:
+        strategy.attrib.clear()
+        strategy.attrib.update(CAPA2_MONKEY_STRATEGY_TYPE_TARGET)
+        actions.append({"field": "WhatToBuild/StrategyType:capa2-monkey", "from": before_strategy, "to": dict(strategy.attrib), "changed": before_strategy != dict(strategy.attrib)})
+    apply_capa2_mc_blocks_to_root(root, actions)
+    blocks = find_blocks(root)
+    if blocks is not None:
+        enforce_disabled_build_block_categories(blocks, actions)
+    apply_monkey_rankings_to_root(root, actions)
+    apply_capa2_retest_risk_money_management_to_root(root, actions)
+    apply_mc_atms_to_root(root, actions)
+    apply_mc_selected_strategies_to_root(root, actions)
+    actions.append({"field": "Notes", "changed": False, "sha256": section_sha256(root, "Notes"), "note": "audited and preserved"})
+    return actions
+
+
+def capa2_monkey_generator_period_issues() -> list[str]:
+    config = read_json(GENERATOR_PROFILES_PATH, {})
+    periods = config.get("retestPeriods") or {}
+    layer2 = (config.get("taskPeriodMaps") or {}).get("2") or {}
+    cross = (config.get("crossBrokerRetests") or {}).get("2") or {}
+    issues: list[str] = []
+    if periods.get(CAPA2_MONKEY_PERIOD_KEY) != ["2017.10.02", "2023.12.31"]:
+        issues.append(f"generator_profiles.json retestPeriods.{CAPA2_MONKEY_PERIOD_KEY} must be 2017.10.02-2023.12.31")
+    if layer2.get(CAPA2_MONKEY_TASK_XML) != CAPA2_MONKEY_PERIOD_KEY:
+        issues.append(f"generator_profiles.json taskPeriodMaps.2.{CAPA2_MONKEY_TASK_XML} must map to {CAPA2_MONKEY_PERIOD_KEY}")
+    if CAPA2_MONKEY_TASK_XML in cross:
+        issues.append(f"generator_profiles.json must not cross-broker route {CAPA2_MONKEY_TASK_XML}; Capa2 Monkey stays Darwinex/SQ default")
+    return issues
+
+
+def enforce_capa2_monkey_guard(root: ET.Element | None, target_name: str) -> list[str]:
+    if root is None:
+        return [f"{target_name}: Capa2 Monkey task missing"]
+    issues: list[str] = []
+    period = generator_period(CAPA2_MONKEY_PERIOD_KEY)
+    summary = capa2_monkey_summary(root)
+    for label in ("data", "customData"):
+        carrier = summary.get(label) or {}
+        setup = carrier.get("setup") or {}
+        chart = carrier.get("chart") or {}
+        if setup.get("dateFrom") != period[0] or setup.get("dateTo") != period[1]:
+            issues.append(f"{target_name}: Capa2 Monkey {label} dates must be {CAPA2_MONKEY_PERIOD_KEY} {period[0]}-{period[1]}")
+        if setup.get("testPrecision") != CAPA2_MONKEY_DATA_TEST_PRECISION:
+            issues.append(f"{target_name}: Capa2 Monkey {label} testPrecision must be fastest code {CAPA2_MONKEY_DATA_TEST_PRECISION}")
+        if setup.get("session") != MONKEY_DATA_SESSION:
+            issues.append(f"{target_name}: Capa2 Monkey {label} session must be No Session")
+        if chart != {"symbol": CAPA2_MONKEY_RESOURCE_SYMBOL, "timeframe": CAPA2_BUILD_SEED_TIMEFRAME, "spread": CAPA2_MONKEY_RESOURCE_SPREAD}:
+            issues.append(f"{target_name}: Capa2 Monkey {label} chart seed drifted: {chart!r}")
+    if (summary.get("data") or {}).get("outOfSampleRanges"):
+        issues.append(f"{target_name}: Capa2 Monkey must not add an internal OOS split")
+    if (summary.get("customData") or {}).get("mainTestValues") != MONKEY_CUSTOM_DATA_MAIN_TEST_VALUES_TARGET:
+        issues.append(f"{target_name}: Capa2 Monkey CustomData MainTestValues drifted")
+    if (summary.get("databanks") or {}) != CAPA2_MONKEY_DATABANKS_TARGET:
+        issues.append(f"{target_name}: Capa2 Monkey databanks are {summary.get('databanks')!r}, expected {CAPA2_MONKEY_DATABANKS_TARGET!r}")
+    resources = summary.get("resources") or {}
+    symbols = resources.get("symbols") or []
+    if {item.get("name") for item in symbols} != {CAPA2_MONKEY_RESOURCE_SYMBOL}:
+        issues.append(f"{target_name}: Capa2 Monkey resources must contain only {CAPA2_MONKEY_RESOURCE_SYMBOL}")
+    if any(item.get("source") != CAPA2_BUILD_RESOURCE_SOURCE_ID or item.get("broker") != CAPA2_BUILD_RESOURCE_BROKER_ID for item in symbols):
+        issues.append(f"{target_name}: Capa2 Monkey resources must use Darwinex source 4 / broker 4")
+    if resources.get("sessions"):
+        issues.append(f"{target_name}: Capa2 Monkey resources must not keep sessions")
+    if (summary.get("optionsParams") or {}) != MONKEY_OPTIONS_PARAMS_TARGET:
+        issues.append(f"{target_name}: Capa2 Monkey options drifted: {summary.get('optionsParams')!r}")
+    cross = summary.get("crossChecks") or {}
+    if (cross.get("attributes") or {}) != MONKEY_CROSSCHECK_PARENT_TARGET:
+        issues.append(f"{target_name}: Capa2 Monkey CrossChecks attrs drifted: {cross.get('attributes')!r}")
+    if cross.get("active") != [MONKEY_ACTIVE_CROSSCHECK]:
+        issues.append(f"{target_name}: Capa2 Monkey active crosschecks are {cross.get('active')!r}, expected [{MONKEY_ACTIVE_CROSSCHECK!r}]")
+    checks = {item.get("id"): item for item in cross.get("checks") or []}
+    active = checks.get(MONKEY_ACTIVE_CROSSCHECK) or {}
+    if active.get("numberOfSimulations") != MONKEY_NUMBER_OF_SIMULATIONS:
+        issues.append(f"{target_name}: Capa2 Monkey NumberOfSimulations must be {MONKEY_NUMBER_OF_SIMULATIONS}")
+    if active.get("mcUseFullSample") != MONKEY_USE_FULL_SAMPLE:
+        issues.append(f"{target_name}: Capa2 Monkey MCUseFullSample must be {MONKEY_USE_FULL_SAMPLE}")
+    if active.get("mcBacktestPrecision") != "-1":
+        issues.append(f"{target_name}: Capa2 Monkey MCBacktestPrecision must be -1")
+    if active.get("activeMethodTypes") != [MONKEY_ACTIVE_METHOD]:
+        issues.append(f"{target_name}: Capa2 Monkey active methods are {active.get('activeMethodTypes')!r}, expected [{MONKEY_ACTIVE_METHOD!r}]")
+    method = next((item for item in active.get("methods") or [] if item.get("type") == MONKEY_ACTIVE_METHOD), {})
+    if (method.get("params") or {}).get("MaxChange") != MONKEY_METHOD_MAX_CHANGE:
+        issues.append(f"{target_name}: Capa2 Monkey RealMonkeyTest MaxChange must be {MONKEY_METHOD_MAX_CHANGE}")
+    if not monkey_acceptance_conditions_ok(root):
+        issues.append(f"{target_name}: Capa2 Monkey acceptance conditions drifted from RealMonkeyTest policy")
+    for check in cross.get("checks") or []:
+        if check.get("id") == MONKEY_ACTIVE_CROSSCHECK:
+            continue
+        if check.get("activeMethodTypes"):
+            issues.append(f"{target_name}: inactive Capa2 Monkey crosscheck {check.get('id')} still has active methods")
+    for nested_setup in root.findall(".//CrossChecks/*/Settings/Setups/Setup"):
+        if nested_setup.get("dateFrom") != period[0] or nested_setup.get("dateTo") != period[1]:
+            issues.append(f"{target_name}: Capa2 Monkey nested CrossChecks dates drifted")
+        if nested_setup.get("testPrecision") != CAPA2_MONKEY_DATA_TEST_PRECISION:
+            issues.append(f"{target_name}: Capa2 Monkey nested CrossChecks precision must be fastest code {CAPA2_MONKEY_DATA_TEST_PRECISION}")
+    parts = monkey_passive_generation_summary(root).get("partsToImprove") or {}
+    for group_name in ("EntryRules", "OrderTypes", "ExitRules"):
+        group = parts.get(group_name) or {}
+        for side in ("LongImprovement", "ShortImprovement"):
+            if (group.get(side) or {}).get("use") != "false":
+                issues.append(f"{target_name}: Capa2 Monkey {group_name}/{side} must be passive use=false")
+    if task_strategy_type_summary(root) != CAPA2_MONKEY_STRATEGY_TYPE_TARGET:
+        issues.append(f"{target_name}: Capa2 Monkey StrategyType must point passively to Sequential")
+    build_text = (summary.get("buildMode") or {}).get("text") or {}
+    for tag, value in MONKEY_PASSIVE_BUILDMODE_TEXT_TARGET.items():
+        if build_text.get(tag) != value:
+            issues.append(f"{target_name}: Capa2 Monkey BuildMode {tag} is {build_text.get(tag)!r}, expected {value!r}")
+    order = task_order_type_summary(root)
+    if {key: order.get(key) for key in CAPA2_BUILD_BLOCKS_ORDER_TARGET} != CAPA2_BUILD_BLOCKS_ORDER_TARGET:
+        issues.append(f"{target_name}: Capa2 Monkey order types drifted from EnterAtMarket-only contract")
+    exits = task_exit_type_detail_summary(root)
+    if (exits.get("ExitAfterBars.ExitAfterBars") or {}).get("use") != "false":
+        issues.append(f"{target_name}: Capa2 Monkey ExitAfterBars must stay false")
+    for key in CAPA2_MC_ALLOWED_ACTIVE_EXITS:
+        if (exits.get(key) or {}).get("use") != "true":
+            issues.append(f"{target_name}: Capa2 Monkey {key} must stay active")
+    ranking = summary.get("rankings") or {}
+    if ranking.get("type") != "never":
+        issues.append(f"{target_name}: Capa2 Monkey Rankings type must be never")
+    for key in ("DeleteFailedStrategies", "ForceRunCrossChecks"):
+        if ranking.get(key) != "false":
+            issues.append(f"{target_name}: Capa2 Monkey Rankings {key} must be false")
+    if (ranking.get("FitPortfolio") or {}).get("active") != "false":
+        issues.append(f"{target_name}: Capa2 Monkey FitPortfolio must stay disabled")
+    if (ranking.get("CustomAnalysis") or {}).get("filter") != "false":
+        issues.append(f"{target_name}: Capa2 Monkey CustomAnalysis must stay disabled")
+    if ranking.get("conditions"):
+        issues.append(f"{target_name}: Capa2 Monkey Rankings must not add extra conditions")
+    rmm = task_risk_method_summary(root)
+    for method_name, wanted in CAPA2_RETEST1_RISK_MONEY_MANAGEMENT_METHOD_TARGET.items():
+        if rmm.get(method_name) != wanted:
+            issues.append(f"{target_name}: Capa2 Monkey RiskMoneyManagement {method_name} is {rmm.get(method_name)!r}, expected {wanted!r}")
+    atms = find_section(root, "ATMs")
+    if atms is not None and atms.get("enable") != "false":
+        issues.append(f"{target_name}: Capa2 Monkey ATMs must stay disabled")
+    selected = find_section(root, "SelectedStrategies")
+    if selected is not None and ((selected.text or "").strip() or list(selected)):
+        issues.append(f"{target_name}: Capa2 Monkey SelectedStrategies must stay empty")
+    guarded_text = serialize_xml(root)
+    for token in CAPA2_MONKEY_BANNED_TOKENS:
+        if token in guarded_text:
+            issues.append(f"{target_name}: Forbidden token leaked into Capa2 Monkey: {token}")
+    if re.search(r"[A-Za-z]:\\", guarded_text):
+        issues.append(f"{target_name}: local absolute path leaked into Capa2 Monkey")
+    issues.extend(capa2_monkey_generator_period_issues())
+    return issues
+
+
+def update_capa2_monkey_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "sha256Before": file_sha256(cfx) if cfx.is_file() else "",
+        "actions": [],
+        "backup": "",
+        "willWrite": apply,
+    }
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        payload["error"] = "missing_or_not_zip"
+        return payload
+    config_before = ""
+    config_after = ""
+    config_actions: list[dict[str, Any]] = []
+    config_issues: list[str] = []
+    with zipfile.ZipFile(cfx, "r") as zf:
+        config_before = safe_zip_text(zf, "config.xml")
+        config_root = xml_root_from_zip(zf, "config.xml")
+    if config_root is None:
+        config_issues.append("config.xml missing")
+    else:
+        databank = next((node for node in config_root.findall(".//Databank") if node.get("name") == CAPA2_MONKEY_DATABANKS_TARGET["Output"]), None)
+        if databank is None:
+            config_issues.append("config.xml Monkey Test databank missing")
+        else:
+            before_view = databank.get("view", "")
+            wanted_view = VIEW_PROMOTION_TARGETS[CAPA2_MONKEY_DATABANKS_TARGET["Output"]]
+            databank.set("view", wanted_view)
+            config_actions.append({
+                "field": "config.xml/Databanks/Monkey Test:view",
+                "from": before_view,
+                "to": wanted_view,
+                "changed": before_view != wanted_view,
+            })
+        config_after = serialize_xml(config_root)
+    payload["configActions"] = config_actions
+    task_xml_name, root, title = load_capa2_monkey_task_root(cfx)
+    payload["taskXml"] = task_xml_name
+    payload["displayTitle"] = title
+    if not task_xml_name or root is None:
+        payload["error"] = "capa2_monkey_task_not_found"
+        payload["sha256After"] = payload["sha256Before"]
+        return payload
+    before_text = serialize_xml(root)
+    payload["before"] = capa2_monkey_summary(root)
+    payload["actions"] = apply_capa2_monkey_target_to_root(root)
+    payload["after"] = capa2_monkey_summary(root)
+    payload["issues"] = config_issues + enforce_capa2_monkey_guard(root, payload.get("displayTitle") or "Capa2 Monkey")
+    payload["guardOk"] = not payload["issues"]
+    after_text = serialize_xml(root)
+    config_changed = bool(config_before and config_after and config_before != config_after)
+    payload["changed"] = before_text != after_text or config_changed
+    payload["changedActionCount"] = sum(1 for item in payload["actions"] if item.get("changed")) + sum(1 for item in config_actions if item.get("changed"))
+    payload["targetValues"] = {
+        "taskXml": CAPA2_MONKEY_TASK_XML,
+        "title": CAPA2_MONKEY_TASK_TITLE,
+        "period": CAPA2_MONKEY_PERIOD_KEY,
+        "testPrecision": CAPA2_MONKEY_DATA_TEST_PRECISION,
+        "precisionPolicy": "fastest for Capa2 Monkey and pending robustness retests; Forward returns to tick precision.",
+        "databanks": CAPA2_MONKEY_DATABANKS_TARGET,
+        "dataCarrier": "Data + CustomData synchronized",
+        "resource": {"symbol": CAPA2_MONKEY_RESOURCE_SYMBOL, "source": CAPA2_BUILD_RESOURCE_SOURCE_ID, "broker": CAPA2_BUILD_RESOURCE_BROKER_ID},
+        "activeCrossCheck": MONKEY_ACTIVE_CROSSCHECK,
+        "activeMethod": MONKEY_ACTIVE_METHOD,
+        "strategyType": CAPA2_MONKEY_STRATEGY_TYPE_TARGET,
+        "exitTypes": CAPA2_BUILD_BLOCKS_EXIT_TARGET,
+    }
+    payload["targetRationale"] = {
+        "validation": "Capa2 Monkey consumes Sequential survivors and writes Monkey Test using RealMonkeyTest perturbation robustness; it is not an optimizer.",
+        "antiOverfit": "No internal OOS split, no portfolio fitting, no custom analysis and no ranking filters are added.",
+        "precision": "Operator decision: MC and remaining Capa2 robustness retests use fastest; Forward returns to tick precision.",
+        "capa2Exits": "Unlike Capa1 Monkey, Capa2 keeps ExitAfterBars=false and preserves SL/PT/trailing risk exits.",
+        "naturalResults": "No SQX launch, no smoke, no optimization and no forced Results=passed.",
+    }
+    if apply and payload["changed"] and payload["guardOk"]:
+        backup = backup_file(cfx, backup_root)
+        payload["backup"] = str(backup)
+        if config_changed:
+            replace_config_xml_in_cfx(cfx, config_after)
+        if before_text != after_text:
+            replace_zip_text_entry(cfx, task_xml_name, serialize_xml(root))
+        payload["sha256After"] = file_sha256(cfx)
+    else:
+        payload["sha256After"] = payload["sha256Before"]
+    return payload
+
+
+def promote_capa2_monkey_target(root142: Path, project_root: Path, target: str, apply: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    previous_gate = promote_capa2_sequential_target(root142, project_root, target=target, apply=False)
+    issues = list(previous_gate.get("issues") or [])
+    if previous_gate.get("ok") is not True:
+        issues.append("capa2-sequential-target: previous gate ok=false")
+    process_probe = process_snapshot()
+    if process_probe.get("processes"):
+        issues.append("SQX processes are alive; close SQX before applying phase24 Capa2 Monkey")
+    backup_root = ledger_root(project_root) / "backups" / f"phase24_capa2_monkey_{stamp()}"
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = capa2_base_project_path(root142)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_CAPA2_TEMPLATE
+    results = {name: update_capa2_monkey_target_in_cfx(path, backup_root / name, apply=apply) for name, path in targets.items()}
+    for target_name, result in results.items():
+        for issue in result.get("issues") or []:
+            issues.append(f"{target_name}: {issue}")
+    payload: dict[str, Any] = {
+        "ok": not issues and all(item.get("exists") and item.get("isZip") and not item.get("error") and item.get("guardOk") for item in results.values()),
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase24_capa2_monkey",
+        "operation": "capa2_monkey_target",
+        "apply": apply,
+        "target": target,
+        "previousGate": {
+            "phase": previous_gate.get("phase"),
+            "ok": previous_gate.get("ok"),
+            "issues": previous_gate.get("issues", []),
+            "warnings": previous_gate.get("warnings", []),
+            "nextPhase": previous_gate.get("nextPhase"),
+            "written": previous_gate.get("written", ""),
+        },
+        "processProbe": process_probe,
+        "issues": issues,
+        "warnings": [],
+        "results": results,
+        "summary": {
+            "decision": "Close Capa2 Monkey as validation-only RealMonkeyTest gate after Sequential.",
+            "taskXml": CAPA2_MONKEY_TASK_XML,
+            "chain": "Input=Sequential, Output=Monkey Test.",
+            "data": f"Darwinex ROBUSTNESS_C2 window 2017.10.02-2023.12.31, testPrecision={CAPA2_MONKEY_DATA_TEST_PRECISION} fastest, Data+CustomData, No Session.",
+            "crossChecks": "CrossChecks use=true/evaluateAll=true; only MonteCarloRetest active with RealMonkeyTest, 200 simulations, full sample and MaxChange=90.",
+            "passive": "StrategyType reads Sequential passively; PartsToImprove/fresh-blood/evolution are inactive; ExitAfterBars remains false and SL/PT/trailing remain active for Capa2.",
+            "naturalResults": "No SQX launch, no smoke, no optimization and no forced Results=passed.",
+            "nextPhase": CAPA2_MONKEY_NEXT,
+        },
+        "academicSources": CAPA2_ACADEMIC_SOURCES,
+        "nextPhase": "phase24_capa2_monkey_diff_review" if not apply else CAPA2_MONKEY_NEXT,
+    }
+    evidence_target = ledger_root(project_root) / "diffs" / f"phase24_capa2_monkey_target_{stamp()}.json"
+    write_json(evidence_target, payload)
+    payload["written"] = str(evidence_target)
+    if apply and payload["ok"]:
+        state_path = ledger_root(project_root) / "session_state.json"
+        state = read_json(state_path, {})
+        state.update({
+            "updatedAt": now_iso(),
+            "currentPhase": "phase24_capa2_monkey",
+            "nextPhase": CAPA2_MONKEY_NEXT,
+            "scope": "capa2",
+            "phase24Capa2MonkeyReport": str(evidence_target),
+        })
+        write_json(state_path, state)
+    return payload
+
+
 def update_build_data_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
     date_from, date_to = generator_period(BUILD_DATA_PERIOD_KEY)
     payload: dict[str, Any] = {
@@ -24765,6 +25237,10 @@ def build_parser() -> argparse.ArgumentParser:
     capa2_sequential.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     capa2_sequential.add_argument("--apply", action="store_true")
 
+    capa2_monkey = sub.add_parser("capa2-monkey-target")
+    capa2_monkey.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    capa2_monkey.add_argument("--apply", action="store_true")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -25049,6 +25525,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "capa2-sequential-target":
         json_print(promote_capa2_sequential_target(root142, project_root, target=args.target, apply=args.apply))
+        return 0
+    if args.command == "capa2-monkey-target":
+        json_print(promote_capa2_monkey_target(root142, project_root, target=args.target, apply=args.apply))
         return 0
     if args.command == "archive-exit-day-snippets":
         json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))

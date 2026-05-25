@@ -5554,6 +5554,136 @@
       }
     },
     {
+      "id": "sqx142_c2_phase24_monkey_validation",
+      "description": "C1-CONFIG1 Phase 24 Capa2 Monkey must stay closed as a fastest Darwinex RealMonkeyTest validation-only gate, with no tuning, no Dukascopy outside Retest 1 and no execution claims.",
+      "required": {
+        "README.md": [
+          "phase24_capa2_monkey",
+          "phase24_capa2_monkey_target_20260525_105731.json",
+          "`AutomaticRetest-Task6.xml`",
+          "`Input=Sequential`",
+          "`Output=Monkey Test`",
+          "MC MONKEY RETEST",
+          "`ROBUSTNESS_C2 2017.10.02-2023.12.31`",
+          "`Data+CustomData`",
+          "`AUDCAD_darwinex` source `4` broker `4`",
+          "`testPrecision=1 fastest`",
+          "`RealMonkeyTest`",
+          "`NumberOfSimulations=200`",
+          "`MCBacktestPrecision=-1`",
+          "`ExitAfterBars=false` con SL/PT/trailing activos",
+          "Forward vuelve a precision tick",
+          "phase25_capa2_synthetic"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Phase 24 `phase24_capa2_monkey` is closed",
+          "Phase 24 `Capa2 Monkey` is closed",
+          "phase24_capa2_monkey_target_20260525_105731.json",
+          "`capa2-monkey-target --target both --apply`",
+          "`AutomaticRetest-Task6.xml`",
+          "`Input=Sequential`",
+          "`Output=Monkey Test`",
+          "MC MONKEY RETEST",
+          "`testPrecision=1 fastest`",
+          "only `MonteCarloRetest` active",
+          "`RealMonkeyTest`",
+          "`MCBacktestPrecision=-1`",
+          "Forward returns to tick precision",
+          "phase25_capa2_synthetic"
+        ],
+        "docs/ARCHITECTURE.md": [
+          "phase24_capa2_monkey",
+          "Capa2 Monkey `AutomaticRetest-Task6.xml`",
+          "`Input=Sequential`",
+          "`Output=Monkey Test`",
+          "dual `Data+CustomData`",
+          "`testPrecision=1 fastest`",
+          "only `MonteCarloRetest` active",
+          "`RealMonkeyTest`",
+          "`MCBacktestPrecision=-1`",
+          "Forward returns to tick precision"
+        ],
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "Estado Fase 24 - Capa2 Monkey",
+          "phase24_capa2_monkey_target_20260525_105731.json",
+          "`capa2-monkey-target --target both --apply`",
+          "`AutomaticRetest-Task6.xml`",
+          "`Input=Sequential`",
+          "`Output=Monkey Test`",
+          "MC MONKEY RETEST",
+          "`Data+CustomData`",
+          "`testPrecision=1 fastest`",
+          "`RealMonkeyTest`",
+          "`currentPhase=phase24_capa2_monkey`",
+          "`nextPhase=phase25_capa2_synthetic`"
+        ],
+        "CHANGELOG.md": [
+          "2026-05-25 - C1-CONFIG1 Capa2 Monkey",
+          "`capa2-monkey-target`",
+          "phase24_capa2_monkey_target_20260525_105731.json",
+          "`AutomaticRetest-Task6.xml`",
+          "`Input=Sequential` / `Output=Monkey Test`",
+          "MC MONKEY RETEST",
+          "`testPrecision=1 fastest`",
+          "`RealMonkeyTest`",
+          "Forward returns to tick precision",
+          "phase25_capa2_synthetic"
+        ],
+        "backend/sqx-edge-tool/config/generator_profiles.json": [
+          "\"AutomaticRetest-Task6.xml\"",
+          "\"ROBUSTNESS_C2\""
+        ],
+        "backend/sqx-edge-tool/core/project_generator.py": [
+          "CAPA2_NO_EXIT_AFTER_BARS_TASKS",
+          "CAPA2_FASTEST_PRECISION_TASKS",
+          "\"AutomaticRetest-Task6.xml\"",
+          "\"Retest-Task2.xml\""
+        ],
+        "backend/sqx-edge-tool/tools/sqx142_task_config_gate.py": [
+          "CAPA2_MONKEY_NEXT = \"phase25_capa2_synthetic\"",
+          "CAPA2_MONKEY_TASK_XML = \"AutomaticRetest-Task6.xml\"",
+          "CAPA2_MONKEY_DATA_TEST_PRECISION = CAPA2_FASTEST_DATA_TEST_PRECISION",
+          "def promote_capa2_monkey_target",
+          "def enforce_capa2_monkey_guard",
+          "capa2-monkey-target"
+        ],
+        "backend/sqx-edge-tool/test_sqx142_task_config_gate.py": [
+          "test_capa2_monkey_target_applies_and_is_idempotent",
+          "test_capa2_monkey_guard_rejects_overfit_and_drift",
+          "test_capa2_monkey_cli_is_registered"
+        ],
+        "backend/sqx-edge-tool/test_cfx_template_compatibility.py": [
+          "test_capa2_base_monkey_matches_phase24_methodology",
+          "_assert_capa2_monkey_contract",
+          "testPrecision\") == \"1\""
+        ]
+      },
+      "forbidden": {
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "Capa2 Monkey usa Dukascopy",
+          "phase24_capa2_monkey usa Dukascopy",
+          "Capa2 Monkey ejecuta SQX",
+          "Capa2 Monkey lanza smoke",
+          "Capa2 Monkey inicia optimizacion",
+          "Capa2 Monkey fuerza Results=passed",
+          "Capa2 Monkey optimiza parametros",
+          "Capa2 Monkey ExitAfterBars=true",
+          "Forward hereda fastest"
+        ],
+        "CHANGELOG.md": [
+          "Capa2 Monkey uses Dukascopy",
+          "phase24_capa2_monkey uses Dukascopy",
+          "Capa2 Monkey ran SQX",
+          "Capa2 Monkey ran smoke",
+          "Capa2 Monkey optimization completed",
+          "Capa2 Monkey forced Results=passed",
+          "Capa2 Monkey optimized parameters",
+          "Capa2 Monkey ExitAfterBars=true",
+          "Forward inherits fastest"
+        ]
+      }
+    },
+    {
       "id": "sqx_agent_per_message_bootstrap_g9",
       "description": "G9/G9R must keep per-message specialist activation, new-session bootstrap and explicit parallel subagent runtime loading proactive but orchestrator-owned, compaction-resilient and mutation-gated.",
       "required": {

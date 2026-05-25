@@ -824,6 +824,95 @@ def _assert_capa2_sequential_contract(
     assert exit_types["TrailingStop.TrailingStop"] == "true"
 
 
+def _assert_capa2_monkey_contract(
+    monkey: ET.Element,
+    expected_symbol: str,
+    expected_timeframe: str,
+    expected_source: str,
+    expected_broker: str,
+    expected_spread: str,
+) -> None:
+    for section in ("Data", "CustomData"):
+        setup = monkey.find(f"./{section}/Setups/Setup")
+        assert setup is not None
+        assert setup.get("dateFrom") == "2017.10.02"
+        assert setup.get("dateTo") == "2023.12.31"
+        assert setup.get("testPrecision") == "1"
+        assert setup.get("session") == "No Session"
+        chart = setup.find("Chart")
+        assert chart is not None
+        assert chart.get("symbol") == expected_symbol
+        assert chart.get("timeframe") == expected_timeframe
+        assert chart.get("spread") == expected_spread
+    assert monkey.findall("./Data/OutOfSample/Range") == []
+    assert {
+        databank.get("name"): databank.get("value")
+        for databank in monkey.findall(".//Databanks/Databank")
+    } == {"Output": "Monkey Test", "Input": "Sequential"}
+    symbols = monkey.findall(".//Resources/Symbols/Symbol")
+    assert {node.get("name") for node in symbols} == {expected_symbol}
+    assert {node.get("source") for node in symbols} == {expected_source}
+    assert {node.get("broker") for node in symbols} == {expected_broker}
+    assert monkey.findall(".//Resources/Sessions/Session") == []
+
+    params = {
+        node.get("key"): node.text
+        for node in monkey.findall(".//BuildTradingOptions/Params/Param")
+        if node.get("key") in {"Session", "MarketOpenSession", "LimitTimeRange", "RealisticGapsHandling", "StoreChartData"}
+    }
+    assert params == {
+        "Session": "No Session",
+        "MarketOpenSession": "No Session",
+        "LimitTimeRange": "false",
+        "RealisticGapsHandling": "false",
+        "StoreChartData": "false",
+    }
+
+    crosschecks = monkey.find(".//CrossChecks")
+    assert crosschecks is not None
+    assert crosschecks.attrib == {"use": "true", "evaluateAll": "true"}
+    active = [
+        child.tag
+        for child in list(crosschecks)
+        if isinstance(child.tag, str) and child.get("use") == "true"
+    ]
+    assert active == ["MonteCarloRetest"]
+    monte_carlo = crosschecks.find("MonteCarloRetest")
+    assert monte_carlo is not None
+    assert monte_carlo.findtext("./Settings/NumberOfSimulations") == "200"
+    assert monte_carlo.findtext("./Settings/MCUseFullSample") == "true"
+    assert monte_carlo.findtext("./Settings/MCBacktestPrecision") == "-1"
+    methods = {
+        method.get("type"): method
+        for method in monte_carlo.findall("./Settings/Methods/Method")
+        if method.get("type")
+    }
+    assert methods["RealMonkeyTest"].get("use") == "true"
+    assert methods["RealMonkeyTest"].find("./Params/Param[@key='MaxChange']").text == "90"
+    assert all(use.get("use") == "false" for name, use in methods.items() if name != "RealMonkeyTest")
+    assert len(monte_carlo.findall("./AcceptanceSettings/Conditions/Condition")) == 2
+    for nested_setup in crosschecks.findall(".//Settings/Setups/Setup"):
+        assert nested_setup.get("dateFrom") == "2017.10.02"
+        assert nested_setup.get("dateTo") == "2023.12.31"
+        assert nested_setup.get("testPrecision") == "1"
+        assert nested_setup.get("session") == "No Session"
+
+    rankings = monkey.find(".//Rankings")
+    assert rankings is not None
+    assert rankings.get("type") == "never"
+    assert rankings.findtext("DeleteFailedStrategies") == "false"
+    assert rankings.findtext("ForceRunCrossChecks") == "false"
+    assert rankings.find("FitPortfolio").get("active") == "false"
+    assert rankings.find("CustomAnalysis").get("filter") == "false"
+    assert rankings.findall("./Conditions/Condition") == []
+    assert monkey.find(".//WhatToBuild/StrategyType").get("improveDatabank") == "Sequential"
+    exit_types = {block.get("key"): block.get("use") for block in monkey.findall(".//Blocks/ExitTypes/Block")}
+    assert exit_types["ExitAfterBars.ExitAfterBars"] == "false"
+    assert exit_types["StopLoss.StopLoss"] == "true"
+    assert exit_types["ProfitTarget.ProfitTarget"] == "true"
+    assert exit_types["TrailingStop.TrailingStop"] == "true"
+
+
 def _assert_mc2_static_tabs_contract(mc2: ET.Element) -> None:
     rankings = mc2.find(".//Rankings")
     assert rankings is not None
@@ -1678,6 +1767,27 @@ def test_capa2_base_sequential_matches_phase23_methodology():
     )
 
 
+def test_capa2_base_monkey_matches_phase24_methodology():
+    roots = dict(_xml_roots(TEMPLATE_DIR / "Capa2_Base.cfx"))
+    config = roots["config.xml"]
+    task = next(task for task in config.findall(".//Task") if task.get("taskXMLFile") == "AutomaticRetest-Task6.xml")
+    databanks = {
+        databank.get("name"): databank.get("view")
+        for databank in config.findall(".//Databank")
+    }
+
+    assert task.get("title") == "Monkey Test"
+    assert databanks["Monkey Test"] == "MC MONKEY RETEST"
+    _assert_capa2_monkey_contract(
+        roots["AutomaticRetest-Task6.xml"],
+        expected_symbol="AUDCAD_darwinex",
+        expected_timeframe="H1",
+        expected_source="4",
+        expected_broker="4",
+        expected_spread="2.0",
+    )
+
+
 def test_capa1_build_resources_are_generic_generator_owned_placeholder():
     roots = dict(_xml_roots(TEMPLATE_DIR / "Capa1_Long.cfx"))
     build = roots["Build-Task1.xml"]
@@ -2441,6 +2551,17 @@ def test_generate_capa2_project_applies_layer2_build_window_and_disables_heavy_r
         expected_spread="10",
     )
     assert "dukascopy" not in ET.tostring(sequential, encoding="unicode").lower()
+
+    monkey = roots["AutomaticRetest-Task6.xml"]
+    _assert_capa2_monkey_contract(
+        monkey,
+        expected_symbol="AUDCAD",
+        expected_timeframe="H4",
+        expected_source="0",
+        expected_broker="-1",
+        expected_spread="10",
+    )
+    assert "dukascopy" not in ET.tostring(monkey, encoding="unicode").lower()
 
 
 def test_generate_project_defaults_to_sq_default_exact_symbol_for_user_downloads():
