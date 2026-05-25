@@ -5291,6 +5291,142 @@
       }
     },
     {
+      "id": "sqx142_c2_phase22_mc2_validation",
+      "description": "C1-CONFIG1 Phase 22 Capa2 MC2 must stay closed as a fastest Darwinex adaptive MonteCarloRetest validation-only gate, with no tuning, no Dukascopy, no fixed 30-50 base spread and no execution claims.",
+      "required": {
+        "README.md": [
+          "phase22_capa2_mc2",
+          "phase22_capa2_mc2_target_20260525_030124.json",
+          "`AutomaticRetest-Task8.xml`",
+          "`Input=MC`",
+          "`Output=MC2`",
+          "`ROBUSTNESS_C2 2017.10.02-2023.12.31`",
+          "`CustomData` canonico sin `Data`",
+          "`AUDCAD_darwinex` source `4` broker `4`",
+          "`testPrecision=1 fastest`",
+          "`RandomizeHistoryData=true`",
+          "`RandomizeSpread` adaptativo base spread x2-x5",
+          "`RandomizeSlippage=false`",
+          "`ExitAfterBars=false` con SL/PT/trailing activos",
+          "Forward vuelve a precision tick",
+          "phase23_capa2_sequential"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Phase 22 `phase22_capa2_mc2` is closed",
+          "Phase 22 `Capa2 MC2` is closed",
+          "phase22_capa2_mc2_target_20260525_030124.json",
+          "`capa2-mc2-target --target both --apply`",
+          "`AutomaticRetest-Task8.xml`",
+          "`Input=MC`",
+          "`Output=MC2`",
+          "`testPrecision=1 fastest`",
+          "only `MonteCarloRetest` active",
+          "`RandomizeHistoryData=true`",
+          "adaptive `RandomizeSpread` base spread x2-x5",
+          "`RandomizeSlippage=false`",
+          "Forward returns to tick precision",
+          "phase23_capa2_sequential"
+        ],
+        "docs/ARCHITECTURE.md": [
+          "phase22_capa2_mc2",
+          "Capa2 MC2 `AutomaticRetest-Task8.xml`",
+          "`Input=MC`",
+          "`Output=MC2`",
+          "`CustomData` canonical with no direct `Data`",
+          "`testPrecision=1 fastest`",
+          "only `MonteCarloRetest` active",
+          "`RandomizeHistoryData=true`",
+          "adaptive `RandomizeSpread` base spread x2-x5",
+          "`RandomizeSlippage=false`",
+          "Forward returns to tick precision"
+        ],
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "Estado Fase 22 - Capa2 MC2",
+          "phase22_capa2_mc2_target_20260525_030124.json",
+          "`capa2-mc2-target --target both --apply`",
+          "`AutomaticRetest-Task8.xml`",
+          "`Input=MC`",
+          "`Output=MC2`",
+          "`CustomData` canonico sin `Data`",
+          "`testPrecision=1 fastest`",
+          "`RandomizeHistoryData=true`",
+          "`RandomizeSpread` adaptativo base spread x2-x5",
+          "`RandomizeSlippage=false`",
+          "`currentPhase=phase22_capa2_mc2`",
+          "`nextPhase=phase23_capa2_sequential`"
+        ],
+        "CHANGELOG.md": [
+          "2026-05-25 - C1-CONFIG1 Capa2 MC2",
+          "`capa2-mc2-target`",
+          "phase22_capa2_mc2_target_20260525_030124.json",
+          "`AutomaticRetest-Task8.xml`",
+          "`Input=MC` / `Output=MC2`",
+          "`testPrecision=1 fastest`",
+          "`RandomizeSlippage=false`",
+          "Forward returns to tick precision",
+          "phase23_capa2_sequential"
+        ],
+        "backend/sqx-edge-tool/config/generator_profiles.json": [
+          "\"AutomaticRetest-Task8.xml\"",
+          "\"ROBUSTNESS_C2\"",
+          "\"adaptiveSpreadStress\"",
+          "\"minMultiplier\": 2",
+          "\"maxMultiplier\": 5"
+        ],
+        "backend/sqx-edge-tool/core/project_generator.py": [
+          "CAPA2_NO_EXIT_AFTER_BARS_TASKS",
+          "CAPA2_FASTEST_PRECISION_TASKS",
+          "CAPA2_TICK_PRECISION_TASKS",
+          "\"AutomaticRetest-Task8.xml\"",
+          "\"Retest-Task2.xml\""
+        ],
+        "backend/sqx-edge-tool/tools/sqx142_task_config_gate.py": [
+          "CAPA2_MC2_NEXT = \"phase23_capa2_sequential\"",
+          "CAPA2_MC2_TASK_XML = \"AutomaticRetest-Task8.xml\"",
+          "CAPA2_MC2_DATA_TEST_PRECISION = CAPA2_FASTEST_DATA_TEST_PRECISION",
+          "def promote_capa2_mc2_target",
+          "def enforce_capa2_mc2_guard",
+          "capa2-mc2-target"
+        ],
+        "backend/sqx-edge-tool/test_sqx142_task_config_gate.py": [
+          "test_capa2_mc2_target_applies_and_is_idempotent",
+          "test_capa2_mc2_guard_rejects_overfit_and_drift",
+          "test_capa2_mc2_cli_is_registered"
+        ],
+        "backend/sqx-edge-tool/test_cfx_template_compatibility.py": [
+          "test_capa2_base_mc2_matches_phase22_methodology",
+          "_assert_capa2_mc2_contract",
+          "testPrecision\") == \"1\""
+        ]
+      },
+      "forbidden": {
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "Capa2 MC2 usa Dukascopy",
+          "phase22_capa2_mc2 usa Dukascopy",
+          "Capa2 MC2 ejecuta SQX",
+          "Capa2 MC2 lanza smoke",
+          "Capa2 MC2 inicia optimizacion",
+          "Capa2 MC2 fuerza Results=passed",
+          "Capa2 MC2 optimiza parametros",
+          "Capa2 MC2 ExitAfterBars=true",
+          "Capa2 MC2 usa spread fijo 30-50",
+          "Forward hereda fastest"
+        ],
+        "CHANGELOG.md": [
+          "Capa2 MC2 uses Dukascopy",
+          "phase22_capa2_mc2 uses Dukascopy",
+          "Capa2 MC2 ran SQX",
+          "Capa2 MC2 ran smoke",
+          "Capa2 MC2 optimization completed",
+          "Capa2 MC2 forced Results=passed",
+          "Capa2 MC2 optimized parameters",
+          "Capa2 MC2 ExitAfterBars=true",
+          "Capa2 MC2 uses fixed 30-50 spread",
+          "Forward inherits fastest"
+        ]
+      }
+    },
+    {
       "id": "sqx_agent_per_message_bootstrap_g9",
       "description": "G9/G9R must keep per-message specialist activation, new-session bootstrap and explicit parallel subagent runtime loading proactive but orchestrator-owned, compaction-resilient and mutation-gated.",
       "required": {

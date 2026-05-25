@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-05-25 - C1-CONFIG1 Capa2 MC2
+
+- Adds `capa2-mc2-target` as the Phase 22 MonteCarloRetest validation guard for Capa2.
+- Records evidence `phase22_capa2_mc2_target_20260525_030124.json` and closes `AutomaticRetest-Task8.xml` as `Input=MC` / `Output=MC2`.
+- Pins MC2 to `ROBUSTNESS_C2 2017.10.02-2023.12.31`, `testPrecision=1 fastest`, `CustomData`-only carrier, `No Session`, no internal OOS ranges and Darwinex data (`AUDCAD_darwinex`, source `4`, broker `4`).
+- Keeps MC2 passive and anti-overfit: only `MonteCarloRetest` is active, `NumberOfSimulations=100`, `MCUseFullSample=true`, active methods are exactly `RandomizeHistoryData` and adaptive `RandomizeSpread`, no ranking filters, `FitPortfolio=false`, `CustomAnalysis=false`, no SQX launch, no smoke, no optimization and no forced `Results=passed`.
+- Applies adaptive spread stress as base spread x2-x5 (`2.0` -> `4-10` in the base; generated AUDCAD/H4 `10` -> `20-50`) and switches `RandomizeSlippage=false`.
+- Preserves Capa2 exits with `ExitAfterBars=false` and SL/PT/trailing active; maps generator layer 2 `AutomaticRetest-Task8.xml` to `ROBUSTNESS_C2`, adds `adaptiveSpreadStress.2`, and adds Task8 to `CAPA2_NO_EXIT_AFTER_BARS_TASKS`.
+- Keeps the precision policy explicit: pending Capa2 robustness retests inherit fastest data precision, while Forward returns to tick precision.
+- Sets the next exact block to `phase23_capa2_sequential`.
+
 ## 2026-05-25 - C1-CONFIG1 Capa2 MC
 
 - Adds `capa2-mc-target` as the Phase 21 MonteCarloManipulation validation guard for Capa2.

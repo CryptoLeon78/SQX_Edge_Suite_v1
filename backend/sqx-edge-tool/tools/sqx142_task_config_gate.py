@@ -55,6 +55,7 @@ PHASES = [
     {"id": "phase19", "label": "Capa2 RETEST 1 validation gate"},
     {"id": "phase20", "label": "Capa2 TICK REAL validation gate"},
     {"id": "phase21", "label": "Capa2 MC validation gate"},
+    {"id": "phase22", "label": "Capa2 MC2 validation gate"},
 ]
 
 SECTION_ALIASES = {
@@ -15813,6 +15814,7 @@ CAPA2_RETEST0_NEXT = "phase19_capa2_retest1"
 CAPA2_RETEST1_NEXT = "phase20_capa2_tick_real"
 CAPA2_TICK_REAL_NEXT = "phase21_capa2_mc"
 CAPA2_MC_NEXT = "phase22_capa2_mc2"
+CAPA2_MC2_NEXT = "phase23_capa2_sequential"
 CAPA2_BUILD_TASK_XML = "Build-Task1.xml"
 CAPA2_BUILD_TASK_TITLE = "Build strategies"
 CAPA2_RETEST0_TASK_XML = "Retest-Task1.xml"
@@ -16039,6 +16041,23 @@ CAPA2_MC_ALLOWED_ACTIVE_EXITS = {
     "StopLoss.StopLoss",
     "TrailingStop.TrailingStop",
 }
+CAPA2_MC2_TASK_XML = "AutomaticRetest-Task8.xml"
+CAPA2_MC2_TASK_TITLE = "MC 2"
+CAPA2_MC2_PERIOD_KEY = "ROBUSTNESS_C2"
+CAPA2_MC2_DATA_TEST_PRECISION = CAPA2_FASTEST_DATA_TEST_PRECISION
+CAPA2_MC2_DATABANKS_TARGET = {"Input": "MC", "Output": "MC2"}
+CAPA2_MC2_RESOURCE_SYMBOL = CAPA2_MC_RESOURCE_SYMBOL
+CAPA2_MC2_RESOURCE_SPREAD = CAPA2_MC_RESOURCE_SPREAD
+CAPA2_MC2_STRATEGY_TYPE_TARGET = {
+    "type": "simple",
+    "additionalCharts": "2",
+    "templateFile": "",
+    "improveType": "strategy",
+    "strategyFile": "",
+    "architecture": "sq4",
+    "improveDatabank": "MC",
+}
+CAPA2_MC2_BANNED_TOKENS = CAPA2_MC_BANNED_TOKENS
 CAPA2_BUILD_TAB_ORDER = [
     "WhatToBuild",
     "Data",
@@ -21909,6 +21928,19 @@ def apply_capa2_mc_blocks_to_root(root: ET.Element, actions: list[dict[str, Any]
         actions.append({"field": "BuildingBlocks", "from": None, "to": "created-empty", "changed": True})
     else:
         actions.append({"field": "BuildingBlocks", "changed": False, "note": "preserved existing Capa2 MC block universe; passive mode prevents new strategy generation"})
+    order_types = blocks.find("OrderTypes")
+    if order_types is None:
+        order_types = ET.SubElement(blocks, "OrderTypes")
+        actions.append({"field": "OrderTypes", "from": None, "to": "created", "changed": True})
+    existing_orders = {node.get("key", ""): node for node in order_types.findall("Block") if node.get("key")}
+    for key, wanted in CAPA2_BUILD_BLOCKS_ORDER_TARGET.items():
+        node = existing_orders.get(key)
+        before = dict(node.attrib) if node is not None else None
+        if node is None:
+            node = ET.SubElement(order_types, "Block", {"key": key})
+        node.set("key", key)
+        node.set("use", wanted)
+        actions.append({"field": f"OrderTypes:{key}:capa2", "from": before, "to": dict(node.attrib), "changed": before != dict(node.attrib)})
     enforce_order_types(blocks, actions)
     exit_types = blocks.find("ExitTypes")
     if exit_types is None:
@@ -22304,6 +22336,537 @@ def promote_capa2_mc_target(root142: Path, project_root: Path, target: str, appl
             "nextPhase": CAPA2_MC_NEXT,
             "scope": "capa2",
             "phase21Capa2McReport": str(evidence_target),
+        })
+        write_json(state_path, state)
+    return payload
+
+
+def load_capa2_mc2_task_root(cfx: Path) -> tuple[str, ET.Element | None, str]:
+    task_xml, root, title = load_task_root_by_xml(cfx, CAPA2_MC2_TASK_XML)
+    if task_xml and root is not None:
+        return task_xml, root, title or CAPA2_MC2_TASK_TITLE
+    fallback_task_xml, fallback_root = load_task_root(cfx, CAPA2_MC2_TASK_TITLE)
+    return fallback_task_xml, fallback_root, CAPA2_MC2_TASK_TITLE if fallback_root is not None else ""
+
+
+def capa2_mc2_summary(root: ET.Element | None) -> dict[str, Any]:
+    if root is None:
+        return {"exists": False}
+    summary = mc2_static_tabs_summary(root)
+    summary["data"] = {
+        "exists": root.find("Data") is not None,
+        "outOfSampleRanges": [dict(node.attrib) for node in root.findall(".//Data/OutOfSample/Range")],
+    }
+    summary["customData"] = mc2_custom_data_summary(root)
+    summary["databanks"] = {item.get("name", ""): item.get("value", "") for item in databank_summary(root)}
+    summary["resources"] = _tick_real_resource_summary(root)
+    summary["optionsParams"] = {
+        param.get("key", ""): (param.text or "")
+        for param in root.findall(".//BuildTradingOptions/Params/Param")
+        if param.get("key") in MC2_OPTIONS_PARAMS_TARGET
+    }
+    summary["crossChecks"] = mc2_crosschecks_summary(root).get("crossChecks", {})
+    summary["spreadTarget"] = mc2_spread_target(root)
+    summary["strategyType"] = task_strategy_type_summary(root)
+    summary["orderTypes"] = task_order_type_detail_summary(root)
+    summary["exitTypes"] = task_exit_type_detail_summary(root)
+    return summary
+
+
+def apply_capa2_mc2_custom_data_to_root(root: ET.Element, actions: list[dict[str, Any]]) -> ET.Element:
+    data = root.find("Data")
+    if data is not None:
+        before = {"children": [child.tag for child in list(data)], "sha256": hashlib.sha256(serialize_xml(data).encode("utf-8")).hexdigest()}
+        root.remove(data)
+        actions.append({
+            "field": "Data",
+            "from": before,
+            "to": None,
+            "changed": True,
+            "note": "Capa2 MC2 uses CustomData as canonical carrier; a Data section would create a parallel validation source.",
+        })
+    custom = find_section(root, "CustomData")
+    if custom is None:
+        custom = ET.SubElement(root, "CustomData")
+        actions.append({"field": "CustomData", "from": None, "to": "created", "changed": True})
+    set_attrs_on_node(custom, {"showAll": "false"}, actions, "CustomData:attrs")
+    setups = ensure_direct_child(custom, "Setups")
+    setup = setups.find("Setup")
+    if setup is None:
+        setup = ET.SubElement(setups, "Setup")
+        actions.append({"field": "CustomData/Setups/Setup", "from": None, "to": "created", "changed": True})
+    period = generator_period(CAPA2_MC2_PERIOD_KEY)
+    set_attrs_on_node(
+        setup,
+        {
+            "dateFrom": period[0],
+            "dateTo": period[1],
+            "testPrecision": CAPA2_MC2_DATA_TEST_PRECISION,
+            "session": MC2_DATA_SESSION,
+            "slippage": "0",
+            "minDist": "0",
+            "engine": "MetaTrader4",
+        },
+        actions,
+        "CustomData/Setup:attrs",
+    )
+    chart = setup.find("Chart")
+    before_chart = dict(chart.attrib) if chart is not None else None
+    if chart is None:
+        chart = ET.SubElement(setup, "Chart")
+    chart.attrib.clear()
+    chart.attrib.update({"symbol": CAPA2_MC2_RESOURCE_SYMBOL, "timeframe": CAPA2_BUILD_SEED_TIMEFRAME, "spread": CAPA2_MC2_RESOURCE_SPREAD})
+    actions.append({"field": "CustomData/Setup/Chart", "from": before_chart, "to": dict(chart.attrib), "changed": before_chart != dict(chart.attrib)})
+    ensure_commission_method(setup, actions, "CustomData/Setup")
+    main_values = setup.find("MainTestValues")
+    before_main = dict(main_values.attrib) if main_values is not None else None
+    if main_values is None:
+        main_values = ET.SubElement(setup, "MainTestValues")
+    main_values.attrib.clear()
+    main_values.attrib.update(MC2_CUSTOM_DATA_MAIN_TEST_VALUES_TARGET)
+    actions.append({"field": "CustomData/Setup/MainTestValues", "from": before_main, "to": dict(main_values.attrib), "changed": before_main != dict(main_values.attrib)})
+    return setup
+
+
+def set_capa2_mc2_databanks(root: ET.Element, actions: list[dict[str, Any]]) -> None:
+    databanks = find_section(root, "Databanks")
+    if databanks is None:
+        databanks = ET.SubElement(root, "Databanks", {"retestSelected": "false"})
+        actions.append({"field": "Databanks", "from": None, "to": dict(databanks.attrib), "changed": True})
+    existing = {node.get("name", ""): node for node in databanks.findall("Databank") if node.get("name")}
+    for name, value in CAPA2_MC2_DATABANKS_TARGET.items():
+        node = existing.get(name)
+        before = dict(node.attrib) if node is not None else None
+        if node is None:
+            node = ET.SubElement(databanks, "Databank", {"name": name})
+        node.set("name", name)
+        node.set("value", value)
+        node.set("label", f"{name} databank")
+        actions.append({"field": f"Databanks/{name}", "from": before, "to": dict(node.attrib), "changed": before != dict(node.attrib)})
+
+
+def make_capa2_mc2_numeric_condition() -> ET.Element:
+    condition = ET.Element("Condition", {"use": "true"})
+    left = ET.SubElement(condition, "Left-Side", {"valueType": "column"})
+    ET.SubElement(left, "Column-Value", {
+        "column": "AnnualPctReturnDDRatio",
+        "resultType": "MonteCarloRetest",
+        "confidenceLevel": "100",
+    })
+    ET.SubElement(condition, "Comparator", {"value": ">="})
+    right = ET.SubElement(condition, "Right-Side", {"valueType": "number"})
+    ET.SubElement(right, "Numeric-Value", {"value": "0"})
+    return condition
+
+
+def make_capa2_mc2_ratio_condition() -> ET.Element:
+    condition = ET.Element("Condition", {"use": "true"})
+    left = ET.SubElement(condition, "Left-Side", {"valueType": "column"})
+    ET.SubElement(left, "Column-Value", {
+        "column": "AnnualPctReturnDDRatio",
+        "resultType": "MonteCarloRetest",
+        "confidenceLevel": "95",
+    })
+    ET.SubElement(condition, "Comparator", {"value": ">="})
+    right = ET.SubElement(condition, "Right-Side", {"valueType": "column"})
+    ET.SubElement(right, "Column-Value", {
+        "column": "AnnualPctReturnDDRatio",
+        "resultType": "main",
+        "pctRatio": "30",
+    })
+    return condition
+
+
+def set_capa2_mc2_acceptance_conditions(check: ET.Element, actions: list[dict[str, Any]]) -> None:
+    acceptance = ensure_direct_child(check, "AcceptanceSettings")
+    conditions = acceptance.find("Conditions")
+    if conditions is None:
+        conditions = ET.SubElement(acceptance, "Conditions")
+        before: list[dict[str, Any]] = []
+    else:
+        before = [mc_condition_summary(condition) for condition in conditions.findall("Condition")]
+        for child in list(conditions):
+            conditions.remove(child)
+    conditions.attrib.clear()
+    conditions.set("CrossCheck", MC2_ACTIVE_CHECK)
+    for condition in (make_capa2_mc2_numeric_condition(), make_capa2_mc2_ratio_condition()):
+        conditions.append(condition)
+    after = [mc_condition_summary(condition) for condition in conditions.findall("Condition")]
+    actions.append({
+        "field": "CrossChecks/MonteCarloRetest/AcceptanceSettings/Conditions",
+        "from": before,
+        "to": after,
+        "changed": before != after,
+        "note": "Capa2 MC2 keeps the existing MC2 AnnualPctReturnDDRatio acceptance policy; rankings remain inert.",
+    })
+
+
+def ensure_capa2_mc2_method(methods: ET.Element, method_type: str, use: str, actions: list[dict[str, Any]]) -> ET.Element:
+    method = None
+    for candidate in methods.findall("Method"):
+        if candidate.get("type") == method_type:
+            method = candidate
+            break
+    before = dict(method.attrib) if method is not None else None
+    if method is None:
+        method = ET.SubElement(methods, "Method", {"type": method_type})
+    method.set("type", method_type)
+    method.set("use", use)
+    actions.append({"field": f"CrossChecks/{MC2_ACTIVE_CHECK}/Method:{method_type}:ensure", "from": before, "to": dict(method.attrib), "changed": before != dict(method.attrib)})
+    return method
+
+
+def normalize_capa2_mc2_crosscheck_setups(root: ET.Element, actions: list[dict[str, Any]]) -> None:
+    period = generator_period(CAPA2_MC2_PERIOD_KEY)
+    before: list[dict[str, Any]] = []
+    after: list[dict[str, Any]] = []
+    for setup in root.findall(".//CrossChecks/*/Settings/Setups/Setup"):
+        before.append({"attrs": dict(setup.attrib), "charts": [dict(chart.attrib) for chart in setup.findall("Chart")]})
+        for key, wanted in {
+            "dateFrom": period[0],
+            "dateTo": period[1],
+            "testPrecision": CAPA2_MC2_DATA_TEST_PRECISION,
+            "session": MC2_DATA_SESSION,
+            "slippage": "0",
+            "minDist": "0",
+        }.items():
+            setup.set(key, wanted)
+        charts = setup.findall("Chart")
+        if not charts:
+            charts = [ET.SubElement(setup, "Chart")]
+        for chart in charts:
+            chart.attrib.clear()
+            chart.attrib.update({"symbol": CAPA2_MC2_RESOURCE_SYMBOL, "timeframe": CAPA2_BUILD_SEED_TIMEFRAME, "spread": CAPA2_MC2_RESOURCE_SPREAD})
+        after.append({"attrs": dict(setup.attrib), "charts": [dict(chart.attrib) for chart in setup.findall("Chart")]})
+    actions.append({
+        "field": "CrossChecks/*/Settings/Setups/Setup:capa2-mc2",
+        "from": before,
+        "to": after,
+        "changed": before != after,
+    })
+
+
+def apply_capa2_mc2_crosschecks_to_root(root: ET.Element) -> list[dict[str, Any]]:
+    actions = apply_mc2_crosschecks_to_root(root)
+    check = root.find(f".//CrossChecks/{MC2_ACTIVE_CHECK}")
+    if check is None:
+        return actions
+    settings = ensure_direct_child(check, "Settings")
+    methods = ensure_direct_child(settings, "Methods")
+    ensure_capa2_mc2_method(methods, "RandomizeHistoryData", "true", actions)
+    randomize_spread = ensure_capa2_mc2_method(methods, "RandomizeSpread", "true", actions)
+    normalize_capa2_mc2_crosscheck_setups(root, actions)
+    target = mc2_spread_target(root)
+    set_method_param(randomize_spread, "Min", str(target["min"]), "Double", actions, f"CrossChecks/{MC2_ACTIVE_CHECK}/RandomizeSpread/Min:capa2")
+    set_method_param(randomize_spread, "Max", str(target["max"]), "Double", actions, f"CrossChecks/{MC2_ACTIVE_CHECK}/RandomizeSpread/Max:capa2")
+    for method in methods.findall("Method"):
+        if method.get("type") not in MC2_ACTIVE_METHODS:
+            before = method.get("use", "")
+            method.set("use", "false")
+            actions.append({"field": f"CrossChecks/{MC2_ACTIVE_CHECK}/Method:{method.get('type', '')}:capa2-off", "from": before, "to": "false", "changed": before != "false"})
+    set_capa2_mc2_acceptance_conditions(check, actions)
+    return actions
+
+
+def apply_capa2_mc2_target_to_root(root: ET.Element) -> list[dict[str, Any]]:
+    actions: list[dict[str, Any]] = []
+    setup = apply_capa2_mc2_custom_data_to_root(root, actions)
+    ensure_capa2_tick_real_resources(root, setup, actions)
+    set_capa2_mc2_databanks(root, actions)
+    for key, value in MC2_OPTIONS_PARAMS_TARGET.items():
+        set_or_create_option_param_text(root, key, value, actions, "Options")
+    actions.extend(apply_capa2_mc2_crosschecks_to_root(root))
+    apply_retest1_parts_to_improve_to_root(root, actions)
+    apply_mc2_what_to_build_to_root(root, actions)
+    strategy = root.find("./WhatToBuild/StrategyType")
+    before_strategy = dict(strategy.attrib) if strategy is not None else None
+    if strategy is not None:
+        strategy.attrib.clear()
+        strategy.attrib.update(CAPA2_MC2_STRATEGY_TYPE_TARGET)
+        actions.append({"field": "WhatToBuild/StrategyType:capa2-mc2", "from": before_strategy, "to": dict(strategy.attrib), "changed": before_strategy != dict(strategy.attrib)})
+    apply_capa2_mc_blocks_to_root(root, actions)
+    apply_mc_rankings_to_root(root, actions, conditions_note="Capa2 MC2 pass/fail is owned by MonteCarloRetest acceptance conditions")
+    apply_capa2_retest_risk_money_management_to_root(root, actions)
+    apply_mc_atms_to_root(root, actions)
+    apply_mc_selected_strategies_to_root(root, actions)
+    apply_capa2_mc2_custom_data_to_root(root, actions)
+    actions.append({"field": "Notes", "changed": False, "sha256": section_sha256(root, "Notes"), "note": "audited and preserved"})
+    return actions
+
+
+def capa2_mc2_generator_period_issues() -> list[str]:
+    config = read_json(GENERATOR_PROFILES_PATH, {})
+    periods = config.get("retestPeriods") or {}
+    layer2 = (config.get("taskPeriodMaps") or {}).get("2") or {}
+    cross = (config.get("crossBrokerRetests") or {}).get("2") or {}
+    spread = ((config.get("adaptiveSpreadStress") or {}).get("2") or {}).get(CAPA2_MC2_TASK_XML) or {}
+    issues: list[str] = []
+    if periods.get(CAPA2_MC2_PERIOD_KEY) != ["2017.10.02", "2023.12.31"]:
+        issues.append(f"generator_profiles.json retestPeriods.{CAPA2_MC2_PERIOD_KEY} must be 2017.10.02-2023.12.31")
+    if layer2.get(CAPA2_MC2_TASK_XML) != CAPA2_MC2_PERIOD_KEY:
+        issues.append(f"generator_profiles.json taskPeriodMaps.2.{CAPA2_MC2_TASK_XML} must map to {CAPA2_MC2_PERIOD_KEY}")
+    if CAPA2_MC2_TASK_XML in cross:
+        issues.append(f"generator_profiles.json must not cross-broker route {CAPA2_MC2_TASK_XML}; Capa2 MC2 stays Darwinex/SQ default")
+    if spread.get("method") != "RandomizeSpread" or spread.get("minMultiplier") != 2 or spread.get("maxMultiplier") != 5:
+        issues.append(f"generator_profiles.json adaptiveSpreadStress.2.{CAPA2_MC2_TASK_XML} must be RandomizeSpread x2-x5")
+    return issues
+
+
+def enforce_capa2_mc2_guard(root: ET.Element | None, target_name: str) -> list[str]:
+    if root is None:
+        return [f"{target_name}: Capa2 MC2 task missing"]
+    issues: list[str] = []
+    period = generator_period(CAPA2_MC2_PERIOD_KEY)
+    if root.find("Data") is not None:
+        issues.append(f"{target_name}: Capa2 MC2 must not carry a Data section; CustomData is canonical")
+    custom = mc2_custom_data_summary(root)
+    setup = custom.get("setup") or {}
+    chart = custom.get("chart") or {}
+    if setup.get("dateFrom") != period[0] or setup.get("dateTo") != period[1]:
+        issues.append(f"{target_name}: Capa2 MC2 CustomData dates must be {CAPA2_MC2_PERIOD_KEY} {period[0]}-{period[1]}")
+    if setup.get("testPrecision") != CAPA2_MC2_DATA_TEST_PRECISION:
+        issues.append(f"{target_name}: Capa2 MC2 testPrecision must be fastest code {CAPA2_MC2_DATA_TEST_PRECISION}")
+    if setup.get("session") != MC2_DATA_SESSION:
+        issues.append(f"{target_name}: Capa2 MC2 session must be No Session")
+    if chart != {"symbol": CAPA2_MC2_RESOURCE_SYMBOL, "timeframe": CAPA2_BUILD_SEED_TIMEFRAME, "spread": CAPA2_MC2_RESOURCE_SPREAD}:
+        issues.append(f"{target_name}: Capa2 MC2 CustomData chart seed drifted: {chart!r}")
+    if custom.get("mainTestValues") != MC2_CUSTOM_DATA_MAIN_TEST_VALUES_TARGET:
+        issues.append(f"{target_name}: Capa2 MC2 CustomData MainTestValues drifted")
+    databanks = {item.get("name", ""): item.get("value", "") for item in databank_summary(root)}
+    if databanks != CAPA2_MC2_DATABANKS_TARGET:
+        issues.append(f"{target_name}: Capa2 MC2 databanks are {databanks!r}, expected {CAPA2_MC2_DATABANKS_TARGET!r}")
+    resources = _tick_real_resource_summary(root)
+    symbols = resources.get("symbols") or []
+    if {item.get("name") for item in symbols} != {CAPA2_MC2_RESOURCE_SYMBOL}:
+        issues.append(f"{target_name}: Capa2 MC2 resources must contain only {CAPA2_MC2_RESOURCE_SYMBOL}")
+    if {item.get("source") for item in symbols} != {CAPA2_BUILD_RESOURCE_SOURCE_ID}:
+        issues.append(f"{target_name}: Capa2 MC2 resources must use Darwinex source {CAPA2_BUILD_RESOURCE_SOURCE_ID}")
+    if {item.get("broker") for item in symbols} != {CAPA2_BUILD_RESOURCE_BROKER_ID}:
+        issues.append(f"{target_name}: Capa2 MC2 resources must use broker {CAPA2_BUILD_RESOURCE_BROKER_ID}")
+    if resources.get("sessions"):
+        issues.append(f"{target_name}: Capa2 MC2 resources must not keep sessions")
+    params = {
+        param.get("key", ""): (param.text or "")
+        for param in root.findall(".//BuildTradingOptions/Params/Param")
+        if param.get("key") in MC2_OPTIONS_PARAMS_TARGET
+    }
+    if params != MC2_OPTIONS_PARAMS_TARGET:
+        issues.append(f"{target_name}: Capa2 MC2 options are {params!r}, expected {MC2_OPTIONS_PARAMS_TARGET!r}")
+    cross = mc2_crosschecks_summary(root).get("crossChecks") or {}
+    if (cross.get("attrs") or {}) != {"use": "true", "evaluateAll": "true"}:
+        issues.append(f"{target_name}: Capa2 MC2 CrossChecks attrs drifted: {cross.get('attrs')!r}")
+    if cross.get("active") != [MC2_ACTIVE_CHECK]:
+        issues.append(f"{target_name}: Capa2 MC2 active crosschecks are {cross.get('active')!r}, expected [{MC2_ACTIVE_CHECK!r}]")
+    checks = {item.get("id"): item for item in cross.get("checks") or []}
+    active = checks.get(MC2_ACTIVE_CHECK) or {}
+    if active.get("numberOfSimulations") != MC2_NUMBER_OF_SIMULATIONS:
+        issues.append(f"{target_name}: Capa2 MC2 NumberOfSimulations must be {MC2_NUMBER_OF_SIMULATIONS}")
+    if active.get("mcUseFullSample") != MC2_USE_FULL_SAMPLE:
+        issues.append(f"{target_name}: Capa2 MC2 MCUseFullSample must be {MC2_USE_FULL_SAMPLE}")
+    if set(active.get("activeMethodTypes") or []) != MC2_ACTIVE_METHODS:
+        issues.append(f"{target_name}: Capa2 MC2 active methods are {active.get('activeMethodTypes')!r}, expected {sorted(MC2_ACTIVE_METHODS)!r}")
+    spread = ({item.get("type"): item for item in active.get("methods") or []}.get("RandomizeSpread") or {})
+    spread_params = spread.get("params") or {}
+    target_spread = mc2_spread_target(root)
+    if spread_params.get("Min") != target_spread.get("min") or spread_params.get("Max") != target_spread.get("max"):
+        issues.append(f"{target_name}: Capa2 MC2 RandomizeSpread must be base spread x2-x5, got {(spread_params.get('Min'), spread_params.get('Max'))!r}")
+    if not mc2_acceptance_conditions_ok(root):
+        issues.append(f"{target_name}: Capa2 MC2 acceptance conditions drifted from AnnualPctReturnDDRatio policy")
+    for check in cross.get("checks") or []:
+        if check.get("id") == MC2_ACTIVE_CHECK:
+            continue
+        active_methods = [method for method in check.get("methods") or [] if method.get("use") == "true"]
+        if active_methods:
+            issues.append(f"{target_name}: inactive Capa2 MC2 crosscheck {check.get('id')} still has active methods")
+    for nested_setup in root.findall(".//CrossChecks/*/Settings/Setups/Setup"):
+        if nested_setup.get("dateFrom") != period[0] or nested_setup.get("dateTo") != period[1]:
+            issues.append(f"{target_name}: Capa2 MC2 nested CrossChecks dates drifted")
+        if nested_setup.get("testPrecision") != CAPA2_MC2_DATA_TEST_PRECISION:
+            issues.append(f"{target_name}: Capa2 MC2 nested CrossChecks precision must be fastest code {CAPA2_MC2_DATA_TEST_PRECISION}")
+    parts = mc_passive_generation_summary(root).get("partsToImprove") or {}
+    for group_name in ("EntryRules", "OrderTypes", "ExitRules"):
+        group = parts.get(group_name) or {}
+        for side in ("LongImprovement", "ShortImprovement"):
+            if (group.get(side) or {}).get("use") != "false":
+                issues.append(f"{target_name}: Capa2 MC2 {group_name}/{side} must be passive use=false")
+    if task_strategy_type_summary(root) != CAPA2_MC2_STRATEGY_TYPE_TARGET:
+        issues.append(f"{target_name}: Capa2 MC2 StrategyType must point passively to MC")
+    build_text = (mc_passive_generation_summary(root).get("buildMode") or {}).get("text") or {}
+    for tag, value in MC2_PASSIVE_BUILDMODE_TEXT_TARGET.items():
+        if build_text.get(tag) != value:
+            issues.append(f"{target_name}: Capa2 MC2 BuildMode {tag} is {build_text.get(tag)!r}, expected {value!r}")
+    order = task_order_type_summary(root)
+    if {key: order.get(key) for key in CAPA2_BUILD_BLOCKS_ORDER_TARGET} != CAPA2_BUILD_BLOCKS_ORDER_TARGET:
+        issues.append(f"{target_name}: Capa2 MC2 order types drifted from EnterAtMarket-only contract")
+    exits = task_exit_type_detail_summary(root)
+    if (exits.get("ExitAfterBars.ExitAfterBars") or {}).get("use") != "false":
+        issues.append(f"{target_name}: Capa2 MC2 ExitAfterBars must stay false")
+    for key in CAPA2_MC_ALLOWED_ACTIVE_EXITS:
+        if (exits.get(key) or {}).get("use") != "true":
+            issues.append(f"{target_name}: Capa2 MC2 {key} must stay active")
+    active_bad_exits = [
+        key for key, data in exits.items()
+        if key not in CAPA2_MC_ALLOWED_ACTIVE_EXITS and key != "ExitAfterBars.ExitAfterBars" and (data or {}).get("use") == "true"
+    ]
+    if active_bad_exits:
+        issues.append(f"{target_name}: Capa2 MC2 has non-methodology active exits {active_bad_exits}")
+    ranking = (mc_static_tabs_summary(root).get("rankings") or {})
+    if ranking.get("type") != "never":
+        issues.append(f"{target_name}: Capa2 MC2 Rankings type must be never")
+    for key in ("DeleteFailedStrategies", "ForceRunCrossChecks"):
+        if ranking.get(key) != "false":
+            issues.append(f"{target_name}: Capa2 MC2 Rankings {key} must be false")
+    if (ranking.get("FitPortfolio") or {}).get("active") != "false":
+        issues.append(f"{target_name}: Capa2 MC2 FitPortfolio must stay disabled")
+    if (ranking.get("CustomAnalysis") or {}).get("filter") != "false":
+        issues.append(f"{target_name}: Capa2 MC2 CustomAnalysis must stay disabled")
+    if ranking.get("conditions"):
+        issues.append(f"{target_name}: Capa2 MC2 Rankings must not add extra conditions")
+    rmm = task_risk_method_summary(root)
+    for method, wanted in CAPA2_RETEST1_RISK_MONEY_MANAGEMENT_METHOD_TARGET.items():
+        if rmm.get(method) != wanted:
+            issues.append(f"{target_name}: Capa2 MC2 RiskMoneyManagement {method} is {rmm.get(method)!r}, expected {wanted!r}")
+    atms = find_section(root, "ATMs")
+    if atms is not None and atms.get("enable") != "false":
+        issues.append(f"{target_name}: Capa2 MC2 ATMs must stay disabled")
+    selected = find_section(root, "SelectedStrategies")
+    if selected is not None and ((selected.text or "").strip() or list(selected)):
+        issues.append(f"{target_name}: Capa2 MC2 SelectedStrategies must stay empty")
+    guarded_text = serialize_xml(root)
+    for token in CAPA2_MC2_BANNED_TOKENS:
+        if token in guarded_text:
+            issues.append(f"{target_name}: Forbidden token leaked into Capa2 MC2: {token}")
+    if re.search(r"[A-Za-z]:\\", guarded_text):
+        issues.append(f"{target_name}: local absolute path leaked into Capa2 MC2")
+    issues.extend(capa2_mc2_generator_period_issues())
+    return issues
+
+
+def update_capa2_mc2_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "sha256Before": file_sha256(cfx) if cfx.is_file() else "",
+        "actions": [],
+        "backup": "",
+        "willWrite": apply,
+    }
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        payload["error"] = "missing_or_not_zip"
+        return payload
+    task_xml_name, root, title = load_capa2_mc2_task_root(cfx)
+    payload["taskXml"] = task_xml_name
+    payload["displayTitle"] = title
+    if not task_xml_name or root is None:
+        payload["error"] = "capa2_mc2_task_not_found"
+        payload["sha256After"] = payload["sha256Before"]
+        return payload
+    before_text = serialize_xml(root)
+    payload["before"] = capa2_mc2_summary(root)
+    payload["actions"] = apply_capa2_mc2_target_to_root(root)
+    payload["after"] = capa2_mc2_summary(root)
+    payload["issues"] = enforce_capa2_mc2_guard(root, payload.get("displayTitle") or "Capa2 MC2")
+    payload["guardOk"] = not payload["issues"]
+    after_text = serialize_xml(root)
+    payload["changed"] = before_text != after_text
+    payload["changedActionCount"] = sum(1 for item in payload["actions"] if item.get("changed"))
+    payload["targetValues"] = {
+        "taskXml": CAPA2_MC2_TASK_XML,
+        "title": CAPA2_MC2_TASK_TITLE,
+        "period": CAPA2_MC2_PERIOD_KEY,
+        "testPrecision": CAPA2_MC2_DATA_TEST_PRECISION,
+        "precisionPolicy": "fastest for Capa2 MC2 and pending robustness retests; Forward returns to tick precision.",
+        "databanks": CAPA2_MC2_DATABANKS_TARGET,
+        "dataCarrier": "CustomData only",
+        "resource": {"symbol": CAPA2_MC2_RESOURCE_SYMBOL, "source": CAPA2_BUILD_RESOURCE_SOURCE_ID, "broker": CAPA2_BUILD_RESOURCE_BROKER_ID},
+        "activeCrossCheck": MC2_ACTIVE_CHECK,
+        "activeMethods": sorted(MC2_ACTIVE_METHODS),
+        "spreadPolicy": "adaptive base spread x2-x5",
+        "strategyType": CAPA2_MC2_STRATEGY_TYPE_TARGET,
+        "exitTypes": CAPA2_BUILD_BLOCKS_EXIT_TARGET,
+    }
+    payload["targetRationale"] = {
+        "validation": "Capa2 MC2 consumes MC survivors and writes MC2 using MonteCarloRetest spread/history robustness; it is not an optimizer.",
+        "antiOverfit": "No internal OOS split, no portfolio fitting and no ranking filters are added; pass/fail is owned by MC2 acceptance.",
+        "precision": "Operator decision: MC and pending robustness retests use fastest; Forward returns to tick precision.",
+        "capa2Exits": "Unlike Capa1 MC2, Capa2 MC2 preserves ExitAfterBars=false and keeps SL/PT/trailing active.",
+        "naturalResults": "No SQX launch, no smoke, no optimization and no forced Results=passed.",
+    }
+    if apply and payload["changed"] and payload["guardOk"]:
+        backup = backup_file(cfx, backup_root)
+        payload["backup"] = str(backup)
+        replace_zip_text_entry(cfx, task_xml_name, serialize_xml(root))
+        payload["sha256After"] = file_sha256(cfx)
+    else:
+        payload["sha256After"] = payload["sha256Before"]
+    return payload
+
+
+def promote_capa2_mc2_target(root142: Path, project_root: Path, target: str, apply: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    previous_gate = promote_capa2_mc_target(root142, project_root, target=target, apply=False)
+    issues = list(previous_gate.get("issues") or [])
+    if previous_gate.get("ok") is not True:
+        issues.append("capa2-mc-target: previous gate ok=false")
+    process_probe = process_snapshot()
+    if process_probe.get("processes"):
+        issues.append("SQX processes are alive; close SQX before applying phase22 Capa2 MC2")
+    backup_root = ledger_root(project_root) / "backups" / f"phase22_capa2_mc2_{stamp()}"
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = capa2_base_project_path(root142)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_CAPA2_TEMPLATE
+    results = {name: update_capa2_mc2_target_in_cfx(path, backup_root / name, apply=apply) for name, path in targets.items()}
+    for target_name, result in results.items():
+        for issue in result.get("issues") or []:
+            issues.append(f"{target_name}: {issue}")
+    payload: dict[str, Any] = {
+        "ok": not issues and all(item.get("exists") and item.get("isZip") and not item.get("error") and item.get("guardOk") for item in results.values()),
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase22_capa2_mc2",
+        "operation": "capa2_mc2_target",
+        "apply": apply,
+        "target": target,
+        "previousGate": {
+            "phase": previous_gate.get("phase"),
+            "ok": previous_gate.get("ok"),
+            "issues": previous_gate.get("issues", []),
+            "warnings": previous_gate.get("warnings", []),
+            "nextPhase": previous_gate.get("nextPhase"),
+            "written": previous_gate.get("written", ""),
+        },
+        "processProbe": process_probe,
+        "issues": issues,
+        "warnings": [],
+        "results": results,
+        "summary": {
+            "decision": "Close Capa2 MC2 as the second Monte Carlo robustness validation after MC.",
+            "taskXml": CAPA2_MC2_TASK_XML,
+            "chain": "Input=MC, Output=MC2.",
+            "data": f"Darwinex ROBUSTNESS_C2 window 2017.10.02-2023.12.31, testPrecision={CAPA2_MC2_DATA_TEST_PRECISION} fastest, CustomData-only, No Session.",
+            "crossChecks": "CrossChecks use=true/evaluateAll=true; only MonteCarloRetest active with RandomizeHistoryData and adaptive RandomizeSpread x2-x5.",
+            "passive": "StrategyType reads MC passively; PartsToImprove/fresh-blood/evolution are inactive; ExitAfterBars remains false and SL/PT/trailing remain active for Capa2.",
+            "naturalResults": "No SQX launch, no smoke, no optimization and no forced Results=passed.",
+            "nextPhase": CAPA2_MC2_NEXT,
+        },
+        "academicSources": CAPA2_ACADEMIC_SOURCES,
+        "nextPhase": "phase22_capa2_mc2_diff_review" if not apply else CAPA2_MC2_NEXT,
+    }
+    evidence_target = ledger_root(project_root) / "diffs" / f"phase22_capa2_mc2_target_{stamp()}.json"
+    write_json(evidence_target, payload)
+    payload["written"] = str(evidence_target)
+    if apply and payload["ok"]:
+        state_path = ledger_root(project_root) / "session_state.json"
+        state = read_json(state_path, {})
+        state.update({
+            "updatedAt": now_iso(),
+            "currentPhase": "phase22_capa2_mc2",
+            "nextPhase": CAPA2_MC2_NEXT,
+            "scope": "capa2",
+            "phase22Capa2Mc2Report": str(evidence_target),
         })
         write_json(state_path, state)
     return payload
@@ -23754,6 +24317,10 @@ def build_parser() -> argparse.ArgumentParser:
     capa2_mc.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     capa2_mc.add_argument("--apply", action="store_true")
 
+    capa2_mc2 = sub.add_parser("capa2-mc2-target")
+    capa2_mc2.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    capa2_mc2.add_argument("--apply", action="store_true")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -24032,6 +24599,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "capa2-mc-target":
         json_print(promote_capa2_mc_target(root142, project_root, target=args.target, apply=args.apply))
+        return 0
+    if args.command == "capa2-mc2-target":
+        json_print(promote_capa2_mc2_target(root142, project_root, target=args.target, apply=args.apply))
         return 0
     if args.command == "archive-exit-day-snippets":
         json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))

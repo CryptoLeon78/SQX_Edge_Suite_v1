@@ -4309,6 +4309,177 @@ def test_capa2_mc_cli_is_registered():
     assert args.target == "both"
 
 
+def _write_capa2_mc2_generator_profile(path: Path, *, include_map: bool = True, include_spread: bool = True, cross_broker: bool = False) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    task_map = {"AutomaticRetest-Task8.xml": "ROBUSTNESS_C2"} if include_map else {}
+    spread = {
+        "AutomaticRetest-Task8.xml": {
+            "label": "Capa2 MC 2 adaptive spread stress",
+            "method": "RandomizeSpread",
+            "minMultiplier": 2,
+            "maxMultiplier": 5,
+        }
+    } if include_spread else {}
+    cross = {"AutomaticRetest-Task8.xml": {"brokerProfile": "dukascopy_oos2"}} if cross_broker else {}
+    path.write_text(
+        json.dumps({
+            "retestPeriods": {"ROBUSTNESS_C2": ["2017.10.02", "2023.12.31"]},
+            "taskPeriodMaps": {"2": task_map},
+            "adaptiveSpreadStress": {"2": spread},
+            "crossBrokerRetests": {"2": cross},
+        }),
+        encoding="utf-8",
+    )
+
+
+def _write_minimal_capa2_mc2_cfx(path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    config_xml = """
+    <Project>
+      <Tasks><Task title="MC 2" taskXMLFile="AutomaticRetest-Task8.xml" active="true" /></Tasks>
+      <Databanks><Databank name="MC" view="GENERAL" /><Databank name="MC2" view="GENERAL" /></Databanks>
+    </Project>
+    """
+    task_xml = """
+    <Task>
+      <Data><Setups><Setup dateFrom="2010.01.01" dateTo="2017.10.02" testPrecision="2" session="Old Session" engine="MetaTrader5 (hedged)"><Chart symbol="AUDCAD_dukascopy" timeframe="H4" spread="1.9" /></Setup></Setups><OutOfSample><Range dateFrom="2024.01.01" dateTo="2025.01.01" /></OutOfSample></Data>
+      <CustomData showAll="true"><Setups><Setup dateFrom="2010.01.01" dateTo="2017.10.02" testPrecision="2" session="Old Session" engine="MetaTrader4"><Chart symbol="AUDCAD_dukascopy" timeframe="H4" spread="1.9" /><MainTestValues symbol="false" dates="false" /></Setup></Setups></CustomData>
+      <Databanks><Databank name="Input" value="TICK" /><Databank name="Output" value="MC2" /></Databanks>
+      <Resources><Symbols><Symbol name="AUDCAD_dukascopy" source="2" broker="3" precision="TICK" timezone="EETUS"><InstrumentInfo instrument="AUDCAD_dukascopy" broker="3" /></Symbol></Symbols><Brokers><Broker id="3" /></Brokers><Instruments /><Sessions><Session name="Old Session" /></Sessions></Resources>
+      <Options><BuildTradingOptions><Params><Param key="LimitTimeRange">true</Param><Param key="RealisticGapsHandling">true</Param><Param key="StoreChartData">true</Param><Param key="Session">Old Session</Param><Param key="MarketOpenSession">Old Session</Param></Params></BuildTradingOptions></Options>
+      <Rankings type="top"><MaxStrategies>50</MaxStrategies><DeleteFailedStrategies>true</DeleteFailedStrategies><ForceRunCrossChecks>true</ForceRunCrossChecks><FitPortfolio active="true" /><CustomAnalysis filter="true" method="script" inputArgs="C:\\private\\x" /><Conditions><Condition use="true" /></Conditions></Rankings>
+      <CrossChecks use="false" evaluateAll="false">
+        <MonteCarloRetest use="true">
+          <Settings>
+            <NumberOfSimulations>50</NumberOfSimulations>
+            <MCUseFullSample>false</MCUseFullSample>
+            <Setups><Setup dateFrom="2010.01.01" dateTo="2017.10.02" testPrecision="2" session="Old Session"><Chart symbol="AUDCAD_dukascopy" timeframe="H4" spread="1.9" /></Setup></Setups>
+            <Methods>
+              <Method type="RandomizeHistoryData" use="false" />
+              <Method type="RandomizeSpread" use="true"><Params><Param key="Min">30</Param><Param key="Max">50</Param></Params></Method>
+              <Method type="RandomizeSlippage" use="true" />
+            </Methods>
+          </Settings>
+          <AcceptanceSettings><Conditions><Condition use="false" /></Conditions></AcceptanceSettings>
+        </MonteCarloRetest>
+        <MonteCarloManipulation use="true"><Settings><Methods><Method type="RandomizeTradesOrder" use="true" /></Methods></Settings></MonteCarloManipulation>
+      </CrossChecks>
+      <WhatToBuild><StrategyType type="template" templateFile="C:\\private\\c2.sqx" improveDatabank="Strategies to improve" /><BuildMode><ShowLastGenerationDatabank>true</ShowLastGenerationDatabank><FreshBloodReplaceSimilar>true</FreshBloodReplaceSimilar><FreshBloodReplaceWeakest>true</FreshBloodReplaceWeakest><EvoRestartOnFinish status="true" /><EvoRestartOnStagnation status="true" fitnessType="10" generations="30" /></BuildMode></WhatToBuild>
+      <PartsToImprove improveATM="true"><EntryRules><LongImprovement use="true" action="replace" /><ShortImprovement use="true" action="replace" /></EntryRules><OrderTypes><LongImprovement use="true" /><ShortImprovement use="true" /></OrderTypes><ExitRules><LongImprovement use="true" action="replace" /><ShortImprovement use="true" action="replace" /></ExitRules></PartsToImprove>
+      <RiskMoneyManagement><MoneyManagement><Method type="FixedSize" use="false" /><Method type="FixedAmount" use="true" /></MoneyManagement><RiskManagement><Method type="AllowAllTrades" use="false" /></RiskManagement></RiskMoneyManagement>
+      <ATMs enable="true" />
+      <SelectedStrategies><Strategy /></SelectedStrategies>
+      <Notes />
+    </Task>
+    """
+    with zipfile.ZipFile(path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+        archive.writestr("config.xml", config_xml)
+        archive.writestr("AutomaticRetest-Task8.xml", task_xml)
+
+
+def test_capa2_mc2_target_applies_and_is_idempotent(monkeypatch, tmp_path):
+    local_cfx = tmp_path / "local" / "project.cfx"
+    repo_cfx = tmp_path / "repo" / "Capa2_Base.cfx"
+    generator_profile = tmp_path / "generator_profiles.json"
+    _write_minimal_capa2_mc2_cfx(local_cfx)
+    _write_minimal_capa2_mc2_cfx(repo_cfx)
+    _write_capa2_mc2_generator_profile(generator_profile)
+
+    monkeypatch.setattr(gate, "promote_capa2_mc_target", lambda *args, **kwargs: {
+        "phase": "phase21_capa2_mc",
+        "ok": True,
+        "issues": [],
+        "warnings": [],
+        "nextPhase": "phase22_capa2_mc2",
+    })
+    monkeypatch.setattr(gate, "process_snapshot", lambda: {"processes": []})
+    monkeypatch.setattr(gate, "capa2_base_project_path", lambda root142: local_cfx)
+    monkeypatch.setattr(gate, "DEFAULT_CAPA2_TEMPLATE", repo_cfx)
+    monkeypatch.setattr(gate, "GENERATOR_PROFILES_PATH", generator_profile)
+
+    payload = gate.promote_capa2_mc2_target(tmp_path, tmp_path, target="both", apply=True)
+
+    assert payload["ok"] is True
+    assert payload["phase"] == "phase22_capa2_mc2"
+    assert payload["nextPhase"] == "phase23_capa2_sequential"
+    task_xml, root, title = gate.load_capa2_mc2_task_root(local_cfx)
+    assert task_xml == "AutomaticRetest-Task8.xml"
+    assert title == "MC 2"
+    assert gate.enforce_capa2_mc2_guard(root, "localBase") == []
+    assert root.find("./Data") is None
+    setup = root.find("./CustomData/Setups/Setup")
+    assert setup.get("dateFrom") == "2017.10.02"
+    assert setup.get("dateTo") == "2023.12.31"
+    assert setup.get("testPrecision") == "1"
+    assert setup.get("session") == "No Session"
+    assert setup.find("Chart").attrib == {"symbol": "AUDCAD_darwinex", "timeframe": "H1", "spread": "2.0"}
+    assert {
+        databank.get("name"): databank.get("value")
+        for databank in root.findall(".//Databanks/Databank")
+    } == {"Input": "MC", "Output": "MC2"}
+    assert {node.get("name") for node in root.findall(".//Resources/Symbols/Symbol")} == {"AUDCAD_darwinex"}
+    assert {node.get("source") for node in root.findall(".//Resources/Symbols/Symbol")} == {"4"}
+    assert {node.get("broker") for node in root.findall(".//Resources/Symbols/Symbol")} == {"4"}
+    assert root.findall(".//Resources/Sessions/Session") == []
+    assert root.find(".//CrossChecks").attrib == {"use": "true", "evaluateAll": "true"}
+    assert root.find(".//CrossChecks/MonteCarloRetest").get("use") == "true"
+    assert root.find(".//CrossChecks/MonteCarloManipulation").get("use") == "false"
+    assert root.findtext(".//CrossChecks/MonteCarloRetest/Settings/NumberOfSimulations") == "100"
+    assert root.findtext(".//CrossChecks/MonteCarloRetest/Settings/MCUseFullSample") == "true"
+    assert root.find(".//CrossChecks/MonteCarloRetest/Settings/Methods/Method[@type='RandomizeHistoryData']").get("use") == "true"
+    spread = root.find(".//CrossChecks/MonteCarloRetest/Settings/Methods/Method[@type='RandomizeSpread']")
+    assert spread.get("use") == "true"
+    assert spread.find("./Params/Param[@key='Min']").text == "4"
+    assert spread.find("./Params/Param[@key='Max']").text == "10"
+    assert root.find(".//CrossChecks/MonteCarloRetest/Settings/Methods/Method[@type='RandomizeSlippage']").get("use") == "false"
+    assert root.find(".//WhatToBuild/StrategyType").get("improveDatabank") == "MC"
+    assert root.find(".//Rankings").get("type") == "never"
+    assert root.find(".//Rankings/FitPortfolio").get("active") == "false"
+    assert root.find(".//Rankings/CustomAnalysis").get("filter") == "false"
+    assert root.find(".//Rankings/Conditions").findall("Condition") == []
+    assert root.find(".//ExitTypes/Block[@key='ExitAfterBars.ExitAfterBars']").get("use") == "false"
+    assert root.find(".//ExitTypes/Block[@key='StopLoss.StopLoss']").get("use") == "true"
+    assert root.find(".//ExitTypes/Block[@key='ProfitTarget.ProfitTarget']").get("use") == "true"
+    assert root.find(".//ExitTypes/Block[@key='TrailingStop.TrailingStop']").get("use") == "true"
+
+    dry_run = gate.promote_capa2_mc2_target(tmp_path, tmp_path, target="both", apply=False)
+
+    assert dry_run["ok"] is True
+    assert all(result["changedActionCount"] == 0 for result in dry_run["results"].values())
+
+
+def test_capa2_mc2_guard_rejects_overfit_and_drift(monkeypatch, tmp_path):
+    cfx = tmp_path / "Capa2_Base.cfx"
+    generator_profile = tmp_path / "generator_profiles.json"
+    _write_minimal_capa2_mc2_cfx(cfx)
+    _write_capa2_mc2_generator_profile(generator_profile, include_map=False, include_spread=False, cross_broker=True)
+    monkeypatch.setattr(gate, "GENERATOR_PROFILES_PATH", generator_profile)
+    _, root, _ = gate.load_capa2_mc2_task_root(cfx)
+
+    issues = gate.enforce_capa2_mc2_guard(root, "repoTemplate")
+
+    assert any("Data section" in issue for issue in issues)
+    assert any("fastest" in issue or "precision" in issue for issue in issues)
+    assert any("Dukascopy" in issue or "Darwinex" in issue or "cross-broker" in issue for issue in issues)
+    assert any("RandomizeSpread" in issue or "x2-x5" in issue for issue in issues)
+    assert any("active methods" in issue for issue in issues)
+    assert any("RandomizeSlippage" in issue or "active methods" in issue for issue in issues)
+    assert any("FitPortfolio" in issue for issue in issues)
+    assert any("CustomAnalysis" in issue for issue in issues)
+    assert any("Rankings" in issue for issue in issues)
+    assert any("StrategyType" in issue for issue in issues)
+    assert any("ExitAfterBars" in issue for issue in issues)
+    assert any("Forbidden token" in issue for issue in issues)
+    assert any("adaptiveSpreadStress" in issue for issue in issues)
+
+
+def test_capa2_mc2_cli_is_registered():
+    args = gate.build_parser().parse_args(["capa2-mc2-target", "--target", "both"])
+
+    assert args.command == "capa2-mc2-target"
+    assert args.target == "both"
+
+
 def test_synthetic_closeout_report_requires_green_phase10_dry_runs(monkeypatch, tmp_path):
     calls = []
 

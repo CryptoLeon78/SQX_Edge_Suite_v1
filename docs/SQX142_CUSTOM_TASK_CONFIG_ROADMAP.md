@@ -1,7 +1,8 @@
 # SQX142 Custom Task Config Roadmap
 
-Estado: C1-CONFIG1 con Fase 21
-`Capa2 MC` cerrada el 2026-05-25 con
+Estado: C1-CONFIG1 con Fase 22
+`Capa2 MC2` cerrada el 2026-05-25 con
+`phase22_capa2_mc2_target_20260525_030124.json`, despues de cerrar
 `phase21_capa2_mc_target_20260525_022738.json`, despues de cerrar
 `phase20_capa2_tick_real_target_20260525_013436.json`, despues de cerrar
 `phase19_capa2_retest1_target_20260525_003750.json`, despues de
@@ -83,7 +84,15 @@ desde `retest 1`, `CrossChecks use=false/evaluateAll=false`,
 `NumberOfTrades >= 200`, `ProfitFactor >= 1.3`, `WinningPct >= 50`,
 `ReturnDDRatio >= 4` y `ExitAfterBars=false` con SL/PT/trailing activos.
 `generator_profiles.json` mapea layer 2 `AutomaticRetest-Task2.xml` a
-`ROBUSTNESS_C2`. El siguiente bloque exacto es `phase21_capa2_mc`. Fase 0 dejo
+`ROBUSTNESS_C2`. MC Capa2 queda cerrado como `AutomaticRetest-Task1.xml`,
+`Input=TICK`, `Output=MC`, `testPrecision=1 fastest` y
+`MonteCarloManipulation` pasivo desde TICK. MC2 Capa2 queda cerrado como
+`AutomaticRetest-Task8.xml`, `Input=MC`, `Output=MC2`, `CustomData` canonico
+sin `Data`, `testPrecision=1 fastest`, `MonteCarloRetest` con
+`RandomizeHistoryData=true`, `RandomizeSpread` adaptativo base spread x2-x5,
+`RandomizeSlippage=false`, `ExitAfterBars=false` con SL/PT/trailing activos y
+sin portfolio/custom-analysis/ranking filters. El siguiente bloque exacto es
+`phase23_capa2_sequential`. Fase 0 dejo
 preflight, snapshots y diff semantico en `.local/sqx142_task_config/`; Fase 1
 promociono las views ligeras/especializadas desde Mining15 a la base local y al
 template repo; Fase 2 genero los cuestionarios completos de Build Capa1 y cerro
@@ -2557,6 +2566,40 @@ Siguiente bloque exacto: `phase21_capa2_mc`.
   `nextPhase=phase22_capa2_mc2`, `scope=capa2`.
 
 Siguiente bloque exacto: `phase22_capa2_mc2`.
+
+## Estado Fase 22 - Capa2 MC2
+
+- `phase22_capa2_mc2` queda cerrada con
+  `phase22_capa2_mc2_target_20260525_030124.json`.
+- Comando aplicado: `capa2-mc2-target --target both --apply`, con dry-run
+  previo, backup/diff local, dry-run posterior idempotente y `processes=[]`.
+- Contrato tecnico: `AutomaticRetest-Task8.xml`, `Input=MC`, `Output=MC2`,
+  `ROBUSTNESS_C2 2017.10.02-2023.12.31`, `CustomData` canonico sin `Data`,
+  `testPrecision=1 fastest`, `No Session`, sin OOS interno.
+- Contrato de datos: MC2 se mantiene en Darwinex (`AUDCAD_darwinex`, source
+  `4`, broker `4`); Dukascopy queda limitado a `phase19_capa2_retest1`.
+- Contrato de robustez: `CrossChecks use=true/evaluateAll=true`, solo
+  `MonteCarloRetest` activo, `NumberOfSimulations=100`,
+  `MCUseFullSample=true`, `RandomizeHistoryData=true`, `RandomizeSpread`
+  adaptativo base spread x2-x5 y `RandomizeSlippage=false`.
+- Contrato anti-overfit: `StrategyType` pasivo desde `MC`, sin
+  `FitPortfolio`, sin `CustomAnalysis`, sin condiciones de Rankings, sin
+  split OOS interno, sin ejecucion SQX y sin forzar estados de resultado.
+- Contrato Capa2 de salidas: `ExitAfterBars=false` y SL/PT/trailing activos.
+- `generator_profiles.json` mapea layer 2 `AutomaticRetest-Task8.xml` a
+  `ROBUSTNESS_C2`, anade `adaptiveSpreadStress.2` para `RandomizeSpread`
+  x2-x5, y `CAPA2_NO_EXIT_AFTER_BARS_TASKS` protege que la generacion no
+  reactive `ExitAfterBars`.
+- Politica aclarada: los retests de robustez Capa2 pendientes siguen con
+  precision-data `fastest`; Forward vuelve a precision tick.
+- Ambos targets quedan idempotentes tras apply: `changedActionCount=0`,
+  `guardOk=true`, `issues=[]`, `warnings=[]`, `processes=[]`.
+- No hubo lanzamiento SQX, smoke, optimizacion ni ejecucion real; no se fuerza
+  `Results=passed`.
+- El estado local queda en `currentPhase=phase22_capa2_mc2`,
+  `nextPhase=phase23_capa2_sequential`, `scope=capa2`.
+
+Siguiente bloque exacto: `phase23_capa2_sequential`.
 
 ## Disciplina Operativa
 
