@@ -16260,6 +16260,8 @@ CAPA2_PORTFOLIO_MASTER_PHASE = CAPA2_PORTFOLIO_NEXT
 CAPA2_PORTFOLIO_MASTER_VERSION = "portfolio-master-contract-v1"
 CAPA2_PORTFOLIO_MASTER_NEXT_BLOCKED = "phase30_capa2_portfolio_master_inputs_pending"
 CAPA2_PORTFOLIO_MASTER_NEXT_READY = "phase30_capa2_portfolio_master_operator_review"
+CAPA2_PORTFOLIO_MASTER_INPUTS_PHASE = CAPA2_PORTFOLIO_MASTER_NEXT_BLOCKED
+CAPA2_PORTFOLIO_MASTER_INPUTS_VERSION = "portfolio-master-inputs-pending-v1"
 CAPA2_PORTFOLIO_MASTER_REQUIRED_INPUTS = {
     "portfolioLabOutput": "Governed Portfolio Lab output/export",
     "forwardCsv": "Operator Forward CSV from natural Output=Foward survivors",
@@ -26119,7 +26121,11 @@ def phase29_portfolio_plan_readiness(project_root: Path) -> dict[str, Any]:
     issues: list[str] = []
     if not state_exists:
         issues.append("phase29_capa2_portfolio: session_state.json is missing")
-    elif state.get("currentPhase") not in {CAPA2_PORTFOLIO_PHASE, CAPA2_PORTFOLIO_MASTER_PHASE}:
+    elif state.get("currentPhase") not in {
+        CAPA2_PORTFOLIO_PHASE,
+        CAPA2_PORTFOLIO_MASTER_PHASE,
+        CAPA2_PORTFOLIO_MASTER_INPUTS_PHASE,
+    }:
         issues.append(
             f"phase29_capa2_portfolio: session currentPhase is {state.get('currentPhase')!r}, "
             f"expected {CAPA2_PORTFOLIO_PHASE!r} before Phase30"
@@ -26386,6 +26392,222 @@ def capa2_portfolio_master_contract(
                 "portfolioMasterContractStatus": contract_status,
                 "phase29Capa2PortfolioPlanReport": phase29_gate.get("reportPath") or state.get("phase29Capa2PortfolioPlanReport", ""),
                 "phase30Capa2PortfolioMasterContractReport": str(report_path),
+            })
+            write_json(state_path, state)
+            payload["changedFiles"]["sessionState"] = str(state_path)
+    return payload
+
+
+def phase30_portfolio_master_contract_readiness(project_root: Path) -> dict[str, Any]:
+    root = ledger_root(project_root)
+    state_path = root / "session_state.json"
+    state_exists = state_path.is_file()
+    state = read_json(state_path, {})
+    issues: list[str] = []
+    allowed_current = {CAPA2_PORTFOLIO_MASTER_PHASE, CAPA2_PORTFOLIO_MASTER_INPUTS_PHASE}
+    if not state_exists:
+        issues.append("phase30_capa2_portfolio_master_contract: session_state.json is missing")
+    elif state.get("currentPhase") not in allowed_current:
+        issues.append(
+            f"phase30_capa2_portfolio_master_contract: session currentPhase is {state.get('currentPhase')!r}, "
+            f"expected one of {sorted(allowed_current)!r}"
+        )
+
+    report_ref = str(state.get("phase30Capa2PortfolioMasterContractReport") or "")
+    report_path = resolve_project_or_ledger_path(project_root, report_ref) if report_ref else Path()
+    report_exists = bool(report_ref and report_path.is_file())
+    report = read_json(report_path, {}) if report_exists else {}
+    if not report_ref:
+        issues.append("phase30_capa2_portfolio_master_contract: session state is missing phase30Capa2PortfolioMasterContractReport")
+    elif not report_exists:
+        issues.append(f"phase30_capa2_portfolio_master_contract: report does not exist: {report_ref}")
+
+    if report_exists:
+        if report.get("ok") is not True:
+            issues.append("phase30_capa2_portfolio_master_contract: report ok is not true")
+        if report.get("phase") != CAPA2_PORTFOLIO_MASTER_PHASE:
+            issues.append(f"phase30_capa2_portfolio_master_contract: report phase is {report.get('phase')!r}")
+        if report.get("operation") != "capa2_portfolio_master_contract":
+            issues.append(f"phase30_capa2_portfolio_master_contract: report operation is {report.get('operation')!r}")
+        if report.get("nextPhase") not in {CAPA2_PORTFOLIO_MASTER_NEXT_BLOCKED, CAPA2_PORTFOLIO_MASTER_NEXT_READY}:
+            issues.append(f"phase30_capa2_portfolio_master_contract: report nextPhase is {report.get('nextPhase')!r}")
+        contract = report.get("contract") or {}
+        if contract.get("version") != CAPA2_PORTFOLIO_MASTER_VERSION:
+            issues.append(f"phase30_capa2_portfolio_master_contract: contract version is {contract.get('version')!r}")
+        if contract.get("status") not in {"blocked", "ready_for_operator_review"}:
+            issues.append(f"phase30_capa2_portfolio_master_contract: contract status is {contract.get('status')!r}")
+        for issue in report.get("issues") or []:
+            issues.append(f"phase30_capa2_portfolio_master_contract: prior issue still open: {issue}")
+
+    return {
+        "ok": not issues,
+        "phase": CAPA2_PORTFOLIO_MASTER_PHASE,
+        "statePath": str(state_path),
+        "stateExists": state_exists,
+        "state": state,
+        "reportPath": str(report_path) if report_ref else "",
+        "reportExists": report_exists,
+        "report": report,
+        "issues": issues,
+    }
+
+
+def portfolio_master_input_checklist(inputs: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
+    checklist: list[dict[str, Any]] = []
+    for key, label in CAPA2_PORTFOLIO_MASTER_REQUIRED_INPUTS.items():
+        item = inputs.get(key) or {}
+        provided = bool(item.get("provided"))
+        exists = bool(item.get("exists"))
+        if exists:
+            status = "provided"
+        elif provided:
+            status = "path_provided_but_missing"
+        else:
+            status = "missing"
+        checklist.append({
+            "key": key,
+            "label": label,
+            "required": True,
+            "provided": provided,
+            "exists": exists,
+            "status": status,
+            "sha256": item.get("sha256", "") if exists else "",
+            "suffix": item.get("suffix", "") if exists else "",
+            "size": item.get("size", 0) if exists else 0,
+        })
+    return checklist
+
+
+def capa2_portfolio_master_inputs_pending(
+    root142: Path,
+    project_root: Path,
+    target: str,
+    write: bool,
+    portfolio_lab_output: Path | None = None,
+    forward_csv: Path | None = None,
+    equity_series: Path | None = None,
+    account_context: Path | None = None,
+    broker_context: Path | None = None,
+) -> dict[str, Any]:
+    target_files_before = capa2_portfolio_target_file_states(root142, target)
+    contract_readiness = phase30_portfolio_master_contract_readiness(project_root)
+    issues = list(contract_readiness.get("issues") or [])
+
+    contract_gate = capa2_portfolio_master_contract(
+        root142,
+        project_root,
+        target=target,
+        write=False,
+        portfolio_lab_output=portfolio_lab_output,
+        forward_csv=forward_csv,
+        equity_series=equity_series,
+        account_context=account_context,
+        broker_context=broker_context,
+    )
+    if contract_gate.get("ok") is not True:
+        issues.append("phase30_capa2_portfolio_master_inputs_pending: contract dry-run is not green")
+    for issue in contract_gate.get("issues") or []:
+        if issue not in issues:
+            issues.append(issue)
+
+    process_probe = contract_gate.get("processProbe") or {}
+    if process_probe.get("ok") is False:
+        issues.append("phase30_capa2_portfolio_master_inputs_pending: SQX process probe failed")
+    if process_probe.get("processes"):
+        issues.append("phase30_capa2_portfolio_master_inputs_pending: processes must remain [] before Portfolio Master input intake")
+
+    target_files_after = capa2_portfolio_target_file_states(root142, target)
+    cfx_guard = capa2_portfolio_master_cfx_guard(root142, target, target_files_before, target_files_after)
+    for issue in cfx_guard.get("issues") or []:
+        if issue not in issues:
+            issues.append(issue)
+
+    input_checklist = portfolio_master_input_checklist(contract_gate.get("inputs") or {})
+    missing_inputs = [item["key"] for item in input_checklist if item["status"] != "provided"]
+    provided_inputs = [item["key"] for item in input_checklist if item["status"] == "provided"]
+    ready_for_review = not missing_inputs and (contract_gate.get("contract") or {}).get("status") == "ready_for_operator_review"
+    input_status = "ready_for_operator_review" if ready_for_review else "pending_inputs"
+    next_phase = CAPA2_PORTFOLIO_MASTER_NEXT_READY if ready_for_review else CAPA2_PORTFOLIO_MASTER_INPUTS_PHASE
+
+    payload: dict[str, Any] = {
+        "ok": not issues,
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": CAPA2_PORTFOLIO_MASTER_INPUTS_PHASE,
+        "operation": "capa2_portfolio_master_inputs_pending",
+        "target": target,
+        "write": write,
+        "previousGate": {
+            "phase": contract_readiness.get("phase"),
+            "ok": contract_readiness.get("ok"),
+            "statePath": contract_readiness.get("statePath"),
+            "stateExists": contract_readiness.get("stateExists"),
+            "reportPath": contract_readiness.get("reportPath"),
+            "reportExists": contract_readiness.get("reportExists"),
+            "issues": contract_readiness.get("issues") or [],
+        },
+        "contractGate": {
+            "phase": contract_gate.get("phase"),
+            "operation": contract_gate.get("operation"),
+            "ok": contract_gate.get("ok"),
+            "contractStatus": (contract_gate.get("contract") or {}).get("status"),
+            "nextPhase": contract_gate.get("nextPhase"),
+            "issues": contract_gate.get("issues") or [],
+        },
+        "targetFilesBefore": target_files_before,
+        "targetFilesAfter": target_files_after,
+        "cfxGuard": cfx_guard,
+        "processProbe": process_probe,
+        "inputIntake": {
+            "version": CAPA2_PORTFOLIO_MASTER_INPUTS_VERSION,
+            "status": input_status,
+            "readyForOperatorReview": ready_for_review,
+            "providedInputs": provided_inputs,
+            "missingInputs": missing_inputs,
+            "checklist": input_checklist,
+            "requiredEvidence": CAPA2_PORTFOLIO_MASTER_REQUIRED_INPUTS,
+            "sourceBoundary": "Inputs must come from governed Phase29 Lab output and natural Phase28 Foward survivors only.",
+        },
+        "guardrails": {
+            "processes": "must_equal_empty_list",
+            "cfxGuard": "must_remain_true; no Capa2 .cfx mutation or FitPortfolio drift",
+            "noFabrication": "Do not fabricate Portfolio Lab output, Forward CSV, equity series, account context, broker context, winners or lot sizes.",
+            "noSqxRuntime": "No SQX launch, smoke, retest rerun, optimization or Portfolio Master artifact generation in inputs_pending.",
+            "operatorInputs": "Remain blocked until all five operator evidence files exist.",
+        },
+        "changedFiles": {
+            "cfx": [],
+            "localEvidence": [],
+            "sessionState": "",
+        },
+        "issues": issues,
+        "summary": {
+            "decision": "Hold Phase30 Portfolio Master in governed inputs_pending state until real operator inputs exist.",
+            "inputStatus": input_status,
+            "missingInputs": missing_inputs,
+            "providedInputs": provided_inputs,
+            "nextPhase": next_phase,
+        },
+        "nextPhase": next_phase,
+    }
+    if write:
+        ensure_ledger(project_root)
+        report_path = ledger_root(project_root) / "phase_reports" / f"phase30_capa2_portfolio_master_inputs_pending_{stamp()}.json"
+        write_json(report_path, payload)
+        payload["written"] = str(report_path)
+        payload["changedFiles"]["localEvidence"].append(str(report_path))
+        if payload["ok"]:
+            state_path = ledger_root(project_root) / "session_state.json"
+            state = read_json(state_path, {})
+            state.update({
+                "updatedAt": now_iso(),
+                "currentPhase": CAPA2_PORTFOLIO_MASTER_INPUTS_PHASE,
+                "nextPhase": next_phase,
+                "scope": "capa2",
+                "portfolioMasterInputStatus": input_status,
+                "portfolioMasterContractStatus": (contract_gate.get("contract") or {}).get("status", ""),
+                "phase30Capa2PortfolioMasterContractReport": contract_readiness.get("reportPath") or state.get("phase30Capa2PortfolioMasterContractReport", ""),
+                "phase30Capa2PortfolioMasterInputsPendingReport": str(report_path),
             })
             write_json(state_path, state)
             payload["changedFiles"]["sessionState"] = str(state_path)
@@ -27878,6 +28100,15 @@ def build_parser() -> argparse.ArgumentParser:
     capa2_portfolio_master.add_argument("--broker-context", type=Path)
     capa2_portfolio_master.add_argument("--write", action="store_true")
 
+    capa2_portfolio_master_inputs = sub.add_parser("capa2-portfolio-master-inputs-pending")
+    capa2_portfolio_master_inputs.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    capa2_portfolio_master_inputs.add_argument("--portfolio-lab-output", type=Path)
+    capa2_portfolio_master_inputs.add_argument("--forward-csv", type=Path)
+    capa2_portfolio_master_inputs.add_argument("--equity-series", type=Path)
+    capa2_portfolio_master_inputs.add_argument("--account-context", type=Path)
+    capa2_portfolio_master_inputs.add_argument("--broker-context", type=Path)
+    capa2_portfolio_master_inputs.add_argument("--write", action="store_true")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -28183,6 +28414,19 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "capa2-portfolio-master-contract":
         json_print(capa2_portfolio_master_contract(
+            root142,
+            project_root,
+            target=args.target,
+            write=args.write,
+            portfolio_lab_output=args.portfolio_lab_output,
+            forward_csv=args.forward_csv,
+            equity_series=args.equity_series,
+            account_context=args.account_context,
+            broker_context=args.broker_context,
+        ))
+        return 0
+    if args.command == "capa2-portfolio-master-inputs-pending":
+        json_print(capa2_portfolio_master_inputs_pending(
             root142,
             project_root,
             target=args.target,

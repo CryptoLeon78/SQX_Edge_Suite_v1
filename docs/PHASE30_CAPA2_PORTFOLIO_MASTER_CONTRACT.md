@@ -1,6 +1,6 @@
 # Phase30 Capa2 Portfolio Master Contract
 
-Status: documented and registered operating contract only. Evidence: `phase30_capa2_portfolio_master_contract_20260525_152846.json`. `phase30_capa2_portfolio_master_contract` is the Portfolio Master operating contract after the Phase29 governed Lab.
+Status: documented and registered operating contract only. Evidence: `phase30_capa2_portfolio_master_contract_20260525_152846.json`. `phase30_capa2_portfolio_master_inputs_pending` is also registered with evidence `phase30_capa2_portfolio_master_inputs_pending_20260525_154242.json`. `phase30_capa2_portfolio_master_contract` is the Portfolio Master operating contract after the Phase29 governed Lab.
 
 ## Purpose
 
@@ -15,6 +15,12 @@ Portfolio Master is the controlled packaging step after the governed Portfolio L
 ## Blocked Until Ready
 
 Actual SQX artifact generation remains blocked until governed Lab output and operator Forward CSV/equity/account/broker context are present. Until then, Phase30 may document the package contract, review checklist, sizing controls and evidence expectations only.
+
+## Inputs Pending Gate
+
+`phase30_capa2_portfolio_master_inputs_pending` is a governed wait state, not artifact generation. The gate confirms `processes=[]`, `cfxGuard=true`, no Capa2 `.cfx` mutation, no `FitPortfolio` drift and no SQX runtime activity.
+
+Current input status: `pending_inputs`. Missing inputs are governed Lab output, natural Forward CSV, comparable equity/return series, account context and broker context. The gate must not fabricate winners, fabricate input files, infer lot sizes, run SQX, rerun retests, optimize or generate Portfolio Master artifacts.
 
 ## Guardrails
 

@@ -6425,6 +6425,111 @@
       }
     },
     {
+      "id": "sqx142_c2_phase30_portfolio_master_inputs_pending",
+      "description": "C1-CONFIG1 Phase 30B Capa2 Portfolio Master input intake must stay documented as a blocked wait state until all real operator inputs exist.",
+      "required": {
+        "README.md": [
+          "`phase30_capa2_portfolio_master_inputs_pending` queda registrado",
+          "phase30_capa2_portfolio_master_inputs_pending_20260525_154242.json",
+          "`processes=[]`",
+          "`cfxGuard=true`",
+          "faltan los cinco inputs reales",
+          "no Capa2 `.cfx` mutation",
+          "No se fabrican winners, inputs, lotes ni artefactos SQX"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Phase30 Portfolio Master inputs pending",
+          "`phase30_capa2_portfolio_master_inputs_pending` is registered",
+          "phase30_capa2_portfolio_master_inputs_pending_20260525_154242.json",
+          "`processes=[]`",
+          "`cfxGuard=true`",
+          "governed Lab output, natural Forward CSV, comparable equity/return series, account context and broker context are still missing",
+          "No fake winners, fake inputs, lot sizing, SQX execution, retest/optimization or artifact generation"
+        ],
+        "docs/ARCHITECTURE.md": [
+          "Phase 30 input intake records `phase30_capa2_portfolio_master_inputs_pending`",
+          "phase30_capa2_portfolio_master_inputs_pending_20260525_154242.json",
+          "`processes=[]`",
+          "`cfxGuard=true`",
+          "missing governed Lab output, natural Forward CSV, comparable equity/return series, account context and broker context",
+          "Portfolio Master stays blocked"
+        ],
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "Estado Fase 30B - Capa2 Portfolio Master Inputs Pending",
+          "`phase30_capa2_portfolio_master_inputs_pending` queda registrada",
+          "phase30_capa2_portfolio_master_inputs_pending_20260525_154242.json",
+          "`processes=[]`",
+          "`cfxGuard=true`",
+          "status `pending_inputs`",
+          "`currentPhase=phase30_capa2_portfolio_master_inputs_pending`",
+          "`nextPhase=phase30_capa2_portfolio_master_inputs_pending`"
+        ],
+        "docs/PHASE30_CAPA2_PORTFOLIO_MASTER_CONTRACT.md": [
+          "`phase30_capa2_portfolio_master_inputs_pending` is also registered",
+          "phase30_capa2_portfolio_master_inputs_pending_20260525_154242.json",
+          "Inputs Pending Gate",
+          "`processes=[]`",
+          "`cfxGuard=true`",
+          "Current input status: `pending_inputs`",
+          "The gate must not fabricate winners"
+        ],
+        "docs/STATE_CONSISTENCY_GUARD.md": [
+          "C1-CONFIG1 Phase30 inputs pending",
+          "`phase30_capa2_portfolio_master_inputs_pending` is registered",
+          "phase30_capa2_portfolio_master_inputs_pending_20260525_154242.json",
+          "`processes=[]`",
+          "`cfxGuard=true`",
+          "Portfolio Master blocked until the five real operator inputs exist"
+        ],
+        "CHANGELOG.md": [
+          "2026-05-25 - C1-CONFIG1 Capa2 Portfolio Master Inputs Pending",
+          "`phase30_capa2_portfolio_master_inputs_pending`",
+          "phase30_capa2_portfolio_master_inputs_pending_20260525_154242.json",
+          "`processes=[]`",
+          "`cfxGuard=true`",
+          "Keeps Portfolio Master blocked until governed Lab output, natural Forward CSV, comparable equity/return series, account context and broker context exist"
+        ]
+      },
+      "forbidden": {
+        "README.md": [
+          "inputs_pending genero Portfolio Master",
+          "inputs_pending lanzo SQX",
+          "inputs_pending creo winners",
+          "inputs_pending creo lotes"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "inputs pending generated Portfolio Master artifacts",
+          "inputs pending ran SQX",
+          "inputs pending created fake winners",
+          "inputs pending allowed lot sizing"
+        ],
+        "docs/ARCHITECTURE.md": [
+          "input intake generated Portfolio Master artifacts",
+          "input intake ran SQX",
+          "input intake allowed fake winners",
+          "input intake allowed lot sizing"
+        ],
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "inputs pending genero artefactos SQX",
+          "inputs pending lanzo SQX",
+          "inputs pending fabrico winners",
+          "inputs pending permite FitPortfolio drift"
+        ],
+        "docs/PHASE30_CAPA2_PORTFOLIO_MASTER_CONTRACT.md": [
+          "Inputs Pending generated Portfolio Master artifacts",
+          "Inputs Pending ran SQX",
+          "Inputs Pending fabricated winners",
+          "Inputs Pending allows lot sizing"
+        ],
+        "CHANGELOG.md": [
+          "inputs pending generated Portfolio Master artifacts",
+          "inputs pending ran SQX",
+          "inputs pending fabricated winners",
+          "inputs pending allowed lot sizing"
+        ]
+      }
+    },
+    {
       "id": "sqx142_c1_fastest_precision_correction_before_c2_spp",
       "description": "C1-CONFIG1 must record the important Capa1 precision correction after Capa2 Synthetic and before Capa2 SPP: MC through WFM use fastest/testPrecision=1, while Foward remains tick/testPrecision=2.",
       "required": {

@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-25 - C1-CONFIG1 Capa2 Portfolio Master Inputs Pending
+
+- Adds `phase30_capa2_portfolio_master_inputs_pending` as the governed Portfolio Master input-intake wait state after the Phase30 contract.
+- Records local evidence `phase30_capa2_portfolio_master_inputs_pending_20260525_154242.json` with `processes=[]`, `cfxGuard=true`, no Capa2 `.cfx` mutation and all five required operator inputs still missing.
+- Keeps Portfolio Master blocked until governed Lab output, natural Forward CSV, comparable equity/return series, account context and broker context exist.
+- Prevents fake winners, fake inputs, lot sizing, SQX execution, smoke/retest/optimization, artifact generation and `FitPortfolio` drift while inputs are pending.
+
 ## 2026-05-25 - C1-CONFIG1 Capa2 Portfolio Master Contract
 
 - Documents `phase30_capa2_portfolio_master_contract` as the Portfolio Master operating contract after the Phase29 governed Lab.

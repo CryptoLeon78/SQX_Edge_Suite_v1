@@ -1,7 +1,8 @@
 # SQX142 Custom Task Config Roadmap
 
-Estado: C1-CONFIG1 con Fase 30 documentada y registrada
+Estado: C1-CONFIG1 con Fase 30 documentada, registrada y bloqueada en inputs pending
 `phase30_capa2_portfolio_master_contract` documentada como Portfolio Master operating contract posterior al Lab gobernado Phase29 con evidencia local `phase30_capa2_portfolio_master_contract_20260525_152846.json`; actual SQX artifact generation remains blocked until governed Lab output and operator Forward CSV/equity/account/broker context.
+`phase30_capa2_portfolio_master_inputs_pending` queda registrada con evidencia local `phase30_capa2_portfolio_master_inputs_pending_20260525_154242.json`: `processes=[]`, `cfxGuard=true`, no Capa2 `.cfx` mutation, input status `pending_inputs` y faltan governed Lab output, natural Forward CSV, comparable equity/return series, account context y broker context. `currentPhase=phase30_capa2_portfolio_master_inputs_pending` y `nextPhase=phase30_capa2_portfolio_master_inputs_pending`; no fake winners, fake inputs, lot sizing, SQX execution, retest/optimization ni artifact generation.
 `phase29_capa2_portfolio` documentada como handoff gobernado Forward -> Portfolio
 despues de cerrar `Capa2 Forward` el 2026-05-25 con
 `phase28_capa2_forward_target_20260525_140929.json`, despues de cerrar
@@ -2917,6 +2918,22 @@ Siguiente contrato documentado: `phase30_capa2_portfolio_master_contract`.
 - El estado documentado queda en `currentPhase=phase30_capa2_portfolio_master_contract`,
   `nextPhase=phase30_capa2_portfolio_master_inputs_pending`, `scope=capa2`,
   con generacion real pendiente de evidencia gobernada.
+
+## Estado Fase 30B - Capa2 Portfolio Master Inputs Pending
+
+- `phase30_capa2_portfolio_master_inputs_pending` queda registrada con
+  `phase30_capa2_portfolio_master_inputs_pending_20260525_154242.json` como
+  compuerta de espera gobernada para inputs reales del operador.
+- La evidencia confirma `processes=[]`, `cfxGuard=true`, no Capa2 `.cfx`
+  mutation, contrato Phase30 bloqueado y status `pending_inputs`.
+- Faltan los cinco inputs obligatorios: governed Lab output, natural Forward
+  CSV, comparable equity/return series, account context y broker context.
+- Mientras falten inputs no se fabrican winners, inputs, lot sizing ni
+  artefactos SQX; tampoco hay SQX execution, smoke, retest rerun,
+  optimization, `Results=passed` forzado ni FitPortfolio drift.
+- El estado documentado queda en
+  `currentPhase=phase30_capa2_portfolio_master_inputs_pending`,
+  `nextPhase=phase30_capa2_portfolio_master_inputs_pending`, `scope=capa2`.
 
 ## Disciplina Operativa
 

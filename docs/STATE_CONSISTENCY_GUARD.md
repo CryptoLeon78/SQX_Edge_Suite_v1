@@ -26,6 +26,7 @@ Current guarded state:
 - C1-CONFIG1 Phase30: `phase30_capa2_portfolio_master_contract` is the Portfolio Master operating contract after the Phase29 governed Lab, registered with local evidence `phase30_capa2_portfolio_master_contract_20260525_152846.json`.
 - Phase30 required markers keep actual SQX artifact generation blocked until governed Lab output and operator Forward CSV/equity/account/broker context are present.
 - Phase30 forbidden markers block SQX execution, forced pass, FitPortfolio drift, live/broker guarantees, profitability guarantees and risk zero claims.
+- C1-CONFIG1 Phase30 inputs pending: `phase30_capa2_portfolio_master_inputs_pending` is registered with local evidence `phase30_capa2_portfolio_master_inputs_pending_20260525_154242.json`, `processes=[]`, `cfxGuard=true`, no Capa2 `.cfx` mutation and Portfolio Master blocked until the five real operator inputs exist.
 
 Run the guard with:
 
