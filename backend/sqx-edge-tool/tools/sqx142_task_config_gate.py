@@ -63,6 +63,7 @@ PHASES = [
     {"id": "phase27", "label": "Capa2 WFM validation gate"},
     {"id": "phase28", "label": "Capa2 Forward validation gate"},
     {"id": "phase29", "label": "Capa2 governed portfolio lab and operating plan"},
+    {"id": "phase30", "label": "Capa2 Portfolio Master blocked contract"},
 ]
 
 SECTION_ALIASES = {
@@ -16255,6 +16256,17 @@ CAPA2_PORTFOLIO_NEXT = "phase30_capa2_portfolio_master_contract"
 CAPA2_PORTFOLIO_VERSION = "portfolio-lab-governed-v1"
 CAPA2_PORTFOLIO_SOURCE_PHASE = "phase28_capa2_forward"
 CAPA2_PORTFOLIO_SOURCE_DATABANK = "Foward"
+CAPA2_PORTFOLIO_MASTER_PHASE = CAPA2_PORTFOLIO_NEXT
+CAPA2_PORTFOLIO_MASTER_VERSION = "portfolio-master-contract-v1"
+CAPA2_PORTFOLIO_MASTER_NEXT_BLOCKED = "phase30_capa2_portfolio_master_inputs_pending"
+CAPA2_PORTFOLIO_MASTER_NEXT_READY = "phase30_capa2_portfolio_master_operator_review"
+CAPA2_PORTFOLIO_MASTER_REQUIRED_INPUTS = {
+    "portfolioLabOutput": "Governed Portfolio Lab output/export",
+    "forwardCsv": "Operator Forward CSV from natural Output=Foward survivors",
+    "equitySeries": "Comparable equity or return series for candidates",
+    "accountContext": "Operator account/equity/risk context",
+    "brokerContext": "Operator broker/symbol execution context",
+}
 CAPA2_PORTFOLIO_DEFAULTS: dict[str, Any] = {
     "sourcePhase": CAPA2_PORTFOLIO_SOURCE_PHASE,
     "sourceDatabank": CAPA2_PORTFOLIO_SOURCE_DATABANK,
@@ -26086,6 +26098,300 @@ def capa2_portfolio_plan_report(root142: Path, project_root: Path, target: str, 
     return payload
 
 
+def resolve_project_or_ledger_path(project_root: Path, raw_value: str) -> Path:
+    path = Path(raw_value)
+    if path.is_absolute():
+        return path
+    project_candidate = project_root / path
+    if project_candidate.is_file():
+        return project_candidate
+    ledger_candidate = ledger_root(project_root) / path
+    if ledger_candidate.is_file():
+        return ledger_candidate
+    return project_candidate
+
+
+def phase29_portfolio_plan_readiness(project_root: Path) -> dict[str, Any]:
+    root = ledger_root(project_root)
+    state_path = root / "session_state.json"
+    state_exists = state_path.is_file()
+    state = read_json(state_path, {})
+    issues: list[str] = []
+    if not state_exists:
+        issues.append("phase29_capa2_portfolio: session_state.json is missing")
+    elif state.get("currentPhase") not in {CAPA2_PORTFOLIO_PHASE, CAPA2_PORTFOLIO_MASTER_PHASE}:
+        issues.append(
+            f"phase29_capa2_portfolio: session currentPhase is {state.get('currentPhase')!r}, "
+            f"expected {CAPA2_PORTFOLIO_PHASE!r} before Phase30"
+        )
+
+    report_ref = str(state.get("phase29Capa2PortfolioPlanReport") or "")
+    report_path = resolve_project_or_ledger_path(project_root, report_ref) if report_ref else Path()
+    report_exists = bool(report_ref and report_path.is_file())
+    report = read_json(report_path, {}) if report_exists else {}
+    if not report_ref:
+        issues.append("phase29_capa2_portfolio: session state is missing phase29Capa2PortfolioPlanReport")
+    elif not report_exists:
+        issues.append(f"phase29_capa2_portfolio: report does not exist: {report_ref}")
+
+    if report_exists:
+        if report.get("ok") is not True:
+            issues.append("phase29_capa2_portfolio: report ok is not true")
+        if report.get("phase") != CAPA2_PORTFOLIO_PHASE:
+            issues.append(f"phase29_capa2_portfolio: report phase is {report.get('phase')!r}")
+        if report.get("operation") != "capa2_portfolio_plan":
+            issues.append(f"phase29_capa2_portfolio: report operation is {report.get('operation')!r}")
+        if report.get("nextPhase") != CAPA2_PORTFOLIO_NEXT:
+            issues.append(f"phase29_capa2_portfolio: report nextPhase is {report.get('nextPhase')!r}")
+        for issue in report.get("issues") or []:
+            issues.append(f"phase29_capa2_portfolio: prior issue still open: {issue}")
+
+    return {
+        "ok": not issues,
+        "phase": CAPA2_PORTFOLIO_PHASE,
+        "statePath": str(state_path),
+        "stateExists": state_exists,
+        "state": state,
+        "reportPath": str(report_path) if report_ref else "",
+        "reportExists": report_exists,
+        "report": report,
+        "issues": issues,
+    }
+
+
+def cfx_portfolio_master_active_markers(path: Path) -> list[dict[str, Any]]:
+    if not path.is_file() or not zipfile.is_zipfile(path):
+        return []
+    markers: list[dict[str, Any]] = []
+    try:
+        with zipfile.ZipFile(path) as archive:
+            for name in archive.namelist():
+                if not name.lower().endswith(".xml"):
+                    continue
+                text = safe_zip_text(archive, name)
+                if not text.strip():
+                    continue
+                try:
+                    root = ET.fromstring(text)
+                except ET.ParseError:
+                    continue
+                for marker in capa2_portfolio_active_markers(root):
+                    item = dict(marker)
+                    item["entry"] = name
+                    markers.append(item)
+    except (OSError, zipfile.BadZipFile):
+        return []
+    return markers
+
+
+def capa2_portfolio_master_cfx_guard(
+    root142: Path,
+    target: str,
+    before: dict[str, Any],
+    after: dict[str, Any],
+) -> dict[str, Any]:
+    issues: list[str] = []
+    markers: dict[str, list[dict[str, Any]]] = {}
+    paths = capa2_portfolio_target_paths(root142, target)
+    for target_name, path in paths.items():
+        before_item = before.get(target_name) or {}
+        after_item = after.get(target_name) or {}
+        if not before_item.get("exists"):
+            issues.append(f"{target_name}: Phase30 target CFX is missing; cannot prove no FitPortfolio=true")
+            continue
+        if not before_item.get("isZip"):
+            issues.append(f"{target_name}: Phase30 target CFX is not a valid zip")
+            continue
+        if after_item.get("exists") and before_item.get("sha256") != after_item.get("sha256"):
+            issues.append(f"{target_name}: Capa2 base/template changed during Phase30 Portfolio Master contract; mutation is forbidden")
+        target_markers = cfx_portfolio_master_active_markers(path)
+        if target_markers:
+            markers[target_name] = target_markers
+            for marker in target_markers:
+                issues.append(
+                    f"{target_name}: forbidden portfolio optimization drift in {marker.get('entry')}: "
+                    f"{marker.get('reason')} ({marker.get('tag')})"
+                )
+    if not paths:
+        issues.append("phase30_capa2_portfolio_master_contract: no target selected for CFX guard")
+    return {"ok": not issues, "issues": issues, "markers": markers}
+
+
+def portfolio_master_input_state(path: Path | None, label: str) -> dict[str, Any]:
+    item: dict[str, Any] = {
+        "label": label,
+        "required": True,
+        "provided": path is not None,
+        "exists": False,
+        "sha256": "",
+        "size": 0,
+        "mtime": "",
+        "path": str(path) if path is not None else "",
+    }
+    if path is None or not path.is_file():
+        return item
+    try:
+        stat = path.stat()
+        item.update({
+            "exists": True,
+            "sha256": file_sha256(path),
+            "size": stat.st_size,
+            "mtime": datetime.fromtimestamp(stat.st_mtime).isoformat(timespec="seconds"),
+            "suffix": path.suffix.lower(),
+        })
+    except OSError as exc:
+        item["error"] = str(exc)
+    return item
+
+
+def resolve_optional_project_path(project_root: Path, path: Path | None) -> Path | None:
+    if path is None or path.is_absolute():
+        return path
+    return project_root / path
+
+
+def capa2_portfolio_master_contract(
+    root142: Path,
+    project_root: Path,
+    target: str,
+    write: bool,
+    portfolio_lab_output: Path | None = None,
+    forward_csv: Path | None = None,
+    equity_series: Path | None = None,
+    account_context: Path | None = None,
+    broker_context: Path | None = None,
+) -> dict[str, Any]:
+    target_files_before = capa2_portfolio_target_file_states(root142, target)
+    phase29_gate = phase29_portfolio_plan_readiness(project_root)
+    issues = list(phase29_gate.get("issues") or [])
+    warnings: list[str] = []
+    input_paths = {
+        "portfolioLabOutput": resolve_optional_project_path(project_root, portfolio_lab_output),
+        "forwardCsv": resolve_optional_project_path(project_root, forward_csv),
+        "equitySeries": resolve_optional_project_path(project_root, equity_series),
+        "accountContext": resolve_optional_project_path(project_root, account_context),
+        "brokerContext": resolve_optional_project_path(project_root, broker_context),
+    }
+    inputs = {
+        key: portfolio_master_input_state(path, CAPA2_PORTFOLIO_MASTER_REQUIRED_INPUTS[key])
+        for key, path in input_paths.items()
+    }
+    contract_blockers = [
+        f"{item['label']} must exist before Portfolio Master can leave blocked status"
+        for item in inputs.values()
+        if not item.get("exists")
+    ]
+    contract_status = "blocked" if contract_blockers else "ready_for_operator_review"
+
+    process_probe = process_snapshot()
+    if process_probe.get("ok") is False:
+        issues.append("SQX process probe failed; cannot prove Phase30 Portfolio Master contract stayed process-free")
+    if process_probe.get("processes"):
+        issues.append("SQX processes are alive; Phase30 Portfolio Master contract forbids SQX launch, smoke or retest activity")
+
+    target_files_after = capa2_portfolio_target_file_states(root142, target)
+    cfx_guard = capa2_portfolio_master_cfx_guard(root142, target, target_files_before, target_files_after)
+    issues.extend(cfx_guard.get("issues") or [])
+
+    next_phase = CAPA2_PORTFOLIO_MASTER_NEXT_BLOCKED if contract_status == "blocked" else CAPA2_PORTFOLIO_MASTER_NEXT_READY
+    payload: dict[str, Any] = {
+        "ok": not issues,
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": CAPA2_PORTFOLIO_MASTER_PHASE,
+        "operation": "capa2_portfolio_master_contract",
+        "target": target,
+        "write": write,
+        "previousGate": {
+            "phase": phase29_gate.get("phase"),
+            "ok": phase29_gate.get("ok"),
+            "statePath": phase29_gate.get("statePath"),
+            "stateExists": phase29_gate.get("stateExists"),
+            "reportPath": phase29_gate.get("reportPath"),
+            "reportExists": phase29_gate.get("reportExists"),
+            "issues": phase29_gate.get("issues") or [],
+        },
+        "targetFilesBefore": target_files_before,
+        "targetFilesAfter": target_files_after,
+        "cfxGuard": cfx_guard,
+        "inputs": inputs,
+        "issues": issues,
+        "warnings": warnings,
+        "processProbe": process_probe,
+        "contract": {
+            "version": CAPA2_PORTFOLIO_MASTER_VERSION,
+            "artifact": "Capa2 Portfolio Master contract",
+            "status": contract_status,
+            "blocked": contract_status == "blocked",
+            "activationAllowed": False,
+            "blockers": contract_blockers,
+            "sourcePhase": CAPA2_PORTFOLIO_PHASE,
+            "sourceDatabank": CAPA2_PORTFOLIO_SOURCE_DATABANK,
+            "requiredEvidence": CAPA2_PORTFOLIO_MASTER_REQUIRED_INPUTS,
+            "portfolioMasterDefinition": {
+                "owner": "Portfolio Lab plus explicit operator context",
+                "candidateSource": "Natural Phase28 Forward survivors only; no backfill from failed rows and no forced Results=passed",
+                "selectionSource": "Governed Portfolio Lab export with shortlist/similar/review decisions and public-safe discard reasons",
+                "riskSource": "Operator account context plus broker symbol execution context; no lot sizing before both exist",
+                "correlationSource": "Comparable equity or return series; similarity labels must not be promoted to correlation without this evidence",
+            },
+            "allowedWhenReady": [
+                "Create a reviewable Portfolio Master package from supplied local evidence",
+                "Keep deployment staged and operator-approved",
+                "Persist only sanitized summaries outside ignored local evidence",
+            ],
+            "forbidden": [
+                "SQX launch, smoke, retest rerun or optimization",
+                ".cfx mutation or template backfill",
+                "FitPortfolio=true or active SQX portfolio optimizer surfaces",
+                "Forced Results=passed or manual promotion from failed strategies",
+                "Lot sizing without account equity and broker/symbol execution context",
+            ],
+        },
+        "guardrails": {
+            "phase29Required": "Phase29 Portfolio Lab plan report and session state must exist and be green.",
+            "writeSemantics": "Local evidence and session state are written only when --write is explicit.",
+            "noCfxMutation": "Local Capa2 base and repo template bytes are snapshotted before/after and must not change.",
+            "noSqxRuntime": "This command never launches SQX, smoke tests, retests or optimization.",
+            "blockedByDefault": "Portfolio Master remains blocked until Portfolio Lab output, Forward CSV, equity series, account context and broker context exist.",
+        },
+        "changedFiles": {
+            "cfx": [],
+            "localEvidence": [],
+            "sessionState": "",
+        },
+        "summary": {
+            "decision": "Define Phase30 Portfolio Master as a blocked backend contract after the governed Phase29 Portfolio Lab handoff.",
+            "blockedUntil": list(CAPA2_PORTFOLIO_MASTER_REQUIRED_INPUTS.values()),
+            "contractStatus": contract_status,
+            "nextPhase": next_phase,
+        },
+        "academicSources": CAPA2_PORTFOLIO_ACADEMIC_SOURCES,
+        "nextPhase": next_phase,
+    }
+    if write:
+        ensure_ledger(project_root)
+        report_path = ledger_root(project_root) / "phase_reports" / f"phase30_capa2_portfolio_master_contract_{stamp()}.json"
+        write_json(report_path, payload)
+        payload["written"] = str(report_path)
+        payload["changedFiles"]["localEvidence"].append(str(report_path))
+        if payload["ok"]:
+            state_path = ledger_root(project_root) / "session_state.json"
+            state = read_json(state_path, {})
+            state.update({
+                "updatedAt": now_iso(),
+                "currentPhase": CAPA2_PORTFOLIO_MASTER_PHASE,
+                "nextPhase": next_phase,
+                "scope": "capa2",
+                "portfolioMasterContractStatus": contract_status,
+                "phase29Capa2PortfolioPlanReport": phase29_gate.get("reportPath") or state.get("phase29Capa2PortfolioPlanReport", ""),
+                "phase30Capa2PortfolioMasterContractReport": str(report_path),
+            })
+            write_json(state_path, state)
+            payload["changedFiles"]["sessionState"] = str(state_path)
+    return payload
+
+
 def update_build_data_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
     date_from, date_to = generator_period(BUILD_DATA_PERIOD_KEY)
     payload: dict[str, Any] = {
@@ -27563,6 +27869,15 @@ def build_parser() -> argparse.ArgumentParser:
     capa2_portfolio.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     capa2_portfolio.add_argument("--write", action="store_true")
 
+    capa2_portfolio_master = sub.add_parser("capa2-portfolio-master-contract")
+    capa2_portfolio_master.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    capa2_portfolio_master.add_argument("--portfolio-lab-output", type=Path)
+    capa2_portfolio_master.add_argument("--forward-csv", type=Path)
+    capa2_portfolio_master.add_argument("--equity-series", type=Path)
+    capa2_portfolio_master.add_argument("--account-context", type=Path)
+    capa2_portfolio_master.add_argument("--broker-context", type=Path)
+    capa2_portfolio_master.add_argument("--write", action="store_true")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -27865,6 +28180,19 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "capa2-portfolio-plan":
         json_print(capa2_portfolio_plan_report(root142, project_root, target=args.target, write=args.write))
+        return 0
+    if args.command == "capa2-portfolio-master-contract":
+        json_print(capa2_portfolio_master_contract(
+            root142,
+            project_root,
+            target=args.target,
+            write=args.write,
+            portfolio_lab_output=args.portfolio_lab_output,
+            forward_csv=args.forward_csv,
+            equity_series=args.equity_series,
+            account_context=args.account_context,
+            broker_context=args.broker_context,
+        ))
         return 0
     if args.command == "archive-exit-day-snippets":
         json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))

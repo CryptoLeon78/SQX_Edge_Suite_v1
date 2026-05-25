@@ -6311,6 +6311,120 @@
       }
     },
     {
+      "id": "sqx142_c2_phase30_portfolio_master_contract",
+      "description": "C1-CONFIG1 Phase 30 Capa2 Portfolio Master must stay documented as an operating contract after the Phase29 governed Lab, with artifact generation blocked until governed Lab output and operator context exist.",
+      "required": {
+        "README.md": [
+          "`phase30_capa2_portfolio_master_contract` queda documentado y registrado",
+          "phase30_capa2_portfolio_master_contract_20260525_152846.json",
+          "Portfolio Master operating contract posterior al Lab gobernado Phase29",
+          "actual SQX artifact generation remains blocked until governed Lab output and operator Forward CSV/equity/account/broker context",
+          "no permite FitPortfolio drift",
+          "no live/broker guarantee",
+          "`phase30_capa2_portfolio_master_inputs_pending`"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Phase30 Portfolio Master contract",
+          "`phase30_capa2_portfolio_master_contract` is documented and registered",
+          "phase30_capa2_portfolio_master_contract_20260525_152846.json",
+          "after the Phase29 governed Lab",
+          "actual SQX artifact generation remains blocked until governed Lab output and operator Forward CSV/equity/account/broker context",
+          "No SQX execution, no forced pass, no FitPortfolio drift, no live/broker guarantee",
+          "Next state: `phase30_capa2_portfolio_master_inputs_pending`"
+        ],
+        "docs/ARCHITECTURE.md": [
+          "Phase 30 documents and records `phase30_capa2_portfolio_master_contract`",
+          "phase30_capa2_portfolio_master_contract_20260525_152846.json",
+          "Portfolio Master operating contract after the Phase29 governed Lab",
+          "Actual SQX artifact generation remains blocked until governed Lab output and operator Forward CSV/equity/account/broker context",
+          "no SQX execution, forced pass, FitPortfolio drift, live/broker guarantee"
+        ],
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "Estado Fase 30 - Capa2 Portfolio Master Contract",
+          "`phase30_capa2_portfolio_master_contract` queda documentada y registrada",
+          "phase30_capa2_portfolio_master_contract_20260525_152846.json",
+          "Portfolio Master operating contract posterior al Lab gobernado Phase29",
+          "Forward CSV, equity, account y broker",
+          "actual SQX artifact generation remains blocked",
+          "no SQX execution, no forced pass, no FitPortfolio drift, no",
+          "`currentPhase=phase30_capa2_portfolio_master_contract`",
+          "`nextPhase=phase30_capa2_portfolio_master_inputs_pending`"
+        ],
+        "docs/PHASE30_CAPA2_PORTFOLIO_MASTER_CONTRACT.md": [
+          "`phase30_capa2_portfolio_master_contract` is the Portfolio Master operating contract after the Phase29 governed Lab",
+          "phase30_capa2_portfolio_master_contract_20260525_152846.json",
+          "Actual SQX artifact generation remains blocked until governed Lab output and operator Forward CSV/equity/account/broker context",
+          "No SQX execution",
+          "No forced pass",
+          "No FitPortfolio drift",
+          "No live/broker guarantee",
+          "`phase30_capa2_portfolio_master_inputs_pending`"
+        ],
+        "docs/STATE_CONSISTENCY_GUARD.md": [
+          "C1-CONFIG1 Phase30: `phase30_capa2_portfolio_master_contract`",
+          "phase30_capa2_portfolio_master_contract_20260525_152846.json",
+          "Portfolio Master operating contract after the Phase29 governed Lab",
+          "actual SQX artifact generation blocked until governed Lab output and operator Forward CSV/equity/account/broker context",
+          "Phase30 forbidden markers block SQX execution"
+        ],
+        "CHANGELOG.md": [
+          "2026-05-25 - C1-CONFIG1 Capa2 Portfolio Master Contract",
+          "`phase30_capa2_portfolio_master_contract`",
+          "phase30_capa2_portfolio_master_contract_20260525_152846.json",
+          "Portfolio Master operating contract after the Phase29 governed Lab",
+          "actual SQX artifact generation blocked until governed Lab output and operator Forward CSV/equity/account/broker context",
+          "SQX execution, forced pass, `FitPortfolio` drift, live/broker guarantees"
+        ]
+      },
+      "forbidden": {
+        "README.md": [
+          "phase30_capa2_portfolio_master_contract queda cerrado con",
+          "Portfolio Master ejecuta SQX",
+          "Portfolio Master fuerza Results=passed",
+          "Portfolio Master activa FitPortfolio",
+          "Portfolio Master garantiza live/broker",
+          "Portfolio Master genera artefactos SQX sin contexto operador"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Phase 30 `phase30_capa2_portfolio_master_contract` is closed",
+          "Portfolio Master ran SQX",
+          "Portfolio Master forced `Results=passed`",
+          "Portfolio Master sets `FitPortfolio=true`",
+          "Portfolio Master guarantees live broker compatibility",
+          "artifact generation is allowed without operator context"
+        ],
+        "docs/ARCHITECTURE.md": [
+          "Phase 30 closes `phase30_capa2_portfolio_master_contract`",
+          "Portfolio Master SQX execution completed",
+          "Portfolio Master forced Results=passed",
+          "FitPortfolio drift allowed",
+          "live/broker guarantee is approved"
+        ],
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "`phase30_capa2_portfolio_master_contract` queda cerrada con",
+          "Portfolio Master ejecuta SQX",
+          "Portfolio Master fuerza `Results=passed`",
+          "Portfolio Master permite FitPortfolio drift",
+          "Portfolio Master garantiza live/broker"
+        ],
+        "docs/PHASE30_CAPA2_PORTFOLIO_MASTER_CONTRACT.md": [
+          "Status: closed",
+          "Portfolio Master ran SQX",
+          "Portfolio Master forced Results=passed",
+          "FitPortfolio drift allowed",
+          "live/broker guarantee is approved",
+          "actual SQX artifact generation is allowed without governed Lab output"
+        ],
+        "CHANGELOG.md": [
+          "Portfolio Master ran SQX",
+          "Portfolio Master forced Results=passed",
+          "Portfolio Master generated SQX artifacts",
+          "FitPortfolio drift allowed",
+          "live/broker guarantee is approved"
+        ]
+      }
+    },
+    {
       "id": "sqx142_c1_fastest_precision_correction_before_c2_spp",
       "description": "C1-CONFIG1 must record the important Capa1 precision correction after Capa2 Synthetic and before Capa2 SPP: MC through WFM use fastest/testPrecision=1, while Foward remains tick/testPrecision=2.",
       "required": {

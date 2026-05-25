@@ -106,6 +106,7 @@
     var c1 = latest(state.capa1Outputs);
     var c2Template = state.c2Template || null;
     var portfolio = state.portfolioLab || null;
+    var master = state.portfolioMasterContract || null;
     setSignal(
       'asset',
       state.selectedCard ? [card.asset, card.timeframe, card.direction].filter(Boolean).join(' · ') : 'Sin tarjeta',
@@ -128,7 +129,7 @@
       'portfolio',
       portfolio && portfolio.total ? (portfolio.winners || 0) + ' ganadores diversos' : 'Pendiente',
       portfolio && portfolio.total
-        ? (portfolio.version || 'portfolio-lab-governed-v1') + ' · ' + portfolio.total + ' candidatos · ' + ((portfolio.riskPlan && portfolio.riskPlan.statusLabel) || 'riesgo pendiente')
+        ? (portfolio.version || 'portfolio-lab-governed-v1') + ' · Master ' + (master ? master.status : 'blocked')
         : 'Shortlist diversa Capa 2',
       !!(portfolio && portfolio.total)
     );
@@ -287,10 +288,82 @@
       '</tbody></table>';
   }
 
+  function portfolioMasterSeriesSample(report) {
+    var winners = report && Array.isArray(report.rows)
+      ? report.rows.filter(function(row) { return row.diversityStatus === 'portfolio'; })
+      : [];
+    var header = 'strategy,Returns';
+    var rows = winners.map(function(row, index) {
+      var offset = (index + 1) / 1000;
+      var series = [
+        0.010 + offset,
+        -0.004 + offset,
+        0.012 - offset,
+        0.006 + offset,
+        -0.003 + offset,
+        0.009 - offset
+      ].map(function(value) { return Math.round(value * 10000) / 10000; }).join('|');
+      return '"' + String(row.strategy || row.id || '').replace(/"/g, '""') + '","' + series + '"';
+    });
+    return [header].concat(rows).join('\n');
+  }
+
+  function portfolioMasterAccountSample() {
+    return 'accountModel=demo-forward-review; brokerProfile=ECN/low-spread; executionModel=hedging-netting reviewed; baseCurrency=USD; riskBudgetMode=0.2 pct base, 0.30 pct cap; leverageMode=broker-context-known';
+  }
+
+  function statusClass(status) {
+    return status === 'ready' || status === 'ready_for_master_review' ? 'portfolio' : 'review';
+  }
+
+  function masterDisplayStatus(status) {
+    if (status === 'ready_for_master_review') return 'ready';
+    if (status === 'blocked_pending_operator_inputs') return 'blocked';
+    return status || 'blocked';
+  }
+
+  function renderPortfolioMasterContract(contract) {
+    var output = byId('edge-master-results');
+    if (!output) return;
+    if (!contract) {
+      output.innerHTML = '<div class="edge-portfolio-empty"><strong>Sin contrato Portfolio Master.</strong><span>Primero calcula Portfolio Lab; despues aporta Forward CSV, equity/returns comparables y contexto publico cuenta/broker.</span></div>';
+      return;
+    }
+    var risk = contract.outputReadback && contract.outputReadback.aggregateRisk ? contract.outputReadback.aggregateRisk : {};
+    var inputs = Array.isArray(contract.requiredInputs) ? contract.requiredInputs : [];
+    var blocked = Array.isArray(contract.blockedReasons) ? contract.blockedReasons : [];
+    output.innerHTML =
+      '<div class="edge-portfolio-summary">' +
+        '<div class="edge-portfolio-stat ' + escapeHtml(statusClass(contract.status)) + '"><span>Estado</span><strong>' + escapeHtml(masterDisplayStatus(contract.status)) + '</strong></div>' +
+        '<div class="edge-portfolio-stat"><span>Shortlist</span><strong>' + escapeHtml((contract.outputReadback && contract.outputReadback.shortlistSize) || 0) + '</strong></div>' +
+        '<div class="edge-portfolio-stat"><span>Forward</span><strong>' + escapeHtml((contract.inputReadback && contract.inputReadback.forwardCsv && contract.inputReadback.forwardCsv.matchedPortfolioWinners) || 0) + '</strong></div>' +
+        '<div class="edge-portfolio-stat"><span>Series</span><strong>' + escapeHtml((contract.inputReadback && contract.inputReadback.comparableSeries && contract.inputReadback.comparableSeries.matchedPortfolioWinners) || 0) + '</strong></div>' +
+        '<div class="edge-portfolio-stat"><span>Pares</span><strong>' + escapeHtml(risk.comparablePairs || 0) + '</strong></div>' +
+        '<div class="edge-portfolio-stat review"><span>Live</span><strong>' + escapeHtml(contract.liveDeploymentAllowed ? 'SI' : 'NO') + '</strong></div>' +
+      '</div>' +
+      '<div class="edge-portfolio-empty">' +
+        '<strong>Readback: ' + escapeHtml(contract.statusLabel || contract.status) + '</strong>' +
+        '<span>Contrato publico sanitizado · ' + escapeHtml(risk.status || 'unavailable') + ' · no autoriza despliegue real.</span>' +
+      '</div>' +
+      '<div class="edge-portfolio-empty">' +
+        '<strong>Prerrequisitos</strong>' +
+        '<span>' + inputs.map(function(item) { return escapeHtml(item.label) + ' [' + escapeHtml(item.status) + ']'; }).join(' · ') + '</span>' +
+      '</div>' +
+      (blocked.length
+        ? '<div class="edge-portfolio-empty"><strong>Bloqueos</strong><span>' + blocked.map(escapeHtml).join(' · ') + '</span></div>'
+        : '<div class="edge-portfolio-empty"><strong>Bloqueos</strong><span>Sin bloqueos de contrato. Portfolio Master aun debe recalcular y confirmar antes de operar.</span></div>');
+  }
+
   function escapeHtml(value) {
     return String(value == null ? '' : value).replace(/[&<>"']/g, function(ch) {
       return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch];
     });
+  }
+
+  function currentPortfolioLab() {
+    if (!SQX.edgeFactory) return null;
+    var state = SQX.edgeFactory.getState();
+    return state.portfolioLab || null;
   }
 
   function runPortfolioLab() {
@@ -303,8 +376,70 @@
       SQX.edgeFactory.savePatch({ portfolioLab: report, activeStep: 'portfolio' }, 'portfolio-lab-run');
     }
     renderPortfolioReport(report);
+    renderPortfolioMasterContract(SQX.edgeFactory.getState().portfolioMasterContract);
     renderState();
     return report;
+  }
+
+  function readPortfolioMasterInputs() {
+    return {
+      forwardCsv: (byId('edge-master-forward-input') || {}).value || '',
+      comparableSeriesCsv: (byId('edge-master-series-input') || {}).value || '',
+      accountBrokerContext: (byId('edge-master-account-input') || {}).value || ''
+    };
+  }
+
+  function runPortfolioMasterContract() {
+    if (!SQX.edgeFactory) return null;
+    var payload = Object.assign({
+      labReport: currentPortfolioLab()
+    }, readPortfolioMasterInputs());
+    var state = SQX.edgeFactory.recordPortfolioMasterContract
+      ? SQX.edgeFactory.recordPortfolioMasterContract(payload)
+      : SQX.edgeFactory.savePatch({ portfolioMasterContract: SQX.edgeFactory.buildPortfolioMasterContract(payload) }, 'portfolio-master-contract-run');
+    var contract = state.portfolioMasterContract;
+    renderPortfolioMasterContract(contract);
+    renderState();
+    return contract;
+  }
+
+  function samplePortfolioMasterContract() {
+    if (!SQX.edgeFactory) return;
+    var lab = currentPortfolioLab();
+    var portfolioInput = byId('edge-portfolio-input');
+    if (!lab || !lab.total) {
+      if (portfolioInput && !portfolioInput.value) portfolioInput.value = portfolioSample();
+      lab = runPortfolioLab();
+    }
+    var forward = byId('edge-master-forward-input');
+    var series = byId('edge-master-series-input');
+    var account = byId('edge-master-account-input');
+    if (forward) forward.value = (portfolioInput && portfolioInput.value) || portfolioSample();
+    if (series) series.value = portfolioMasterSeriesSample(lab);
+    if (account) account.value = portfolioMasterAccountSample();
+    runPortfolioMasterContract();
+  }
+
+  function downloadPortfolioMasterContract() {
+    if (!SQX.edgeFactory) return;
+    var state = SQX.edgeFactory.getState();
+    var contract = state.portfolioMasterContract || runPortfolioMasterContract();
+    if (!contract) return;
+    var filename = 'sqx-edge-portfolio-master-contract.json';
+    try {
+      var blob = new Blob([JSON.stringify(contract, null, 2)], { type: 'application/json' });
+      var link = global.document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      link.click();
+      URL.revokeObjectURL(link.href);
+      if (SQX.edgeFactory.recordDownloadRequest) {
+        SQX.edgeFactory.recordDownloadRequest({ kind: 'portfolio-master-contract', files: [filename] });
+      }
+    } catch (_err) {
+      var output = byId('edge-master-results');
+      if (output) output.textContent = JSON.stringify(contract, null, 2);
+    }
   }
 
   function downloadPortfolioReport() {
@@ -376,11 +511,49 @@
     var input = byId('edge-portfolio-input');
     var output = byId('edge-portfolio-results');
     var file = byId('edge-portfolio-file');
+    var masterForward = byId('edge-master-forward-input');
+    var masterSeries = byId('edge-master-series-input');
+    var masterAccount = byId('edge-master-account-input');
     if (input) input.value = '';
     if (file) file.value = '';
+    if (masterForward) masterForward.value = '';
+    if (masterSeries) masterSeries.value = '';
+    if (masterAccount) masterAccount.value = '';
     if (output) output.innerHTML = '<div class="edge-portfolio-empty"><strong>Sin lote Capa 2 cargado.</strong><span>Carga CSV, pega datos o usa la muestra para calcular ranking y diversidad.</span></div>';
-    if (SQX.edgeFactory) SQX.edgeFactory.savePatch({ portfolioLab: null }, 'portfolio-lab-reset');
+    renderPortfolioMasterContract(null);
+    if (SQX.edgeFactory) SQX.edgeFactory.savePatch({ portfolioLab: null, portfolioMasterContract: null }, 'portfolio-lab-reset');
     renderState();
+  }
+
+  function bindPortfolioMaster() {
+    var run = byId('edge-master-run');
+    var sample = byId('edge-master-sample');
+    var exportBtn = byId('edge-master-export');
+    var reset = byId('edge-master-reset');
+    if (run && !run.__edgeMasterBound) {
+      run.__edgeMasterBound = true;
+      run.addEventListener('click', runPortfolioMasterContract);
+    }
+    if (sample && !sample.__edgeMasterBound) {
+      sample.__edgeMasterBound = true;
+      sample.addEventListener('click', samplePortfolioMasterContract);
+    }
+    if (exportBtn && !exportBtn.__edgeMasterBound) {
+      exportBtn.__edgeMasterBound = true;
+      exportBtn.addEventListener('click', downloadPortfolioMasterContract);
+    }
+    if (reset && !reset.__edgeMasterBound) {
+      reset.__edgeMasterBound = true;
+      reset.addEventListener('click', function() {
+        ['edge-master-forward-input', 'edge-master-series-input', 'edge-master-account-input'].forEach(function(id) {
+          var node = byId(id);
+          if (node) node.value = '';
+        });
+        renderPortfolioMasterContract(null);
+        if (SQX.edgeFactory) SQX.edgeFactory.savePatch({ portfolioMasterContract: null }, 'portfolio-master-reset');
+        renderState();
+      });
+    }
   }
 
   function bindPortfolioLab() {
@@ -436,6 +609,8 @@
     bindExperienceMode();
     bindStepControls();
     bindPortfolioLab();
+    bindPortfolioMaster();
+    if (SQX.edgeFactory) renderPortfolioMasterContract(SQX.edgeFactory.getState().portfolioMasterContract);
     renderState();
     return true;
   }
@@ -445,7 +620,9 @@
     renderState: renderState,
     openTool: openTool,
     runPortfolioLab: runPortfolioLab,
-    renderPortfolioReport: renderPortfolioReport
+    runPortfolioMasterContract: runPortfolioMasterContract,
+    renderPortfolioReport: renderPortfolioReport,
+    renderPortfolioMasterContract: renderPortfolioMasterContract
   };
 
   if (SQX.registerModule) SQX.registerModule('edge-factory-ui', SQX.edgeFactoryUI);

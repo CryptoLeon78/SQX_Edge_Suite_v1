@@ -2402,6 +2402,52 @@
             <span>Plan de riesgo: base 0.2%, cap 0.30%, 8-12 ganadores, caps de diversidad, correlacion real solo con equity/returns comparables y despliegue gradual.</span>
           </div>
         </div>
+        <div class="edge-portfolio-head" id="edge-portfolio-master-contract">
+          <div>
+            <span class="badge info">Portfolio Master Contract · portfolio-master-contract-v1</span>
+            <h3>Readback Portfolio Master sin despliegue vivo</h3>
+            <p>Codifica el contrato posterior al Lab: Lab report, Forward CSV, equity/returns comparables para riesgo agregado real y contexto publico cuenta/broker. El resultado queda bloqueado si falta cualquier prerrequisito y no autoriza despliegue real.</p>
+          </div>
+          <div class="edge-portfolio-contract">
+            <strong>Contrato Portfolio Master</strong>
+            <span>Salida sanitizada · sin rutas internas · sin campos privados</span>
+          </div>
+        </div>
+        <div class="edge-portfolio-workbench" aria-label="Contrato Portfolio Master">
+          <div class="edge-portfolio-input-panel">
+            <div class="edge-portfolio-panel-title">
+              <strong>Forward CSV readback</strong>
+              <span>Debe reconciliar los ganadores del Lab.</span>
+            </div>
+            <textarea id="edge-master-forward-input" rows="5" placeholder="strategy,asset,timeframe,profitFactor,retDd,maxDd,trades,Source Databank,Forward Status,Pass Source"></textarea>
+          </div>
+          <div class="edge-portfolio-input-panel">
+            <div class="edge-portfolio-panel-title">
+              <strong>Equity/returns comparables</strong>
+              <span>Misma ventana/base para riesgo agregado real.</span>
+            </div>
+            <textarea id="edge-master-series-input" rows="5" placeholder="strategy,Returns"></textarea>
+          </div>
+          <div class="edge-portfolio-input-panel">
+            <div class="edge-portfolio-panel-title">
+              <strong>Cuenta/broker publico</strong>
+              <span>Sin login, balance, servidor, token ni rutas.</span>
+            </div>
+            <textarea id="edge-master-account-input" rows="4" placeholder="accountModel=demo-forward-review; brokerProfile=ECN; baseCurrency=USD; riskBudgetMode=0.2 pct base"></textarea>
+            <div class="edge-portfolio-actions">
+              <button class="filter-btn" type="button" id="edge-master-sample">Cargar muestra Master</button>
+              <button class="filter-btn active" type="button" id="edge-master-run">Construir contrato</button>
+              <button class="filter-btn" type="button" id="edge-master-export">Descargar contrato</button>
+              <button class="filter-btn danger" type="button" id="edge-master-reset">Limpiar Master</button>
+            </div>
+          </div>
+        </div>
+        <div class="edge-portfolio-results" id="edge-master-results">
+          <div class="edge-portfolio-empty">
+            <strong>Sin contrato Portfolio Master.</strong>
+            <span>El readback requerido bloquea Lab report ausente, Forward CSV ausente, equity/returns no comparables o contexto cuenta/broker faltante.</span>
+          </div>
+        </div>
       </section>
     </section>
     <section class="workflow-command-center" id="workflow-command-center">

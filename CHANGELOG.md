@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-05-25 - C1-CONFIG1 Capa2 Portfolio Master Contract
+
+- Documents `phase30_capa2_portfolio_master_contract` as the Portfolio Master operating contract after the Phase29 governed Lab.
+- Records local evidence `phase30_capa2_portfolio_master_contract_20260525_152846.json` with Phase29 green, `processes=[]`, no Capa2 `.cfx` mutation and blocked status until operator inputs exist.
+- Keeps actual SQX artifact generation blocked until governed Lab output and operator Forward CSV/equity/account/broker context are present.
+- Guards against SQX execution, forced pass, `FitPortfolio` drift, live/broker guarantees, profitability claims and risk-zero claims.
+- Adds manifest required/forbidden markers for the Phase30 docs state.
+
 ## 2026-05-25 - C1-CONFIG1 Capa2 Portfolio Governance
 
 - Documents `phase29_capa2_portfolio` as the governed Portfolio Lab handoff after natural Phase 28 Forward survivors.

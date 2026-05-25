@@ -5,8 +5,10 @@
   var VERSION = 'edge-factory-state-v1';
   var FALLBACK_KEY = 'sqx_edge_factory_state_v1';
   var PORTFOLIO_LAB_VERSION = 'portfolio-lab-governed-v1';
+  var PORTFOLIO_MASTER_VERSION = 'portfolio-master-contract-v1';
   var PORTFOLIO_TARGET_MIN = 8;
   var PORTFOLIO_TARGET_MAX = 12;
+  var PORTFOLIO_MASTER_MIN_OBSERVATIONS = 3;
 
   var STEPS = [
     { id: 'session', label: 'Punto de partida' },
@@ -41,6 +43,7 @@
       c2Template: null,
       capa2Outputs: [],
       portfolioLab: null,
+      portfolioMasterContract: null,
       downloads: [],
       lastEvent: null,
       completedSteps: []
@@ -316,9 +319,19 @@
     var clean = sanitizePortfolioReport(Object.assign({}, report || {}, {
       analyzedAt: new Date().toISOString()
     }));
+    var master = buildPortfolioMasterContract({ labReport: clean });
     var completed = clean.total ? ['capa2-analyze'] : [];
     if (clean.riskPlan && clean.riskPlan.status === 'target-ready') completed.push('portfolio');
-    return saveEvent({ portfolioLab: clean }, completed, 'portfolio', 'edge-factory-portfolio-lab');
+    return saveEvent({ portfolioLab: clean, portfolioMasterContract: master }, completed, 'portfolio', 'edge-factory-portfolio-lab');
+  }
+
+  function recordPortfolioMasterContract(payload) {
+    var clean = buildPortfolioMasterContract(Object.assign({}, payload || {}, {
+      encodedAt: new Date().toISOString()
+    }));
+    return saveEvent({
+      portfolioMasterContract: clean
+    }, clean.status === 'ready_for_master_review' ? ['portfolio'] : [], 'portfolio', 'edge-factory-portfolio-master-contract');
   }
 
   function recordDownloadRequest(payload) {
@@ -353,6 +366,7 @@
     state = Object.assign(defaultState(), state || readState());
     var c1 = latest(state.capa1Outputs);
     var c2 = latest(state.capa2Outputs);
+    var master = state.portfolioMasterContract || null;
     var filesC1 = c1 && c1.files ? c1.files.length : 0;
     var filesC2 = c2 && c2.files ? c2.files.length : 0;
     return {
@@ -378,7 +392,7 @@
         ? 'Listo para Portfolio Lab: importa resultados Capa 2.'
         : 'Pendiente: genera Capa 2 antes del análisis.',
       portfolio: state.portfolioLab && state.portfolioLab.total
-        ? 'Portfolio Lab ' + (state.portfolioLab.version || PORTFOLIO_LAB_VERSION) + ': ' + state.portfolioLab.total + ' candidatos · ' + state.portfolioLab.winners + ' ganadores · ' + ((state.portfolioLab.riskPlan && state.portfolioLab.riskPlan.statusLabel) || 'riesgo pendiente') + '.'
+        ? 'Portfolio Lab ' + (state.portfolioLab.version || PORTFOLIO_LAB_VERSION) + ': ' + state.portfolioLab.total + ' candidatos · ' + state.portfolioLab.winners + ' ganadores · Master ' + (master ? master.status : 'bloqueado') + '.'
         : 'Pendiente: calcula shortlist en Portfolio Lab.'
     };
   }
@@ -473,6 +487,33 @@
       .trim();
     if (maxLength && out.length > maxLength) out = out.slice(0, Math.max(0, maxLength - 3)).trim() + '...';
     return out;
+  }
+
+  function sanitizePrivateText(value, fallback, maxLength) {
+    var out = sanitizeText(value, fallback || '');
+    if (!out) return '';
+    out = out
+      .replace(/\b(account(?:number|id)?|login|password|pass|token|secret|api[_ -]?key|license|phone|balance|equity|server|ip)\s*[:=]\s*[^,;|\n]+/gi, function(match, key) {
+        return key + '=[redacted]';
+      })
+      .replace(/\b(?:\d{1,3}\.){3}\d{1,3}\b/g, '[ip-redacted]')
+      .replace(/\b[A-Za-z0-9_-]{24,}\b/g, '[token-redacted]')
+      .replace(/\s+/g, ' ')
+      .trim();
+    if (maxLength && out.length > maxLength) out = out.slice(0, Math.max(0, maxLength - 3)).trim() + '...';
+    return out;
+  }
+
+  function countPrivacyMarkers(value) {
+    var text = String(value == null ? '' : value);
+    var matches = []
+      .concat(text.match(/\b(account(?:number|id)?|login|password|pass|token|secret|api[_ -]?key|license|phone|balance|equity|server|ip)\s*[:=]\s*[^,;|\n]+/gi) || [])
+      .concat(text.match(/[A-Za-z]:[\\/][^\s,;|]+/g) || [])
+      .concat(text.match(/\\\\[^\s,;|]+/g) || [])
+      .concat(text.match(/https?:\/\/\S+/gi) || [])
+      .concat(text.match(/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi) || [])
+      .concat(text.match(/\b(?:\d{1,3}\.){3}\d{1,3}\b/g) || []);
+    return matches.length;
   }
 
   function isForwardSource(value) {
@@ -989,6 +1030,287 @@
     };
   }
 
+  function portfolioIdentity(row) {
+    return normalizeKey((row && (row.strategy || row.id)) || '');
+  }
+
+  function selectedPortfolioRows(report) {
+    return (report && Array.isArray(report.rows) ? report.rows : []).filter(function(row) {
+      return row && row.diversityStatus === 'portfolio';
+    });
+  }
+
+  function parseMasterRows(input) {
+    if (Array.isArray(input)) return input.map(function(row, index) { return normalizePortfolioCandidate(row, index); });
+    return parsePortfolioRows(input || '').map(function(row, index) { return normalizePortfolioCandidate(row, index); });
+  }
+
+  function sanitizeAccountBrokerContext(context) {
+    var allowed = {
+      accounttype: 'accountType',
+      accountmodel: 'accountModel',
+      mode: 'accountModel',
+      environment: 'environment',
+      broker: 'brokerProfile',
+      brokerprofile: 'brokerProfile',
+      executionmodel: 'executionModel',
+      executionvenue: 'executionModel',
+      basecurrency: 'baseCurrency',
+      currency: 'baseCurrency',
+      riskbudgetmode: 'riskBudgetMode',
+      riskmodel: 'riskBudgetMode',
+      leveragemode: 'leverageMode',
+      notes: 'notes'
+    };
+    var output = {
+      provided: false,
+      status: 'blocked',
+      publicSummary: '',
+      accountModel: '',
+      brokerProfile: '',
+      executionModel: '',
+      baseCurrency: '',
+      riskBudgetMode: '',
+      leverageMode: '',
+      privateFieldsRemoved: 0
+    };
+    if (context && typeof context === 'object' && !Array.isArray(context)) {
+      Object.keys(context).forEach(function(key) {
+        var mapped = allowed[normalizeKey(key)];
+        var value = context[key];
+        if (mapped) {
+          output[mapped] = sanitizePrivateText(value, '', mapped === 'notes' ? 180 : 80);
+        } else if (safeString(value)) {
+          output.privateFieldsRemoved += 1;
+        }
+      });
+    } else {
+      output.publicSummary = sanitizePrivateText(context, '', 260);
+      output.privateFieldsRemoved += countPrivacyMarkers(context);
+    }
+    output.provided = !!(output.publicSummary || output.accountModel || output.brokerProfile || output.executionModel || output.baseCurrency || output.riskBudgetMode || output.leverageMode);
+    output.status = output.provided ? 'ready' : 'blocked';
+    return output;
+  }
+
+  function buildForwardCsvReadback(input, selected) {
+    var rows = parseMasterRows(input);
+    var byKey = {};
+    var validRows = 0;
+    rows.forEach(function(row) {
+      var key = portfolioIdentity(row);
+      if (row.eligibleForPortfolio) validRows += 1;
+      if (key && row.eligibleForPortfolio && !byKey[key]) byKey[key] = row;
+    });
+    var missing = (selected || []).filter(function(row) {
+      return !byKey[portfolioIdentity(row)];
+    }).map(function(row) {
+      return sanitizeText(row.strategy || row.id, '', 120);
+    });
+    var selectedCount = (selected || []).length;
+    var status = rows.length && selectedCount && !missing.length ? 'ready' : 'blocked';
+    return {
+      status: status,
+      rowCount: rows.length,
+      validRows: validRows,
+      rejectedRows: Math.max(0, rows.length - validRows),
+      matchedPortfolioWinners: Math.max(0, selectedCount - missing.length),
+      missingPortfolioWinners: missing.slice(0, 12),
+      detail: status === 'ready'
+        ? 'Forward/Foward CSV reconciliado con la shortlist portfolio.'
+        : (rows.length ? 'Faltan ganadores de la shortlist en el CSV Forward/Foward.' : 'Falta CSV Forward/Foward de readback.')
+    };
+  }
+
+  function masterSeriesFromRow(row) {
+    var returns = portfolioReturnSeries(row);
+    return returns.length >= PORTFOLIO_MASTER_MIN_OBSERVATIONS ? returns : [];
+  }
+
+  function pairCorrelationStats(items) {
+    var values = [];
+    for (var i = 0; i < items.length; i += 1) {
+      for (var j = i + 1; j < items.length; j += 1) {
+        var corr = pearsonCorrelation(items[i].series, items[j].series);
+        if (corr != null) values.push(corr);
+      }
+    }
+    if (!values.length) {
+      return { pairs: 0, averagePairCorrelation: null, maxPairCorrelation: null, maxAbsPairCorrelation: null };
+    }
+    var total = values.reduce(function(sum, item) { return sum + item; }, 0);
+    var max = values.reduce(function(best, item) { return Math.max(best, item); }, -Infinity);
+    var maxAbs = values.reduce(function(best, item) { return Math.max(best, Math.abs(item)); }, 0);
+    return {
+      pairs: values.length,
+      averagePairCorrelation: roundMetric(total / values.length, 3),
+      maxPairCorrelation: roundMetric(max, 3),
+      maxAbsPairCorrelation: roundMetric(maxAbs, 3)
+    };
+  }
+
+  function buildComparableSeriesReadback(input, selected) {
+    var rows = parseMasterRows(input);
+    var seriesByKey = {};
+    rows.forEach(function(row) {
+      var key = portfolioIdentity(row);
+      var series = masterSeriesFromRow(row);
+      if (key && series.length && !seriesByKey[key]) {
+        seriesByKey[key] = {
+          strategy: sanitizeText(row.strategy || row.id, '', 120),
+          series: series,
+          observations: series.length
+        };
+      }
+    });
+    var missing = [];
+    var matched = [];
+    (selected || []).forEach(function(row) {
+      var item = seriesByKey[portfolioIdentity(row)];
+      if (item) matched.push(item);
+      else missing.push(sanitizeText(row.strategy || row.id, '', 120));
+    });
+    var selectedCount = (selected || []).length;
+    var lengths = matched.map(function(item) { return item.observations; });
+    var sharedObservations = lengths.length ? Math.min.apply(Math, lengths) : 0;
+    var sameWindow = lengths.length > 1 && lengths.every(function(length) { return length === lengths[0]; });
+    var stats = sameWindow ? pairCorrelationStats(matched) : pairCorrelationStats([]);
+    var ready = !!(rows.length && selectedCount > 1 && matched.length === selectedCount && sameWindow && stats.pairs);
+    return {
+      status: ready ? 'ready' : 'blocked',
+      aggregateRiskStatus: ready ? 'true_aggregate_risk_ready' : (rows.length ? 'not_comparable' : 'unavailable'),
+      rowCount: rows.length,
+      matchedPortfolioWinners: matched.length,
+      missingPortfolioWinners: missing.slice(0, 12),
+      sharedObservations: sharedObservations,
+      sameComparableWindow: sameWindow,
+      comparablePairs: stats.pairs,
+      averagePairCorrelation: stats.averagePairCorrelation,
+      maxPairCorrelation: stats.maxPairCorrelation,
+      maxAbsPairCorrelation: stats.maxAbsPairCorrelation,
+      detail: ready
+        ? 'Series equity/returns comparables para calcular riesgo agregado real en Portfolio Master.'
+        : (rows.length ? 'Series presentes pero no cubren todos los ganadores con la misma ventana comparable.' : 'Faltan equity/returns comparables para riesgo agregado real.')
+    };
+  }
+
+  function requirement(id, label, status, detail) {
+    return {
+      id: id,
+      label: label,
+      required: true,
+      status: status,
+      detail: detail
+    };
+  }
+
+  function sanitizePortfolioMasterContract(payload) {
+    return buildPortfolioMasterContract(payload);
+  }
+
+  function buildPortfolioMasterContract(payload) {
+    payload = payload || {};
+    var hasLabInput = !!(payload.labReport && Array.isArray(payload.labReport.rows));
+    var lab = hasLabInput ? sanitizePortfolioReport(payload.labReport) : null;
+    var selected = selectedPortfolioRows(lab);
+    var labReady = !!(lab && lab.version === PORTFOLIO_LAB_VERSION && lab.total && selected.length >= PORTFOLIO_TARGET_MIN && selected.length <= PORTFOLIO_TARGET_MAX);
+    var forwardCsv = buildForwardCsvReadback(payload.forwardCsv || payload.forwardRows || '', selected);
+    var comparableSeries = buildComparableSeriesReadback(payload.comparableSeriesCsv || payload.comparableSeries || payload.returnSeriesCsv || payload.equityReturns || '', selected);
+    var accountBrokerContext = sanitizeAccountBrokerContext(payload.accountBrokerContext || payload.accountContext || payload.brokerContext || '');
+    var requiredInputs = [
+      requirement(
+        'lab-report',
+        'Lab report gobernado',
+        labReady ? 'ready' : 'blocked',
+        lab ? (lab.winners + ' ganador(es) portfolio en ' + lab.version) : 'Falta ejecutar Portfolio Lab gobernado.'
+      ),
+      requirement('forward-csv', 'Forward CSV readback', forwardCsv.status, forwardCsv.detail),
+      requirement('comparable-equity-returns', 'Equity/returns comparables', comparableSeries.status, comparableSeries.detail),
+      requirement(
+        'account-broker-context',
+        'Contexto cuenta/broker publico',
+        accountBrokerContext.status,
+        accountBrokerContext.provided ? 'Contexto publico suficiente para readback.' : 'Falta contexto cuenta/broker sin campos privados.'
+      )
+    ];
+    var blockedReasons = requiredInputs.filter(function(item) {
+      return item.status !== 'ready';
+    }).map(function(item) {
+      return item.label + ': ' + item.detail;
+    });
+    var ready = !blockedReasons.length;
+    return {
+      version: PORTFOLIO_MASTER_VERSION,
+      encodedAt: payload.encodedAt || new Date().toISOString(),
+      sourceLayer: 'portfolio-master-after-governed-lab',
+      sourcePhase: lab ? lab.sourcePhase : 'phase28_capa2_forward',
+      sourceDatabank: lab ? lab.sourceDatabank : 'Foward',
+      status: ready ? 'ready_for_master_review' : 'blocked_pending_operator_inputs',
+      statusLabel: ready ? 'listo para readback en Portfolio Master' : 'bloqueado por prerrequisitos',
+      artifactGenerationStatus: 'blocked',
+      artifactGenerationAllowed: false,
+      sqxExecutionAllowed: false,
+      fitPortfolioAllowed: false,
+      forcedPassAllowed: false,
+      deploymentClaim: 'none',
+      liveDeploymentAllowed: false,
+      requiredInputs: requiredInputs,
+      blockedReasons: blockedReasons,
+      labReadback: lab ? {
+        version: lab.version,
+        sourcePhase: lab.sourcePhase,
+        sourceDatabank: lab.sourceDatabank,
+        selectionMode: lab.selectionMode,
+        total: lab.total,
+        winners: lab.winners,
+        riskPlanStatus: lab.riskPlan && lab.riskPlan.status,
+        aggregateRiskFromLab: lab.riskPlan && lab.riskPlan.aggregateRisk
+      } : null,
+      inputReadback: {
+        forwardCsv: forwardCsv,
+        comparableSeries: comparableSeries,
+        accountBrokerContext: accountBrokerContext
+      },
+      outputReadback: {
+        contract: 'sanitized-readback-only',
+        portfolioMasterVersion: PORTFOLIO_MASTER_VERSION,
+        shortlistSize: selected.length,
+        aggregateRisk: {
+          status: comparableSeries.aggregateRiskStatus,
+          trueAggregateRiskAvailable: ready && comparableSeries.aggregateRiskStatus === 'true_aggregate_risk_ready',
+          basis: ready ? 'comparable_return_series' : 'unavailable_until_required_inputs_present',
+          comparablePairs: comparableSeries.comparablePairs,
+          sharedObservations: comparableSeries.sharedObservations,
+          averagePairCorrelation: comparableSeries.averagePairCorrelation,
+          maxPairCorrelation: comparableSeries.maxPairCorrelation,
+          maxAbsPairCorrelation: comparableSeries.maxAbsPairCorrelation,
+          note: 'Readback publico; no autoriza despliegue real ni sustituye recalculo en Portfolio Master.'
+        },
+        selectedStrategies: selected.map(function(row) {
+          return {
+            id: sanitizeText(row.id, '', 90),
+            strategy: sanitizeText(row.strategy, '', 140),
+            asset: sanitizeText(row.asset, '', 40),
+            timeframe: sanitizeText(row.timeframe, '', 20),
+            forwardSource: sanitizeText(row.forwardSource, '', 80),
+            riskPct: row.riskPct == null ? null : roundMetric(row.riskPct, 2)
+          };
+        })
+      },
+      privacy: {
+        publicSafe: true,
+        rawLocalPathsAllowed: false,
+        privateFieldsAllowed: false,
+        privateFieldsRemoved: accountBrokerContext.privateFieldsRemoved
+      },
+      readbackSteps: [
+        { id: 'master-prerequisites', label: 'Confirmar prerrequisitos Portfolio Master', status: ready ? 'ready' : 'blocked' },
+        { id: 'aggregate-risk-readback', label: 'Recalcular riesgo agregado con series comparables', status: ready ? 'ready' : 'blocked' },
+        { id: 'operator-review', label: 'Revision humana externa antes de cualquier accion real', status: 'required' }
+      ]
+    };
+  }
+
   function buildPortfolioShortlist(inputRows, options) {
     var settings = portfolioSettings(options || {});
     var rows = (Array.isArray(inputRows) ? inputRows : parsePortfolioRows(inputRows)).map(function(row, index) {
@@ -1071,8 +1393,8 @@
     var comparablePairs = rows.filter(function(row) { return row.correlationStatus === 'available'; }).length;
     var riskPlan = buildRiskPlan(winners, settings, rejectedCount);
     if (comparablePairs > 0) {
-      riskPlan.aggregateRisk = 'computable_from_series';
-      riskPlan.fullDeploymentAllowed = true;
+      riskPlan.aggregateRisk = 'requires_portfolio_master_contract';
+      riskPlan.fullDeploymentAllowed = false;
     }
     var correlationStatus = buildCorrelationStatus(settings, statusCounts.similar || 0, comparablePairs);
     return sanitizePortfolioReport({
@@ -1097,6 +1419,7 @@
   SQX.edgeFactory = {
     version: VERSION,
     portfolioLabVersion: PORTFOLIO_LAB_VERSION,
+    portfolioMasterVersion: PORTFOLIO_MASTER_VERSION,
     storageKey: storageKey,
     defaultState: defaultState,
     getState: readState,
@@ -1112,12 +1435,15 @@
     recordTemplateMakerAnalysis: recordTemplateMakerAnalysis,
     recordC2Template: recordC2Template,
     recordPortfolioLab: recordPortfolioLab,
+    recordPortfolioMasterContract: recordPortfolioMasterContract,
     recordDownloadRequest: recordDownloadRequest,
     contextSummary: contextSummary,
     parsePortfolioRows: parsePortfolioRows,
     scoreCandidate: scoreCandidate,
     computeSimilarity: similarity,
     sanitizePortfolioReport: sanitizePortfolioReport,
+    sanitizePortfolioMasterContract: sanitizePortfolioMasterContract,
+    buildPortfolioMasterContract: buildPortfolioMasterContract,
     buildPortfolioShortlist: buildPortfolioShortlist
   };
 

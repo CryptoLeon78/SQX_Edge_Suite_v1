@@ -1,6 +1,7 @@
 # SQX142 Custom Task Config Roadmap
 
-Estado: C1-CONFIG1 con Fase 29
+Estado: C1-CONFIG1 con Fase 30 documentada y registrada
+`phase30_capa2_portfolio_master_contract` documentada como Portfolio Master operating contract posterior al Lab gobernado Phase29 con evidencia local `phase30_capa2_portfolio_master_contract_20260525_152846.json`; actual SQX artifact generation remains blocked until governed Lab output and operator Forward CSV/equity/account/broker context.
 `phase29_capa2_portfolio` documentada como handoff gobernado Forward -> Portfolio
 despues de cerrar `Capa2 Forward` el 2026-05-25 con
 `phase28_capa2_forward_target_20260525_140929.json`, despues de cerrar
@@ -2896,6 +2897,26 @@ Siguiente bloque exacto: `phase29_capa2_portfolio`.
   drawdown ni riesgo cero.
 - El estado documentado queda en `currentPhase=phase29_capa2_portfolio`,
   `scope=capa2`.
+
+Siguiente contrato documentado: `phase30_capa2_portfolio_master_contract`.
+
+## Estado Fase 30 - Capa2 Portfolio Master Contract
+
+- `phase30_capa2_portfolio_master_contract` queda documentada y registrada con
+  `phase30_capa2_portfolio_master_contract_20260525_152846.json` como contrato
+  operativo de Portfolio Master posterior al Lab gobernado Phase29.
+- Depende de salida gobernada del Portfolio Lab Phase29 y contexto operador:
+  Forward CSV, equity, account y broker. Sin esos inputs, actual SQX artifact
+  generation remains blocked.
+- El contrato puede definir paquete esperado, checklist de operador, sizing
+  intent, limites de riesgo, trazabilidad de inputs y criterios de revision.
+- No genera `.sqx`, `.cfx`, task XML, Portfolio Master SQX artifact ni ningun
+  artefacto ejecutable para SQX en esta fase.
+- Bloqueos: no SQX execution, no forced pass, no FitPortfolio drift, no
+  live/broker guarantee, no profitability guarantee y no risk-zero claim.
+- El estado documentado queda en `currentPhase=phase30_capa2_portfolio_master_contract`,
+  `nextPhase=phase30_capa2_portfolio_master_inputs_pending`, `scope=capa2`,
+  con generacion real pendiente de evidencia gobernada.
 
 ## Disciplina Operativa
 

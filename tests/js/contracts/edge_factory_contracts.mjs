@@ -14,6 +14,7 @@ sandbox.SQX_CONFIG.storageKeys = {
 
 assert.equal(SQX.edgeFactory.version, 'edge-factory-state-v1');
 assert.equal(SQX.edgeFactory.portfolioLabVersion, 'portfolio-lab-governed-v1');
+assert.equal(SQX.edgeFactory.portfolioMasterVersion, 'portfolio-master-contract-v1');
 assert.equal(SQX.edgeFactory.storageKey(), 'sqx_edge_factory_state_v1');
 assert.equal(SQX.edgeFactory.steps().length, 8);
 assert.equal(SQX.edgeFactory.steps()[0].id, 'session');
@@ -108,6 +109,8 @@ assert.equal(report.sourceDatabank, 'Foward');
 assert.equal(report.riskPlan.status, 'target-ready');
 assert.equal(report.riskPlan.baseRiskPct, 0.2);
 assert.equal(report.riskPlan.maxInitialRiskPct, 0.3);
+assert.equal(report.riskPlan.fullDeploymentAllowed, false);
+assert.equal(report.riskPlan.aggregateRisk, 'requires_portfolio_master_contract');
 assert.equal(report.correlationStatus.state, 'correlation-available');
 assert.equal(report.deploymentSteps.some(step => step.id === 'portfolio-master-correlation'), true);
 assert.equal(report.rejected, 1);
@@ -123,15 +126,64 @@ assert.equal(noForward.rows[0].eligibleForPortfolio, false);
 assert.equal(noForward.rows[0].reason.includes('sourceDatabank != Forward/Foward'), true);
 const dirty = SQX.edgeFactory.buildPortfolioShortlist('strategy,asset,timeframe,profitFactor,retDd,maxDd,trades,Source Databank,Forward Status\nC:\\Users\\Ivan SQX\\secret.sqx,US500,M15,1.5,4,20,200,Foward,PASSED');
 assert.equal(dirty.rows[0].strategy.includes('C:\\'), false);
+const blockedMaster = SQX.edgeFactory.buildPortfolioMasterContract({ labReport: report });
+assert.equal(blockedMaster.version, 'portfolio-master-contract-v1');
+assert.equal(blockedMaster.status, 'blocked_pending_operator_inputs');
+assert.equal(blockedMaster.liveDeploymentAllowed, false);
+assert.equal(blockedMaster.artifactGenerationStatus, 'blocked');
+assert.equal(blockedMaster.artifactGenerationAllowed, false);
+assert.equal(blockedMaster.sqxExecutionAllowed, false);
+assert.equal(blockedMaster.fitPortfolioAllowed, false);
+assert.equal(blockedMaster.forcedPassAllowed, false);
+assert.equal(blockedMaster.requiredInputs.find(item => item.id === 'forward-csv').status, 'blocked');
+assert.equal(blockedMaster.requiredInputs.find(item => item.id === 'comparable-equity-returns').status, 'blocked');
+assert.equal(blockedMaster.outputReadback.aggregateRisk.status, 'unavailable');
+const portfolioWinners = report.rows.filter(row => row.diversityStatus === 'portfolio');
+const masterSeriesCsv = [
+  'strategy,Returns',
+  ...portfolioWinners.map((row, index) => {
+    const offset = (index + 1) / 1000;
+    return `"${row.strategy}","${[0.01 + offset, -0.004 + offset, 0.012 - offset, 0.006 + offset, -0.003 + offset].join('|')}"`;
+  }),
+].join('\n');
+const readyMaster = SQX.edgeFactory.buildPortfolioMasterContract({
+  labReport: report,
+  forwardCsv: sample,
+  comparableSeriesCsv: masterSeriesCsv,
+  accountBrokerContext: 'accountModel=demo-forward-review; brokerProfile=ECN; baseCurrency=USD; accountNumber=123456; token=abcdefghijklmnopqrstuvwxyz123456; localPath=C:\\Users\\Ivan SQX\\private.csv',
+});
+const readyMasterJson = JSON.stringify(readyMaster);
+assert.equal(readyMaster.status, 'ready_for_master_review');
+assert.equal(readyMaster.liveDeploymentAllowed, false);
+assert.equal(readyMaster.deploymentClaim, 'none');
+assert.equal(Object.hasOwn(readyMaster, 'deploymentSteps'), false);
+assert.equal(readyMaster.readbackSteps.some(step => step.id === 'operator-review'), true);
+assert.equal(readyMaster.outputReadback.aggregateRisk.status, 'true_aggregate_risk_ready');
+assert.equal(readyMaster.outputReadback.aggregateRisk.trueAggregateRiskAvailable, true);
+assert.equal(readyMaster.inputReadback.accountBrokerContext.privateFieldsRemoved >= 2, true);
+assert.equal(readyMasterJson.includes('C:\\'), false);
+assert.equal(readyMasterJson.includes('123456'), false);
+assert.equal(readyMasterJson.includes('abcdefghijklmnopqrstuvwxyz123456'), false);
 SQX.edgeFactory.recordPortfolioLab(report);
 edgeState = JSON.parse(sandbox.localStorage.getItem('sqx_edge_factory_state_v1'));
 assert.equal(edgeState.portfolioLab.version, 'portfolio-lab-governed-v1');
+assert.equal(edgeState.portfolioMasterContract.version, 'portfolio-master-contract-v1');
+assert.equal(edgeState.portfolioMasterContract.status, 'blocked_pending_operator_inputs');
 assert.equal(edgeState.portfolioLab.winners >= 8 && edgeState.portfolioLab.winners <= 12, true);
 assert.equal(edgeState.portfolioLab.rows.every(row => row.forwardSource != null && row.forwardStatus != null), true);
 assert.equal(edgeState.portfolioLab.rows.some(row => Object.hasOwn(row, 'Returns')), false);
 assert.equal(edgeState.completedSteps.includes('portfolio'), true);
 assert.equal(SQX.edgeFactory.contextSummary(edgeState).portfolio.includes('portfolio-lab-governed-v1'), true);
 assert.equal(SQX.edgeFactory.contextSummary({}).session.includes('Pendiente:'), true);
+SQX.edgeFactory.recordPortfolioMasterContract({
+  labReport: report,
+  forwardCsv: sample,
+  comparableSeriesCsv: masterSeriesCsv,
+  accountBrokerContext: { accountModel: 'demo-forward-review', brokerProfile: 'ECN', baseCurrency: 'USD', accountNumber: '123456' },
+});
+edgeState = JSON.parse(sandbox.localStorage.getItem('sqx_edge_factory_state_v1'));
+assert.equal(edgeState.portfolioMasterContract.status, 'ready_for_master_review');
+assert.equal(JSON.stringify(edgeState.portfolioMasterContract).includes('123456'), false);
 
 const html = fs.readFileSync(path.join(repoRoot, 'app/SQX_Dashboard_v6.html'), 'utf8');
 const appConfig = fs.readFileSync(path.join(repoRoot, 'app/js/app-config.js'), 'utf8');
@@ -149,6 +201,12 @@ assert.equal(html.includes('data-edge-signal="asset"'), true);
 assert.equal(html.includes('data-edge-signal="portfolio"'), true);
 assert.equal(html.includes('id="edge-portfolio-lab"'), true);
 assert.equal(html.includes('Portfolio Lab Gobernado'), true);
+assert.equal(html.includes('id="edge-portfolio-master-contract"'), true);
+assert.equal(html.includes('Portfolio Master Contract'), true);
+assert.equal(html.includes('id="edge-master-forward-input"'), true);
+assert.equal(html.includes('id="edge-master-series-input"'), true);
+assert.equal(html.includes('id="edge-master-account-input"'), true);
+assert.equal(html.includes('no autoriza despliegue real'), true);
 assert.equal(html.includes('id="edge-portfolio-threshold"'), true);
 assert.equal(html.includes('id="edge-portfolio-export-csv"'), true);
 assert.equal(html.includes('portfolio-lab-governed-v1'), true);

@@ -23,6 +23,9 @@ Current guarded state:
 - UX/WFCO: WFCO-5 Visual Polish And Desktop QA is completed; Edge Factory is the active desktop-first experience track with command strip, status stack and Portfolio Lab MVP.
 - C1-CONFIG1 Phase29: `phase29_capa2_portfolio` is the governed Forward -> Portfolio handoff. Portfolio Lab owns shortlist/diversity/base-risk export from natural Forward survivors only, with defaults `0.2%` base risk and `8-12` from `30-50`.
 - Phase29 forbidden markers block SQX execution claims, forced `Results=passed`, `FitPortfolio=true`, profitability guarantees and risk zero claims.
+- C1-CONFIG1 Phase30: `phase30_capa2_portfolio_master_contract` is the Portfolio Master operating contract after the Phase29 governed Lab, registered with local evidence `phase30_capa2_portfolio_master_contract_20260525_152846.json`.
+- Phase30 required markers keep actual SQX artifact generation blocked until governed Lab output and operator Forward CSV/equity/account/broker context are present.
+- Phase30 forbidden markers block SQX execution, forced pass, FitPortfolio drift, live/broker guarantees, profitability guarantees and risk zero claims.
 
 Run the guard with:
 
