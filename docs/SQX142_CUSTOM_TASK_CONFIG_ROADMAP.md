@@ -1,7 +1,8 @@
 # SQX142 Custom Task Config Roadmap
 
-Estado: C1-CONFIG1 con Fase 28
-`Capa2 Forward` cerrada el 2026-05-25 con
+Estado: C1-CONFIG1 con Fase 29
+`phase29_capa2_portfolio` documentada como handoff gobernado Forward -> Portfolio
+despues de cerrar `Capa2 Forward` el 2026-05-25 con
 `phase28_capa2_forward_target_20260525_140929.json`, despues de cerrar
 `phase27_capa2_wfm_target_20260525_133852.json`, despues de cerrar
 `phase26_capa2_spp_target_20260525_123915.json`, despues de cerrar
@@ -141,7 +142,9 @@ source `4` broker `4`, `testPrecision=2 tick`, `No Session`, comision
 `RExpectancy > 0`, `NetProfit >= 0` y `ExitAfterBars=false` con
 SL/PT/trailing activos. `currentPhase=phase28_capa2_forward`;
 `nextPhase=phase29_capa2_portfolio`. El siguiente bloque exacto es
-`phase29_capa2_portfolio`.
+`phase29_capa2_portfolio`: Portfolio Lab gobierna la cadena Forward ->
+Portfolio, consume solo supervivientes naturales de Forward y usa defaults
+`0.2%` base risk y `8-12` desde `30-50`, sin SQX execution ni forced pass.
 Capa1 Fastest Precision Correction Before Capa2 SPP queda aplicada como
 correccion importante tras `phase25_capa2_synthetic` y antes de empezar
 `phase26_capa2_spp`: Capa1 MC, MC2, Sequential, Monkey, Synthetic, SPP and
@@ -2869,6 +2872,30 @@ Siguiente bloque exacto: `phase28_capa2_forward`.
   `nextPhase=phase29_capa2_portfolio`, `scope=capa2`.
 
 Siguiente bloque exacto: `phase29_capa2_portfolio`.
+
+## Estado Fase 29 - Capa2 Portfolio
+
+- `phase29_capa2_portfolio` queda documentada como estado de gobernanza, no como
+  apply/run de SQX.
+- Cadena oficial: `phase28_capa2_forward` -> `phase29_capa2_portfolio`;
+  Portfolio Lab, no Template Maker ni SQX task config, es owner de shortlist,
+  diversidad, base-risk sizing y export.
+- Entrada permitida: supervivientes naturales de Forward desde `Output=Foward`
+  con CSV/SQX de databank. No hay promocion manual desde failed, no se fuerza
+  `Results=passed` y no se relanzan retests para fabricar candidatos.
+- Defaults operadores: base risk `0.2%` por estrategia; shortlist objetivo
+  `8-12` desde `30-50` supervivientes naturales de Forward.
+- Base academica Phase29: HRP/Lopez de Prado, PBO, White Reality Check,
+  1/N DeMiguel-Garlappi-Uppal y Carr/Lopez de Prado para evitar overfit
+  post-Forward y favorecer diversificacion robusta antes que optimizadores
+  fragiles.
+- Manifest rules/forbidden phrases bloquean claims de SQX execution,
+  `FitPortfolio=true`, forced pass, rentabilidad garantizada y riesgo cero.
+- Esta fase no lanza SQX, no hace smoke, no ejecuta retest, no optimiza, no hace
+  portfolio fitting en SQX y no reclama rentabilidad, reduccion garantizada de
+  drawdown ni riesgo cero.
+- El estado documentado queda en `currentPhase=phase29_capa2_portfolio`,
+  `scope=capa2`.
 
 ## Disciplina Operativa
 

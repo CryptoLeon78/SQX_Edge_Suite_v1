@@ -2361,27 +2361,31 @@
       <section class="edge-portfolio-lab" id="edge-portfolio-lab">
         <div class="edge-portfolio-head">
           <div>
-            <span class="badge info">Portfolio Lab MVP</span>
-            <h3>Ranking Capa 2 y shortlist diversa</h3>
-            <p>Importa un lote de supervivientes Capa 2, ajusta diversidad y deja una shortlist accionable: portfolio, similar o revisar.</p>
+            <span class="badge info">Portfolio Lab Gobernado · portfolio-lab-governed-v1</span>
+            <h3>Ranking Capa 2 gobernado y shortlist diversa</h3>
+            <p>Importa supervivientes Capa 2 de Forward/Foward natural, aplica caps de diversidad y deja una shortlist accionable: portfolio, similar o revisar.</p>
           </div>
           <div class="edge-portfolio-contract">
-            <strong>Contrato</strong>
-            <span>CSV Capa 2 · métricas + origen</span>
+            <strong>Contrato Forward/Foward</strong>
+            <span>Source=Forward/Foward · Status=PASSED natural · sin forced/synthetic pass</span>
           </div>
         </div>
         <div class="edge-portfolio-workbench">
           <div class="edge-portfolio-input-panel">
             <div class="edge-portfolio-panel-title">
               <strong>Entrada Capa 2</strong>
-              <span>Pega CSV o carga archivo local desde el navegador.</span>
+              <span>Pega CSV con source/status Forward/Foward o carga archivo local desde el navegador.</span>
             </div>
-            <textarea id="edge-portfolio-input" rows="7" placeholder="strategy,asset,timeframe,profitFactor,retDd,maxDd,trades,blockSetting,indicator"></textarea>
+            <textarea id="edge-portfolio-input" rows="7" placeholder="strategy,asset,timeframe,profitFactor,retDd,maxDd,trades,blockSetting,indicator,Forward Source,Forward Status,Pass Source"></textarea>
           </div>
           <div class="edge-portfolio-controls" aria-label="Ajustes Portfolio Lab">
             <label>Umbral similitud<input id="edge-portfolio-threshold" type="number" min="0.50" max="0.95" step="0.01" value="0.78"></label>
-            <label>Máx. ganadores<input id="edge-portfolio-max-winners" type="number" min="1" max="50" step="1" value="8"></label>
-            <label>Máx. por asset<input id="edge-portfolio-max-asset" type="number" min="1" max="10" step="1" value="2"></label>
+            <label>Ganadores objetivo<input id="edge-portfolio-max-winners" type="number" min="8" max="12" step="1" value="12"></label>
+            <label>Máx. por asset<input id="edge-portfolio-max-asset" type="number" min="1" max="4" step="1" value="2"></label>
+            <label>Máx. por timeframe<input id="edge-portfolio-max-timeframe" type="number" min="1" max="6" step="1" value="4"></label>
+            <label>Máx. por BlockSetting<input id="edge-portfolio-max-blocksetting" type="number" min="1" max="4" step="1" value="3"></label>
+            <label>Máx. por indicador<input id="edge-portfolio-max-indicator" type="number" min="1" max="4" step="1" value="3"></label>
+            <label>Máx. por cluster<input id="edge-portfolio-max-cluster" type="number" min="1" max="3" step="1" value="1"></label>
           </div>
           <div class="edge-portfolio-actions">
             <label class="filter-btn edge-portfolio-file">Cargar CSV<input id="edge-portfolio-file" type="file" accept=".csv,.txt,text/csv" hidden></label>
@@ -2395,7 +2399,7 @@
         <div class="edge-portfolio-results" id="edge-portfolio-results">
           <div class="edge-portfolio-empty">
             <strong>Sin lote Capa 2 cargado.</strong>
-            <span>Carga CSV, pega datos o usa la muestra para calcular ranking y diversidad.</span>
+            <span>Plan de riesgo: base 0.2%, cap 0.30%, 8-12 ganadores, caps de diversidad, correlacion real solo con equity/returns comparables y despliegue gradual.</span>
           </div>
         </div>
       </section>

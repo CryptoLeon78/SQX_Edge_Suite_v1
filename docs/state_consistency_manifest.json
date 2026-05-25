@@ -6209,6 +6209,108 @@
       }
     },
     {
+      "id": "sqx142_c2_phase29_portfolio_governance",
+      "description": "C1-CONFIG1 Phase 29 Capa2 Portfolio must stay documented as a governed Forward -> Portfolio handoff owned by Portfolio Lab, consuming natural Forward survivors only and making no execution or profitability/risk-zero claims.",
+      "required": {
+        "README.md": [
+          "`phase29_capa2_portfolio` queda documentado como bloque gobernado Forward -> Portfolio",
+          "Portfolio Lab, no Template Maker ni SQX, es owner",
+          "supervivientes Forward naturales",
+          "`Output=Foward`",
+          "`0.2%`",
+          "`8-12` elegidas desde `30-50`",
+          "sin `Results=passed` forzado",
+          "sin prometer rentabilidad, riesgo cero"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Phase 29 `phase29_capa2_portfolio` is documented",
+          "Forward -> Portfolio governance handoff",
+          "Portfolio Lab owns shortlist, diversity, base-risk sizing and export",
+          "natural Forward survivors only",
+          "`0.2%` base risk",
+          "`8-12` strategies from `30-50`",
+          "no SQX launch, smoke, retest rerun, optimization or forced `Results=passed`",
+          "no profitability guarantee or risk zero claim"
+        ],
+        "docs/ARCHITECTURE.md": [
+          "Phase 29 documents `phase29_capa2_portfolio`",
+          "Forward -> Portfolio governance handoff",
+          "Portfolio Lab owns shortlist/diversity/base-risk sizing/export",
+          "`0.2%` base risk",
+          "`8-12` from `30-50`",
+          "no SQX execution, smoke, retest rerun, optimization, `FitPortfolio=true` or forced `Results=passed`",
+          "no profitability guarantee or risk zero claim"
+        ],
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "Estado Fase 29 - Capa2 Portfolio",
+          "`phase29_capa2_portfolio` queda documentada",
+          "Forward -> Portfolio",
+          "Portfolio Lab, no Template Maker ni SQX task config, es owner",
+          "supervivientes naturales de Forward",
+          "`0.2%`",
+          "`8-12` desde `30-50`",
+          "`currentPhase=phase29_capa2_portfolio`",
+          "no lanza SQX"
+        ],
+        "docs/STATE_CONSISTENCY_GUARD.md": [
+          "C1-CONFIG1 Phase29: `phase29_capa2_portfolio`",
+          "natural Forward survivors only",
+          "`0.2%` base risk",
+          "`8-12` from `30-50`",
+          "Phase29 forbidden markers block SQX execution claims"
+        ],
+        "CHANGELOG.md": [
+          "2026-05-25 - C1-CONFIG1 Capa2 Portfolio Governance",
+          "`phase29_capa2_portfolio`",
+          "Forward -> Portfolio",
+          "natural Forward survivors",
+          "`0.2%` base risk",
+          "`8-12` from `30-50`",
+          "no SQX launch, no smoke, no retest rerun, no optimization",
+          "no forced `Results=passed`"
+        ]
+      },
+      "forbidden": {
+        "README.md": [
+          "phase29_capa2_portfolio queda cerrado con",
+          "Portfolio ejecuta SQX",
+          "Portfolio fuerza Results=passed",
+          "Portfolio garantiza rentabilidad",
+          "Portfolio riesgo cero",
+          "base risk `1%`"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Phase 29 `phase29_capa2_portfolio` is closed",
+          "Portfolio Lab ran SQX",
+          "Portfolio Lab forced `Results=passed`",
+          "Portfolio Lab guarantees profitability",
+          "Portfolio Lab risk zero",
+          "manual promotion from failed strategies is allowed"
+        ],
+        "docs/ARCHITECTURE.md": [
+          "Phase 29 closes `phase29_capa2_portfolio`",
+          "Portfolio Lab ran SQX",
+          "Portfolio Lab forced `Results=passed`",
+          "Portfolio Lab guarantees profitability",
+          "risk-free portfolio"
+        ],
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "`phase29_capa2_portfolio` queda cerrada con",
+          "Portfolio Lab ejecuta SQX",
+          "Portfolio Lab fuerza `Results=passed`",
+          "Portfolio garantiza rentabilidad",
+          "riesgo cero garantizado"
+        ],
+        "CHANGELOG.md": [
+          "Portfolio ran SQX",
+          "Portfolio forced Results=passed",
+          "Portfolio guarantees profitability",
+          "Portfolio risk zero",
+          "target shortlist `20-30`"
+        ]
+      }
+    },
+    {
       "id": "sqx142_c1_fastest_precision_correction_before_c2_spp",
       "description": "C1-CONFIG1 must record the important Capa1 precision correction after Capa2 Synthetic and before Capa2 SPP: MC through WFM use fastest/testPrecision=1, while Foward remains tick/testPrecision=2.",
       "required": {

@@ -127,7 +127,9 @@
     setSignal(
       'portfolio',
       portfolio && portfolio.total ? (portfolio.winners || 0) + ' ganadores diversos' : 'Pendiente',
-      portfolio && portfolio.total ? portfolio.total + ' candidatos · ' + (portfolio.similar || 0) + ' similares' : 'Shortlist diversa Capa 2',
+      portfolio && portfolio.total
+        ? (portfolio.version || 'portfolio-lab-governed-v1') + ' · ' + portfolio.total + ' candidatos · ' + ((portfolio.riskPlan && portfolio.riskPlan.statusLabel) || 'riesgo pendiente')
+        : 'Shortlist diversa Capa 2',
       !!(portfolio && portfolio.total)
     );
   }
@@ -191,12 +193,19 @@
 
   function portfolioSample() {
     return [
-      'Strategy Name;Symbol;TimeFrame;Profit factor;Ret/DD Ratio;Max DD %;# of trades;Stability;Winning Percent;SQN;BlockSetting;Indicator;Cluster',
-      'AUDCAD_H4_LINEAR_CL01;AUDCAD;H4;1,68;6,2;18;245;0,72;51;2,1;BS_Volatilidad_v6;LinearRegression;CL01',
-      'AUDCAD_H4_LINEAR_CL02;AUDCAD;H4;1,63;5,9;19;231;0,69;50;2,0;BS_Volatilidad_v6;LinearRegression;CL01',
-      'XAUUSD_H1_KER_CL01;XAUUSD;H1;1,51;4,8;22;318;0,64;48;1,8;BS_Tendencia_v6;KER;CL02',
-      'US500_M15_ATR_CL01;US500;M15;1,42;4,1;24;420;0,61;46;1,6;BS_Volumen_v6_intraday_v6;ATR;CL03',
-      'US500_M15_ATR_CL02;US500;M15;1,35;3,9;25;390;0,58;45;1,5;BS_Volumen_v6_intraday_v6;ATR;CL03'
+      'Strategy Name;Symbol;TimeFrame;Profit factor;Ret/DD Ratio;Max DD %;# of trades;Stability;Winning Percent;SQN;BlockSetting;Indicator;Cluster;Forward Source;Forward Status;Pass Source',
+      'AUDCAD_H4_LINEAR_CL01;AUDCAD;H4;1,68;6,2;18;245;0,72;51;2,1;BS_Volatilidad_v6;LinearRegression;CL01;Foward;PASSED;natural',
+      'AUDCAD_H1_MACD_CL02;AUDCAD;H1;1,58;5,6;20;260;0,69;50;2,0;BS_Tendencia_v6;MACD;CL02;FOWARD;PASSED;natural',
+      'AUDCAD_H4_LINEAR_CL03;AUDCAD;H4;1,61;5,8;19;238;0,68;49;1,9;BS_Volatilidad_v6;LinearRegression;CL03;Forward;PASSED;natural',
+      'XAUUSD_H1_KER_CL04;XAUUSD;H1;1,51;4,8;22;318;0,64;48;1,8;BS_Tendencia_v6;KER;CL04;Foward;PASSED;natural',
+      'US500_M15_ATR_CL05;US500;M15;1,42;4,1;24;420;0,61;46;1,6;BS_Volumen_v6_intraday_v6;ATR;CL05;Foward;PASSED;natural',
+      'EURUSD_M30_RSI_CL06;EURUSD;M30;1,47;4,4;21;310;0,66;52;1,7;BS_MeanReversion_v6;RSI;CL06;Forward;PASSED;natural',
+      'GBPJPY_H4_SUPER_CL07;GBPJPY;H4;1,55;5,1;26;205;0,62;49;1,8;BS_Tendencia_v6;SUPER;CL07;Foward;PASSED;natural',
+      'USDJPY_H1_ADX_CL08;USDJPY;H1;1,49;4,6;23;286;0,65;51;1,7;BS_Volatilidad_v6;ADX;CL08;Foward;PASSED;natural',
+      'NAS100_M15_CHOP_CL09;NAS100;M15;1,44;4,3;25;398;0,63;48;1,6;BS_Volumen_v6_intraday_v6;CHOPPINESS;CL09;Forward;PASSED;natural',
+      'GER40_H1_HURST_CL10;GER40;H1;1,46;4,5;24;274;0,67;50;1,7;BS_Tendencia_v6;HURST;CL10;Foward;PASSED;natural',
+      'GBPUSD_M30_MACD_CL11;GBPUSD;M30;1,43;4,2;22;302;0,64;49;1,6;BS_Tendencia_v6;MACD;CL11;Foward;PASSED;natural',
+      'XAGUSD_H4_LINEAR_CL12;XAGUSD;H4;1,7;6,4;18;250;0,7;52;2,1;BS_Volatilidad_v6;LinearRegression;CL12;Synthetic;FORCED PASS;forced'
     ].join('\n');
   }
 
@@ -212,8 +221,12 @@
     }
     return {
       similarityThreshold: numberFrom('edge-portfolio-threshold', 0.78),
-      maxWinners: numberFrom('edge-portfolio-max-winners', 8),
-      maxPerAsset: numberFrom('edge-portfolio-max-asset', 2)
+      maxWinners: numberFrom('edge-portfolio-max-winners', 12),
+      maxPerAsset: numberFrom('edge-portfolio-max-asset', 2),
+      maxPerTimeframe: numberFrom('edge-portfolio-max-timeframe', 4),
+      maxPerBlockSetting: numberFrom('edge-portfolio-max-blocksetting', 3),
+      maxPerIndicator: numberFrom('edge-portfolio-max-indicator', 3),
+      maxPerCluster: numberFrom('edge-portfolio-max-cluster', 1)
     };
   }
 
@@ -224,20 +237,38 @@
       output.innerHTML = '<div class="edge-portfolio-empty"><strong>No hay candidatos Capa 2 para analizar.</strong><span>Carga CSV, pega datos o usa la muestra.</span></div>';
       return;
     }
+    var risk = report.riskPlan || {};
+    var correlation = report.correlationStatus || {};
+    var steps = Array.isArray(report.deploymentSteps) ? report.deploymentSteps : [];
     output.innerHTML =
       '<div class="edge-portfolio-summary">' +
+        '<div class="edge-portfolio-stat"><span>Version</span><strong>governed-v1</strong></div>' +
         '<div class="edge-portfolio-stat"><span>Total</span><strong>' + escapeHtml(report.total) + '</strong></div>' +
         '<div class="edge-portfolio-stat portfolio"><span>Portfolio</span><strong>' + escapeHtml(report.winners) + '</strong></div>' +
         '<div class="edge-portfolio-stat similar"><span>Similares</span><strong>' + escapeHtml(report.similar || 0) + '</strong></div>' +
         '<div class="edge-portfolio-stat review"><span>Revisar</span><strong>' + escapeHtml(report.review || 0) + '</strong></div>' +
+        '<div class="edge-portfolio-stat review"><span>Rechazados</span><strong>' + escapeHtml(report.rejected || 0) + '</strong></div>' +
         '<div class="edge-portfolio-stat"><span>Assets</span><strong>' + escapeHtml(report.uniqueAssets || 0) + '</strong></div>' +
-        '<div class="edge-portfolio-stat"><span>Umbral</span><strong>' + escapeHtml(report.settings && report.settings.similarityThreshold) + '</strong></div>' +
+        '<div class="edge-portfolio-stat"><span>Rango</span><strong>' + escapeHtml(risk.targetRange || '8-12') + '</strong></div>' +
       '</div>' +
-      '<table><thead><tr><th>Estado</th><th>Estrategia</th><th>Asset</th><th>TF</th><th>BlockSetting</th><th>Indicador</th><th>PF</th><th>Ret/DD</th><th>DD</th><th>Trades</th><th>Score</th><th>Cluster</th><th>Motivo</th></tr></thead><tbody>' +
+      '<div class="edge-portfolio-empty">' +
+        '<strong>Plan de riesgo: ' + escapeHtml(risk.statusLabel || 'riesgo pendiente') + '</strong>' +
+        '<span>' + escapeHtml(risk.objective || '8-12 ganadores naturales de Forward/Foward antes de MT5 real') + ' · riesgo base ' + escapeHtml(risk.baseRiskPct || 0.2) + '% · cap inicial ' + escapeHtml(risk.maxInitialRiskPct || 0.3) + '% · agregado ' + escapeHtml(risk.aggregateRisk || 'not_computable') + '.</span>' +
+      '</div>' +
+      '<div class="edge-portfolio-empty">' +
+        '<strong>Correlacion: ' + escapeHtml(correlation.label || 'Similitud operativa, no correlacion de retornos') + '</strong>' +
+        '<span>' + escapeHtml(correlation.detail || '') + ' · umbral similitud ' + escapeHtml(correlation.similarityThreshold || (report.settings && report.settings.similarityThreshold)) + '.</span>' +
+      '</div>' +
+      '<div class="edge-portfolio-empty">' +
+        '<strong>Despliegue gradual</strong>' +
+        '<span>' + steps.map(function(step) { return escapeHtml(step.label) + ' [' + escapeHtml(step.status) + ']'; }).join(' · ') + '</span>' +
+      '</div>' +
+      '<table><thead><tr><th>Estado</th><th>Estrategia</th><th>Forward/Foward</th><th>Asset</th><th>TF</th><th>BlockSetting</th><th>Indicador</th><th>PF</th><th>Ret/DD</th><th>DD</th><th>Trades</th><th>Score</th><th>Riesgo</th><th>Relación</th><th>Cluster</th><th>Motivo</th></tr></thead><tbody>' +
       report.rows.map(function(row) {
         return '<tr data-status="' + escapeHtml(row.diversityStatus) + '">' +
           '<td><span class="edge-portfolio-badge ' + escapeHtml(row.diversityStatus) + '">' + escapeHtml(statusLabel(row.diversityStatus)) + '</span></td>' +
           '<td>' + escapeHtml(row.strategy) + '</td>' +
+          '<td>' + escapeHtml(row.forwardSource || '') + ' · ' + escapeHtml(row.forwardStatus || '') + '</td>' +
           '<td>' + escapeHtml(row.asset) + '</td>' +
           '<td>' + escapeHtml(row.timeframe) + '</td>' +
           '<td>' + escapeHtml(row.blockSetting) + '</td>' +
@@ -247,6 +278,8 @@
           '<td>' + escapeHtml(row.maxDd) + '%</td>' +
           '<td>' + escapeHtml(row.trades) + '</td>' +
           '<td>' + escapeHtml(row.score) + '</td>' +
+          '<td>' + escapeHtml(row.riskPct == null ? '' : row.riskPct + '%') + '</td>' +
+          '<td>' + escapeHtml(row.correlationStatus === 'available' ? ('corr ' + row.correlation) : ('sim ' + row.similarity)) + '</td>' +
           '<td>' + escapeHtml(row.clusterRef) + '</td>' +
           '<td class="edge-portfolio-reason">' + escapeHtml(row.reason || '') + (row.closestStrategy ? ' · ' + escapeHtml(row.closestStrategy) : '') + '</td>' +
         '</tr>';
@@ -279,6 +312,7 @@
     var state = SQX.edgeFactory.getState();
     var report = state.portfolioLab || runPortfolioLab();
     if (!report) return;
+    if (SQX.edgeFactory.sanitizePortfolioReport) report = SQX.edgeFactory.sanitizePortfolioReport(report);
     var filename = 'sqx-edge-portfolio-lab-summary.json';
     try {
       var blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
@@ -301,17 +335,21 @@
     var state = SQX.edgeFactory.getState();
     var report = state.portfolioLab || runPortfolioLab();
     if (!report || !report.rows) return;
-    var rows = ['decision,strategy,asset,timeframe,blockSetting,indicator,cluster,score,reason'];
+    if (SQX.edgeFactory.sanitizePortfolioReport) report = SQX.edgeFactory.sanitizePortfolioReport(report);
+    var rows = ['decision,strategy,asset,timeframe,forwardSource,forwardStatus,blockSetting,indicator,cluster,score,similarityLabel,reason'];
     report.rows.filter(function(row) { return row.diversityStatus === 'portfolio'; }).forEach(function(row) {
       rows.push([
         row.decision,
         row.strategy,
         row.asset,
         row.timeframe,
+        row.forwardSource,
+        row.forwardStatus,
         row.blockSetting,
         row.indicator,
         row.clusterRef,
         row.score,
+        row.similarityLabel,
         row.reason
       ].map(function(value) {
         return '"' + String(value == null ? '' : value).replace(/"/g, '""') + '"';

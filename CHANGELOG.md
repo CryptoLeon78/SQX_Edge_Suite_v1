@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-05-25 - C1-CONFIG1 Capa2 Portfolio Governance
+
+- Documents `phase29_capa2_portfolio` as the governed Portfolio Lab handoff after natural Phase 28 Forward survivors.
+- Defines the chain as Forward -> Portfolio: Portfolio Lab owns shortlist, diversity, base-risk sizing and browser export; Template Maker and SQX task config do not fit or backfill the portfolio.
+- Requires natural Forward survivors only from `Output=Foward` CSV/SQX evidence; no SQX launch, no smoke, no retest rerun, no optimization, no `FitPortfolio=true` and no forced `Results=passed`.
+- Sets initial operator defaults to `0.2%` base risk per strategy and target shortlist `8-12` from `30-50` natural Forward survivors.
+- Adds portfolio-specific academic anchors for HRP/Lopez de Prado, PBO, White Reality Check, 1/N DeMiguel-Garlappi-Uppal and Carr/Lopez de Prado.
+- Adds manifest required and forbidden phrases blocking SQX execution, forced pass, profitability guarantees and risk zero claims.
+
 ## 2026-05-25 - C1-CONFIG1 Capa2 Forward
 
 - Adds `capa2-forward-target` as the Phase 28 final Capa2 Forward holdout guard before portfolio construction.

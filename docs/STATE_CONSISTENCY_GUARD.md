@@ -21,6 +21,8 @@ Current guarded state:
 - Clean anchors: REMOTE-8C and REMOTE-8F-CLOSE, with REMOTE-PG-SESSION-FIX applied.
 - Next remote action: wait for TESTER-RILIS retest before reopening REMOTE-8G.
 - UX/WFCO: WFCO-5 Visual Polish And Desktop QA is completed; Edge Factory is the active desktop-first experience track with command strip, status stack and Portfolio Lab MVP.
+- C1-CONFIG1 Phase29: `phase29_capa2_portfolio` is the governed Forward -> Portfolio handoff. Portfolio Lab owns shortlist/diversity/base-risk export from natural Forward survivors only, with defaults `0.2%` base risk and `8-12` from `30-50`.
+- Phase29 forbidden markers block SQX execution claims, forced `Results=passed`, `FitPortfolio=true`, profitability guarantees and risk zero claims.
 
 Run the guard with:
 

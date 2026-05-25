@@ -5456,6 +5456,85 @@ def test_capa2_forward_cli_is_registered():
     assert args.target == "both"
 
 
+def test_capa2_portfolio_plan_writes_state_after_green_forward_without_mutating_templates(monkeypatch, tmp_path):
+    local_cfx = tmp_path / "local" / "project.cfx"
+    repo_cfx = tmp_path / "repo" / "Capa2_Base.cfx"
+    generator_profile = tmp_path / "generator_profiles.json"
+    _write_minimal_capa2_forward_cfx(local_cfx)
+    _write_minimal_capa2_forward_cfx(repo_cfx)
+    _write_capa2_forward_generator_profile(generator_profile)
+
+    monkeypatch.setattr(gate, "promote_capa2_wfm_target", lambda *args, **kwargs: {
+        "phase": "phase27_capa2_wfm",
+        "ok": True,
+        "issues": [],
+        "warnings": [],
+        "nextPhase": "phase28_capa2_forward",
+    })
+    monkeypatch.setattr(gate, "process_snapshot", lambda: {"ok": True, "processes": []})
+    monkeypatch.setattr(gate, "capa2_base_project_path", lambda root142: local_cfx)
+    monkeypatch.setattr(gate, "DEFAULT_CAPA2_TEMPLATE", repo_cfx)
+    monkeypatch.setattr(gate, "GENERATOR_PROFILES_PATH", generator_profile)
+
+    phase28 = gate.promote_capa2_forward_target(tmp_path, tmp_path, target="both", apply=True)
+    assert phase28["ok"] is True
+    local_sha_before = gate.file_sha256(local_cfx)
+    repo_sha_before = gate.file_sha256(repo_cfx)
+
+    payload = gate.capa2_portfolio_plan_report(tmp_path, tmp_path, target="both", write=True)
+
+    assert payload["ok"] is True
+    assert payload["phase"] == "phase29_capa2_portfolio"
+    assert payload["operation"] == "capa2_portfolio_plan"
+    assert payload["previousGate"]["phase"] == "phase28_capa2_forward"
+    assert payload["previousGate"]["ok"] is True
+    assert payload["plan"]["sourceDatabank"] == "Foward"
+    assert "FitPortfolio" in payload["guardrails"]["noFitPortfolio"]
+    assert gate.file_sha256(local_cfx) == local_sha_before
+    assert gate.file_sha256(repo_cfx) == repo_sha_before
+    assert Path(payload["written"]).is_file()
+    state = json.loads((tmp_path / ".local" / "sqx142_task_config" / "session_state.json").read_text(encoding="utf-8"))
+    assert state["currentPhase"] == "phase29_capa2_portfolio"
+    assert state["nextPhase"] == "phase30_capa2_portfolio_master_contract"
+    assert state["phase29Capa2PortfolioPlanReport"] == payload["written"]
+
+
+def test_capa2_portfolio_plan_blocks_processes_and_portfolio_drift_without_writing(monkeypatch, tmp_path):
+    local_cfx = tmp_path / "local" / "project.cfx"
+    repo_cfx = tmp_path / "repo" / "Capa2_Base.cfx"
+    generator_profile = tmp_path / "generator_profiles.json"
+    _write_minimal_capa2_forward_cfx(local_cfx)
+    _write_minimal_capa2_forward_cfx(repo_cfx)
+    _write_capa2_forward_generator_profile(generator_profile)
+    local_sha_before = gate.file_sha256(local_cfx)
+    repo_sha_before = gate.file_sha256(repo_cfx)
+
+    monkeypatch.setattr(gate, "process_snapshot", lambda: {"ok": True, "processes": [{"ProcessName": "StrategyQuantX", "Id": 142}]})
+    monkeypatch.setattr(gate, "capa2_base_project_path", lambda root142: local_cfx)
+    monkeypatch.setattr(gate, "DEFAULT_CAPA2_TEMPLATE", repo_cfx)
+    monkeypatch.setattr(gate, "GENERATOR_PROFILES_PATH", generator_profile)
+
+    payload = gate.capa2_portfolio_plan_report(tmp_path, tmp_path, target="both", write=False)
+
+    assert payload["ok"] is False
+    assert payload["phase"] == "phase29_capa2_portfolio"
+    assert "written" not in payload
+    assert not (tmp_path / ".local").exists()
+    assert gate.file_sha256(local_cfx) == local_sha_before
+    assert gate.file_sha256(repo_cfx) == repo_sha_before
+    assert any("Phase28 Forward target must be green" in issue for issue in payload["issues"])
+    assert any("forbidden portfolio optimization drift" in issue for issue in payload["issues"])
+    assert any("SQX processes are alive" in issue for issue in payload["issues"])
+
+
+def test_capa2_portfolio_plan_cli_is_registered():
+    args = gate.build_parser().parse_args(["capa2-portfolio-plan", "--target", "repo-template", "--write"])
+
+    assert args.command == "capa2-portfolio-plan"
+    assert args.target == "repo-template"
+    assert args.write is True
+
+
 def test_synthetic_closeout_report_requires_green_phase10_dry_runs(monkeypatch, tmp_path):
     calls = []
 

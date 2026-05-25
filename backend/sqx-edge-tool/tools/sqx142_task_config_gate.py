@@ -61,6 +61,8 @@ PHASES = [
     {"id": "phase25", "label": "Capa2 Synthetic validation gate"},
     {"id": "phase26", "label": "Capa2 SPP validation gate"},
     {"id": "phase27", "label": "Capa2 WFM validation gate"},
+    {"id": "phase28", "label": "Capa2 Forward validation gate"},
+    {"id": "phase29", "label": "Capa2 governed portfolio lab and operating plan"},
 ]
 
 SECTION_ALIASES = {
@@ -16248,6 +16250,30 @@ CAPA2_FORWARD_BANNED_TOKENS = CAPA2_MC_BANNED_TOKENS + (
     "testPrecision=\"1\"",
     "Strategies to improve",
 )
+CAPA2_PORTFOLIO_PHASE = "phase29_capa2_portfolio"
+CAPA2_PORTFOLIO_NEXT = "phase30_capa2_portfolio_master_contract"
+CAPA2_PORTFOLIO_VERSION = "portfolio-lab-governed-v1"
+CAPA2_PORTFOLIO_SOURCE_PHASE = "phase28_capa2_forward"
+CAPA2_PORTFOLIO_SOURCE_DATABANK = "Foward"
+CAPA2_PORTFOLIO_DEFAULTS: dict[str, Any] = {
+    "sourcePhase": CAPA2_PORTFOLIO_SOURCE_PHASE,
+    "sourceDatabank": CAPA2_PORTFOLIO_SOURCE_DATABANK,
+    "stockTargetRange": [30, 50],
+    "shortlistTargetRange": [8, 12],
+    "riskBasePct": 0.20,
+    "minInitialRiskPct": 0.05,
+    "maxInitialRiskPct": 0.30,
+    "minProfitFactor": 1.20,
+    "minTrades": 80,
+    "maxDrawdownPct": 45,
+    "similarityThreshold": 0.78,
+    "trueCorrelationThreshold": 0.50,
+    "maxPerAsset": 2,
+    "maxPerTimeframe": 4,
+    "maxPerBlockSetting": 3,
+    "maxPerIndicatorFamily": 3,
+    "maxPerCluster": 1,
+}
 CAPA2_BUILD_TAB_ORDER = [
     "WhatToBuild",
     "Data",
@@ -16567,6 +16593,38 @@ CAPA2_ACADEMIC_SOURCES = [
         "title": "Lo and Remorov - Stop-loss strategies with serial correlation, regime switching, and transaction costs",
         "url": "https://www.sciencedirect.com/science/article/pii/S1386418117300472",
         "implication": "Tight stops can underperform after costs unless the asset behavior supports them; spread/slippage/cost realism remains mandatory.",
+    },
+]
+CAPA2_PORTFOLIO_ACADEMIC_SOURCES = [
+    {
+        "id": "lopez_de_prado_hrp",
+        "title": "Lopez de Prado - Building Diversified Portfolios that Outperform Out-of-Sample",
+        "url": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2708678",
+        "implication": "Prefer robust diversification and hierarchical concentration control over fragile mean-variance style fitting after Forward.",
+    },
+    {
+        "id": "bailey_pbo",
+        "title": "Bailey, Borwein, Lopez de Prado and Zhu - The Probability of Backtest Overfitting",
+        "url": "https://www.carmamaths.org/resources/jon/backtest2.pdf",
+        "implication": "Do not turn the final holdout into another search surface; predeclare selection, discard and risk rules.",
+    },
+    {
+        "id": "white_reality_check",
+        "title": "White - A Reality Check for Data Snooping",
+        "url": "https://www.ssc.wisc.edu/~bhansen/718/White2000.pdf",
+        "implication": "Multiple-model selection requires data-snooping discipline and transparent evidence rather than post-hoc winners.",
+    },
+    {
+        "id": "demiguel_garlappi_uppal_1n",
+        "title": "DeMiguel, Garlappi and Uppal - Optimal Versus Naive Diversification",
+        "url": "https://ideas.repec.org/a/oup/rfinst/v22y2009i5p1915-1953.html",
+        "implication": "Use simple robust allocation baselines before trusting optimizer-heavy portfolio weights.",
+    },
+    {
+        "id": "carr_lopez_optimal_rules",
+        "title": "Carr and Lopez de Prado - Determining Optimal Trading Rules without Backtesting",
+        "url": "https://arxiv.org/abs/1408.1159",
+        "implication": "Keep rule choice and portfolio selection from becoming another backtest-optimized performance mine.",
     },
 ]
 def capa1_closeout_report(root142: Path, project_root: Path, target: str, write: bool) -> dict[str, Any]:
@@ -25801,6 +25859,233 @@ def promote_capa2_forward_target(root142: Path, project_root: Path, target: str,
     return payload
 
 
+def capa2_portfolio_target_paths(root142: Path, target: str) -> dict[str, Path]:
+    paths: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        paths["localBase"] = capa2_base_project_path(root142)
+    if target in {"repo-template", "both"}:
+        paths["repoTemplate"] = DEFAULT_CAPA2_TEMPLATE
+    return paths
+
+
+def capa2_portfolio_target_file_states(root142: Path, target: str) -> dict[str, Any]:
+    return {
+        name: snapshot_file_state(path, f"{name}Cfx", required=True)
+        for name, path in capa2_portfolio_target_paths(root142, target).items()
+    }
+
+
+def capa2_portfolio_active_markers(root: ET.Element | None) -> list[dict[str, Any]]:
+    if root is None:
+        return []
+    markers: list[dict[str, Any]] = []
+    for node in root.iter():
+        if not isinstance(node.tag, str):
+            continue
+        haystack = " ".join([node.tag, *[str(value) for value in node.attrib.values()]])
+        if "portfolio" not in haystack.casefold():
+            continue
+        if node.tag == "FitPortfolio":
+            if node.get("active") != "false":
+                markers.append({
+                    "tag": node.tag,
+                    "attrs": dict(node.attrib),
+                    "reason": "FitPortfolio.active must stay false before the governed portfolio plan",
+                })
+            continue
+        active_state = (node.get("active") or node.get("use") or node.get("enable") or node.get("enabled") or "").casefold()
+        if active_state == "true":
+            markers.append({
+                "tag": node.tag,
+                "attrs": dict(node.attrib),
+                "reason": "Active SQX portfolio optimization marker is forbidden in phase29 planning",
+            })
+    return markers
+
+
+def capa2_forward_readiness_issues(target_name: str, result: dict[str, Any]) -> list[str]:
+    issues: list[str] = []
+    if not result.get("exists"):
+        issues.append(f"{target_name}: Phase28 Forward target file is missing")
+        return issues
+    if not result.get("isZip"):
+        issues.append(f"{target_name}: Phase28 Forward target is not a valid CFX zip")
+        return issues
+    if result.get("error"):
+        issues.append(f"{target_name}: Phase28 Forward target error: {result.get('error')}")
+    if result.get("guardOk") is not True:
+        issues.append(f"{target_name}: Phase28 Forward guardOk is not true")
+    for issue in result.get("issues") or []:
+        issues.append(f"{target_name}: {issue}")
+    changed_count = int(result.get("changedActionCount") or 0)
+    if result.get("changed") or changed_count != 0:
+        issues.append(
+            f"{target_name}: Phase28 Forward target is not green/idempotent; dry-run would change {changed_count} action(s)"
+        )
+    for marker in result.get("portfolioDriftMarkers") or []:
+        issues.append(f"{target_name}: forbidden portfolio optimization drift: {marker.get('reason')} ({marker.get('tag')})")
+    return issues
+
+
+def capa2_forward_readiness_report(root142: Path, project_root: Path, target: str) -> dict[str, Any]:
+    results: dict[str, Any] = {}
+    issues: list[str] = []
+    for target_name, path in capa2_portfolio_target_paths(root142, target).items():
+        result = update_capa2_forward_target_in_cfx(
+            path,
+            ledger_root(project_root) / "backups" / "phase28_forward_readiness_no_write",
+            apply=False,
+        )
+        _, current_root, _ = load_capa2_forward_task_root(path)
+        result["portfolioDriftMarkers"] = capa2_portfolio_active_markers(current_root)
+        results[target_name] = result
+        issues.extend(capa2_forward_readiness_issues(target_name, result))
+    if not results:
+        issues.append("phase28_capa2_forward: no target selected for readiness check")
+    return {
+        "ok": not issues,
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase28_capa2_forward",
+        "operation": "capa2_forward_readiness_no_write",
+        "target": target,
+        "write": False,
+        "apply": False,
+        "results": results,
+        "issues": issues,
+        "nextPhase": CAPA2_FORWARD_NEXT,
+    }
+
+
+def capa2_portfolio_mutation_issues(before: dict[str, Any], after: dict[str, Any]) -> list[str]:
+    issues: list[str] = []
+    for target_name, before_item in before.items():
+        after_item = after.get(target_name) or {}
+        if before_item.get("exists") and after_item.get("exists") and before_item.get("sha256") != after_item.get("sha256"):
+            issues.append(f"{target_name}: Capa2 base/template changed during portfolio plan; mutation is forbidden")
+    return issues
+
+
+def capa2_portfolio_plan_report(root142: Path, project_root: Path, target: str, write: bool) -> dict[str, Any]:
+    target_files_before = capa2_portfolio_target_file_states(root142, target)
+    previous_gate = capa2_forward_readiness_report(root142, project_root, target=target)
+    issues = list(previous_gate.get("issues") or [])
+    warnings: list[str] = []
+    if previous_gate.get("ok") is not True:
+        issues.append("capa2-forward-target: Phase28 Forward target must be green before phase29_capa2_portfolio")
+    process_probe = process_snapshot()
+    if process_probe.get("ok") is False:
+        issues.append("SQX process probe failed; cannot prove Phase29 portfolio plan is process-free")
+    if process_probe.get("processes"):
+        issues.append("SQX processes are alive; Phase29 portfolio plan forbids SQX launch/running processes")
+    target_files_after = capa2_portfolio_target_file_states(root142, target)
+    issues.extend(capa2_portfolio_mutation_issues(target_files_before, target_files_after))
+    payload: dict[str, Any] = {
+        "ok": not issues,
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": CAPA2_PORTFOLIO_PHASE,
+        "operation": "capa2_portfolio_plan",
+        "target": target,
+        "write": write,
+        "previousGate": {
+            "phase": previous_gate.get("phase"),
+            "ok": previous_gate.get("ok"),
+            "operation": previous_gate.get("operation"),
+            "issues": previous_gate.get("issues") or [],
+            "nextPhase": previous_gate.get("nextPhase"),
+        },
+        "targetFilesBefore": target_files_before,
+        "targetFilesAfter": target_files_after,
+        "issues": issues,
+        "warnings": warnings,
+        "processProbe": process_probe,
+        "plan": {
+            "version": CAPA2_PORTFOLIO_VERSION,
+            "defaults": CAPA2_PORTFOLIO_DEFAULTS,
+            "sourcePhase": CAPA2_PORTFOLIO_SOURCE_PHASE,
+            "sourceDatabank": CAPA2_PORTFOLIO_SOURCE_DATABANK,
+            "candidateInput": "Export natural Phase28 Foward survivors to Portfolio Lab; do not use SQX FitPortfolio or hidden optimizer surfaces.",
+            "selectionPolicy": [
+                "Rank candidates outside SQX optimization using declared metrics, diversity and traceability.",
+                "Preserve strategy, asset, timeframe, direction, BlockSetting, indicator family and cluster when available.",
+                "Keep similar candidates as reserve/review rather than deleting natural failed/non-selected rows.",
+            ],
+        },
+        "dataContract": {
+            "requiredColumnsOrAliases": [
+                "strategy/name",
+                "asset/symbol",
+                "timeframe",
+                "Forward/Foward natural result/status",
+                "Profit Factor",
+                "Ret/DD or CAGR/Max DD",
+                "Max DD %",
+                "trades",
+                "NetProfit or equivalent",
+            ],
+            "traceColumnsWhenAvailable": [
+                "direction",
+                "BlockSetting",
+                "indicator",
+                "cluster",
+                "C2 template/source",
+            ],
+            "optionalCorrelationInput": "Equity/return series column; if absent, outputs must be labeled similarity, never correlation.",
+            "sanitizedPersistence": "Persist only public-safe summary fields; raw local paths and private CSV columns are not allowed in Edge Factory state.",
+        },
+        "riskPlan": {
+            "baseRiskPct": CAPA2_PORTFOLIO_DEFAULTS["riskBasePct"],
+            "minInitialRiskPct": CAPA2_PORTFOLIO_DEFAULTS["minInitialRiskPct"],
+            "maxInitialRiskPct": CAPA2_PORTFOLIO_DEFAULTS["maxInitialRiskPct"],
+            "weakEligibleRangePct": [CAPA2_PORTFOLIO_DEFAULTS["minInitialRiskPct"], 0.10],
+            "aggregateRisk": "not_computable_until_comparable_equity_or_return_series_exist",
+            "fullDeploymentAllowed": False,
+            "lotSizing": "blocked_until_account_equity_broker_symbol_specs_and_execution_context_exist",
+        },
+        "deploymentPlan": [
+            {"stage": "demo_probe", "strategies": "2-3", "risk": "demo only", "gate": "basic execution and monitoring sanity"},
+            {"stage": "real_reduced_probe", "strategies": "same 2-3", "risk": "reduced live risk", "gate": "spread/slippage/live behavior"},
+            {"stage": "controlled_expansion", "strategies": "5-6", "risk": "normalized <= 0.30% each", "gate": "drawdown/correlation/ops monitoring"},
+            {"stage": "portfolio_target", "strategies": "8-12", "risk": "normalized gradual", "gate": "operator approval after monitored evidence"},
+        ],
+        "guardrails": {
+            "phase28Required": "Phase28 Capa2 Forward must be green and idempotent before this report can pass.",
+            "noSqxRuntime": "No SQX launch, smoke, retest, optimization or running SQX/java process is allowed in this plan gate.",
+            "noFitPortfolio": "FitPortfolio.active=true and active portfolio optimizer markers are forbidden; portfolio construction belongs to governed Portfolio Lab/export flow.",
+            "noTemplateMutation": "This command is report-only and must not mutate local Capa2 base or repo Capa2 template bytes.",
+            "writeSemantics": "Local evidence and session state are written only when --write is explicit.",
+        },
+        "summary": {
+            "decision": "Open Phase29 Capa2 Portfolio as a governed plan/report gate after the Phase28 Forward holdout.",
+            "source": "Consume natural Phase28 Foward survivors; do not rebuild, optimize, refit or force Results=passed.",
+            "portfolioBoundary": "Portfolio selection starts after Forward, but it must stay outside SQX FitPortfolio/template mutation in this backend guard.",
+            "output": "Shortlist 8-12 from stock 30-50, discard reasons, normalized risk plan and gradual deployment gates.",
+            "nextPhase": CAPA2_PORTFOLIO_NEXT,
+        },
+        "academicSources": CAPA2_PORTFOLIO_ACADEMIC_SOURCES,
+        "nextPhase": CAPA2_PORTFOLIO_NEXT,
+    }
+    if write:
+        ensure_ledger(project_root)
+        report_path = ledger_root(project_root) / "phase_reports" / f"phase29_capa2_portfolio_plan_{stamp()}.json"
+        write_json(report_path, payload)
+        state_path = ledger_root(project_root) / "session_state.json"
+        state = read_json(state_path, {})
+        state.update({
+            "updatedAt": now_iso(),
+            "currentPhase": CAPA2_PORTFOLIO_PHASE,
+            "nextPhase": CAPA2_PORTFOLIO_NEXT,
+            "scope": "capa2",
+            "baseProject": DEFAULT_CAPA2_BASE_PROJECT,
+            "repoTemplate": str(DEFAULT_CAPA2_TEMPLATE),
+            "phase29Capa2PortfolioPlanReport": str(report_path),
+        })
+        write_json(state_path, state)
+        payload["written"] = str(report_path)
+    return payload
+
+
 def update_build_data_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
     date_from, date_to = generator_period(BUILD_DATA_PERIOD_KEY)
     payload: dict[str, Any] = {
@@ -27274,6 +27559,10 @@ def build_parser() -> argparse.ArgumentParser:
     capa2_forward.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     capa2_forward.add_argument("--apply", action="store_true")
 
+    capa2_portfolio = sub.add_parser("capa2-portfolio-plan")
+    capa2_portfolio.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    capa2_portfolio.add_argument("--write", action="store_true")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -27573,6 +27862,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "capa2-forward-target":
         json_print(promote_capa2_forward_target(root142, project_root, target=args.target, apply=args.apply))
+        return 0
+    if args.command == "capa2-portfolio-plan":
+        json_print(capa2_portfolio_plan_report(root142, project_root, target=args.target, write=args.write))
         return 0
     if args.command == "archive-exit-day-snippets":
         json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))

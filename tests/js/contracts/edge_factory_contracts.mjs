@@ -13,6 +13,7 @@ sandbox.SQX_CONFIG.storageKeys = {
 };
 
 assert.equal(SQX.edgeFactory.version, 'edge-factory-state-v1');
+assert.equal(SQX.edgeFactory.portfolioLabVersion, 'portfolio-lab-governed-v1');
 assert.equal(SQX.edgeFactory.storageKey(), 'sqx_edge_factory_state_v1');
 assert.equal(SQX.edgeFactory.steps().length, 8);
 assert.equal(SQX.edgeFactory.steps()[0].id, 'session');
@@ -82,27 +83,54 @@ assert.equal(edgeState.c2Template.clusterId, 'CL01');
 assert.equal(edgeState.activeStep, 'capa2-generate');
 
 const sample = [
-  'strategy,asset,timeframe,profitFactor,retDd,maxDd,trades,blockSetting,indicator',
-  'A,AUDCAD,H4,1.7,6.0,18,240,BS_Volatilidad_v6,LinearRegression',
-  'B,AUDCAD,H4,1.65,5.8,19,230,BS_Volatilidad_v6,LinearRegression',
-  'C,XAUUSD,H1,1.5,4.8,22,330,BS_Tendencia_v6,KER',
+  'strategy,asset,timeframe,profitFactor,retDd,maxDd,trades,blockSetting,indicator,cluster,Source Phase,Source Databank,Forward Status,Pass Source,Returns',
+  'A,AUDCAD,H4,1.7,6.0,18,240,BS_Volatilidad_v6,LinearRegression,CL01,phase28_capa2_forward,Foward,PASSED,natural,0.01|0.02|-0.01|0.03',
+  'B,AUDCAD,H1,1.6,5.4,20,260,BS_Tendencia_v6,MACD,CL02,phase28_capa2_forward,Foward,PASSED,natural,',
+  'C,AUDCAD,H4,1.62,5.8,19,230,BS_Volatilidad_v6,LinearRegression,CL03,phase28_capa2_forward,Forward,PASSED,natural,0.01|0.02|-0.01|0.03',
+  'D,XAUUSD,H1,1.5,4.8,22,330,BS_Tendencia_v6,KER,CL04,phase28_capa2_forward,Foward,PASSED,natural,',
+  'E,US500,M15,1.45,4.1,24,420,BS_Volumen_v6_intraday_v6,ATR,CL05,phase28_capa2_forward,Foward,PASSED,natural,',
+  'F,EURUSD,M30,1.47,4.4,21,310,BS_MeanReversion_v6,RSI,CL06,phase28_capa2_forward,Forward,PASSED,natural,',
+  'G,GBPJPY,H4,1.55,5.1,26,205,BS_Tendencia_v6,SUPER,CL07,phase28_capa2_forward,Foward,PASSED,natural,',
+  'H,USDJPY,H1,1.49,4.6,23,286,BS_Volatilidad_v6,ADX,CL08,phase28_capa2_forward,Foward,PASSED,natural,',
+  'I,NAS100,M15,1.44,4.3,25,398,BS_Volumen_v6_intraday_v6,CHOPPINESS,CL09,phase28_capa2_forward,Forward,PASSED,natural,',
+  'J,GER40,H1,1.46,4.5,24,274,BS_Tendencia_v6,HURST,CL10,phase28_capa2_forward,Foward,PASSED,natural,',
+  'K,GBPUSD,M30,1.43,4.2,22,302,BS_Tendencia_v6,MACD,CL11,phase28_capa2_forward,Foward,PASSED,natural,',
+  'L,XAGUSD,H4,1.7,6.4,18,250,BS_Volatilidad_v6,LinearRegression,CL12,phase28_capa2_forward,Synthetic,FORCED PASS,forced,0.01|0.01|0.01|0.01',
 ].join('\n');
 const rows = SQX.edgeFactory.parsePortfolioRows(sample);
 const report = SQX.edgeFactory.buildPortfolioShortlist(rows);
-assert.equal(rows.length, 3);
-assert.equal(report.total, 3);
-assert.equal(report.winners, 2);
-assert.equal(report.version, 'portfolio-lab-mvp-v2');
+assert.equal(rows.length, 12);
+assert.equal(report.total, 12);
+assert.equal(report.winners >= 8 && report.winners <= 12, true);
+assert.equal(report.version, 'portfolio-lab-governed-v1');
+assert.equal(report.sourcePhase, 'phase28_capa2_forward');
+assert.equal(report.sourceDatabank, 'Foward');
+assert.equal(report.riskPlan.status, 'target-ready');
+assert.equal(report.riskPlan.baseRiskPct, 0.2);
+assert.equal(report.riskPlan.maxInitialRiskPct, 0.3);
+assert.equal(report.correlationStatus.state, 'correlation-available');
+assert.equal(report.deploymentSteps.some(step => step.id === 'portfolio-master-correlation'), true);
+assert.equal(report.rejected, 1);
 assert.equal(report.rows.some(row => row.diversityStatus === 'similar'), true);
 assert.equal(report.rows.some(row => row.diversityStatus === 'portfolio'), true);
-const semicolonRows = SQX.edgeFactory.parsePortfolioRows('Strategy Name;Symbol;TimeFrame;Profit factor;Ret/DD Ratio;Max DD %;# of trades\nD;US500;M15;1,45;4,2;23;410');
+assert.equal(report.rows.find(row => row.strategy === 'L').eligibleForPortfolio, false);
+assert.equal(report.rows.find(row => row.strategy === 'L').reason.includes('forced/synthetic pass rejected'), true);
+const semicolonRows = SQX.edgeFactory.parsePortfolioRows('Strategy Name;Symbol;TimeFrame;Profit factor;Ret/DD Ratio;Max DD %;# of trades;Source Databank;Forward Status\nD;US500;M15;1,45;4,2;23;410;Foward;PASSED');
 assert.equal(semicolonRows[0].profitFactor, 1.45);
 assert.equal(semicolonRows[0].asset, 'US500');
+const noForward = SQX.edgeFactory.buildPortfolioShortlist('strategy,asset,timeframe,profitFactor,retDd,maxDd,trades,Source Databank,Forward Status\nNoSource,US500,M15,1.5,4,20,200,WFM,PASSED');
+assert.equal(noForward.rows[0].eligibleForPortfolio, false);
+assert.equal(noForward.rows[0].reason.includes('sourceDatabank != Forward/Foward'), true);
+const dirty = SQX.edgeFactory.buildPortfolioShortlist('strategy,asset,timeframe,profitFactor,retDd,maxDd,trades,Source Databank,Forward Status\nC:\\Users\\Ivan SQX\\secret.sqx,US500,M15,1.5,4,20,200,Foward,PASSED');
+assert.equal(dirty.rows[0].strategy.includes('C:\\'), false);
 SQX.edgeFactory.recordPortfolioLab(report);
 edgeState = JSON.parse(sandbox.localStorage.getItem('sqx_edge_factory_state_v1'));
-assert.equal(edgeState.portfolioLab.winners, 2);
+assert.equal(edgeState.portfolioLab.version, 'portfolio-lab-governed-v1');
+assert.equal(edgeState.portfolioLab.winners >= 8 && edgeState.portfolioLab.winners <= 12, true);
+assert.equal(edgeState.portfolioLab.rows.every(row => row.forwardSource != null && row.forwardStatus != null), true);
+assert.equal(edgeState.portfolioLab.rows.some(row => Object.hasOwn(row, 'Returns')), false);
 assert.equal(edgeState.completedSteps.includes('portfolio'), true);
-assert.equal(SQX.edgeFactory.contextSummary(edgeState).portfolio.includes('ganadores diversos'), true);
+assert.equal(SQX.edgeFactory.contextSummary(edgeState).portfolio.includes('portfolio-lab-governed-v1'), true);
 assert.equal(SQX.edgeFactory.contextSummary({}).session.includes('Pendiente:'), true);
 
 const html = fs.readFileSync(path.join(repoRoot, 'app/SQX_Dashboard_v6.html'), 'utf8');
@@ -120,8 +148,13 @@ assert.equal(html.includes('class="edge-factory-command-strip"'), true);
 assert.equal(html.includes('data-edge-signal="asset"'), true);
 assert.equal(html.includes('data-edge-signal="portfolio"'), true);
 assert.equal(html.includes('id="edge-portfolio-lab"'), true);
+assert.equal(html.includes('Portfolio Lab Gobernado'), true);
 assert.equal(html.includes('id="edge-portfolio-threshold"'), true);
 assert.equal(html.includes('id="edge-portfolio-export-csv"'), true);
+assert.equal(html.includes('portfolio-lab-governed-v1'), true);
+assert.equal(html.includes('id="edge-portfolio-max-timeframe"'), true);
+assert.equal(html.includes('Contrato Forward/Foward'), true);
+assert.equal(html.includes('correlacion real solo con equity/returns comparables'), true);
 assert.equal(html.includes('Del asset al portfolio, sin perder el hilo'), true);
 assert.equal(html.includes('perfil SQX destino'), true);
 assert.equal(html.includes('SQ default / configurable'), true);

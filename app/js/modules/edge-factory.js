@@ -4,6 +4,9 @@
   var SQX = global.SQX = global.SQX || {};
   var VERSION = 'edge-factory-state-v1';
   var FALLBACK_KEY = 'sqx_edge_factory_state_v1';
+  var PORTFOLIO_LAB_VERSION = 'portfolio-lab-governed-v1';
+  var PORTFOLIO_TARGET_MIN = 8;
+  var PORTFOLIO_TARGET_MAX = 12;
 
   var STEPS = [
     { id: 'session', label: 'Punto de partida' },
@@ -310,13 +313,12 @@
   }
 
   function recordPortfolioLab(report) {
-    var clean = Object.assign({
-      version: 'portfolio-lab-mvp-v1',
-      total: 0,
-      winners: 0,
-      rows: []
-    }, report || {}, { analyzedAt: new Date().toISOString() });
-    return saveEvent({ portfolioLab: clean }, clean.total ? ['capa2-analyze', 'portfolio'] : [], 'portfolio', 'edge-factory-portfolio-lab');
+    var clean = sanitizePortfolioReport(Object.assign({}, report || {}, {
+      analyzedAt: new Date().toISOString()
+    }));
+    var completed = clean.total ? ['capa2-analyze'] : [];
+    if (clean.riskPlan && clean.riskPlan.status === 'target-ready') completed.push('portfolio');
+    return saveEvent({ portfolioLab: clean }, completed, 'portfolio', 'edge-factory-portfolio-lab');
   }
 
   function recordDownloadRequest(payload) {
@@ -376,7 +378,7 @@
         ? 'Listo para Portfolio Lab: importa resultados Capa 2.'
         : 'Pendiente: genera Capa 2 antes del análisis.',
       portfolio: state.portfolioLab && state.portfolioLab.total
-        ? 'Portfolio Lab: ' + state.portfolioLab.total + ' candidatos · ' + state.portfolioLab.winners + ' ganadores diversos.'
+        ? 'Portfolio Lab ' + (state.portfolioLab.version || PORTFOLIO_LAB_VERSION) + ': ' + state.portfolioLab.total + ' candidatos · ' + state.portfolioLab.winners + ' ganadores · ' + ((state.portfolioLab.riskPlan && state.portfolioLab.riskPlan.statusLabel) || 'riesgo pendiente') + '.'
         : 'Pendiente: calcula shortlist en Portfolio Lab.'
     };
   }
@@ -445,6 +447,175 @@
     return match && match[1] ? match[1] : fallback;
   }
 
+  function clampNumber(value, min, max, fallback) {
+    var number = numeric(value, fallback);
+    if (!Number.isFinite(number)) number = fallback;
+    return Math.min(max, Math.max(min, number));
+  }
+
+  function roundMetric(value, digits) {
+    var power = Math.pow(10, digits == null ? 2 : digits);
+    return Math.round(numeric(value, 0) * power) / power;
+  }
+
+  function sanitizeText(value, fallback, maxLength) {
+    var out = safeString(value, fallback || '');
+    if (!out) return '';
+    if (/^[A-Za-z]:[\\/]/.test(out)) {
+      out = out.split(/[\\/]/).filter(Boolean).pop() || '[ruta-local-redactada]';
+    }
+    out = out
+      .replace(/[A-Za-z]:[\\/][^\s,;|]+/g, '[ruta-local-redactada]')
+      .replace(/\\\\[^\s,;|]+/g, '[ruta-local-redactada]')
+      .replace(/https?:\/\/\S+/gi, '[url-redacted]')
+      .replace(/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi, '[email-redacted]')
+      .replace(/\s+/g, ' ')
+      .trim();
+    if (maxLength && out.length > maxLength) out = out.slice(0, Math.max(0, maxLength - 3)).trim() + '...';
+    return out;
+  }
+
+  function isForwardSource(value) {
+    var key = normalizeKey(value);
+    if (!key) return false;
+    if (key.indexOf('walkforward') !== -1 || key.indexOf('walkfoward') !== -1 || key === 'wfm') return false;
+    return key.indexOf('forward') !== -1 || key.indexOf('foward') !== -1;
+  }
+
+  function isPassedStatus(value) {
+    var key = normalizeKey(value);
+    if (!key) return false;
+    if (['pass', 'passed', 'ok', 'true', '1', 'accepted', 'survivor', 'survived', 'aprobado', 'aprobada'].indexOf(key) !== -1) return true;
+    return key.indexOf('passed') !== -1 || key.indexOf('survivor') !== -1 || key.indexOf('survived') !== -1;
+  }
+
+  function markerIsExplicitTrue(value) {
+    var key = normalizeKey(value);
+    return ['1', 'true', 'yes', 'si', 'sí', 'forced', 'force', 'synthetic', 'manual', 'override'].indexOf(key) !== -1;
+  }
+
+  function hasForcedSyntheticPass(row) {
+    row = row || {};
+    var forcedFlag = valueByAliases(row, ['forced', 'Forced', 'forcePass', 'Force Pass', 'forcedPass', 'Forced Pass', 'manualPass', 'Manual Pass']);
+    var syntheticFlag = valueByAliases(row, ['syntheticPass', 'Synthetic Pass', 'synthetic_pass', 'Synthetic_Pass']);
+    if (markerIsExplicitTrue(forcedFlag) || markerIsExplicitTrue(syntheticFlag)) return true;
+    var passSource = normalizeKey(row.passSource || valueByAliases(row, ['passSource', 'Pass Source', 'resultSource', 'Result Source', 'validationMode', 'Validation Mode', 'passType', 'Pass Type']));
+    if (['forced', 'force', 'synthetic', 'manual', 'override', 'fabricated', 'simulated'].indexOf(passSource) !== -1) return true;
+    var joined = normalizeKey([
+      row.forwardStatus,
+      row.forwardSource,
+      row.passSource,
+      valueByAliases(row, ['status', 'Status', 'result', 'Result']),
+      valueByAliases(row, ['notes', 'Notes', 'comment', 'Comment'])
+    ].filter(Boolean).join(' '));
+    return joined.indexOf('forcedpass') !== -1 ||
+      joined.indexOf('forcepass') !== -1 ||
+      joined.indexOf('syntheticpass') !== -1 ||
+      joined.indexOf('manualpass') !== -1 ||
+      joined.indexOf('overridepass') !== -1 ||
+      joined.indexOf('fabricatedpass') !== -1 ||
+      joined.indexOf('simulatedpass') !== -1 ||
+      joined.indexOf('forcedresultspassed') !== -1;
+  }
+
+  function portfolioForwardContract(row) {
+    row = row || {};
+    var phase = row.sourcePhase || valueByAliases(row, [
+      'sourcePhase', 'Source Phase', 'phase', 'Phase'
+    ]);
+    var databank = row.sourceDatabank || row.forwardSource || valueByAliases(row, [
+      'sourceDatabank', 'Source Databank', 'databank', 'Databank',
+      'resultDatabank', 'Result Databank', 'output', 'Output'
+    ]);
+    var source = row.forwardSource || valueByAliases(row, [
+      'forwardSource', 'Forward Source', 'Foward Source', 'source', 'Source', 'databank', 'Databank',
+      'resultDatabank', 'Result Databank', 'output', 'Output', 'stage', 'Stage',
+      'phase', 'Phase', 'test', 'Test'
+    ]) || databank;
+    var status = row.forwardStatus || valueByAliases(row, [
+      'forwardStatus', 'Forward Status', 'status', 'Status', 'result', 'Result',
+      'filters_result', 'Filters Result', 'passed', 'Passed', 'pass', 'Pass'
+    ]);
+    var passSource = row.passSource || valueByAliases(row, [
+      'passSource', 'Pass Source', 'resultSource', 'Result Source', 'validationMode',
+      'Validation Mode', 'passType', 'Pass Type'
+    ]);
+    var sourceOk = isForwardSource(source || databank);
+    var phaseOk = !phase || normalizeKey(phase) === 'phase28capa2forward';
+    var statusOk = isPassedStatus(status);
+    var forcedSynthetic = hasForcedSyntheticPass(Object.assign({}, row, {
+      forwardSource: source,
+      forwardStatus: status,
+      passSource: passSource
+    }));
+    var issues = [];
+    if (!phaseOk) issues.push('sourcePhase != phase28_capa2_forward');
+    if (!sourceOk) issues.push('sourceDatabank != Forward/Foward');
+    if (!statusOk) issues.push('status != PASSED natural');
+    if (forcedSynthetic) issues.push('forced/synthetic pass rejected');
+    return {
+      ok: phaseOk && sourceOk && statusOk && !forcedSynthetic,
+      phase: sanitizeText(phase || 'phase28_capa2_forward', ''),
+      databank: sanitizeText(databank || source || 'Foward', ''),
+      source: sanitizeText(source, ''),
+      status: sanitizeText(status, ''),
+      passSource: sanitizeText(passSource, ''),
+      issues: issues
+    };
+  }
+
+  function parsePortfolioSeries(value) {
+    var text = String(value == null ? '' : value).trim();
+    if (!text) return [];
+    return text.split(/[|\s]+/).map(function(item) {
+      return numeric(item, NaN);
+    }).filter(function(item) {
+      return Number.isFinite(item);
+    });
+  }
+
+  function portfolioReturnSeries(row) {
+    row = row || {};
+    if (Array.isArray(row.returnSeries) && row.returnSeries.length >= 3) return row.returnSeries;
+    var equity = Array.isArray(row.equitySeries) ? row.equitySeries : [];
+    if (equity.length < 4) return [];
+    var returns = [];
+    for (var index = 1; index < equity.length; index += 1) {
+      var prev = equity[index - 1];
+      var current = equity[index];
+      returns.push(prev ? (current - prev) / Math.abs(prev) : current - prev);
+    }
+    return returns;
+  }
+
+  function pearsonCorrelation(a, b) {
+    if (!Array.isArray(a) || !Array.isArray(b) || a.length !== b.length || a.length < 3) return null;
+    var meanA = a.reduce(function(sum, item) { return sum + item; }, 0) / a.length;
+    var meanB = b.reduce(function(sum, item) { return sum + item; }, 0) / b.length;
+    var num = 0;
+    var denA = 0;
+    var denB = 0;
+    for (var index = 0; index < a.length; index += 1) {
+      var da = a[index] - meanA;
+      var db = b[index] - meanB;
+      num += da * db;
+      denA += da * da;
+      denB += db * db;
+    }
+    if (!denA || !denB) return null;
+    return num / Math.sqrt(denA * denB);
+  }
+
+  function bestCorrelation(row, winners) {
+    return winners.reduce(function(best, winner) {
+      var correlation = pearsonCorrelation(portfolioReturnSeries(row), portfolioReturnSeries(winner));
+      if (correlation == null) return best;
+      return correlation > best.value
+        ? { value: correlation, winner: winner, available: true }
+        : Object.assign({}, best, { available: true });
+    }, { value: -Infinity, winner: null, available: false });
+  }
+
   function parsePortfolioRows(text) {
     var lines = String(text || '').split(/\r?\n/).map(function(line) { return line.trim(); }).filter(Boolean);
     if (!lines.length) return [];
@@ -474,6 +645,14 @@
       row.winningPercent = numeric(valueByAliases(row, ['winningPercent', 'Winning Percent', 'Win %']), 0);
       row.sqn = numeric(valueByAliases(row, ['SQN', 'sqn']), 0);
       row.netProfit = numeric(valueByAliases(row, ['Net profit', 'Net Profit', 'netProfit']), 0);
+      row.sourcePhase = valueByAliases(row, ['sourcePhase', 'Source Phase', 'Phase']);
+      row.sourceDatabank = valueByAliases(row, ['sourceDatabank', 'Source Databank', 'Databank', 'Result Databank', 'Output Databank', 'Output']);
+      row.forwardSource = valueByAliases(row, ['forwardSource', 'Forward Source', 'Foward Source', 'source', 'Source', 'databank', 'Databank', 'Result Databank', 'Output', 'output', 'Stage', 'Test']) || row.sourceDatabank;
+      row.forwardStatus = valueByAliases(row, ['forwardStatus', 'Forward Status', 'status', 'Status', 'result', 'Result', 'Filters Result', 'passed', 'Passed']);
+      row.passSource = valueByAliases(row, ['passSource', 'Pass Source', 'resultSource', 'Result Source', 'validationMode', 'Validation Mode', 'passType', 'Pass Type']);
+      row.equitySeries = parsePortfolioSeries(valueByAliases(row, ['equitySeries', 'Equity Series', 'EquityCurve', 'Equity Curve', 'Balance Curve']));
+      row.returnSeries = parsePortfolioSeries(valueByAliases(row, ['returnSeries', 'Return Series', 'Returns', 'returns', 'Monthly Returns']));
+      row.forwardContract = portfolioForwardContract(row);
       row.hasCoreMetrics = row.profitFactor > 0 && row.trades > 0 && row.maxDd < 100;
       delete row.__normalized;
       return row;
@@ -515,47 +694,364 @@
     return Math.min(1, score);
   }
 
-  function buildPortfolioShortlist(inputRows, options) {
-    var settings = Object.assign({
+  function portfolioSettings(options) {
+    var raw = Object.assign({
       similarityThreshold: 0.78,
-      maxWinners: 8,
+      maxWinners: 10,
       maxPerAsset: 2,
+      maxPerTimeframe: 4,
+      maxPerBlockSetting: 3,
+      maxPerIndicator: 3,
+      maxPerCluster: 1,
+      correlationThreshold: 0.50,
       minProfitFactor: 1.2,
       minTrades: 80,
       maxDrawdown: 45
     }, options || {});
-    var rows = (Array.isArray(inputRows) ? inputRows : parsePortfolioRows(inputRows)).map(function(row) {
-      return Object.assign({}, row, { score: scoreCandidate(row) });
+    return {
+      similarityThreshold: clampNumber(raw.similarityThreshold, 0.5, 0.95, 0.78),
+      maxWinners: clampNumber(raw.maxWinners || raw.targetWinners, PORTFOLIO_TARGET_MIN, PORTFOLIO_TARGET_MAX, 12),
+      targetMinWinners: PORTFOLIO_TARGET_MIN,
+      targetMaxWinners: PORTFOLIO_TARGET_MAX,
+      maxPerAsset: clampNumber(raw.maxPerAsset, 1, 4, 2),
+      maxPerTimeframe: clampNumber(raw.maxPerTimeframe, 1, 6, 4),
+      maxPerBlockSetting: clampNumber(raw.maxPerBlockSetting, 1, 4, 3),
+      maxPerIndicator: clampNumber(raw.maxPerIndicator, 1, 4, 3),
+      maxPerCluster: clampNumber(raw.maxPerCluster, 1, 3, 1),
+      correlationThreshold: clampNumber(raw.correlationThreshold, 0.1, 0.95, 0.5),
+      minProfitFactor: clampNumber(raw.minProfitFactor, 1, 3, 1.2),
+      minTrades: clampNumber(raw.minTrades, 1, 1000, 80),
+      maxDrawdown: clampNumber(raw.maxDrawdown, 1, 80, 45)
+    };
+  }
+
+  function normalizePortfolioCandidate(row, index) {
+    row = row || {};
+    var contract = portfolioForwardContract(row);
+    var candidate = {
+      id: sanitizeText(row.id || ('portfolio-' + (index + 1)), 'portfolio-' + (index + 1), 90),
+      importIndex: numeric(row.importIndex, index),
+      strategy: sanitizeText(row.strategy || row.name || row['Strategy Name'] || row.id, 'portfolio-' + (index + 1), 140),
+      asset: upper(sanitizeText(row.asset || row.symbol || row.Symbol, 'GENERIC', 40), 'GENERIC'),
+      timeframe: upper(sanitizeText(row.timeframe || row.tf || row.TimeFrame, 'H1', 20), 'H1'),
+      blockSetting: sanitizeText(row.blockSetting || row.BlockSetting || row.bs || 'BS_Custom', 'BS_Custom', 120),
+      indicator: sanitizeText(row.indicator || row.indicatorBase || row.Indicator || 'SIN_INDICADOR', 'SIN_INDICADOR', 80),
+      clusterId: sanitizeText(row.clusterId || row.cluster || row.Cluster || '', '', 40),
+      sourcePhase: sanitizeText(row.sourcePhase || row.phase || row.Phase || 'phase28_capa2_forward', 'phase28_capa2_forward', 80),
+      sourceDatabank: sanitizeText(row.sourceDatabank || row.forwardSource || row.Databank || '', '', 80),
+      profitFactor: roundMetric(row.profitFactor, 2),
+      retDd: roundMetric(row.retDd, 2),
+      maxDd: roundMetric(row.maxDd, 2),
+      trades: Math.round(numeric(row.trades, 0)),
+      stability: roundMetric(row.stability, 2),
+      winningPercent: roundMetric(row.winningPercent, 2),
+      sqn: roundMetric(row.sqn, 2),
+      netProfit: roundMetric(row.netProfit, 2),
+      equitySeries: Array.isArray(row.equitySeries) ? row.equitySeries.slice(0, 240) : [],
+      returnSeries: Array.isArray(row.returnSeries) ? row.returnSeries.slice(0, 240) : [],
+      forwardSource: contract.source,
+      forwardStatus: contract.status,
+      passSource: contract.passSource,
+      forwardContract: {
+        ok: contract.ok,
+        issues: contract.issues.slice()
+      },
+      eligibleForPortfolio: contract.ok
+    };
+    candidate.hasCoreMetrics = candidate.profitFactor > 0 && candidate.trades > 0 && candidate.maxDd < 100;
+    return candidate;
+  }
+
+  function addCapReason(reasons, label, current, max) {
+    if (current >= max) reasons.push(label + ' cap ' + current + '/' + max);
+  }
+
+  function buildRiskPlan(winners, settings, rejectedCount) {
+    var count = winners.length;
+    var status = count >= PORTFOLIO_TARGET_MIN && count <= PORTFOLIO_TARGET_MAX ? 'target-ready' : 'under-target';
+    var statusLabel = status === 'target-ready'
+      ? 'riesgo listo para despliegue gradual'
+      : 'riesgo pendiente: faltan ganadores Forward/Foward';
+    return {
+      version: 'portfolio-risk-plan-v1',
+      objective: '8-12 ganadores naturales de Forward/Foward antes de MT5 real',
+      status: status,
+      statusLabel: statusLabel,
+      targetRange: PORTFOLIO_TARGET_MIN + '-' + PORTFOLIO_TARGET_MAX,
+      selected: count,
+      rejectedByContract: rejectedCount,
+      allocationPerStrategyPct: 0.2,
+      baseRiskPct: 0.2,
+      minInitialRiskPct: 0.05,
+      maxInitialRiskPct: 0.3,
+      maxScaleRiskPct: 0.3,
+      aggregateRisk: 'not_computable',
+      fullDeploymentAllowed: false,
+      caps: {
+        perAsset: settings.maxPerAsset,
+        perTimeframe: settings.maxPerTimeframe,
+        perBlockSetting: settings.maxPerBlockSetting,
+        perIndicator: settings.maxPerIndicator,
+        perCluster: settings.maxPerCluster
+      }
+    };
+  }
+
+  function buildCorrelationStatus(settings, similarCount, comparablePairs) {
+    var hasComparableSeries = numeric(comparablePairs, 0) > 0;
+    return {
+      state: hasComparableSeries ? 'correlation-available' : 'similarity-only',
+      label: hasComparableSeries ? 'Correlacion real disponible con series comparables' : 'Similitud operativa, no correlacion de retornos',
+      detail: hasComparableSeries
+        ? 'Se han encontrado pares con equity/returns comparables; se aplica umbral 0.50.'
+        : 'Portfolio Lab agrupa por asset, timeframe, BlockSetting, indicador y metricas. Si no hay equity/returns comparables, no se etiqueta como correlacion.',
+      similarityThreshold: settings.similarityThreshold,
+      correlationThreshold: settings.correlationThreshold,
+      comparablePairs: numeric(comparablePairs, 0),
+      similarCandidates: similarCount
+    };
+  }
+
+  function buildDeploymentSteps(riskPlan, rejectedCount) {
+    var ready = riskPlan && riskPlan.status === 'target-ready';
+    return [
+      {
+        id: 'forward-contract',
+        label: 'Confirmar supervivientes Forward/Foward naturales',
+        status: rejectedCount ? 'blocked' : 'ready',
+        detail: rejectedCount ? rejectedCount + ' fila(s) fuera de contrato' : 'source/status gobernado OK'
+      },
+      {
+        id: 'portfolio-master-correlation',
+        label: 'Medir correlacion real en Portfolio Master',
+        status: 'pending',
+        detail: 'La similitud del Lab no sustituye correlacion de retornos'
+      },
+      {
+        id: 'mt5-reduced-risk',
+        label: 'Desplegar MT5 con riesgo reducido',
+        status: ready ? 'ready' : 'waiting',
+        detail: 'Inicio sugerido 0.2% base, cap 0.30% por estrategia hasta observar convivencia'
+      },
+      {
+        id: 'scale-portfolio',
+        label: 'Escalar solo si el lote mantiene 8-12 finalistas',
+        status: ready ? 'ready' : 'waiting',
+        detail: ready ? 'shortlist dentro del rango objetivo' : 'completar diversidad antes de escalar'
+      }
+    ];
+  }
+
+  function sanitizePortfolioSettings(settings) {
+    settings = portfolioSettings(settings || {});
+    return {
+      similarityThreshold: settings.similarityThreshold,
+      maxWinners: settings.maxWinners,
+      targetMinWinners: settings.targetMinWinners,
+      targetMaxWinners: settings.targetMaxWinners,
+      maxPerAsset: settings.maxPerAsset,
+      maxPerTimeframe: settings.maxPerTimeframe,
+      maxPerBlockSetting: settings.maxPerBlockSetting,
+      maxPerIndicator: settings.maxPerIndicator,
+      maxPerCluster: settings.maxPerCluster,
+      correlationThreshold: settings.correlationThreshold,
+      minProfitFactor: settings.minProfitFactor,
+      minTrades: settings.minTrades,
+      maxDrawdown: settings.maxDrawdown
+    };
+  }
+
+  function sanitizePortfolioRow(row, index) {
+    var original = row || {};
+    row = Object.assign(normalizePortfolioCandidate(original, index || 0), {
+      clusterRef: original.clusterRef,
+      score: original.score,
+      similarity: original.similarity,
+      similarityLabel: original.similarityLabel,
+      correlation: original.correlation,
+      correlationStatus: original.correlationStatus,
+      closestStrategy: original.closestStrategy,
+      diversityStatus: original.diversityStatus,
+      decision: original.decision,
+      reason: original.reason,
+      riskPct: original.riskPct
+    });
+    return {
+      id: row.id,
+      importIndex: row.importIndex,
+      strategy: row.strategy,
+      asset: row.asset,
+      timeframe: row.timeframe,
+      blockSetting: row.blockSetting,
+      indicator: row.indicator,
+      clusterId: row.clusterId,
+      clusterRef: sanitizeText(row.clusterRef || row.clusterId || '', '', 40),
+      profitFactor: row.profitFactor,
+      retDd: row.retDd,
+      maxDd: row.maxDd,
+      trades: row.trades,
+      stability: row.stability,
+      winningPercent: row.winningPercent,
+      sqn: row.sqn,
+      netProfit: row.netProfit,
+      score: roundMetric(row.score, 2),
+      similarity: roundMetric(row.similarity, 2),
+      similarityLabel: sanitizeText(row.similarityLabel || 'similitud operativa', 'similitud operativa', 120),
+      correlation: row.correlation == null ? null : roundMetric(row.correlation, 2),
+      correlationStatus: sanitizeText(row.correlationStatus || 'not_available', 'not_available', 40),
+      closestStrategy: sanitizeText(row.closestStrategy || '', '', 140),
+      diversityStatus: ['portfolio', 'similar', 'review'].indexOf(row.diversityStatus) !== -1 ? row.diversityStatus : 'review',
+      decision: sanitizeText(row.decision || 'Revisar', 'Revisar', 40),
+      reason: sanitizeText(row.reason || '', '', 220),
+      riskPct: row.riskPct == null ? null : roundMetric(row.riskPct, 2),
+      eligibleForPortfolio: !!row.eligibleForPortfolio,
+      sourcePhase: sanitizeText(row.sourcePhase || 'phase28_capa2_forward', 'phase28_capa2_forward', 80),
+      sourceDatabank: sanitizeText(row.sourceDatabank || row.forwardSource || '', '', 80),
+      forwardSource: row.forwardSource,
+      forwardStatus: row.forwardStatus,
+      passSource: row.passSource,
+      forwardContract: {
+        ok: !!(row.forwardContract && row.forwardContract.ok),
+        issues: row.forwardContract && Array.isArray(row.forwardContract.issues)
+          ? row.forwardContract.issues.map(function(issue) { return sanitizeText(issue, '', 80); }).filter(Boolean)
+          : []
+      }
+    };
+  }
+
+  function sanitizePortfolioReport(report) {
+    report = report || {};
+    var settings = sanitizePortfolioSettings(report.settings || {});
+    var rows = (Array.isArray(report.rows) ? report.rows : []).map(sanitizePortfolioRow);
+    var counts = rows.reduce(function(acc, row) {
+      acc[row.diversityStatus] = (acc[row.diversityStatus] || 0) + 1;
+      if (!row.eligibleForPortfolio) acc.rejected += 1;
+      return acc;
+    }, { portfolio: 0, similar: 0, review: 0, rejected: 0 });
+    var uniqueAssets = {};
+    rows.forEach(function(row) { uniqueAssets[normalizeKey(row.asset)] = true; });
+    var riskPlan = report.riskPlan || buildRiskPlan(rows.filter(function(row) { return row.diversityStatus === 'portfolio'; }), settings, counts.rejected);
+    var correlationStatus = report.correlationStatus || buildCorrelationStatus(settings, counts.similar || 0);
+    return {
+      version: PORTFOLIO_LAB_VERSION,
+      analyzedAt: report.analyzedAt || new Date().toISOString(),
+      sourcePhase: sanitizeText(report.sourcePhase || 'phase28_capa2_forward', 'phase28_capa2_forward', 80),
+      sourceDatabank: sanitizeText(report.sourceDatabank || 'Foward', 'Foward', 80),
+      selectionMode: sanitizeText(report.selectionMode || 'governed-post-forward', 'governed-post-forward', 80),
+      total: rows.length,
+      winners: counts.portfolio || 0,
+      similar: counts.similar || 0,
+      review: counts.review || 0,
+      rejected: counts.rejected || 0,
+      uniqueAssets: Object.keys(uniqueAssets).filter(Boolean).length,
+      settings: settings,
+      riskPlan: {
+        version: sanitizeText(riskPlan.version || 'portfolio-risk-plan-v1'),
+        objective: sanitizeText(riskPlan.objective || '8-12 ganadores naturales de Forward/Foward antes de MT5 real', '', 180),
+        status: sanitizeText(riskPlan.status || 'under-target', '', 40),
+        statusLabel: sanitizeText(riskPlan.statusLabel || 'riesgo pendiente', '', 120),
+        targetRange: sanitizeText(riskPlan.targetRange || (PORTFOLIO_TARGET_MIN + '-' + PORTFOLIO_TARGET_MAX), '', 20),
+        selected: numeric(riskPlan.selected, counts.portfolio || 0),
+        rejectedByContract: numeric(riskPlan.rejectedByContract, counts.rejected || 0),
+        allocationPerStrategyPct: roundMetric(riskPlan.allocationPerStrategyPct, 2),
+        baseRiskPct: roundMetric(riskPlan.baseRiskPct, 2),
+        minInitialRiskPct: roundMetric(riskPlan.minInitialRiskPct, 2),
+        maxInitialRiskPct: roundMetric(riskPlan.maxInitialRiskPct, 2),
+        maxScaleRiskPct: roundMetric(riskPlan.maxScaleRiskPct, 2),
+        aggregateRisk: sanitizeText(riskPlan.aggregateRisk || 'not_computable', '', 60),
+        fullDeploymentAllowed: !!riskPlan.fullDeploymentAllowed,
+        caps: {
+          perAsset: numeric(riskPlan.caps && riskPlan.caps.perAsset, settings.maxPerAsset),
+          perTimeframe: numeric(riskPlan.caps && riskPlan.caps.perTimeframe, settings.maxPerTimeframe),
+          perBlockSetting: numeric(riskPlan.caps && riskPlan.caps.perBlockSetting, settings.maxPerBlockSetting),
+          perIndicator: numeric(riskPlan.caps && riskPlan.caps.perIndicator, settings.maxPerIndicator),
+          perCluster: numeric(riskPlan.caps && riskPlan.caps.perCluster, settings.maxPerCluster)
+        }
+      },
+      correlationStatus: {
+        state: sanitizeText(correlationStatus.state || 'similarity-only', '', 40),
+        label: sanitizeText(correlationStatus.label || 'Similitud operativa, no correlacion de retornos', '', 140),
+        detail: sanitizeText(correlationStatus.detail || '', '', 240),
+        similarityThreshold: roundMetric(correlationStatus.similarityThreshold || settings.similarityThreshold, 2),
+        correlationThreshold: roundMetric(correlationStatus.correlationThreshold || settings.correlationThreshold, 2),
+        comparablePairs: numeric(correlationStatus.comparablePairs, 0),
+        similarCandidates: numeric(correlationStatus.similarCandidates, counts.similar || 0)
+      },
+      deploymentSteps: (Array.isArray(report.deploymentSteps) ? report.deploymentSteps : buildDeploymentSteps(riskPlan, counts.rejected)).map(function(step) {
+        return {
+          id: sanitizeText(step.id || '', '', 60),
+          label: sanitizeText(step.label || '', '', 160),
+          status: sanitizeText(step.status || 'pending', '', 40),
+          detail: sanitizeText(step.detail || '', '', 200)
+        };
+      }),
+      rows: rows
+    };
+  }
+
+  function buildPortfolioShortlist(inputRows, options) {
+    var settings = portfolioSettings(options || {});
+    var rows = (Array.isArray(inputRows) ? inputRows : parsePortfolioRows(inputRows)).map(function(row, index) {
+      var candidate = normalizePortfolioCandidate(row, index);
+      candidate.score = scoreCandidate(candidate);
+      return candidate;
     }).sort(function(a, b) {
       return b.score - a.score || a.importIndex - b.importIndex;
     });
     var winners = [];
     var perAsset = {};
+    var perTimeframe = {};
+    var perBlockSetting = {};
+    var perIndicator = {};
+    var perCluster = {};
     rows.forEach(function(row) {
       var closest = winners.reduce(function(best, winner) {
         var sim = similarity(row, winner);
         return sim > best.value ? { value: sim, winner: winner } : best;
       }, { value: 0, winner: null });
+      var corr = bestCorrelation(row, winners);
       row.similarity = Math.round(closest.value * 100) / 100;
+      row.correlation = corr.available && corr.value !== -Infinity ? roundMetric(corr.value, 2) : null;
+      row.correlationStatus = corr.available ? 'available' : 'not_available';
+      row.similarityLabel = corr.available ? 'correlacion real disponible' : 'similitud operativa, no correlacion real';
       row.closestStrategy = closest.winner ? closest.winner.strategy : '';
-      row.clusterRef = closest.winner ? closest.winner.clusterRef : (row.clusterId || 'CL' + String(winners.length + 1).padStart(2, '0'));
+      row.clusterRef = row.clusterId || 'CL' + String(winners.length + 1).padStart(2, '0');
       var assetKey = normalizeKey(row.asset);
       var assetCount = perAsset[assetKey] || 0;
+      var timeframeKey = normalizeKey(row.timeframe);
+      var timeframeCount = perTimeframe[timeframeKey] || 0;
+      var blockKey = normalizeKey(row.blockSetting);
+      var blockCount = perBlockSetting[blockKey] || 0;
+      var indicatorKey = normalizeKey(row.indicator);
+      var indicatorCount = perIndicator[indicatorKey] || 0;
+      var clusterKey = normalizeKey(row.clusterRef || row.clusterId);
+      var clusterCount = perCluster[clusterKey] || 0;
       var reasons = [];
+      if (!row.eligibleForPortfolio) reasons.push('rechazado: ' + row.forwardContract.issues.join(' · '));
       if (!row.hasCoreMetrics) reasons.push('faltan métricas núcleo');
       if (row.profitFactor < settings.minProfitFactor) reasons.push('PF bajo');
       if (row.trades < settings.minTrades) reasons.push('pocos trades');
       if (row.maxDd > settings.maxDrawdown) reasons.push('DD alto');
-      if (assetCount >= settings.maxPerAsset) reasons.push('límite por asset');
-      if (winners.length >= settings.maxWinners) reasons.push('límite de portfolio');
-      if (!reasons.length && closest.value >= settings.similarityThreshold) reasons.push('similar a ' + closest.winner.strategy);
+      addCapReason(reasons, 'asset', assetCount, settings.maxPerAsset);
+      addCapReason(reasons, 'timeframe', timeframeCount, settings.maxPerTimeframe);
+      addCapReason(reasons, 'BlockSetting', blockCount, settings.maxPerBlockSetting);
+      addCapReason(reasons, 'indicador', indicatorCount, settings.maxPerIndicator);
+      if (clusterCount >= settings.maxPerCluster && winners.length >= settings.targetMinWinners) reasons.push('cluster cap ' + clusterCount + '/' + settings.maxPerCluster);
+      if (winners.length >= settings.maxWinners) reasons.push('límite objetivo 8-12');
+      if (!reasons.length && corr.available && corr.value >= settings.correlationThreshold) reasons.push('correlacion real >= ' + settings.correlationThreshold + ' con ' + corr.winner.strategy);
+      if (!reasons.length && !corr.available && closest.value >= settings.similarityThreshold) reasons.push('similitud operativa >= ' + settings.similarityThreshold + ' con ' + closest.winner.strategy + ' (no correlacion real)');
       if (!reasons.length) {
         row.diversityStatus = 'portfolio';
         row.decision = 'Portfolio';
-        row.reason = 'ganador diverso';
+        row.reason = 'ganador Forward/Foward natural y diverso';
+        row.riskPct = Math.min(0.3, Math.max(0.05, roundMetric(0.2 * Math.min(1.25, Math.max(0.4, row.profitFactor / 1.45)) * Math.min(1.25, Math.max(0.4, row.retDd / 4)) * Math.min(1.15, Math.max(0.45, 25 / Math.max(8, row.maxDd))), 2)));
         winners.push(row);
         perAsset[assetKey] = assetCount + 1;
-      } else if (reasons[0].indexOf('similar a') === 0 || reasons[0] === 'límite por asset' || reasons[0] === 'límite de portfolio') {
+        perTimeframe[timeframeKey] = timeframeCount + 1;
+        perBlockSetting[blockKey] = blockCount + 1;
+        perIndicator[indicatorKey] = indicatorCount + 1;
+        if (clusterKey) perCluster[clusterKey] = clusterCount + 1;
+      } else if (row.eligibleForPortfolio && reasons.some(function(reason) { return reason.indexOf('similitud operativa') === 0 || reason.indexOf('correlacion real') === 0 || reason.indexOf(' cap ') !== -1 || reason === 'límite objetivo 8-12'; })) {
         row.diversityStatus = 'similar';
         row.decision = 'Similar';
         row.reason = reasons.join(' · ');
@@ -571,20 +1067,36 @@
     }, {});
     var uniqueAssets = {};
     rows.forEach(function(row) { uniqueAssets[normalizeKey(row.asset)] = true; });
-    return {
-      version: 'portfolio-lab-mvp-v2',
+    var rejectedCount = rows.filter(function(row) { return !row.eligibleForPortfolio; }).length;
+    var comparablePairs = rows.filter(function(row) { return row.correlationStatus === 'available'; }).length;
+    var riskPlan = buildRiskPlan(winners, settings, rejectedCount);
+    if (comparablePairs > 0) {
+      riskPlan.aggregateRisk = 'computable_from_series';
+      riskPlan.fullDeploymentAllowed = true;
+    }
+    var correlationStatus = buildCorrelationStatus(settings, statusCounts.similar || 0, comparablePairs);
+    return sanitizePortfolioReport({
+      version: PORTFOLIO_LAB_VERSION,
+      sourcePhase: 'phase28_capa2_forward',
+      sourceDatabank: 'Foward',
+      selectionMode: 'governed-post-forward',
       total: rows.length,
       winners: winners.length,
       similar: statusCounts.similar || 0,
       review: statusCounts.review || 0,
+      rejected: rejectedCount,
       uniqueAssets: Object.keys(uniqueAssets).filter(Boolean).length,
       settings: settings,
+      riskPlan: riskPlan,
+      correlationStatus: correlationStatus,
+      deploymentSteps: buildDeploymentSteps(riskPlan, rejectedCount),
       rows: rows
-    };
+    });
   }
 
   SQX.edgeFactory = {
     version: VERSION,
+    portfolioLabVersion: PORTFOLIO_LAB_VERSION,
     storageKey: storageKey,
     defaultState: defaultState,
     getState: readState,
@@ -605,6 +1117,7 @@
     parsePortfolioRows: parsePortfolioRows,
     scoreCandidate: scoreCandidate,
     computeSimilarity: similarity,
+    sanitizePortfolioReport: sanitizePortfolioReport,
     buildPortfolioShortlist: buildPortfolioShortlist
   };
 

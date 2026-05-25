@@ -7631,7 +7631,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn('id="edge-portfolio-lab"', self.html)
         self.assertIn('id="edge-portfolio-threshold"', self.html)
         self.assertIn('id="edge-portfolio-export-csv"', self.html)
-        self.assertIn("CSV Capa 2", self.html)
+        self.assertIn("Contrato Forward/Foward", self.html)
         self.assertIn("Edge Factory", self.html)
         self.assertIn("Del asset al portfolio, sin perder el hilo", self.html)
         self.assertIn("Haz: valida estado remoto.", self.html)
