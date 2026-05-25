@@ -1,6 +1,6 @@
 # Phase30 Capa2 Portfolio Master Contract
 
-Status: documented and registered operating contract only. Evidence: `phase30_capa2_portfolio_master_contract_20260525_152846.json`. `phase30_capa2_portfolio_master_inputs_pending` is also registered with evidence `phase30_capa2_portfolio_master_inputs_pending_20260525_154242.json`. `phase30_capa2_portfolio_master_contract` is the Portfolio Master operating contract after the Phase29 governed Lab.
+Status: documented and registered operating contract only. Evidence: `phase30_capa2_portfolio_master_contract_20260525_152846.json`. `phase30_capa2_portfolio_master_inputs_pending` is also registered with evidence `phase30_capa2_portfolio_master_inputs_pending_20260525_154242.json`, and `phase30_capa2_portfolio_master_operator_inputs_intake` is registered with evidence `phase30_capa2_portfolio_master_operator_inputs_intake_20260525_165548.json`. `phase30_capa2_portfolio_master_contract` is the Portfolio Master operating contract after the Phase29 governed Lab.
 
 ## Purpose
 
@@ -23,6 +23,12 @@ Actual SQX artifact generation remains blocked until governed Lab output and ope
 Current input status: `pending_inputs`. Missing inputs are governed Lab output, natural Forward CSV, comparable equity/return series, account context and broker context. The gate must not fabricate winners, fabricate input files, infer lot sizes, run SQX, rerun retests, optimize or generate Portfolio Master artifacts.
 
 Edge Factory readback mirrors this contract with five explicit prerequisites. Account context and broker/symbol context are separated, the browser state exposes `portfolio-master-inputs-pending-v1`, and built-in examples are marked `Example Only` so they cannot unlock operator review.
+
+## Operator Inputs Intake
+
+`phase30_capa2_portfolio_master_operator_inputs_intake` opens governed operator evidence intake without approving artifact generation. It validates supplied Lab JSON, natural Phase28 `Foward` CSV, comparable equity/returns, public-safe account context and public-safe broker/symbol context.
+
+The intake blocks `Example Only`/sample Forward CSV rows, forced/synthetic/manual pass markers, private account/broker markers, SQX runtime, retest/optimization and Portfolio Master artifact generation. Current status remains `pending_inputs` because real operator files are still missing.
 
 ## Guardrails
 

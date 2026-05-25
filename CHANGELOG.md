@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-25 - C1-CONFIG1 Capa2 Portfolio Master Operator Inputs Intake
+
+- Adds `phase30_capa2_portfolio_master_operator_inputs_intake` as the governed operator evidence intake gate after `phase30_capa2_portfolio_master_inputs_pending`.
+- Records local evidence `phase30_capa2_portfolio_master_operator_inputs_intake_20260525_165548.json` with `processes=[]`, `cfxGuard=true`, no Capa2 `.cfx` mutation and all five operator inputs still missing.
+- Validates supplied inputs when present: governed Lab JSON, natural Phase28 `Foward` CSV, comparable equity/returns, public-safe account context and public-safe broker/symbol context.
+- Blocks `Example Only`/sample Forward CSV rows, forced/synthetic/manual pass markers, private account/broker markers, SQX runtime, retest/optimization and Portfolio Master artifact generation.
+
 ## 2026-05-25 - C1-CONFIG1 Capa2 Portfolio Master Inputs Pending
 
 - Adds `phase30_capa2_portfolio_master_inputs_pending` as the governed Portfolio Master input-intake wait state after the Phase30 contract.

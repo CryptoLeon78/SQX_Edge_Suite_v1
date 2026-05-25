@@ -5717,6 +5717,130 @@ def test_capa2_portfolio_master_inputs_pending_cli_is_registered():
     assert args.write is True
 
 
+def test_capa2_portfolio_master_operator_inputs_intake_writes_pending_state_without_fabricating_inputs(monkeypatch, tmp_path):
+    local_cfx = tmp_path / "local" / "project.cfx"
+    repo_cfx = tmp_path / "repo" / "Capa2_Base.cfx"
+    generator_profile = tmp_path / "generator_profiles.json"
+    _write_minimal_capa2_forward_cfx(local_cfx)
+    _write_minimal_capa2_forward_cfx(repo_cfx)
+    _write_capa2_forward_generator_profile(generator_profile)
+
+    monkeypatch.setattr(gate, "promote_capa2_wfm_target", lambda *args, **kwargs: {
+        "phase": "phase27_capa2_wfm",
+        "ok": True,
+        "issues": [],
+        "warnings": [],
+        "nextPhase": "phase28_capa2_forward",
+    })
+    monkeypatch.setattr(gate, "process_snapshot", lambda: {"ok": True, "processes": []})
+    monkeypatch.setattr(gate, "capa2_base_project_path", lambda root142: local_cfx)
+    monkeypatch.setattr(gate, "DEFAULT_CAPA2_TEMPLATE", repo_cfx)
+    monkeypatch.setattr(gate, "GENERATOR_PROFILES_PATH", generator_profile)
+
+    assert gate.promote_capa2_forward_target(tmp_path, tmp_path, target="both", apply=True)["ok"] is True
+    assert gate.capa2_portfolio_plan_report(tmp_path, tmp_path, target="both", write=True)["ok"] is True
+    assert gate.capa2_portfolio_master_contract(tmp_path, tmp_path, target="both", write=True)["ok"] is True
+    local_sha_before = gate.file_sha256(local_cfx)
+    repo_sha_before = gate.file_sha256(repo_cfx)
+
+    payload = gate.capa2_portfolio_master_operator_inputs_intake(tmp_path, tmp_path, target="both", write=True)
+
+    assert payload["ok"] is True
+    assert payload["phase"] == "phase30_capa2_portfolio_master_operator_inputs_intake"
+    assert payload["operation"] == "capa2_portfolio_master_operator_inputs_intake"
+    assert payload["inputIntake"]["version"] == "portfolio-master-operator-inputs-intake-v1"
+    assert payload["inputIntake"]["status"] == "pending_inputs"
+    assert payload["inputIntake"]["readyForOperatorReview"] is False
+    assert payload["inputIntake"]["providedInputs"] == []
+    assert set(payload["inputIntake"]["missingInputs"]) == {
+        "portfolioLabOutput",
+        "forwardCsv",
+        "equitySeries",
+        "accountContext",
+        "brokerContext",
+    }
+    assert gate.file_sha256(local_cfx) == local_sha_before
+    assert gate.file_sha256(repo_cfx) == repo_sha_before
+    assert Path(payload["written"]).is_file()
+    state = json.loads((tmp_path / ".local" / "sqx142_task_config" / "session_state.json").read_text(encoding="utf-8"))
+    assert state["currentPhase"] == "phase30_capa2_portfolio_master_operator_inputs_intake"
+    assert state["nextPhase"] == "phase30_capa2_portfolio_master_inputs_pending"
+    assert state["portfolioMasterInputStatus"] == "pending_inputs"
+    assert state["phase30Capa2PortfolioMasterOperatorInputsIntakeReport"] == payload["written"]
+
+
+def test_capa2_portfolio_master_operator_inputs_intake_rejects_example_forward_csv(monkeypatch, tmp_path):
+    local_cfx = tmp_path / "local" / "project.cfx"
+    repo_cfx = tmp_path / "repo" / "Capa2_Base.cfx"
+    generator_profile = tmp_path / "generator_profiles.json"
+    forward_csv = tmp_path / "forward.csv"
+    _write_minimal_capa2_forward_cfx(local_cfx)
+    _write_minimal_capa2_forward_cfx(repo_cfx)
+    _write_capa2_forward_generator_profile(generator_profile)
+    forward_csv.write_text(
+        "strategy,Source Databank,Forward Status,Example Only\n"
+        "A,Foward,PASSED,true\n",
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr(gate, "promote_capa2_wfm_target", lambda *args, **kwargs: {
+        "phase": "phase27_capa2_wfm",
+        "ok": True,
+        "issues": [],
+        "warnings": [],
+        "nextPhase": "phase28_capa2_forward",
+    })
+    monkeypatch.setattr(gate, "process_snapshot", lambda: {"ok": True, "processes": []})
+    monkeypatch.setattr(gate, "capa2_base_project_path", lambda root142: local_cfx)
+    monkeypatch.setattr(gate, "DEFAULT_CAPA2_TEMPLATE", repo_cfx)
+    monkeypatch.setattr(gate, "GENERATOR_PROFILES_PATH", generator_profile)
+
+    assert gate.promote_capa2_forward_target(tmp_path, tmp_path, target="both", apply=True)["ok"] is True
+    assert gate.capa2_portfolio_plan_report(tmp_path, tmp_path, target="both", write=True)["ok"] is True
+    assert gate.capa2_portfolio_master_contract(tmp_path, tmp_path, target="both", write=True)["ok"] is True
+
+    payload = gate.capa2_portfolio_master_operator_inputs_intake(
+        tmp_path,
+        tmp_path,
+        target="both",
+        write=False,
+        forward_csv=forward_csv,
+    )
+
+    assert payload["ok"] is False
+    assert payload["inputIntake"]["contentChecks"]["forwardCsv"]["status"] == "invalid"
+    assert any("Example Only/sample" in issue for issue in payload["issues"])
+    assert "written" not in payload
+
+
+def test_capa2_portfolio_master_operator_inputs_intake_cli_is_registered():
+    args = gate.build_parser().parse_args([
+        "capa2-portfolio-master-operator-inputs-intake",
+        "--target",
+        "repo-template",
+        "--portfolio-lab-output",
+        "portfolio.json",
+        "--forward-csv",
+        "forward.csv",
+        "--equity-series",
+        "equity.csv",
+        "--account-context",
+        "account.json",
+        "--broker-context",
+        "broker.json",
+        "--write",
+    ])
+
+    assert args.command == "capa2-portfolio-master-operator-inputs-intake"
+    assert args.target == "repo-template"
+    assert args.portfolio_lab_output == Path("portfolio.json")
+    assert args.forward_csv == Path("forward.csv")
+    assert args.equity_series == Path("equity.csv")
+    assert args.account_context == Path("account.json")
+    assert args.broker_context == Path("broker.json")
+    assert args.write is True
+
+
 def test_synthetic_closeout_report_requires_green_phase10_dry_runs(monkeypatch, tmp_path):
     calls = []
 

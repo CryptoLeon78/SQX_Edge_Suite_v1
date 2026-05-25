@@ -3,6 +3,7 @@
 Estado: C1-CONFIG1 con Fase 30 documentada, registrada y bloqueada en inputs pending
 `phase30_capa2_portfolio_master_contract` documentada como Portfolio Master operating contract posterior al Lab gobernado Phase29 con evidencia local `phase30_capa2_portfolio_master_contract_20260525_152846.json`; actual SQX artifact generation remains blocked until governed Lab output and operator Forward CSV/equity/account/broker context.
 `phase30_capa2_portfolio_master_inputs_pending` queda registrada con evidencia local `phase30_capa2_portfolio_master_inputs_pending_20260525_154242.json`: `processes=[]`, `cfxGuard=true`, no Capa2 `.cfx` mutation, input status `pending_inputs` y faltan governed Lab output, natural Forward CSV, comparable equity/return series, account context y broker context. `currentPhase=phase30_capa2_portfolio_master_inputs_pending` y `nextPhase=phase30_capa2_portfolio_master_inputs_pending`; no fake winners, fake inputs, lot sizing, SQX execution, retest/optimization ni artifact generation.
+`phase30_capa2_portfolio_master_operator_inputs_intake` queda registrada con evidencia local `phase30_capa2_portfolio_master_operator_inputs_intake_20260525_165548.json`: abre intake gobernado de evidencias de operador, valida Lab JSON, CSV natural `Foward`, equity/returns, account context y broker/symbol context cuando existan, bloquea `Example Only`, forced/synthetic/manual pass y marcadores privados, mantiene `processes=[]`, `cfxGuard=true`, no Capa2 `.cfx` mutation y vuelve a `nextPhase=phase30_capa2_portfolio_master_inputs_pending` porque faltan inputs reales.
 `phase29_capa2_portfolio` documentada como handoff gobernado Forward -> Portfolio
 despues de cerrar `Capa2 Forward` el 2026-05-25 con
 `phase28_capa2_forward_target_20260525_140929.json`, despues de cerrar
@@ -2934,6 +2935,23 @@ Siguiente contrato documentado: `phase30_capa2_portfolio_master_contract`.
 - El estado documentado queda en
   `currentPhase=phase30_capa2_portfolio_master_inputs_pending`,
   `nextPhase=phase30_capa2_portfolio_master_inputs_pending`, `scope=capa2`.
+
+## Estado Fase 30C - Capa2 Portfolio Master Operator Inputs Intake
+
+- `phase30_capa2_portfolio_master_operator_inputs_intake` queda registrada con
+  `phase30_capa2_portfolio_master_operator_inputs_intake_20260525_165548.json`.
+- La compuerta abre recepcion gobernada de evidencias reales de operador sin
+  aprobar artifact generation ni SQX runtime.
+- Valida, cuando se aporten, cinco inputs: governed Lab JSON, CSV natural
+  `Foward` desde Phase28, equity/returns comparables, account context publico
+  y broker/symbol context publico.
+- Bloquea `Example Only`/samples, forced/synthetic/manual pass, marcadores
+  privados de cuenta/broker, SQX execution, retest/optimization, fake inputs,
+  winners inventadas, lot sizing y Portfolio Master artifacts.
+- Evidencia real actual: `processes=[]`, `cfxGuard=true`, no Capa2 `.cfx`
+  mutation, `inputStatus=pending_inputs`; al faltar inputs reales,
+  `currentPhase=phase30_capa2_portfolio_master_operator_inputs_intake` y
+  `nextPhase=phase30_capa2_portfolio_master_inputs_pending`.
 
 ## Disciplina Operativa
 

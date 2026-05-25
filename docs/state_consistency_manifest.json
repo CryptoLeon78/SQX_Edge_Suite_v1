@@ -6530,6 +6530,107 @@
       }
     },
     {
+      "id": "sqx142_c2_phase30_portfolio_master_operator_inputs_intake",
+      "description": "C1-CONFIG1 Phase 30C Capa2 Portfolio Master operator inputs intake must stay documented as a governed evidence intake that returns to inputs_pending until real files exist.",
+      "required": {
+        "README.md": [
+          "`phase30_capa2_portfolio_master_operator_inputs_intake` queda registrado",
+          "phase30_capa2_portfolio_master_operator_inputs_intake_20260525_165548.json",
+          "recepcion gobernada de evidencias de operador",
+          "bloquea `Example Only`, forced/synthetic/manual pass y marcadores privados",
+          "`processes=[]`",
+          "`cfxGuard=true`",
+          "`nextPhase` vuelve a `phase30_capa2_portfolio_master_inputs_pending`"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Phase30 Portfolio Master operator inputs intake",
+          "`phase30_capa2_portfolio_master_operator_inputs_intake` is registered",
+          "phase30_capa2_portfolio_master_operator_inputs_intake_20260525_165548.json",
+          "validates supplied Lab JSON, natural Phase28 `Foward` CSV, comparable equity/returns, public-safe account context and public-safe broker/symbol context",
+          "blocks `Example Only`/sample Forward CSV rows",
+          "`processes=[]`",
+          "`cfxGuard=true`",
+          "next state remains `phase30_capa2_portfolio_master_inputs_pending`"
+        ],
+        "docs/ARCHITECTURE.md": [
+          "Phase 30 operator inputs intake records `phase30_capa2_portfolio_master_operator_inputs_intake`",
+          "phase30_capa2_portfolio_master_operator_inputs_intake_20260525_165548.json",
+          "blocks `Example Only` samples",
+          "`processes=[]`",
+          "`cfxGuard=true`",
+          "returns to `phase30_capa2_portfolio_master_inputs_pending` until real inputs exist"
+        ],
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "Estado Fase 30C - Capa2 Portfolio Master Operator Inputs Intake",
+          "`phase30_capa2_portfolio_master_operator_inputs_intake` queda registrada",
+          "phase30_capa2_portfolio_master_operator_inputs_intake_20260525_165548.json",
+          "Valida, cuando se aporten, cinco inputs",
+          "Bloquea `Example Only`/samples",
+          "`processes=[]`",
+          "`cfxGuard=true`",
+          "`nextPhase=phase30_capa2_portfolio_master_inputs_pending`"
+        ],
+        "docs/PHASE30_CAPA2_PORTFOLIO_MASTER_CONTRACT.md": [
+          "`phase30_capa2_portfolio_master_operator_inputs_intake` is registered",
+          "phase30_capa2_portfolio_master_operator_inputs_intake_20260525_165548.json",
+          "Operator Inputs Intake",
+          "validates supplied Lab JSON, natural Phase28 `Foward` CSV, comparable equity/returns",
+          "blocks `Example Only`/sample Forward CSV rows",
+          "Current status remains `pending_inputs`"
+        ],
+        "docs/STATE_CONSISTENCY_GUARD.md": [
+          "C1-CONFIG1 Phase30 operator inputs intake",
+          "`phase30_capa2_portfolio_master_operator_inputs_intake` is registered",
+          "phase30_capa2_portfolio_master_operator_inputs_intake_20260525_165548.json",
+          "blocks `Example Only` samples",
+          "returns to `phase30_capa2_portfolio_master_inputs_pending` while real inputs are missing"
+        ],
+        "CHANGELOG.md": [
+          "2026-05-25 - C1-CONFIG1 Capa2 Portfolio Master Operator Inputs Intake",
+          "`phase30_capa2_portfolio_master_operator_inputs_intake`",
+          "phase30_capa2_portfolio_master_operator_inputs_intake_20260525_165548.json",
+          "`processes=[]`",
+          "`cfxGuard=true`",
+          "Blocks `Example Only`/sample Forward CSV rows"
+        ]
+      },
+      "forbidden": {
+        "README.md": [
+          "operator inputs intake genero Portfolio Master",
+          "operator inputs intake lanzo SQX",
+          "operator inputs intake aprobo live",
+          "operator inputs intake creo inputs reales"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "operator inputs intake generated Portfolio Master artifacts",
+          "operator inputs intake ran SQX",
+          "operator inputs intake approved live deployment",
+          "operator inputs intake created real operator inputs"
+        ],
+        "docs/ARCHITECTURE.md": [
+          "operator inputs intake generated Portfolio Master artifacts",
+          "operator inputs intake ran SQX",
+          "operator inputs intake approved live deployment"
+        ],
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "operator inputs intake genero artefactos SQX",
+          "operator inputs intake lanzo SQX",
+          "operator inputs intake aprobo live",
+          "operator inputs intake fabrico inputs"
+        ],
+        "docs/PHASE30_CAPA2_PORTFOLIO_MASTER_CONTRACT.md": [
+          "Operator Inputs Intake generated Portfolio Master artifacts",
+          "Operator Inputs Intake ran SQX",
+          "Operator Inputs Intake approved live deployment"
+        ],
+        "CHANGELOG.md": [
+          "operator inputs intake generated Portfolio Master artifacts",
+          "operator inputs intake ran SQX",
+          "operator inputs intake approved live deployment"
+        ]
+      }
+    },
+    {
       "id": "sqx142_c1_fastest_precision_correction_before_c2_spp",
       "description": "C1-CONFIG1 must record the important Capa1 precision correction after Capa2 Synthetic and before Capa2 SPP: MC through WFM use fastest/testPrecision=1, while Foward remains tick/testPrecision=2.",
       "required": {
