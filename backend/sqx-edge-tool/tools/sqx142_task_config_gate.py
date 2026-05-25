@@ -16095,6 +16095,24 @@ CAPA2_MONKEY_STRATEGY_TYPE_TARGET = {
     "improveDatabank": "Sequential",
 }
 CAPA2_MONKEY_BANNED_TOKENS = CAPA2_MC_BANNED_TOKENS
+CAPA2_SYNTHETIC_NEXT = "phase26_capa2_spp"
+CAPA2_SYNTHETIC_TASK_XML = "AutomaticRetest-Task5.xml"
+CAPA2_SYNTHETIC_TASK_TITLE = "Syntetic"
+CAPA2_SYNTHETIC_PERIOD_KEY = "ROBUSTNESS_C2"
+CAPA2_SYNTHETIC_DATA_TEST_PRECISION = CAPA2_FASTEST_DATA_TEST_PRECISION
+CAPA2_SYNTHETIC_DATABANKS_TARGET = {"Input": "Monkey Test", "Output": "Syntetic"}
+CAPA2_SYNTHETIC_RESOURCE_SYMBOL = CAPA2_MC_RESOURCE_SYMBOL
+CAPA2_SYNTHETIC_RESOURCE_SPREAD = CAPA2_MC_RESOURCE_SPREAD
+CAPA2_SYNTHETIC_STRATEGY_TYPE_TARGET = {
+    "type": "simple",
+    "additionalCharts": "2",
+    "templateFile": "",
+    "improveType": "strategy",
+    "strategyFile": "",
+    "architecture": "sq4",
+    "improveDatabank": "Monkey Test",
+}
+CAPA2_SYNTHETIC_BANNED_TOKENS = CAPA2_MC_BANNED_TOKENS
 CAPA2_BUILD_TAB_ORDER = [
     "WhatToBuild",
     "Data",
@@ -23784,6 +23802,459 @@ def promote_capa2_monkey_target(root142: Path, project_root: Path, target: str, 
     return payload
 
 
+def load_capa2_synthetic_task_root(cfx: Path) -> tuple[str, ET.Element | None, str]:
+    task_xml, root, title = load_task_root_by_xml(cfx, CAPA2_SYNTHETIC_TASK_XML)
+    if task_xml and root is not None:
+        return task_xml, root, title or CAPA2_SYNTHETIC_TASK_TITLE
+    fallback_task_xml, fallback_root = load_task_root(cfx, CAPA2_SYNTHETIC_TASK_TITLE)
+    return fallback_task_xml, fallback_root, CAPA2_SYNTHETIC_TASK_TITLE if fallback_root is not None else ""
+
+
+def capa2_synthetic_summary(root: ET.Element | None) -> dict[str, Any]:
+    if root is None:
+        return {"exists": False}
+    summary = synthetic_static_tabs_summary(root)
+    summary["data"] = capa2_tick_real_data_summary(root)
+    summary["customData"] = capa2_retest1_custom_data_summary(root)
+    summary["databanks"] = {item.get("name", ""): item.get("value", "") for item in databank_summary(root)}
+    summary["resources"] = _tick_real_resource_summary(root)
+    summary["optionsParams"] = {
+        param.get("key", ""): (param.text or "")
+        for param in root.findall(".//BuildTradingOptions/Params/Param")
+        if param.get("key") in SYNTHETIC_OPTIONS_PARAMS_TARGET
+    }
+    summary["crossChecks"] = synthetic_crosschecks_summary(root)
+    summary["strategyType"] = task_strategy_type_summary(root)
+    summary["buildMode"] = synthetic_passive_generation_summary(root).get("buildMode", {})
+    summary["orderTypes"] = task_order_type_detail_summary(root)
+    summary["exitTypes"] = task_exit_type_detail_summary(root)
+    return summary
+
+
+def set_capa2_synthetic_databanks(root: ET.Element, actions: list[dict[str, Any]]) -> None:
+    databanks = find_section(root, "Databanks")
+    if databanks is None:
+        databanks = ET.SubElement(root, "Databanks", {"retestSelected": "false"})
+        actions.append({"field": "Databanks", "from": None, "to": dict(databanks.attrib), "changed": True})
+    existing = {node.get("name", ""): node for node in databanks.findall("Databank") if node.get("name")}
+    for name, value in CAPA2_SYNTHETIC_DATABANKS_TARGET.items():
+        node = existing.get(name)
+        before = dict(node.attrib) if node is not None else None
+        if node is None:
+            node = ET.SubElement(databanks, "Databank", {"name": name})
+        node.set("name", name)
+        node.set("value", value)
+        node.set("label", f"{name} databank")
+        actions.append({"field": f"Databanks/{name}:capa2-synthetic", "from": before, "to": dict(node.attrib), "changed": before != dict(node.attrib)})
+
+
+def normalize_capa2_synthetic_crosscheck_setups(root: ET.Element, actions: list[dict[str, Any]]) -> None:
+    period = generator_period(CAPA2_SYNTHETIC_PERIOD_KEY)
+    before: list[dict[str, Any]] = []
+    after: list[dict[str, Any]] = []
+    for setup in root.findall(".//CrossChecks/*/Settings/Setups/Setup"):
+        before.append({"attrs": dict(setup.attrib), "charts": [dict(chart.attrib) for chart in setup.findall("Chart")]})
+        for key, wanted in {
+            "dateFrom": period[0],
+            "dateTo": period[1],
+            "testPrecision": CAPA2_SYNTHETIC_DATA_TEST_PRECISION,
+            "session": SYNTHETIC_DATA_SESSION,
+            "slippage": "0",
+            "minDist": "0",
+        }.items():
+            setup.set(key, wanted)
+        charts = setup.findall("Chart")
+        if not charts:
+            charts = [ET.SubElement(setup, "Chart")]
+        for chart in charts:
+            chart.attrib.clear()
+            chart.attrib.update({"symbol": CAPA2_SYNTHETIC_RESOURCE_SYMBOL, "timeframe": CAPA2_BUILD_SEED_TIMEFRAME, "spread": CAPA2_SYNTHETIC_RESOURCE_SPREAD})
+        after.append({"attrs": dict(setup.attrib), "charts": [dict(chart.attrib) for chart in setup.findall("Chart")]})
+    actions.append({"field": "CrossChecks/*/Settings/Setups/Setup:capa2-synthetic", "from": before, "to": after, "changed": before != after})
+
+
+def apply_capa2_synthetic_crosschecks_to_root(root: ET.Element) -> list[dict[str, Any]]:
+    actions: list[dict[str, Any]] = []
+    parent = find_section(root, "CrossChecks")
+    if parent is None:
+        parent = ET.SubElement(root, "CrossChecks")
+        actions.append({"field": "CrossChecks", "from": None, "to": dict(parent.attrib), "changed": True})
+    set_attrs_on_node(parent, SYNTHETIC_CROSSCHECK_PARENT_TARGET, actions, "CrossChecks:attrs")
+    active = parent.find(SYNTHETIC_ACTIVE_CROSSCHECK)
+    if active is None:
+        active = ET.SubElement(parent, SYNTHETIC_ACTIVE_CROSSCHECK, {"use": "true"})
+        actions.append({"field": f"CrossChecks/{SYNTHETIC_ACTIVE_CROSSCHECK}", "from": None, "to": dict(active.attrib), "changed": True})
+    for check in list(parent):
+        if not isinstance(check.tag, str) or check.get("use") is None:
+            continue
+        before_use = check.get("use", "")
+        wanted_use = "true" if check.tag == SYNTHETIC_ACTIVE_CROSSCHECK else "false"
+        check.set("use", wanted_use)
+        actions.append({"field": f"CrossChecks/{check.tag}:use", "from": before_use, "to": wanted_use, "changed": before_use != wanted_use})
+        for method in check.findall("./Settings/Methods/Method"):
+            before_method = method.get("use", "")
+            wanted_method = "true" if check.tag == SYNTHETIC_ACTIVE_CROSSCHECK and method.get("type") == SYNTHETIC_ACTIVE_METHOD else "false"
+            method.set("use", wanted_method)
+            actions.append({"field": f"CrossChecks/{check.tag}/Method:{method.get('type', '')}:use", "from": before_method, "to": wanted_method, "changed": before_method != wanted_method})
+    settings = ensure_direct_child(active, "Settings")
+    for tag, wanted in (
+        ("NumberOfSimulations", SYNTHETIC_NUMBER_OF_SIMULATIONS),
+        ("MCUseFullSample", SYNTHETIC_USE_FULL_SAMPLE),
+        ("MCBacktestPrecision", SYNTHETIC_MC_BACKTEST_PRECISION),
+    ):
+        set_or_create_text_child(settings, tag, wanted, actions, f"CrossChecks/{SYNTHETIC_ACTIVE_CROSSCHECK}/Settings/{tag}")
+    methods = ensure_direct_child(settings, "Methods")
+    method = next((item for item in methods.findall("Method") if item.get("type") == SYNTHETIC_ACTIVE_METHOD), None)
+    before_method = dict(method.attrib) if method is not None else None
+    if method is None:
+        method = ET.SubElement(methods, "Method", {"type": SYNTHETIC_ACTIVE_METHOD})
+    method.set("type", SYNTHETIC_ACTIVE_METHOD)
+    method.set("use", "true")
+    actions.append({"field": f"CrossChecks/{SYNTHETIC_ACTIVE_CROSSCHECK}/Method:{SYNTHETIC_ACTIVE_METHOD}:ensure", "from": before_method, "to": dict(method.attrib), "changed": before_method != dict(method.attrib)})
+    for key, wanted in SYNTHETIC_METHOD_PARAMS_TARGET.items():
+        set_method_param(method, key, wanted, "Integer", actions, f"CrossChecks/{SYNTHETIC_ACTIVE_CROSSCHECK}/Method:{SYNTHETIC_ACTIVE_METHOD}/Param:{key}")
+    set_synthetic_acceptance_conditions(active, actions)
+    normalize_capa2_synthetic_crosscheck_setups(root, actions)
+    return actions
+
+
+def apply_capa2_synthetic_target_to_root(root: ET.Element) -> list[dict[str, Any]]:
+    actions: list[dict[str, Any]] = []
+    data_setup = ensure_capa2_tick_real_setup(
+        root,
+        "Data",
+        SYNTHETIC_DATA_ENGINE,
+        actions,
+        test_precision=CAPA2_SYNTHETIC_DATA_TEST_PRECISION,
+    )
+    ensure_capa2_tick_real_setup(
+        root,
+        "CustomData",
+        SYNTHETIC_CUSTOM_DATA_ENGINE,
+        actions,
+        test_precision=CAPA2_SYNTHETIC_DATA_TEST_PRECISION,
+        custom_main_values=SYNTHETIC_CUSTOM_DATA_MAIN_TEST_VALUES_TARGET,
+    )
+    ensure_capa2_tick_real_resources(root, data_setup, actions)
+    set_capa2_synthetic_databanks(root, actions)
+    for key, value in SYNTHETIC_OPTIONS_PARAMS_TARGET.items():
+        set_or_create_option_param_text(root, key, value, actions, "Options")
+    actions.extend(apply_capa2_synthetic_crosschecks_to_root(root))
+    apply_retest1_parts_to_improve_to_root(root, actions)
+    apply_synthetic_what_to_build_to_root(root, actions)
+    strategy = root.find("./WhatToBuild/StrategyType")
+    before_strategy = dict(strategy.attrib) if strategy is not None else None
+    if strategy is not None:
+        strategy.attrib.clear()
+        strategy.attrib.update(CAPA2_SYNTHETIC_STRATEGY_TYPE_TARGET)
+        actions.append({"field": "WhatToBuild/StrategyType:capa2-synthetic", "from": before_strategy, "to": dict(strategy.attrib), "changed": before_strategy != dict(strategy.attrib)})
+    apply_capa2_mc_blocks_to_root(root, actions)
+    blocks = find_blocks(root)
+    if blocks is not None:
+        enforce_disabled_build_block_categories(blocks, actions)
+    apply_synthetic_rankings_to_root(root, actions)
+    apply_capa2_retest_risk_money_management_to_root(root, actions)
+    apply_mc_atms_to_root(root, actions)
+    apply_mc_selected_strategies_to_root(root, actions)
+    actions.append({"field": "Notes", "changed": False, "sha256": section_sha256(root, "Notes"), "note": "audited and preserved"})
+    return actions
+
+
+def capa2_synthetic_generator_period_issues() -> list[str]:
+    config = read_json(GENERATOR_PROFILES_PATH, {})
+    periods = config.get("retestPeriods") or {}
+    layer2 = (config.get("taskPeriodMaps") or {}).get("2") or {}
+    cross = (config.get("crossBrokerRetests") or {}).get("2") or {}
+    issues: list[str] = []
+    if periods.get(CAPA2_SYNTHETIC_PERIOD_KEY) != ["2017.10.02", "2023.12.31"]:
+        issues.append(f"generator_profiles.json retestPeriods.{CAPA2_SYNTHETIC_PERIOD_KEY} must be 2017.10.02-2023.12.31")
+    if layer2.get(CAPA2_SYNTHETIC_TASK_XML) != CAPA2_SYNTHETIC_PERIOD_KEY:
+        issues.append(f"generator_profiles.json taskPeriodMaps.2.{CAPA2_SYNTHETIC_TASK_XML} must map to {CAPA2_SYNTHETIC_PERIOD_KEY}")
+    if CAPA2_SYNTHETIC_TASK_XML in cross:
+        issues.append(f"generator_profiles.json must not cross-broker route {CAPA2_SYNTHETIC_TASK_XML}; Capa2 Synthetic stays Darwinex/SQ default")
+    return issues
+
+
+def enforce_capa2_synthetic_guard(root: ET.Element | None, target_name: str) -> list[str]:
+    if root is None:
+        return [f"{target_name}: Capa2 Synthetic/Syntetic task missing"]
+    issues: list[str] = []
+    period = generator_period(CAPA2_SYNTHETIC_PERIOD_KEY)
+    summary = capa2_synthetic_summary(root)
+    for label in ("data", "customData"):
+        carrier = summary.get(label) or {}
+        setup = carrier.get("setup") or {}
+        chart = carrier.get("chart") or {}
+        if setup.get("dateFrom") != period[0] or setup.get("dateTo") != period[1]:
+            issues.append(f"{target_name}: Capa2 Synthetic {label} dates must be {CAPA2_SYNTHETIC_PERIOD_KEY} {period[0]}-{period[1]}")
+        if setup.get("testPrecision") != CAPA2_SYNTHETIC_DATA_TEST_PRECISION:
+            issues.append(f"{target_name}: Capa2 Synthetic {label} testPrecision must be fastest code {CAPA2_SYNTHETIC_DATA_TEST_PRECISION}")
+        if setup.get("session") != SYNTHETIC_DATA_SESSION:
+            issues.append(f"{target_name}: Capa2 Synthetic {label} session must be No Session")
+        if chart != {"symbol": CAPA2_SYNTHETIC_RESOURCE_SYMBOL, "timeframe": CAPA2_BUILD_SEED_TIMEFRAME, "spread": CAPA2_SYNTHETIC_RESOURCE_SPREAD}:
+            issues.append(f"{target_name}: Capa2 Synthetic {label} chart seed drifted: {chart!r}")
+    if (summary.get("data") or {}).get("outOfSampleRanges"):
+        issues.append(f"{target_name}: Capa2 Synthetic must not add an internal OOS split")
+    if (summary.get("customData") or {}).get("mainTestValues") != SYNTHETIC_CUSTOM_DATA_MAIN_TEST_VALUES_TARGET:
+        issues.append(f"{target_name}: Capa2 Synthetic CustomData MainTestValues drifted")
+    if (summary.get("databanks") or {}) != CAPA2_SYNTHETIC_DATABANKS_TARGET:
+        issues.append(f"{target_name}: Capa2 Synthetic databanks are {summary.get('databanks')!r}, expected {CAPA2_SYNTHETIC_DATABANKS_TARGET!r}")
+    resources = summary.get("resources") or {}
+    symbols = resources.get("symbols") or []
+    if {item.get("name") for item in symbols} != {CAPA2_SYNTHETIC_RESOURCE_SYMBOL}:
+        issues.append(f"{target_name}: Capa2 Synthetic resources must contain only {CAPA2_SYNTHETIC_RESOURCE_SYMBOL}")
+    if any(item.get("source") != CAPA2_BUILD_RESOURCE_SOURCE_ID or item.get("broker") != CAPA2_BUILD_RESOURCE_BROKER_ID for item in symbols):
+        issues.append(f"{target_name}: Capa2 Synthetic resources must use Darwinex source 4 / broker 4")
+    if resources.get("sessions"):
+        issues.append(f"{target_name}: Capa2 Synthetic resources must not keep sessions")
+    if (summary.get("optionsParams") or {}) != SYNTHETIC_OPTIONS_PARAMS_TARGET:
+        issues.append(f"{target_name}: Capa2 Synthetic options drifted: {summary.get('optionsParams')!r}")
+    cross = summary.get("crossChecks") or {}
+    if (cross.get("attributes") or {}) != SYNTHETIC_CROSSCHECK_PARENT_TARGET:
+        issues.append(f"{target_name}: Capa2 Synthetic CrossChecks attrs drifted: {cross.get('attributes')!r}")
+    if cross.get("active") != [SYNTHETIC_ACTIVE_CROSSCHECK]:
+        issues.append(f"{target_name}: Capa2 Synthetic active crosschecks are {cross.get('active')!r}, expected [{SYNTHETIC_ACTIVE_CROSSCHECK!r}]")
+    checks = {item.get("id"): item for item in cross.get("checks") or []}
+    active = checks.get(SYNTHETIC_ACTIVE_CROSSCHECK) or {}
+    if active.get("numberOfSimulations") != SYNTHETIC_NUMBER_OF_SIMULATIONS:
+        issues.append(f"{target_name}: Capa2 Synthetic NumberOfSimulations must be {SYNTHETIC_NUMBER_OF_SIMULATIONS}")
+    if active.get("mcUseFullSample") != SYNTHETIC_USE_FULL_SAMPLE:
+        issues.append(f"{target_name}: Capa2 Synthetic MCUseFullSample must be {SYNTHETIC_USE_FULL_SAMPLE}")
+    if active.get("mcBacktestPrecision") != SYNTHETIC_MC_BACKTEST_PRECISION:
+        issues.append(f"{target_name}: Capa2 Synthetic MCBacktestPrecision must be {SYNTHETIC_MC_BACKTEST_PRECISION}")
+    if active.get("activeMethodTypes") != [SYNTHETIC_ACTIVE_METHOD]:
+        issues.append(f"{target_name}: Capa2 Synthetic active methods are {active.get('activeMethodTypes')!r}, expected [{SYNTHETIC_ACTIVE_METHOD!r}]")
+    method = next((item for item in active.get("methods") or [] if item.get("type") == SYNTHETIC_ACTIVE_METHOD), {})
+    for key, wanted in SYNTHETIC_METHOD_PARAMS_TARGET.items():
+        if (method.get("params") or {}).get(key) != wanted:
+            issues.append(f"{target_name}: Capa2 Synthetic {SYNTHETIC_ACTIVE_METHOD} {key} must be {wanted}")
+    if not synthetic_acceptance_conditions_ok(root):
+        issues.append(f"{target_name}: Capa2 Synthetic acceptance conditions drifted from SyntheticBootstrapV3 policy")
+    for check in cross.get("checks") or []:
+        if check.get("id") == SYNTHETIC_ACTIVE_CROSSCHECK:
+            continue
+        if check.get("activeMethodTypes"):
+            issues.append(f"{target_name}: inactive Capa2 Synthetic crosscheck {check.get('id')} still has active methods")
+    for nested_setup in root.findall(".//CrossChecks/*/Settings/Setups/Setup"):
+        if nested_setup.get("dateFrom") != period[0] or nested_setup.get("dateTo") != period[1]:
+            issues.append(f"{target_name}: Capa2 Synthetic nested CrossChecks dates drifted")
+        if nested_setup.get("testPrecision") != CAPA2_SYNTHETIC_DATA_TEST_PRECISION:
+            issues.append(f"{target_name}: Capa2 Synthetic nested CrossChecks precision must be fastest code {CAPA2_SYNTHETIC_DATA_TEST_PRECISION}")
+    parts = synthetic_passive_generation_summary(root).get("partsToImprove") or {}
+    for group_name in ("EntryRules", "OrderTypes", "ExitRules"):
+        group = parts.get(group_name) or {}
+        for side in ("LongImprovement", "ShortImprovement"):
+            if (group.get(side) or {}).get("use") != "false":
+                issues.append(f"{target_name}: Capa2 Synthetic {group_name}/{side} must be passive use=false")
+    if task_strategy_type_summary(root) != CAPA2_SYNTHETIC_STRATEGY_TYPE_TARGET:
+        issues.append(f"{target_name}: Capa2 Synthetic StrategyType must point passively to Monkey Test")
+    build_text = (summary.get("buildMode") or {}).get("text") or {}
+    for tag, value in SYNTHETIC_PASSIVE_BUILDMODE_TEXT_TARGET.items():
+        if build_text.get(tag) != value:
+            issues.append(f"{target_name}: Capa2 Synthetic BuildMode {tag} is {build_text.get(tag)!r}, expected {value!r}")
+    order = task_order_type_summary(root)
+    if {key: order.get(key) for key in CAPA2_BUILD_BLOCKS_ORDER_TARGET} != CAPA2_BUILD_BLOCKS_ORDER_TARGET:
+        issues.append(f"{target_name}: Capa2 Synthetic order types drifted from EnterAtMarket-only contract")
+    exits = task_exit_type_detail_summary(root)
+    if (exits.get("ExitAfterBars.ExitAfterBars") or {}).get("use") != "false":
+        issues.append(f"{target_name}: Capa2 Synthetic ExitAfterBars must stay false")
+    for key in CAPA2_MC_ALLOWED_ACTIVE_EXITS:
+        if (exits.get(key) or {}).get("use") != "true":
+            issues.append(f"{target_name}: Capa2 Synthetic {key} must stay active")
+    ranking = summary.get("rankings") or {}
+    if ranking.get("type") != "never":
+        issues.append(f"{target_name}: Capa2 Synthetic Rankings type must be never")
+    for key in ("DeleteFailedStrategies", "ForceRunCrossChecks"):
+        if ranking.get(key) != "false":
+            issues.append(f"{target_name}: Capa2 Synthetic Rankings {key} must be false")
+    if (ranking.get("FitPortfolio") or {}).get("active") != "false":
+        issues.append(f"{target_name}: Capa2 Synthetic FitPortfolio must stay disabled")
+    if (ranking.get("CustomAnalysis") or {}).get("filter") != "false":
+        issues.append(f"{target_name}: Capa2 Synthetic CustomAnalysis must stay disabled")
+    if ranking.get("conditions"):
+        issues.append(f"{target_name}: Capa2 Synthetic Rankings must not add extra conditions")
+    rmm = task_risk_method_summary(root)
+    for method_name, wanted in CAPA2_RETEST1_RISK_MONEY_MANAGEMENT_METHOD_TARGET.items():
+        if rmm.get(method_name) != wanted:
+            issues.append(f"{target_name}: Capa2 Synthetic RiskMoneyManagement {method_name} is {rmm.get(method_name)!r}, expected {wanted!r}")
+    atms = find_section(root, "ATMs")
+    if atms is not None and atms.get("enable") != "false":
+        issues.append(f"{target_name}: Capa2 Synthetic ATMs must stay disabled")
+    selected = find_section(root, "SelectedStrategies")
+    if selected is not None and ((selected.text or "").strip() or list(selected)):
+        issues.append(f"{target_name}: Capa2 Synthetic SelectedStrategies must stay empty")
+    guarded_text = serialize_xml(root)
+    for token in CAPA2_SYNTHETIC_BANNED_TOKENS:
+        if token in guarded_text:
+            issues.append(f"{target_name}: Forbidden token leaked into Capa2 Synthetic: {token}")
+    if re.search(r"[A-Za-z]:\\", guarded_text):
+        issues.append(f"{target_name}: local absolute path leaked into Capa2 Synthetic")
+    issues.extend(capa2_synthetic_generator_period_issues())
+    return issues
+
+
+def update_capa2_synthetic_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "sha256Before": file_sha256(cfx) if cfx.is_file() else "",
+        "actions": [],
+        "backup": "",
+        "willWrite": apply,
+    }
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        payload["error"] = "missing_or_not_zip"
+        return payload
+    config_before = ""
+    config_after = ""
+    config_actions: list[dict[str, Any]] = []
+    config_issues: list[str] = []
+    with zipfile.ZipFile(cfx, "r") as zf:
+        config_before = safe_zip_text(zf, "config.xml")
+        config_root = xml_root_from_zip(zf, "config.xml")
+    if config_root is None:
+        config_issues.append("config.xml missing")
+    else:
+        databank = next((node for node in config_root.findall(".//Databank") if node.get("name") == CAPA2_SYNTHETIC_DATABANKS_TARGET["Output"]), None)
+        if databank is None:
+            config_issues.append("config.xml Syntetic databank missing")
+        else:
+            before_view = databank.get("view", "")
+            wanted_view = VIEW_PROMOTION_TARGETS[CAPA2_SYNTHETIC_DATABANKS_TARGET["Output"]]
+            databank.set("view", wanted_view)
+            config_actions.append({
+                "field": "config.xml/Databanks/Syntetic:view",
+                "from": before_view,
+                "to": wanted_view,
+                "changed": before_view != wanted_view,
+            })
+        config_after = serialize_xml(config_root)
+    payload["configActions"] = config_actions
+    task_xml_name, root, title = load_capa2_synthetic_task_root(cfx)
+    payload["taskXml"] = task_xml_name
+    payload["displayTitle"] = title
+    if not task_xml_name or root is None:
+        payload["error"] = "capa2_synthetic_task_not_found"
+        payload["sha256After"] = payload["sha256Before"]
+        return payload
+    before_text = serialize_xml(root)
+    payload["before"] = capa2_synthetic_summary(root)
+    payload["actions"] = apply_capa2_synthetic_target_to_root(root)
+    payload["after"] = capa2_synthetic_summary(root)
+    payload["issues"] = config_issues + enforce_capa2_synthetic_guard(root, payload.get("displayTitle") or "Capa2 Synthetic")
+    payload["guardOk"] = not payload["issues"]
+    after_text = serialize_xml(root)
+    config_changed = bool(config_before and config_after and config_before != config_after)
+    payload["changed"] = before_text != after_text or config_changed
+    payload["changedActionCount"] = sum(1 for item in payload["actions"] if item.get("changed")) + sum(1 for item in config_actions if item.get("changed"))
+    payload["targetValues"] = {
+        "taskXml": CAPA2_SYNTHETIC_TASK_XML,
+        "title": CAPA2_SYNTHETIC_TASK_TITLE,
+        "period": CAPA2_SYNTHETIC_PERIOD_KEY,
+        "testPrecision": CAPA2_SYNTHETIC_DATA_TEST_PRECISION,
+        "precisionPolicy": "fastest for Capa2 Synthetic and pending robustness retests; Forward returns to tick precision.",
+        "databanks": CAPA2_SYNTHETIC_DATABANKS_TARGET,
+        "dataCarrier": "Data + CustomData synchronized",
+        "view": VIEW_PROMOTION_TARGETS[CAPA2_SYNTHETIC_DATABANKS_TARGET["Output"]],
+        "resource": {"symbol": CAPA2_SYNTHETIC_RESOURCE_SYMBOL, "source": CAPA2_BUILD_RESOURCE_SOURCE_ID, "broker": CAPA2_BUILD_RESOURCE_BROKER_ID},
+        "activeCrossCheck": SYNTHETIC_ACTIVE_CROSSCHECK,
+        "activeMethod": SYNTHETIC_ACTIVE_METHOD,
+        "methodParams": SYNTHETIC_METHOD_PARAMS_TARGET,
+        "strategyType": CAPA2_SYNTHETIC_STRATEGY_TYPE_TARGET,
+        "exitTypes": CAPA2_BUILD_BLOCKS_EXIT_TARGET,
+    }
+    payload["targetRationale"] = {
+        "validation": "Capa2 Synthetic consumes Monkey Test survivors and applies SyntheticBootstrapV3 robustness; it is not an optimizer.",
+        "antiOverfit": "No internal OOS split, no portfolio fitting, no custom analysis and no ranking filters are added.",
+        "view": "Syntetic uses the dedicated MC SYNTHETIC RETEST view, not GENERAL.",
+        "precision": "Operator decision: MC and remaining Capa2 robustness retests use fastest; Forward returns to tick precision.",
+        "capa2Exits": "Unlike Capa1 Synthetic, Capa2 keeps ExitAfterBars=false and preserves SL/PT/trailing risk exits.",
+        "naturalResults": "No SQX launch, no smoke, no optimization and no forced Results=passed.",
+    }
+    if apply and payload["changed"] and payload["guardOk"]:
+        backup = backup_file(cfx, backup_root)
+        payload["backup"] = str(backup)
+        if config_changed:
+            replace_config_xml_in_cfx(cfx, config_after)
+        if before_text != after_text:
+            replace_zip_text_entry(cfx, task_xml_name, serialize_xml(root))
+        payload["sha256After"] = file_sha256(cfx)
+    else:
+        payload["sha256After"] = payload["sha256Before"]
+    return payload
+
+
+def promote_capa2_synthetic_target(root142: Path, project_root: Path, target: str, apply: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    previous_gate = promote_capa2_monkey_target(root142, project_root, target=target, apply=False)
+    issues = list(previous_gate.get("issues") or [])
+    if previous_gate.get("ok") is not True:
+        issues.append("capa2-monkey-target: previous gate ok=false")
+    process_probe = process_snapshot()
+    if process_probe.get("processes"):
+        issues.append("SQX processes are alive; close SQX before applying phase25 Capa2 Synthetic")
+    backup_root = ledger_root(project_root) / "backups" / f"phase25_capa2_synthetic_{stamp()}"
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = capa2_base_project_path(root142)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_CAPA2_TEMPLATE
+    results = {name: update_capa2_synthetic_target_in_cfx(path, backup_root / name, apply=apply) for name, path in targets.items()}
+    for target_name, result in results.items():
+        for issue in result.get("issues") or []:
+            issues.append(f"{target_name}: {issue}")
+    payload: dict[str, Any] = {
+        "ok": not issues and all(item.get("exists") and item.get("isZip") and not item.get("error") and item.get("guardOk") for item in results.values()),
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase25_capa2_synthetic",
+        "operation": "capa2_synthetic_target",
+        "apply": apply,
+        "target": target,
+        "previousGate": {
+            "phase": previous_gate.get("phase"),
+            "ok": previous_gate.get("ok"),
+            "issues": previous_gate.get("issues", []),
+            "warnings": previous_gate.get("warnings", []),
+            "nextPhase": previous_gate.get("nextPhase"),
+            "written": previous_gate.get("written", ""),
+        },
+        "processProbe": process_probe,
+        "issues": issues,
+        "warnings": [],
+        "results": results,
+        "summary": {
+            "decision": "Close Capa2 Synthetic/Syntetic as validation-only SyntheticBootstrapV3 gate after Monkey Test.",
+            "taskXml": CAPA2_SYNTHETIC_TASK_XML,
+            "chain": "Input=Monkey Test, Output=Syntetic.",
+            "data": f"Darwinex ROBUSTNESS_C2 window 2017.10.02-2023.12.31, testPrecision={CAPA2_SYNTHETIC_DATA_TEST_PRECISION} fastest, Data+CustomData, No Session.",
+            "crossChecks": "CrossChecks use=true/evaluateAll=true; only MonteCarloRetest active with SyntheticBootstrapV3, 100 simulations, full sample and dedicated Synthetic acceptance row.",
+            "view": "config.xml databank Syntetic uses MC SYNTHETIC RETEST.",
+            "passive": "StrategyType reads Monkey Test passively; PartsToImprove/fresh-blood/evolution are inactive; ExitAfterBars remains false and SL/PT/trailing remain active for Capa2.",
+            "naturalResults": "No SQX launch, no smoke, no optimization and no forced Results=passed.",
+            "nextPhase": CAPA2_SYNTHETIC_NEXT,
+        },
+        "academicSources": CAPA2_ACADEMIC_SOURCES,
+        "nextPhase": "phase25_capa2_synthetic_diff_review" if not apply else CAPA2_SYNTHETIC_NEXT,
+    }
+    evidence_target = ledger_root(project_root) / "diffs" / f"phase25_capa2_synthetic_target_{stamp()}.json"
+    write_json(evidence_target, payload)
+    payload["written"] = str(evidence_target)
+    if apply and payload["ok"]:
+        state_path = ledger_root(project_root) / "session_state.json"
+        state = read_json(state_path, {})
+        state.update({
+            "updatedAt": now_iso(),
+            "currentPhase": "phase25_capa2_synthetic",
+            "nextPhase": CAPA2_SYNTHETIC_NEXT,
+            "scope": "capa2",
+            "phase25Capa2SyntheticReport": str(evidence_target),
+        })
+        write_json(state_path, state)
+    return payload
+
+
 def update_build_data_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
     date_from, date_to = generator_period(BUILD_DATA_PERIOD_KEY)
     payload: dict[str, Any] = {
@@ -25241,6 +25712,10 @@ def build_parser() -> argparse.ArgumentParser:
     capa2_monkey.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     capa2_monkey.add_argument("--apply", action="store_true")
 
+    capa2_synthetic = sub.add_parser("capa2-synthetic-target")
+    capa2_synthetic.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    capa2_synthetic.add_argument("--apply", action="store_true")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -25528,6 +26003,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "capa2-monkey-target":
         json_print(promote_capa2_monkey_target(root142, project_root, target=args.target, apply=args.apply))
+        return 0
+    if args.command == "capa2-synthetic-target":
+        json_print(promote_capa2_synthetic_target(root142, project_root, target=args.target, apply=args.apply))
         return 0
     if args.command == "archive-exit-day-snippets":
         json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))

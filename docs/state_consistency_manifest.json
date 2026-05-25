@@ -5684,6 +5684,140 @@
       }
     },
     {
+      "id": "sqx142_c2_phase25_synthetic_validation",
+      "description": "C1-CONFIG1 Phase 25 Capa2 Synthetic must stay closed as a fastest Darwinex SyntheticBootstrapV3 validation-only gate, with the dedicated Synthetic view, no tuning, no Dukascopy outside Retest 1 and no execution claims.",
+      "required": {
+        "README.md": [
+          "phase25_capa2_synthetic",
+          "phase25_capa2_synthetic_target_20260525_111540.json",
+          "`AutomaticRetest-Task5.xml`",
+          "`Input=Monkey Test`",
+          "`Output=Syntetic`",
+          "MC SYNTHETIC RETEST",
+          "`ROBUSTNESS_C2 2017.10.02-2023.12.31`",
+          "`Data+CustomData`",
+          "`AUDCAD_darwinex` source `4` broker `4`",
+          "`testPrecision=1 fastest`",
+          "`SyntheticBootstrapV3`",
+          "`NumberOfSimulations=100`",
+          "`MCBacktestPrecision=-1`",
+          "`BlockSize=20`",
+          "`WarmupBars=200`",
+          "`PreservePct=85`",
+          "`ExitAfterBars=false` con SL/PT/trailing activos",
+          "Forward vuelve a precision tick",
+          "phase26_capa2_spp"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Phase 25 `phase25_capa2_synthetic` is closed",
+          "Phase 25 `Capa2 Synthetic` is closed",
+          "phase25_capa2_synthetic_target_20260525_111540.json",
+          "`capa2-synthetic-target --target both --apply`",
+          "`AutomaticRetest-Task5.xml`",
+          "`Input=Monkey Test`",
+          "`Output=Syntetic`",
+          "MC SYNTHETIC RETEST",
+          "`testPrecision=1 fastest`",
+          "only `MonteCarloRetest` active",
+          "`SyntheticBootstrapV3`",
+          "`MCBacktestPrecision=-1`",
+          "Forward returns to tick precision",
+          "phase26_capa2_spp"
+        ],
+        "docs/ARCHITECTURE.md": [
+          "phase25_capa2_synthetic",
+          "Capa2 Synthetic `AutomaticRetest-Task5.xml`",
+          "`Input=Monkey Test`",
+          "`Output=Syntetic`",
+          "MC SYNTHETIC RETEST",
+          "dual `Data+CustomData`",
+          "`testPrecision=1 fastest`",
+          "only `MonteCarloRetest` active",
+          "`SyntheticBootstrapV3`",
+          "`MCBacktestPrecision=-1`",
+          "Forward returns to tick precision"
+        ],
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "Estado Fase 25 - Capa2 Synthetic",
+          "phase25_capa2_synthetic_target_20260525_111540.json",
+          "`capa2-synthetic-target --target both --apply`",
+          "`AutomaticRetest-Task5.xml`",
+          "`Input=Monkey Test`",
+          "`Output=Syntetic`",
+          "MC SYNTHETIC RETEST",
+          "`Data+CustomData`",
+          "`testPrecision=1 fastest`",
+          "`SyntheticBootstrapV3`",
+          "`currentPhase=phase25_capa2_synthetic`",
+          "`nextPhase=phase26_capa2_spp`"
+        ],
+        "CHANGELOG.md": [
+          "2026-05-25 - C1-CONFIG1 Capa2 Synthetic",
+          "`capa2-synthetic-target`",
+          "phase25_capa2_synthetic_target_20260525_111540.json",
+          "`AutomaticRetest-Task5.xml`",
+          "`Input=Monkey Test` / `Output=Syntetic`",
+          "MC SYNTHETIC RETEST",
+          "`testPrecision=1 fastest`",
+          "`SyntheticBootstrapV3`",
+          "Forward returns to tick precision",
+          "phase26_capa2_spp"
+        ],
+        "backend/sqx-edge-tool/config/generator_profiles.json": [
+          "\"AutomaticRetest-Task5.xml\"",
+          "\"ROBUSTNESS_C2\""
+        ],
+        "backend/sqx-edge-tool/core/project_generator.py": [
+          "CAPA2_NO_EXIT_AFTER_BARS_TASKS",
+          "CAPA2_FASTEST_PRECISION_TASKS",
+          "\"AutomaticRetest-Task5.xml\"",
+          "\"Retest-Task2.xml\""
+        ],
+        "backend/sqx-edge-tool/tools/sqx142_task_config_gate.py": [
+          "CAPA2_SYNTHETIC_NEXT = \"phase26_capa2_spp\"",
+          "CAPA2_SYNTHETIC_TASK_XML = \"AutomaticRetest-Task5.xml\"",
+          "CAPA2_SYNTHETIC_DATA_TEST_PRECISION = CAPA2_FASTEST_DATA_TEST_PRECISION",
+          "def promote_capa2_synthetic_target",
+          "def enforce_capa2_synthetic_guard",
+          "capa2-synthetic-target"
+        ],
+        "backend/sqx-edge-tool/test_sqx142_task_config_gate.py": [
+          "test_capa2_synthetic_target_applies_and_is_idempotent",
+          "test_capa2_synthetic_guard_rejects_overfit_and_drift",
+          "test_capa2_synthetic_cli_is_registered"
+        ],
+        "backend/sqx-edge-tool/test_cfx_template_compatibility.py": [
+          "test_capa2_base_synthetic_matches_phase25_methodology",
+          "_assert_capa2_synthetic_contract",
+          "testPrecision\") == \"1\""
+        ]
+      },
+      "forbidden": {
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "Capa2 Synthetic usa Dukascopy",
+          "phase25_capa2_synthetic usa Dukascopy",
+          "Capa2 Synthetic ejecuta SQX",
+          "Capa2 Synthetic lanza smoke",
+          "Capa2 Synthetic inicia optimizacion",
+          "Capa2 Synthetic fuerza Results=passed",
+          "Capa2 Synthetic optimiza parametros",
+          "Capa2 Synthetic ExitAfterBars=true",
+          "Forward hereda fastest"
+        ],
+        "CHANGELOG.md": [
+          "Capa2 Synthetic uses Dukascopy",
+          "phase25_capa2_synthetic uses Dukascopy",
+          "Capa2 Synthetic ran SQX",
+          "Capa2 Synthetic ran smoke",
+          "Capa2 Synthetic optimization completed",
+          "Capa2 Synthetic forced Results=passed",
+          "Capa2 Synthetic optimized parameters",
+          "Capa2 Synthetic ExitAfterBars=true",
+          "Forward inherits fastest"
+        ]
+      }
+    },
+    {
       "id": "sqx_agent_per_message_bootstrap_g9",
       "description": "G9/G9R must keep per-message specialist activation, new-session bootstrap and explicit parallel subagent runtime loading proactive but orchestrator-owned, compaction-resilient and mutation-gated.",
       "required": {

@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-05-25 - C1-CONFIG1 Capa2 Synthetic
+
+- Adds `capa2-synthetic-target` as the Phase 25 SyntheticBootstrapV3 validation guard for Capa2.
+- Records evidence `phase25_capa2_synthetic_target_20260525_111540.json` and closes `AutomaticRetest-Task5.xml` as `Input=Monkey Test` / `Output=Syntetic` with the dedicated `MC SYNTHETIC RETEST` databank view.
+- Pins Synthetic to Darwinex `ROBUSTNESS_C2 2017.10.02-2023.12.31`, dual `Data+CustomData`, `testPrecision=1 fastest`, `No Session` and no internal OOS ranges.
+- Keeps Synthetic passive and anti-overfit: only `MonteCarloRetest` is active with `SyntheticBootstrapV3`, `NumberOfSimulations=100`, `MCUseFullSample=true`, `MCBacktestPrecision=-1`, `BlockSize=20`, `WarmupBars=200`, `PreservePct=85`, no ranking filters, `FitPortfolio=false`, `CustomAnalysis=false`, no SQX launch, no smoke, no optimization and no forced `Results=passed`.
+- Keeps `SyntheticBootstrapV2` and `RealMonkeyTest` disabled inside Synthetic, and preserves the dedicated Synthetic net-profit confidence acceptance row instead of copying Monkey filters.
+- Preserves Capa2 exits with `ExitAfterBars=false` and SL/PT/trailing active; maps generator layer 2 `AutomaticRetest-Task5.xml` to `ROBUSTNESS_C2` and adds Task5 to `CAPA2_NO_EXIT_AFTER_BARS_TASKS`.
+- Keeps the precision policy explicit: pending Capa2 robustness retests inherit fastest data precision, while Forward returns to tick precision.
+- Sets the next exact block to `phase26_capa2_spp`.
+
 ## 2026-05-25 - C1-CONFIG1 Capa2 Monkey
 
 - Adds `capa2-monkey-target` as the Phase 24 RealMonkeyTest validation guard for Capa2.
