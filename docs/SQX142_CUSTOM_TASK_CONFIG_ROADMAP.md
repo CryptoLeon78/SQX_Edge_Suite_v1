@@ -1,7 +1,8 @@
 # SQX142 Custom Task Config Roadmap
 
-Estado: C1-CONFIG1 con Fase 26
-`Capa2 SPP` cerrada el 2026-05-25 con
+Estado: C1-CONFIG1 con Fase 27
+`Capa2 WFM` cerrada el 2026-05-25 con
+`phase27_capa2_wfm_target_20260525_133852.json`, despues de cerrar
 `phase26_capa2_spp_target_20260525_123915.json`, despues de cerrar
 `phase25_capa2_synthetic_target_20260525_111540.json`, despues de cerrar
 `phase24_capa2_monkey_target_20260525_105731.json`, despues de cerrar
@@ -118,9 +119,19 @@ broker `4`, `testPrecision=1 fastest`, `No Session`, sin OOS interno, solo
 `DistributionUp=20`, `DistributionDown=20`, `Steps=25`), aceptacion
 `NetProfit >= 50%` y `DrawdownPct <= 200%` frente a main, sin metodos
 activos, sin portfolio/custom-analysis/ranking filters y
-`ExitAfterBars=false` con SL/PT/trailing activos. `currentPhase=phase26_capa2_spp`;
-`nextPhase=phase27_capa2_wfm`. El siguiente bloque exacto es
-`phase27_capa2_wfm`.
+`ExitAfterBars=false` con SL/PT/trailing activos. WFM Capa2 queda cerrado como
+`Optimize-Task1.xml`, `Input=SPP`, `Output=WFM`, view
+`RETEST ROBUST REVIEW`, periodo `ROBUSTNESS_C2 2017.10.02-2023.12.31`,
+portador dual `Data+CustomData`, data Darwinex `AUDCAD_darwinex` source `4`
+broker `4`, `testPrecision=1 fastest`, `No Session`, sin OOS interno,
+comision `SizeBased=0.0`, solo `WalkForwardMatrix` activo (`MaxTests=3000`,
+WFM `10/15`, distribuciones `20/20`, `maxSteps=8`), aceptacion
+`NetProfit > 0`, `NetProfit > 60`, `WFPctOfProfitableRuns > 70`,
+`WFMaxProfitByRunInPct < 50`, `WFMinTradesInRun > 20` y
+`WFMaxPctDDbyRun <= 25`, sin portfolio/custom-analysis/ranking filters y
+`ExitAfterBars=false` con SL/PT/trailing activos. `currentPhase=phase27_capa2_wfm`;
+`nextPhase=phase28_capa2_forward`. El siguiente bloque exacto es
+`phase28_capa2_forward`.
 Capa1 Fastest Precision Correction Before Capa2 SPP queda aplicada como
 correccion importante tras `phase25_capa2_synthetic` y antes de empezar
 `phase26_capa2_spp`: Capa1 MC, MC2, Sequential, Monkey, Synthetic, SPP and
@@ -2765,8 +2776,9 @@ Siguiente bloque exacto: `phase26_capa2_spp`.
   OOS interno, sin ejecucion SQX y sin forzar estados de resultado.
 - Contrato Capa2 de salidas: `ExitAfterBars=false` y SL/PT/trailing activos.
 - `generator_profiles.json` mapea layer 2 `AutomaticRetest-Task4.xml` a
-  `ROBUSTNESS_C2`, y `CAPA2_NO_EXIT_AFTER_BARS_TASKS` protege que la
-  generacion no reactive `ExitAfterBars`.
+  `ROBUSTNESS_C2`, y `CAPA2_NO_EXIT_AFTER_BARS_TASKS` / `CAPA2_FASTEST_PRECISION_TASKS`
+  protegen que la generacion no reactive `ExitAfterBars` ni degrade la politica
+  `fastest`.
 - Politica aclarada: SPP y WFM siguen con precision-data `fastest`; Forward
   vuelve a precision tick.
 - Ambos targets quedan idempotentes tras apply: `changedActionCount=0`,
@@ -2777,6 +2789,43 @@ Siguiente bloque exacto: `phase26_capa2_spp`.
   `nextPhase=phase27_capa2_wfm`, `scope=capa2`.
 
 Siguiente bloque exacto: `phase27_capa2_wfm`.
+
+## Estado Fase 27 - Capa2 WFM
+
+- `phase27_capa2_wfm` queda cerrada con
+  `phase27_capa2_wfm_target_20260525_133852.json`.
+- Comando aplicado: `capa2-wfm-target --target both --apply`, con dry-run
+  previo, backup/diff local, dry-run posterior idempotente y `processes=[]`.
+- Contrato tecnico: `Optimize-Task1.xml`, `Input=SPP`, `Output=WFM`, view
+  `RETEST ROBUST REVIEW`, `ROBUSTNESS_C2 2017.10.02-2023.12.31`, portador
+  dual `Data+CustomData`, `testPrecision=1 fastest`, `No Session`, comision
+  `SizeBased=0.0` y sin OOS interno.
+- Contrato de datos: WFM queda en Darwinex (`AUDCAD_darwinex`, source `4`,
+  broker `4`); Dukascopy sigue limitado a `phase19_capa2_retest1`.
+- Contrato de robustez: `CrossChecks use=true/evaluateAll=true`, solo
+  `WalkForwardMatrix` activo con `MaxTests=3000`, WFM `10/15`, distribuciones
+  `20/20`, `maxSteps=8` y filtros predeclarados `NetProfit > 0`,
+  `NetProfit > 60`, `WFPctOfProfitableRuns > 70`,
+  `WFMaxProfitByRunInPct < 50`, `WFMinTradesInRun > 20` y
+  `WFMaxPctDDbyRun <= 25`.
+- Contrato anti-overfit: `StrategyType` pasivo desde `SPP`, sin `FitPortfolio`,
+  sin `CustomAnalysis`, sin condiciones de Rankings, sin split OOS interno, sin
+  ejecucion SQX y sin forzar estados de resultado.
+- Contrato Capa2 de salidas: `ExitAfterBars=false` y SL/PT/trailing activos.
+- `generator_profiles.json` mapea layer 2 `Optimize-Task1.xml` a
+  `ROBUSTNESS_C2`, `disableTradingTimeRanges.2` lo incluye, y
+  `CAPA2_NO_EXIT_AFTER_BARS_TASKS` / `CAPA2_FASTEST_PRECISION_TASKS` protegen
+  la generacion.
+- Politica aclarada: WFM sigue con precision-data `fastest`; Forward vuelve a
+  precision tick.
+- Ambos targets quedan idempotentes tras apply: `changedActionCount=0`,
+  `guardOk=true`, `issues=[]`, `warnings=[]`, `processes=[]`.
+- No hubo lanzamiento SQX, smoke, optimizacion ni ejecucion real; no se fuerza
+  `Results=passed`.
+- El estado local queda en `currentPhase=phase27_capa2_wfm`,
+  `nextPhase=phase28_capa2_forward`, `scope=capa2`.
+
+Siguiente bloque exacto: `phase28_capa2_forward`.
 
 ## Disciplina Operativa
 

@@ -48,6 +48,7 @@ CAPA2_NO_EXIT_AFTER_BARS_TASKS = {
     "AutomaticRetest-Task6.xml",
     "AutomaticRetest-Task5.xml",
     "AutomaticRetest-Task4.xml",
+    "Optimize-Task1.xml",
     "AutomaticRetest-Task2.xml",
 }
 CAPA2_FASTEST_PRECISION_TASKS = {
@@ -57,6 +58,7 @@ CAPA2_FASTEST_PRECISION_TASKS = {
     "AutomaticRetest-Task6.xml",
     "AutomaticRetest-Task5.xml",
     "AutomaticRetest-Task4.xml",
+    "Optimize-Task1.xml",
 }
 CAPA2_TICK_PRECISION_TASKS = {
     "Retest-Task2.xml",

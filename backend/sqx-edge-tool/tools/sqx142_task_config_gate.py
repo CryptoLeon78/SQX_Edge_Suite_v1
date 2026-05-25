@@ -16183,6 +16183,39 @@ CAPA2_SPP_STRATEGY_TYPE_TARGET = {
     "improveDatabank": "Syntetic",
 }
 CAPA2_SPP_BANNED_TOKENS = CAPA2_MC_BANNED_TOKENS
+CAPA2_WFM_NEXT = "phase28_capa2_forward"
+CAPA2_WFM_TASK_XML = "Optimize-Task1.xml"
+CAPA2_WFM_TASK_TITLE = "WFM"
+CAPA2_WFM_PERIOD_KEY = "ROBUSTNESS_C2"
+CAPA2_WFM_DATA_TEST_PRECISION = CAPA2_FASTEST_DATA_TEST_PRECISION
+CAPA2_WFM_DATABANKS_TARGET = {"Input": "SPP", "Output": "WFM"}
+CAPA2_WFM_RESOURCE_SYMBOL = CAPA2_MC_RESOURCE_SYMBOL
+CAPA2_WFM_RESOURCE_SPREAD = CAPA2_MC_RESOURCE_SPREAD
+CAPA2_WFM_OPTIMIZATION_ATTR_TARGET = {"type": "3", "maxOptimizations": "3000"}
+CAPA2_WFM_OPTIMIZATION_SOURCE_TARGET = {"type": "2", "relativePath": "false"}
+CAPA2_WFM_OPTIMIZATION_METHOD_TARGET = {
+    "settings": "automatic",
+    "symmetricVariables": "false",
+    "symmetryDisabled": "false",
+    "method": "brute-force",
+    "maxSteps": "20",
+}
+CAPA2_WFM_AUTOMATIC_SETTINGS_TARGET = {
+    "distributionUp": "20",
+    "distributionDown": "20",
+    "maxSteps": "8",
+    "distribution": "20",
+}
+CAPA2_WFM_STRATEGY_TYPE_TARGET = {
+    "type": "simple",
+    "additionalCharts": "2",
+    "templateFile": "",
+    "improveType": "strategy",
+    "strategyFile": "",
+    "architecture": "sq4",
+    "improveDatabank": "SPP",
+}
+CAPA2_WFM_BANNED_TOKENS = CAPA2_MC_BANNED_TOKENS
 CAPA2_BUILD_TAB_ORDER = [
     "WhatToBuild",
     "Data",
@@ -16470,6 +16503,7 @@ CAPA2_DISABLE_TRADING_TIME_RANGES_TARGET = [
     "AutomaticRetest-Task6.xml",
     "AutomaticRetest-Task5.xml",
     "AutomaticRetest-Task4.xml",
+    "Optimize-Task1.xml",
 ]
 CAPA2_ACADEMIC_SOURCES = [
     {
@@ -21435,11 +21469,13 @@ def capa2_tick_real_data_summary(root: ET.Element | None) -> dict[str, Any]:
     data = root.find("Data")
     setup = data.find("./Setups/Setup") if data is not None else None
     chart = setup.find("Chart") if setup is not None else None
+    commission = setup.find("./Commissions/Method[@type='SizeBased']/Params/Param[@key='Commission']") if setup is not None else None
     out_of_sample = data.find("OutOfSample") if data is not None else None
     return {
         "exists": data is not None,
         "setup": dict(setup.attrib) if setup is not None else {},
         "chart": dict(chart.attrib) if chart is not None else {},
+        "commission": (commission.text or "") if commission is not None else "",
         "outOfSampleRanges": [dict(node.attrib) for node in out_of_sample.findall("Range")] if out_of_sample is not None else [],
     }
 
@@ -24799,6 +24835,509 @@ def promote_capa2_spp_target(root142: Path, project_root: Path, target: str, app
     return payload
 
 
+def load_capa2_wfm_task_root(cfx: Path) -> tuple[str, ET.Element | None, str]:
+    task_xml, root, title = load_task_root_by_xml(cfx, CAPA2_WFM_TASK_XML)
+    if root is not None:
+        return task_xml, root, title or CAPA2_WFM_TASK_TITLE
+    fallback_task_xml, fallback_root = load_task_root(cfx, CAPA2_WFM_TASK_TITLE)
+    return fallback_task_xml, fallback_root, CAPA2_WFM_TASK_TITLE if fallback_root is not None else ""
+
+
+def capa2_wfm_summary(root: ET.Element | None) -> dict[str, Any]:
+    if root is None:
+        return {"exists": False}
+    summary = wfm_open_summary(root)
+    summary["data"] = capa2_tick_real_data_summary(root)
+    summary["customData"] = capa2_retest1_custom_data_summary(root)
+    summary["databanks"] = {item.get("name", ""): item.get("value", "") for item in databank_summary(root)}
+    summary["resources"] = _tick_real_resource_summary(root)
+    summary["optionsParams"] = {
+        param.get("key", ""): (param.text or "")
+        for param in root.findall(".//BuildTradingOptions/Params/Param")
+        if param.get("key") in WFM_OPTIONS_PARAMS_TARGET
+    }
+    summary["crossChecks"] = wfm_crosschecks_summary(root)
+    optimization = root.find("./Optimization")
+    if optimization is not None:
+        wf = optimization.find("WalkForward")
+        what = optimization.find("WhatToParametrize")
+        summary["optimization"] = {
+            "attrs": dict(optimization.attrib),
+            "source": dict(optimization.find("Source").attrib) if optimization.find("Source") is not None else {},
+            "walkForward": dict(wf.attrib) if wf is not None else {},
+            "param1": dict(wf.find("Param1").attrib) if wf is not None and wf.find("Param1") is not None else {},
+            "param2": dict(wf.find("Param2").attrib) if wf is not None and wf.find("Param2") is not None else {},
+            "optimizationMethod": dict(optimization.find("OptimizationMethod").attrib) if optimization.find("OptimizationMethod") is not None else {},
+            "automaticSettings": dict(optimization.find("AutomaticSettings").attrib) if optimization.find("AutomaticSettings") is not None else {},
+            "whatToParametrize": dict(what.attrib) if what is not None else {},
+            "parametrizeFlags": {child.tag: child.text or "" for child in list(what) if isinstance(child.tag, str)} if what is not None else {},
+        }
+    else:
+        summary["optimization"] = {}
+    summary["strategyType"] = task_strategy_type_summary(root)
+    summary["orderTypes"] = task_order_type_detail_summary(root)
+    summary["exitTypes"] = task_exit_type_detail_summary(root)
+    summary["riskMoneyManagement"] = task_risk_method_summary(root)
+    summary["rankings"] = capa2_retest1_rankings_summary(root)
+    return summary
+
+
+def set_capa2_wfm_databanks(root: ET.Element, actions: list[dict[str, Any]]) -> None:
+    databanks = find_section(root, "Databanks")
+    if databanks is None:
+        databanks = ET.SubElement(root, "Databanks", {"retestSelected": "false"})
+        actions.append({"field": "Databanks", "from": None, "to": dict(databanks.attrib), "changed": True})
+    existing = {node.get("name", ""): node for node in databanks.findall("Databank") if node.get("name")}
+    for name, value in CAPA2_WFM_DATABANKS_TARGET.items():
+        node = existing.get(name)
+        before = dict(node.attrib) if node is not None else None
+        if node is None:
+            node = ET.SubElement(databanks, "Databank", {"name": name})
+        node.set("name", name)
+        node.set("value", value)
+        node.set("label", f"{name} databank")
+        actions.append({"field": f"Databanks/{name}:capa2-wfm", "from": before, "to": dict(node.attrib), "changed": before != dict(node.attrib)})
+
+
+def normalize_capa2_wfm_crosscheck_setups(root: ET.Element, actions: list[dict[str, Any]]) -> None:
+    period = generator_period(CAPA2_WFM_PERIOD_KEY)
+    before: list[dict[str, Any]] = []
+    after: list[dict[str, Any]] = []
+    for setup in root.findall(".//CrossChecks/*/Settings/Setups/Setup"):
+        before.append({"attrs": dict(setup.attrib), "charts": [dict(chart.attrib) for chart in setup.findall("Chart")]})
+        for key, wanted in {
+            "dateFrom": period[0],
+            "dateTo": period[1],
+            "testPrecision": CAPA2_WFM_DATA_TEST_PRECISION,
+            "session": WFM_DATA_SESSION,
+            "slippage": "0",
+            "minDist": "0",
+        }.items():
+            setup.set(key, wanted)
+        charts = setup.findall("Chart")
+        if not charts:
+            charts = [ET.SubElement(setup, "Chart")]
+        for chart in charts:
+            chart.attrib.clear()
+            chart.attrib.update({"symbol": CAPA2_WFM_RESOURCE_SYMBOL, "timeframe": CAPA2_BUILD_SEED_TIMEFRAME, "spread": CAPA2_WFM_RESOURCE_SPREAD})
+        after.append({"attrs": dict(setup.attrib), "charts": [dict(chart.attrib) for chart in setup.findall("Chart")]})
+    actions.append({"field": "CrossChecks/*/Settings/Setups/Setup:capa2-wfm", "from": before, "to": after, "changed": before != after})
+
+
+def apply_capa2_wfm_data_to_root(root: ET.Element, actions: list[dict[str, Any]]) -> None:
+    data_setup = ensure_capa2_tick_real_setup(
+        root,
+        "Data",
+        WFM_DATA_ENGINE,
+        actions,
+        test_precision=CAPA2_WFM_DATA_TEST_PRECISION,
+    )
+    custom_setup = ensure_capa2_tick_real_setup(
+        root,
+        "CustomData",
+        WFM_CUSTOM_DATA_ENGINE,
+        actions,
+        test_precision=CAPA2_WFM_DATA_TEST_PRECISION,
+        custom_main_values=WFM_CUSTOM_DATA_MAIN_TEST_VALUES_TARGET,
+    )
+    ensure_commission_method(data_setup, actions, "Data/Setup")
+    ensure_commission_method(custom_setup, actions, "CustomData/Setup")
+    ensure_capa2_tick_real_resources(root, data_setup, actions)
+    set_capa2_wfm_databanks(root, actions)
+    for key, value in WFM_OPTIONS_PARAMS_TARGET.items():
+        set_or_create_option_param_text(root, key, value, actions, "Options")
+
+
+def apply_capa2_wfm_crosschecks_to_root(root: ET.Element) -> list[dict[str, Any]]:
+    actions: list[dict[str, Any]] = []
+    parent = find_section(root, "CrossChecks")
+    if parent is None:
+        parent = ET.SubElement(root, "CrossChecks")
+        actions.append({"field": "CrossChecks", "from": None, "to": dict(parent.attrib), "changed": True})
+    set_attrs_on_node(parent, WFM_CROSSCHECK_PARENT_TARGET, actions, "CrossChecks:attrs")
+    active = parent.find(WFM_ACTIVE_CROSSCHECK)
+    if active is None:
+        active = ET.SubElement(parent, WFM_ACTIVE_CROSSCHECK, {"use": "true"})
+        actions.append({"field": f"CrossChecks/{WFM_ACTIVE_CROSSCHECK}", "from": None, "to": dict(active.attrib), "changed": True})
+    for check in list(parent):
+        if not isinstance(check.tag, str) or check.get("use") is None:
+            continue
+        before_use = check.get("use", "")
+        wanted_use = "true" if check.tag == WFM_ACTIVE_CROSSCHECK else "false"
+        check.set("use", wanted_use)
+        actions.append({"field": f"CrossChecks/{check.tag}:use:capa2-wfm", "from": before_use, "to": wanted_use, "changed": before_use != wanted_use})
+        if check.tag != WFM_ACTIVE_CROSSCHECK:
+            for method in check.findall("./Settings/Methods/Method"):
+                before_method = method.get("use", "")
+                method.set("use", "false")
+                actions.append({"field": f"CrossChecks/{check.tag}/Method:{method.get('type', '')}:use:capa2-wfm", "from": before_method, "to": "false", "changed": before_method != "false"})
+    set_wfm_matrix_settings(active, actions)
+    set_wfm_acceptance_conditions(active, actions)
+    normalize_capa2_wfm_crosscheck_setups(root, actions)
+    rankings = find_section(root, "Rankings")
+    if rankings is not None:
+        set_or_create_text_child(rankings, "ForceRunCrossChecks", "false", actions, "Rankings/ForceRunCrossChecks")
+    return actions
+
+
+def apply_capa2_wfm_optimization_to_root(root: ET.Element, actions: list[dict[str, Any]]) -> None:
+    optimization = root.find("./Optimization")
+    if optimization is None:
+        optimization = ET.SubElement(root, "Optimization")
+        actions.append({"field": "Optimization", "from": None, "to": dict(optimization.attrib), "changed": True})
+    set_exact_attrs(optimization, CAPA2_WFM_OPTIMIZATION_ATTR_TARGET, actions, "Optimization:attrs:capa2-wfm")
+    set_or_create_attrs_child(optimization, "Source", CAPA2_WFM_OPTIMIZATION_SOURCE_TARGET, actions, "Optimization/Source:capa2-wfm")
+    walk_forward = optimization.find("WalkForward")
+    if walk_forward is None:
+        walk_forward = ET.SubElement(optimization, "WalkForward")
+        actions.append({"field": "Optimization/WalkForward", "from": None, "to": dict(walk_forward.attrib), "changed": True})
+    set_exact_attrs(walk_forward, WFM_WALK_FORWARD_ATTR_TARGET, actions, "Optimization/WalkForward:attrs:capa2-wfm")
+    set_or_create_attrs_child(walk_forward, "Param1", WFM_PARAM1_ATTR_TARGET, actions, "Optimization/WalkForward/Param1:capa2-wfm")
+    set_or_create_attrs_child(walk_forward, "Param2", WFM_PARAM2_ATTR_TARGET, actions, "Optimization/WalkForward/Param2:capa2-wfm")
+    set_or_create_attrs_child(optimization, "OptimizationMethod", CAPA2_WFM_OPTIMIZATION_METHOD_TARGET, actions, "Optimization/OptimizationMethod:capa2-wfm")
+    set_or_create_attrs_child(optimization, "AutomaticSettings", CAPA2_WFM_AUTOMATIC_SETTINGS_TARGET, actions, "Optimization/AutomaticSettings:capa2-wfm")
+    what = optimization.find("WhatToParametrize")
+    if what is None:
+        what = ET.SubElement(optimization, "WhatToParametrize")
+        actions.append({"field": "Optimization/WhatToParametrize", "from": None, "to": dict(what.attrib), "changed": True})
+    set_exact_attrs(what, {"type": "1"}, actions, "Optimization/WhatToParametrize:attrs:capa2-wfm")
+    for key, value in WFM_PARAMETRIZE_FLAGS_TARGET.items():
+        set_or_create_text_child(what, key, value, actions, f"Optimization/WhatToParametrize/{key}:capa2-wfm")
+    set_or_create_text_child(what, "TradingOptions", "false", actions, "Optimization/WhatToParametrize/TradingOptions:capa2-wfm")
+
+
+def apply_capa2_wfm_strategy_type_to_root(root: ET.Element, actions: list[dict[str, Any]]) -> None:
+    what_to_build = find_section(root, "WhatToBuild")
+    if what_to_build is None:
+        what_to_build = ET.SubElement(root, "WhatToBuild")
+        actions.append({"field": "WhatToBuild", "from": None, "to": "created", "changed": True})
+    set_or_create_attrs_child(what_to_build, "StrategyType", CAPA2_WFM_STRATEGY_TYPE_TARGET, actions, "WhatToBuild/StrategyType:capa2-wfm")
+
+
+def apply_capa2_wfm_target_to_root(root: ET.Element) -> list[dict[str, Any]]:
+    actions: list[dict[str, Any]] = []
+    apply_capa2_wfm_data_to_root(root, actions)
+    apply_capa2_wfm_optimization_to_root(root, actions)
+    actions.extend(apply_capa2_wfm_crosschecks_to_root(root))
+    apply_capa2_wfm_strategy_type_to_root(root, actions)
+    apply_capa2_mc_blocks_to_root(root, actions)
+    blocks = find_blocks(root)
+    if blocks is not None:
+        enforce_disabled_build_block_categories(blocks, actions)
+    apply_spp_rankings_to_root(root, actions)
+    apply_capa2_retest_risk_money_management_to_root(root, actions)
+    apply_mc_atms_to_root(root, actions)
+    apply_mc_selected_strategies_to_root(root, actions)
+    actions.append({"field": "Notes", "changed": False, "sha256": section_sha256(root, "Notes"), "note": "audited and preserved"})
+    return actions
+
+
+def capa2_wfm_generator_period_issues() -> list[str]:
+    config = read_json(GENERATOR_PROFILES_PATH, {})
+    periods = config.get("retestPeriods") or {}
+    layer2 = (config.get("taskPeriodMaps") or {}).get("2") or {}
+    cross = (config.get("crossBrokerRetests") or {}).get("2") or {}
+    disabled_ranges = set(((config.get("disableTradingTimeRanges") or {}).get("2") or []))
+    issues: list[str] = []
+    if periods.get(CAPA2_WFM_PERIOD_KEY) != ["2017.10.02", "2023.12.31"]:
+        issues.append(f"generator_profiles.json retestPeriods.{CAPA2_WFM_PERIOD_KEY} must be 2017.10.02-2023.12.31")
+    if layer2.get(CAPA2_WFM_TASK_XML) != CAPA2_WFM_PERIOD_KEY:
+        issues.append(f"generator_profiles.json taskPeriodMaps.2.{CAPA2_WFM_TASK_XML} must map to {CAPA2_WFM_PERIOD_KEY}")
+    if CAPA2_WFM_TASK_XML in cross:
+        issues.append(f"generator_profiles.json must not cross-broker route {CAPA2_WFM_TASK_XML}; Capa2 WFM stays Darwinex/SQ default")
+    if CAPA2_WFM_TASK_XML not in disabled_ranges:
+        issues.append(f"generator_profiles.json disableTradingTimeRanges.2 must include {CAPA2_WFM_TASK_XML}")
+    return issues
+
+
+def enforce_capa2_wfm_guard(root: ET.Element | None, target_name: str) -> list[str]:
+    if root is None:
+        return [f"{target_name}: Capa2 WFM task missing"]
+    issues: list[str] = []
+    period = generator_period(CAPA2_WFM_PERIOD_KEY)
+    summary = capa2_wfm_summary(root)
+    for label in ("data", "customData"):
+        carrier = summary.get(label) or {}
+        setup = carrier.get("setup") or {}
+        chart = carrier.get("chart") or {}
+        if setup.get("dateFrom") != period[0] or setup.get("dateTo") != period[1]:
+            issues.append(f"{target_name}: Capa2 WFM {label} dates must be {CAPA2_WFM_PERIOD_KEY} {period[0]}-{period[1]}")
+        if setup.get("testPrecision") != CAPA2_WFM_DATA_TEST_PRECISION:
+            issues.append(f"{target_name}: Capa2 WFM {label} testPrecision must be fastest code {CAPA2_WFM_DATA_TEST_PRECISION}")
+        if setup.get("session") != WFM_DATA_SESSION:
+            issues.append(f"{target_name}: Capa2 WFM {label} session must be No Session")
+        if chart != {"symbol": CAPA2_WFM_RESOURCE_SYMBOL, "timeframe": CAPA2_BUILD_SEED_TIMEFRAME, "spread": CAPA2_WFM_RESOURCE_SPREAD}:
+            issues.append(f"{target_name}: Capa2 WFM {label} chart seed drifted: {chart!r}")
+        if carrier.get("commission") != MC_CUSTOM_DATA_COMMISSION_TARGET:
+            issues.append(f"{target_name}: Capa2 WFM {label} SizeBased commission must be {MC_CUSTOM_DATA_COMMISSION_TARGET!r}")
+    if (summary.get("data") or {}).get("outOfSampleRanges"):
+        issues.append(f"{target_name}: Capa2 WFM must not add an internal OOS split")
+    if (summary.get("customData") or {}).get("mainTestValues") != WFM_CUSTOM_DATA_MAIN_TEST_VALUES_TARGET:
+        issues.append(f"{target_name}: Capa2 WFM CustomData MainTestValues drifted")
+    if (summary.get("databanks") or {}) != CAPA2_WFM_DATABANKS_TARGET:
+        issues.append(f"{target_name}: Capa2 WFM databanks are {summary.get('databanks')!r}, expected {CAPA2_WFM_DATABANKS_TARGET!r}")
+    resources = summary.get("resources") or {}
+    symbols = resources.get("symbols") or []
+    if {item.get("name") for item in symbols} != {CAPA2_WFM_RESOURCE_SYMBOL}:
+        issues.append(f"{target_name}: Capa2 WFM resources must contain only {CAPA2_WFM_RESOURCE_SYMBOL}")
+    if any(item.get("source") != CAPA2_BUILD_RESOURCE_SOURCE_ID or item.get("broker") != CAPA2_BUILD_RESOURCE_BROKER_ID for item in symbols):
+        issues.append(f"{target_name}: Capa2 WFM resources must use Darwinex source 4 / broker 4")
+    if resources.get("sessions"):
+        issues.append(f"{target_name}: Capa2 WFM resources must not keep sessions")
+    if (summary.get("optionsParams") or {}) != WFM_OPTIONS_PARAMS_TARGET:
+        issues.append(f"{target_name}: Capa2 WFM options drifted: {summary.get('optionsParams')!r}")
+    optimization = summary.get("optimization") or {}
+    if optimization.get("attrs") != CAPA2_WFM_OPTIMIZATION_ATTR_TARGET:
+        issues.append(f"{target_name}: Capa2 WFM Optimization attrs drifted: {optimization.get('attrs')!r}")
+    if optimization.get("source") != CAPA2_WFM_OPTIMIZATION_SOURCE_TARGET:
+        issues.append(f"{target_name}: Capa2 WFM Optimization Source drifted")
+    if optimization.get("walkForward") != WFM_WALK_FORWARD_ATTR_TARGET:
+        issues.append(f"{target_name}: Capa2 WFM Optimization WalkForward drifted: {optimization.get('walkForward')!r}")
+    if optimization.get("param1") != WFM_PARAM1_ATTR_TARGET or optimization.get("param2") != WFM_PARAM2_ATTR_TARGET:
+        issues.append(f"{target_name}: Capa2 WFM Optimization Param1/Param2 drifted")
+    if optimization.get("optimizationMethod") != CAPA2_WFM_OPTIMIZATION_METHOD_TARGET:
+        issues.append(f"{target_name}: Capa2 WFM OptimizationMethod drifted")
+    if optimization.get("automaticSettings") != CAPA2_WFM_AUTOMATIC_SETTINGS_TARGET:
+        issues.append(f"{target_name}: Capa2 WFM AutomaticSettings drifted")
+    if optimization.get("whatToParametrize") != {"type": "1"}:
+        issues.append(f"{target_name}: Capa2 WFM Optimization WhatToParametrize attrs drifted")
+    expected_top_flags = dict(WFM_PARAMETRIZE_FLAGS_TARGET)
+    expected_top_flags["TradingOptions"] = "false"
+    if optimization.get("parametrizeFlags") != expected_top_flags:
+        issues.append(f"{target_name}: Capa2 WFM Optimization ParametrizeFlags drifted")
+    cross = summary.get("crossChecks") or {}
+    if (cross.get("attributes") or {}) != WFM_CROSSCHECK_PARENT_TARGET:
+        issues.append(f"{target_name}: Capa2 WFM CrossChecks attrs drifted: {cross.get('attributes')!r}")
+    if cross.get("active") != [WFM_ACTIVE_CROSSCHECK]:
+        issues.append(f"{target_name}: Capa2 WFM active crosschecks are {cross.get('active')!r}, expected [{WFM_ACTIVE_CROSSCHECK!r}]")
+    checks = {item.get("id"): item for item in cross.get("checks") or []}
+    active = checks.get(WFM_ACTIVE_CROSSCHECK) or {}
+    if active.get("activeMethodTypes"):
+        issues.append(f"{target_name}: Capa2 WFM WalkForwardMatrix must not have active methods")
+    settings = active.get("settings") or {}
+    if (settings.get("WalkForward") or {}) != WFM_WALK_FORWARD_ATTR_TARGET:
+        issues.append(f"{target_name}: Capa2 WFM CrossChecks WalkForward drifted")
+    if (settings.get("Param1") or {}) != WFM_PARAM1_ATTR_TARGET or (settings.get("Param2") or {}) != WFM_PARAM2_ATTR_TARGET:
+        issues.append(f"{target_name}: Capa2 WFM CrossChecks Param1/Param2 drifted")
+    if settings.get("MaxTests") != WFM_MAX_TESTS_TARGET:
+        issues.append(f"{target_name}: Capa2 WFM MaxTests must be {WFM_MAX_TESTS_TARGET}")
+    if (settings.get("WhatToParametrize") or {}) != WFM_WHAT_TO_PARAMETRIZE_ATTR_TARGET:
+        issues.append(f"{target_name}: Capa2 WFM CrossChecks WhatToParametrize attrs drifted")
+    if (settings.get("ParametrizeFlags") or {}) != WFM_PARAMETRIZE_FLAGS_TARGET:
+        issues.append(f"{target_name}: Capa2 WFM CrossChecks ParametrizeFlags drifted")
+    if not wfm_acceptance_conditions_ok(root):
+        issues.append(f"{target_name}: Capa2 WFM acceptance conditions drifted from WalkForwardMatrix policy")
+    for check in cross.get("checks") or []:
+        if check.get("id") == WFM_ACTIVE_CROSSCHECK:
+            continue
+        if check.get("activeMethodTypes"):
+            issues.append(f"{target_name}: inactive Capa2 WFM crosscheck {check.get('id')} still has active methods")
+    for nested_setup in root.findall(".//CrossChecks/*/Settings/Setups/Setup"):
+        if nested_setup.get("dateFrom") != period[0] or nested_setup.get("dateTo") != period[1]:
+            issues.append(f"{target_name}: Capa2 WFM nested CrossChecks dates drifted")
+        if nested_setup.get("testPrecision") != CAPA2_WFM_DATA_TEST_PRECISION:
+            issues.append(f"{target_name}: Capa2 WFM nested CrossChecks precision must be fastest code {CAPA2_WFM_DATA_TEST_PRECISION}")
+    if task_strategy_type_summary(root) != CAPA2_WFM_STRATEGY_TYPE_TARGET:
+        issues.append(f"{target_name}: Capa2 WFM StrategyType must point passively to SPP")
+    exits = task_exit_type_detail_summary(root)
+    if (exits.get("ExitAfterBars.ExitAfterBars") or {}).get("use") != "false":
+        issues.append(f"{target_name}: Capa2 WFM ExitAfterBars must stay false")
+    for key in CAPA2_MC_ALLOWED_ACTIVE_EXITS:
+        if (exits.get(key) or {}).get("use") != "true":
+            issues.append(f"{target_name}: Capa2 WFM {key} must stay active")
+    ranking = summary.get("rankings") or {}
+    if ranking.get("type") != "never":
+        issues.append(f"{target_name}: Capa2 WFM Rankings type must be never")
+    for key in ("DeleteFailedStrategies", "ForceRunCrossChecks"):
+        if ranking.get(key) != "false":
+            issues.append(f"{target_name}: Capa2 WFM Rankings {key} must be false")
+    if (ranking.get("FitPortfolio") or {}).get("active") != "false":
+        issues.append(f"{target_name}: Capa2 WFM FitPortfolio must stay disabled")
+    if (ranking.get("CustomAnalysis") or {}).get("filter") != "false":
+        issues.append(f"{target_name}: Capa2 WFM CustomAnalysis must stay disabled")
+    if ranking.get("conditions"):
+        issues.append(f"{target_name}: Capa2 WFM Rankings must not add extra conditions")
+    rmm = summary.get("riskMoneyManagement") or {}
+    for method_name, wanted in CAPA2_RETEST1_RISK_MONEY_MANAGEMENT_METHOD_TARGET.items():
+        if rmm.get(method_name) != wanted:
+            issues.append(f"{target_name}: Capa2 WFM RiskMoneyManagement {method_name} is {rmm.get(method_name)!r}, expected {wanted!r}")
+    atms = find_section(root, "ATMs")
+    if atms is not None and atms.get("enable") != "false":
+        issues.append(f"{target_name}: Capa2 WFM ATMs must stay disabled")
+    selected = find_section(root, "SelectedStrategies")
+    if selected is not None and ((selected.text or "").strip() or list(selected)):
+        issues.append(f"{target_name}: Capa2 WFM SelectedStrategies must stay empty")
+    guarded_text = serialize_xml(root)
+    for token in CAPA2_WFM_BANNED_TOKENS:
+        if token in guarded_text:
+            issues.append(f"{target_name}: Forbidden token leaked into Capa2 WFM: {token}")
+    if re.search(r"[A-Za-z]:\\", guarded_text):
+        issues.append(f"{target_name}: local absolute path leaked into Capa2 WFM")
+    issues.extend(capa2_wfm_generator_period_issues())
+    return issues
+
+
+def update_capa2_wfm_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "sha256Before": file_sha256(cfx) if cfx.is_file() else "",
+        "actions": [],
+        "backup": "",
+        "willWrite": apply,
+    }
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        payload["error"] = "missing_or_not_zip"
+        return payload
+    config_before = ""
+    config_after = ""
+    config_actions: list[dict[str, Any]] = []
+    config_issues: list[str] = []
+    with zipfile.ZipFile(cfx, "r") as zf:
+        config_before = safe_zip_text(zf, "config.xml")
+        config_root = xml_root_from_zip(zf, "config.xml")
+    if config_root is None:
+        config_issues.append("config.xml missing")
+    else:
+        databank = next((node for node in config_root.findall(".//Databank") if node.get("name") == CAPA2_WFM_DATABANKS_TARGET["Output"]), None)
+        if databank is None:
+            config_issues.append("config.xml WFM databank missing")
+        else:
+            before_view = databank.get("view", "")
+            wanted_view = VIEW_PROMOTION_TARGETS.get(CAPA2_WFM_DATABANKS_TARGET["Output"], "GENERAL")
+            databank.set("view", wanted_view)
+            config_actions.append({"field": "config.xml/Databanks/WFM:view", "from": before_view, "to": wanted_view, "changed": before_view != wanted_view})
+        config_after = serialize_xml(config_root)
+    payload["configActions"] = config_actions
+    task_xml_name, root, title = load_capa2_wfm_task_root(cfx)
+    payload["taskXml"] = task_xml_name
+    payload["displayTitle"] = title
+    if not task_xml_name or root is None:
+        payload["error"] = "capa2_wfm_task_not_found"
+        payload["sha256After"] = payload["sha256Before"]
+        return payload
+    before_text = serialize_xml(root)
+    payload["before"] = capa2_wfm_summary(root)
+    payload["actions"] = apply_capa2_wfm_target_to_root(root)
+    payload["after"] = capa2_wfm_summary(root)
+    payload["issues"] = config_issues + enforce_capa2_wfm_guard(root, payload.get("displayTitle") or "Capa2 WFM")
+    payload["guardOk"] = not payload["issues"]
+    after_text = serialize_xml(root)
+    config_changed = bool(config_before and config_after and config_before != config_after)
+    payload["changed"] = before_text != after_text or config_changed
+    payload["changedActionCount"] = sum(1 for item in payload["actions"] if item.get("changed")) + sum(1 for item in config_actions if item.get("changed"))
+    payload["targetValues"] = {
+        "taskXml": CAPA2_WFM_TASK_XML,
+        "title": CAPA2_WFM_TASK_TITLE,
+        "period": CAPA2_WFM_PERIOD_KEY,
+        "testPrecision": CAPA2_WFM_DATA_TEST_PRECISION,
+        "precisionPolicy": "fastest for Capa2 WFM; Forward returns to tick precision.",
+        "databanks": CAPA2_WFM_DATABANKS_TARGET,
+        "dataCarrier": "Data + CustomData synchronized",
+        "resource": {"symbol": CAPA2_WFM_RESOURCE_SYMBOL, "source": CAPA2_BUILD_RESOURCE_SOURCE_ID, "broker": CAPA2_BUILD_RESOURCE_BROKER_ID},
+        "optimization": {
+            "attrs": CAPA2_WFM_OPTIMIZATION_ATTR_TARGET,
+            "walkForward": WFM_WALK_FORWARD_ATTR_TARGET,
+            "param1": WFM_PARAM1_ATTR_TARGET,
+            "param2": WFM_PARAM2_ATTR_TARGET,
+            "automaticSettings": CAPA2_WFM_AUTOMATIC_SETTINGS_TARGET,
+        },
+        "activeCrossCheck": WFM_ACTIVE_CROSSCHECK,
+        "acceptanceConditions": WFM_ACCEPTANCE_CONDITIONS_TARGET,
+        "strategyType": CAPA2_WFM_STRATEGY_TYPE_TARGET,
+        "exitTypes": CAPA2_BUILD_BLOCKS_EXIT_TARGET,
+    }
+    payload["targetRationale"] = {
+        "validation": "Capa2 WFM consumes SPP survivors and reviews walk-forward matrix robustness; it is not a live optimization run in this phase.",
+        "antiOverfit": "No internal OOS split, no portfolio fitting, no custom analysis and no ranking filters are added.",
+        "precision": "Operator decision: WFM remains fastest; Forward returns to tick precision.",
+        "capa2Exits": "Capa2 keeps ExitAfterBars=false and preserves SL/PT/trailing risk exits.",
+        "naturalResults": "No SQX launch, no smoke, no optimization and no forced Results=passed.",
+    }
+    if apply and payload["changed"] and payload["guardOk"]:
+        backup = backup_file(cfx, backup_root)
+        payload["backup"] = str(backup)
+        if config_changed:
+            replace_config_xml_in_cfx(cfx, config_after)
+        if before_text != after_text:
+            replace_zip_text_entry(cfx, task_xml_name, serialize_xml(root))
+        payload["sha256After"] = file_sha256(cfx)
+    else:
+        payload["sha256After"] = payload["sha256Before"]
+    return payload
+
+
+def promote_capa2_wfm_target(root142: Path, project_root: Path, target: str, apply: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    previous_gate = promote_capa2_spp_target(root142, project_root, target=target, apply=False)
+    issues = list(previous_gate.get("issues") or [])
+    if previous_gate.get("ok") is not True:
+        issues.append("capa2-spp-target: previous gate ok=false")
+    process_probe = process_snapshot()
+    if process_probe.get("processes"):
+        issues.append("SQX processes are alive; close SQX before applying phase27 Capa2 WFM")
+    backup_root = ledger_root(project_root) / "backups" / f"phase27_capa2_wfm_{stamp()}"
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = capa2_base_project_path(root142)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_CAPA2_TEMPLATE
+    results = {name: update_capa2_wfm_target_in_cfx(path, backup_root / name, apply=apply) for name, path in targets.items()}
+    for target_name, result in results.items():
+        for issue in result.get("issues") or []:
+            issues.append(f"{target_name}: {issue}")
+    payload: dict[str, Any] = {
+        "ok": not issues and all(item.get("exists") and item.get("isZip") and not item.get("error") and item.get("guardOk") for item in results.values()),
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase27_capa2_wfm",
+        "operation": "capa2_wfm_target",
+        "apply": apply,
+        "target": target,
+        "previousGate": {
+            "phase": previous_gate.get("phase"),
+            "ok": previous_gate.get("ok"),
+            "issues": previous_gate.get("issues", []),
+            "warnings": previous_gate.get("warnings", []),
+            "nextPhase": previous_gate.get("nextPhase"),
+            "written": previous_gate.get("written", ""),
+        },
+        "processProbe": process_probe,
+        "issues": issues,
+        "warnings": [],
+        "results": results,
+        "summary": {
+            "decision": "Close Capa2 WFM as validation-only WalkForwardMatrix gate after SPP.",
+            "taskXml": CAPA2_WFM_TASK_XML,
+            "chain": "Input=SPP, Output=WFM.",
+            "data": f"Darwinex ROBUSTNESS_C2 window 2017.10.02-2023.12.31, testPrecision={CAPA2_WFM_DATA_TEST_PRECISION} fastest, Data+CustomData, No Session.",
+            "optimization": "Optimization and CrossChecks use WalkForward type=2, 10/15 windows, 20/20 distributions, maxSteps=8 and MaxTests=3000.",
+            "crossChecks": "CrossChecks use=true/evaluateAll=true; only WalkForwardMatrix active with dedicated WFM acceptance rows.",
+            "passive": "StrategyType reads SPP passively; Rankings/FitPortfolio/CustomAnalysis stay inert; ExitAfterBars remains false and SL/PT/trailing remain active for Capa2.",
+            "naturalResults": "No SQX launch, no smoke, no optimization and no forced Results=passed.",
+            "nextPhase": CAPA2_WFM_NEXT,
+        },
+        "academicSources": CAPA2_ACADEMIC_SOURCES,
+        "nextPhase": "phase27_capa2_wfm_diff_review" if not apply else CAPA2_WFM_NEXT,
+    }
+    evidence_target = ledger_root(project_root) / "diffs" / f"phase27_capa2_wfm_target_{stamp()}.json"
+    write_json(evidence_target, payload)
+    payload["written"] = str(evidence_target)
+    if apply and payload["ok"]:
+        state_path = ledger_root(project_root) / "session_state.json"
+        state = read_json(state_path, {})
+        state.update({
+            "updatedAt": now_iso(),
+            "currentPhase": "phase27_capa2_wfm",
+            "nextPhase": CAPA2_WFM_NEXT,
+            "scope": "capa2",
+            "phase27Capa2WfmReport": str(evidence_target),
+        })
+        write_json(state_path, state)
+    return payload
+
+
 def update_build_data_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
     date_from, date_to = generator_period(BUILD_DATA_PERIOD_KEY)
     payload: dict[str, Any] = {
@@ -26264,6 +26803,10 @@ def build_parser() -> argparse.ArgumentParser:
     capa2_spp.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     capa2_spp.add_argument("--apply", action="store_true")
 
+    capa2_wfm = sub.add_parser("capa2-wfm-target")
+    capa2_wfm.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    capa2_wfm.add_argument("--apply", action="store_true")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -26557,6 +27100,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "capa2-spp-target":
         json_print(promote_capa2_spp_target(root142, project_root, target=args.target, apply=args.apply))
+        return 0
+    if args.command == "capa2-wfm-target":
+        json_print(promote_capa2_wfm_target(root142, project_root, target=args.target, apply=args.apply))
         return 0
     if args.command == "archive-exit-day-snippets":
         json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))

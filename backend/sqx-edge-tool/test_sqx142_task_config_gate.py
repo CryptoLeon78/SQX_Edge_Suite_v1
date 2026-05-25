@@ -5142,6 +5142,168 @@ def test_capa2_spp_cli_is_registered():
     assert args.target == "both"
 
 
+def _write_capa2_wfm_generator_profile(path: Path, *, include_map: bool = True, cross_broker: bool = False) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    task_map = {"Optimize-Task1.xml": "ROBUSTNESS_C2"} if include_map else {}
+    cross = {"Optimize-Task1.xml": {"brokerProfile": "dukascopy_oos2"}} if cross_broker else {}
+    path.write_text(
+        json.dumps({
+            "retestPeriods": {
+                "ROBUSTNESS_C1": ["2017.10.02", "2023.12.31"],
+                "ROBUSTNESS_C2": ["2017.10.02", "2023.12.31"],
+            },
+            "disableTradingTimeRanges": {"2": ["Optimize-Task1.xml"]},
+            "taskPeriodMaps": {"2": task_map},
+            "crossBrokerRetests": {"2": cross},
+        }),
+        encoding="utf-8",
+    )
+
+
+def _write_minimal_capa2_wfm_cfx(path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    config_xml = """
+    <Project>
+      <Tasks><Task title="WFM" taskXMLFile="Optimize-Task1.xml" active="true" /></Tasks>
+      <Databanks><Databank name="SPP" view="RETEST ROBUST REVIEW" /><Databank name="WFM" view="GENERAL" /></Databanks>
+    </Project>
+    """
+    task_xml = """
+    <Task>
+      <Data><Setups><Setup dateFrom="2010.01.01" dateTo="2017.10.02" testPrecision="2" session="Old Session" engine="MetaTrader5 (hedged)"><Chart symbol="AUDCAD_dukascopy" timeframe="H4" spread="1.9" /></Setup></Setups><OutOfSample><Range dateFrom="2024.01.01" dateTo="2025.01.01" /></OutOfSample></Data>
+      <CustomData showAll="true"><Setups><Setup dateFrom="2010.01.01" dateTo="2017.10.02" testPrecision="2" session="Old Session" engine="MetaTrader4"><Chart symbol="AUDCAD_dukascopy" timeframe="H4" spread="1.9" /><MainTestValues symbol="false" dates="false" /></Setup></Setups></CustomData>
+      <Databanks><Databank name="Input" value="Strategies to improve" /><Databank name="Output" value="WFM" /></Databanks>
+      <Resources><Symbols><Symbol name="AUDCAD_dukascopy" source="2" broker="3" precision="TICK" timezone="EETUS"><InstrumentInfo instrument="AUDCAD_dukascopy" broker="3" /></Symbol></Symbols><Brokers><Broker id="3" /></Brokers><Instruments /><Sessions><Session name="Old Session" /></Sessions></Resources>
+      <Options><BuildTradingOptions><Params><Param key="LimitTimeRange">true</Param><Param key="RealisticGapsHandling">true</Param><Param key="StoreChartData">true</Param><Param key="Session">Old Session</Param><Param key="MarketOpenSession">Old Session</Param></Params></BuildTradingOptions></Options>
+      <Optimization type="1" maxOptimizations="99"><Source type="1" relativePath="true" /><WalkForward type="0" period="5" optimization="10"><Param1 value="10" /><Param2 value="3" /></WalkForward><OptimizationMethod settings="manual" method="genetic" maxSteps="5" symmetricVariables="true" /><AutomaticSettings distributionUp="50" distributionDown="50" maxSteps="4" distribution="50" /><WhatToParametrize type="2" symmetricVariables="true"><Recommended>true</Recommended><EntryLogic>true</EntryLogic></WhatToParametrize></Optimization>
+      <Rankings type="top"><MaxStrategies>50</MaxStrategies><DeleteFailedStrategies>true</DeleteFailedStrategies><ForceRunCrossChecks>true</ForceRunCrossChecks><FitPortfolio active="true" /><CustomAnalysis filter="true" method="script" inputArgs="C:\\private\\x" /><Conditions><Condition use="true" /></Conditions></Rankings>
+      <CrossChecks use="false" evaluateAll="false">
+        <WalkForwardMatrix use="false">
+          <Settings><WalkForward type="1" period="5" optimization="10"><Param1 value="10" /><Param2 value="3" /></WalkForward><MaxTests>10</MaxTests><WhatToParametrize type="2" symmetricVariables="true"><Recommended>true</Recommended><EntryLogic>true</EntryLogic></WhatToParametrize><Setups><Setup dateFrom="2010.01.01" dateTo="2017.10.02" testPrecision="2" session="Old Session"><Chart symbol="AUDCAD_dukascopy" timeframe="H4" spread="1.9" /></Setup></Setups></Settings>
+          <AcceptanceSettings><Conditions><Condition use="false" /></Conditions></AcceptanceSettings>
+        </WalkForwardMatrix>
+        <MonteCarloRetest use="true"><Settings><Setups><Setup dateFrom="2010.01.01" dateTo="2017.10.02" testPrecision="2" session="Old Session"><Chart symbol="AUDCAD_dukascopy" timeframe="H4" spread="1.9" /></Setup></Setups><Methods><Method type="RandomizeSpread" use="true" /></Methods></Settings></MonteCarloRetest>
+        <SequentialOptimization use="true"><Settings><Setups><Setup dateFrom="2010.01.01" dateTo="2017.10.02" testPrecision="2" session="Old Session"><Chart symbol="AUDCAD_dukascopy" timeframe="H4" spread="1.9" /></Setup></Setups></Settings></SequentialOptimization>
+      </CrossChecks>
+      <WhatToBuild><StrategyType type="template" templateFile="C:\\private\\c2.sqx" improveDatabank="Strategies to improve" /><BuildMode><ShowLastGenerationDatabank>true</ShowLastGenerationDatabank><FreshBloodReplaceSimilar>true</FreshBloodReplaceSimilar><FreshBloodReplaceWeakest>true</FreshBloodReplaceWeakest><EvoRestartOnFinish status="true" /><EvoRestartOnStagnation status="true" fitnessType="10" generations="30" /></BuildMode></WhatToBuild>
+      <PartsToImprove improveATM="true"><EntryRules><LongImprovement use="true" action="replace" /><ShortImprovement use="true" action="replace" /></EntryRules><OrderTypes><LongImprovement use="true" /><ShortImprovement use="true" /></OrderTypes><ExitRules><LongImprovement use="true" action="replace" /><ShortImprovement use="true" action="replace" /></ExitRules></PartsToImprove>
+      <Blocks><BuildingBlocks><Category name="Signals"><Block key="Signal.A" use="true" /></Category><Category name="Indicators"><Block key="Indicators.ATR" use="true" /></Category></BuildingBlocks><OrderTypes><Block key="EnterAtMarket" use="false" /><Block key="EnterAtStop" use="true" /></OrderTypes><ExitTypes><Block key="ExitAfterBars.ExitAfterBars" use="true" probability="100" /></ExitTypes><CustomData showAll="true"><X /></CustomData></Blocks>
+      <RiskMoneyManagement><MoneyManagement><Method type="FixedSize" use="false" /><Method type="FixedAmount" use="true" /></MoneyManagement><RiskManagement><Method type="AllowAllTrades" use="false" /></RiskManagement></RiskMoneyManagement>
+      <ATMs enable="true" />
+      <SelectedStrategies><Strategy /></SelectedStrategies>
+      <Notes />
+    </Task>
+    """
+    with zipfile.ZipFile(path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+        archive.writestr("config.xml", config_xml)
+        archive.writestr("Optimize-Task1.xml", task_xml)
+
+
+def test_capa2_wfm_target_applies_and_is_idempotent(monkeypatch, tmp_path):
+    local_cfx = tmp_path / "local" / "project.cfx"
+    repo_cfx = tmp_path / "repo" / "Capa2_Base.cfx"
+    generator_profile = tmp_path / "generator_profiles.json"
+    _write_minimal_capa2_wfm_cfx(local_cfx)
+    _write_minimal_capa2_wfm_cfx(repo_cfx)
+    _write_capa2_wfm_generator_profile(generator_profile)
+
+    monkeypatch.setattr(gate, "promote_capa2_spp_target", lambda *args, **kwargs: {
+        "phase": "phase26_capa2_spp",
+        "ok": True,
+        "issues": [],
+        "warnings": [],
+        "nextPhase": "phase27_capa2_wfm",
+    })
+    monkeypatch.setattr(gate, "process_snapshot", lambda: {"processes": []})
+    monkeypatch.setattr(gate, "capa2_base_project_path", lambda root142: local_cfx)
+    monkeypatch.setattr(gate, "DEFAULT_CAPA2_TEMPLATE", repo_cfx)
+    monkeypatch.setattr(gate, "GENERATOR_PROFILES_PATH", generator_profile)
+
+    payload = gate.promote_capa2_wfm_target(tmp_path, tmp_path, target="both", apply=True)
+
+    assert payload["ok"] is True
+    assert payload["phase"] == "phase27_capa2_wfm"
+    assert payload["nextPhase"] == "phase28_capa2_forward"
+    task_xml, root, title = gate.load_capa2_wfm_task_root(local_cfx)
+    assert task_xml == "Optimize-Task1.xml"
+    assert title == "WFM"
+    assert gate.enforce_capa2_wfm_guard(root, "localBase") == []
+    with zipfile.ZipFile(local_cfx, "r") as archive:
+        config = ET.fromstring(archive.read("config.xml"))
+    views = {databank.get("name"): databank.get("view") for databank in config.findall(".//Databank")}
+    assert views["WFM"] == "RETEST ROBUST REVIEW"
+    for section in ("Data", "CustomData"):
+        setup = root.find(f"./{section}/Setups/Setup")
+        assert setup.get("dateFrom") == "2017.10.02"
+        assert setup.get("dateTo") == "2023.12.31"
+        assert setup.get("testPrecision") == "1"
+        assert setup.get("session") == "No Session"
+        assert setup.find("Chart").attrib == {"symbol": "AUDCAD_darwinex", "timeframe": "H1", "spread": "2.0"}
+    assert root.findall("./Data/OutOfSample/Range") == []
+    assert {
+        databank.get("name"): databank.get("value")
+        for databank in root.findall(".//Databanks/Databank")
+    } == {"Input": "SPP", "Output": "WFM"}
+    assert root.find(".//CrossChecks").attrib == {"use": "true", "evaluateAll": "true"}
+    active = [
+        child.tag
+        for child in list(root.find(".//CrossChecks"))
+        if isinstance(child.tag, str) and child.get("use") == "true"
+    ]
+    assert active == ["WalkForwardMatrix"]
+    assert gate.wfm_acceptance_conditions_ok(root) is True
+    assert root.find(".//Optimization").attrib == {"type": "3", "maxOptimizations": "3000"}
+    assert root.find(".//Optimization/WalkForward").attrib["type"] == "2"
+    for setup in root.findall(".//CrossChecks/*/Settings/Setups/Setup"):
+        assert setup.get("testPrecision") == "1"
+    assert root.find(".//WhatToBuild/StrategyType").get("improveDatabank") == "SPP"
+    assert root.find(".//Rankings").get("type") == "never"
+    assert root.find(".//Rankings/FitPortfolio").get("active") == "false"
+    assert root.find(".//Rankings/CustomAnalysis").get("filter") == "false"
+    assert root.find(".//Rankings/Conditions").findall("Condition") == []
+    assert root.find(".//ExitTypes/Block[@key='ExitAfterBars.ExitAfterBars']").get("use") == "false"
+    assert root.find(".//ExitTypes/Block[@key='StopLoss.StopLoss']").get("use") == "true"
+    assert root.find(".//ExitTypes/Block[@key='ProfitTarget.ProfitTarget']").get("use") == "true"
+    assert root.find(".//ExitTypes/Block[@key='TrailingStop.TrailingStop']").get("use") == "true"
+
+    dry_run = gate.promote_capa2_wfm_target(tmp_path, tmp_path, target="both", apply=False)
+
+    assert dry_run["ok"] is True
+    assert all(result["changedActionCount"] == 0 for result in dry_run["results"].values())
+
+
+def test_capa2_wfm_guard_rejects_overfit_and_drift(monkeypatch, tmp_path):
+    cfx = tmp_path / "Capa2_Base.cfx"
+    generator_profile = tmp_path / "generator_profiles.json"
+    _write_minimal_capa2_wfm_cfx(cfx)
+    _write_capa2_wfm_generator_profile(generator_profile, include_map=False, cross_broker=True)
+    monkeypatch.setattr(gate, "GENERATOR_PROFILES_PATH", generator_profile)
+    _, root, _ = gate.load_capa2_wfm_task_root(cfx)
+
+    issues = gate.enforce_capa2_wfm_guard(root, "repoTemplate")
+
+    assert any("fastest" in issue or "precision" in issue for issue in issues)
+    assert any("OOS" in issue for issue in issues)
+    assert any("Dukascopy" in issue or "Darwinex" in issue or "cross-broker" in issue for issue in issues)
+    assert any("WalkForwardMatrix" in issue or "active crosschecks" in issue for issue in issues)
+    assert any("acceptance" in issue for issue in issues)
+    assert any("Optimization" in issue for issue in issues)
+    assert any("FitPortfolio" in issue for issue in issues)
+    assert any("CustomAnalysis" in issue for issue in issues)
+    assert any("Rankings" in issue for issue in issues)
+    assert any("StrategyType" in issue for issue in issues)
+    assert any("ExitAfterBars" in issue for issue in issues)
+    assert any("Forbidden token" in issue for issue in issues)
+    assert any("taskPeriodMaps" in issue for issue in issues)
+
+
+def test_capa2_wfm_cli_is_registered():
+    args = gate.build_parser().parse_args(["capa2-wfm-target", "--target", "both"])
+
+    assert args.command == "capa2-wfm-target"
+    assert args.target == "both"
+
+
 def test_synthetic_closeout_report_requires_green_phase10_dry_runs(monkeypatch, tmp_path):
     calls = []
 

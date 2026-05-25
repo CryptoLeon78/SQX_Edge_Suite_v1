@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-05-25 - C1-CONFIG1 Capa2 WFM
+
+- Adds `capa2-wfm-target` as the Phase 27 WalkForwardMatrix validation guard for Capa2.
+- Records evidence `phase27_capa2_wfm_target_20260525_133852.json` and closes `Optimize-Task1.xml` as `Input=SPP` / `Output=WFM` with the `RETEST ROBUST REVIEW` databank view.
+- Pins WFM to Darwinex `ROBUSTNESS_C2 2017.10.02-2023.12.31`, dual `Data+CustomData`, `testPrecision=1 fastest`, `No Session`, explicit `SizeBased=0.0` commissions and no internal OOS ranges.
+- Keeps WFM passive and anti-overfit: only `WalkForwardMatrix` is active, `MaxTests=3000`, WFM `10/15`, distributions `20/20`, `maxSteps=8`, dedicated acceptance rows stay predeclared (`NetProfit > 0`, `NetProfit > 60`, `WFPctOfProfitableRuns > 70`, `WFMaxProfitByRunInPct < 50`, `WFMinTradesInRun > 20`, `WFMaxPctDDbyRun <= 25`), no ranking filters, `FitPortfolio=false`, `CustomAnalysis=false`, no SQX launch, no smoke, no optimization and no forced `Results=passed`.
+- Preserves Capa2 exits with `ExitAfterBars=false` and SL/PT/trailing active; maps generator layer 2 `Optimize-Task1.xml` to `ROBUSTNESS_C2`, disables trading-window injection for WFM and adds it to `CAPA2_NO_EXIT_AFTER_BARS_TASKS` / `CAPA2_FASTEST_PRECISION_TASKS`.
+- Keeps the precision policy explicit: WFM remains `testPrecision=1 fastest`, while Forward returns to tick precision.
+- Sets the next exact block to `phase28_capa2_forward`.
+
 ## 2026-05-25 - C1-CONFIG1 Capa2 SPP
 
 - Adds `capa2-spp-target` as the Phase 26 OptProfileSysParamPermutation validation guard for Capa2.

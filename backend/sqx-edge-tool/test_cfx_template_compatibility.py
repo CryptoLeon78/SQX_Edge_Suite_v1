@@ -1282,6 +1282,8 @@ def _assert_wfm_data_databanks_resources_options_contract(
     expected_symbol: str | None = None,
     expected_timeframe: str | None = None,
     expected_spread: str | None = None,
+    expected_source: str | None = None,
+    expected_broker: str | None = None,
 ) -> None:
     databanks = {
         databank.get("name"): databank.get("value")
@@ -1341,6 +1343,10 @@ def _assert_wfm_data_databanks_resources_options_contract(
     for symbol in resources.findall("./Symbols/Symbol"):
         assert symbol.get("precision") == "TICK"
         assert symbol.get("timezone") == "EETUS"
+        if expected_source is not None:
+            assert symbol.get("source") == expected_source
+        if expected_broker is not None:
+            assert symbol.get("broker") == expected_broker
 
     params = {
         node.get("key"): node.text
@@ -1473,6 +1479,77 @@ def _assert_wfm_static_tabs_contract(wfm: ET.Element) -> None:
         "slippage": "true",
         "commissions": "true",
     }
+
+
+def _assert_capa2_wfm_contract(
+    wfm: ET.Element,
+    expected_symbol: str,
+    expected_timeframe: str,
+    expected_source: str,
+    expected_broker: str,
+    expected_spread: str,
+) -> None:
+    _assert_wfm_data_databanks_resources_options_contract(
+        wfm,
+        expected_symbol=expected_symbol,
+        expected_timeframe=expected_timeframe,
+        expected_spread=expected_spread,
+        expected_source=expected_source,
+        expected_broker=expected_broker,
+    )
+    _assert_wfm_crosschecks_contract(wfm)
+    _assert_wfm_static_tabs_contract(wfm)
+    optimization = wfm.find("./Optimization")
+    assert optimization is not None
+    assert optimization.attrib == {"type": "3", "maxOptimizations": "3000"}
+    assert optimization.find("Source").attrib == {"type": "2", "relativePath": "false"}
+    assert optimization.find("WalkForward").attrib == {
+        "type": "2",
+        "period": "10",
+        "optimization": "15",
+        "distributionUp": "20",
+        "distributionDown": "20",
+        "maxSteps": "8",
+    }
+    assert optimization.find("./WalkForward/Param1").attrib == {
+        "value": "undefined",
+        "start": "20",
+        "stop": "36",
+        "step": "2",
+    }
+    assert optimization.find("./WalkForward/Param2").attrib == {
+        "value": "undefined",
+        "start": "5",
+        "stop": "8",
+        "step": "1",
+    }
+    assert optimization.find("OptimizationMethod").attrib == {
+        "settings": "automatic",
+        "method": "brute-force",
+        "maxSteps": "20",
+        "symmetricVariables": "false",
+        "symmetryDisabled": "false",
+    }
+    assert optimization.find("AutomaticSettings").attrib == {
+        "distributionUp": "20",
+        "distributionDown": "20",
+        "maxSteps": "8",
+        "distribution": "20",
+    }
+    assert wfm.find(".//WhatToBuild/StrategyType").attrib == {
+        "type": "simple",
+        "architecture": "sq4",
+        "improveType": "strategy",
+        "improveDatabank": "SPP",
+        "templateFile": "",
+        "strategyFile": "",
+        "additionalCharts": "2",
+    }
+    exit_types = {block.get("key"): block.get("use") for block in wfm.findall(".//Blocks/ExitTypes/Block")}
+    assert exit_types["ExitAfterBars.ExitAfterBars"] == "false"
+    assert exit_types["StopLoss.StopLoss"] == "true"
+    assert exit_types["ProfitTarget.ProfitTarget"] == "true"
+    assert exit_types["TrailingStop.TrailingStop"] == "true"
 
 
 def _assert_foward_contract(
@@ -1996,6 +2073,27 @@ def test_capa2_base_spp_matches_phase26_methodology():
     assert databanks["SPP"] == "RETEST ROBUST REVIEW"
     _assert_capa2_spp_contract(
         roots["AutomaticRetest-Task4.xml"],
+        expected_symbol="AUDCAD_darwinex",
+        expected_timeframe="H1",
+        expected_source="4",
+        expected_broker="4",
+        expected_spread="2.0",
+    )
+
+
+def test_capa2_base_wfm_matches_phase27_methodology():
+    roots = dict(_xml_roots(TEMPLATE_DIR / "Capa2_Base.cfx"))
+    config = roots["config.xml"]
+    task = next(task for task in config.findall(".//Task") if task.get("taskXMLFile") == "Optimize-Task1.xml")
+    databanks = {
+        databank.get("name"): databank.get("view")
+        for databank in config.findall(".//Databank")
+    }
+
+    assert task.get("title") == "WFM"
+    assert databanks["WFM"] == "RETEST ROBUST REVIEW"
+    _assert_capa2_wfm_contract(
+        roots["Optimize-Task1.xml"],
         expected_symbol="AUDCAD_darwinex",
         expected_timeframe="H1",
         expected_source="4",
@@ -2804,6 +2902,17 @@ def test_generate_capa2_project_applies_layer2_build_window_and_disables_heavy_r
         expected_spread="10",
     )
     assert "dukascopy" not in ET.tostring(spp, encoding="unicode").lower()
+
+    wfm = roots["Optimize-Task1.xml"]
+    _assert_capa2_wfm_contract(
+        wfm,
+        expected_symbol="AUDCAD",
+        expected_timeframe="H4",
+        expected_source="0",
+        expected_broker="-1",
+        expected_spread="10",
+    )
+    assert "dukascopy" not in ET.tostring(wfm, encoding="unicode").lower()
 
 
 def test_generate_project_defaults_to_sq_default_exact_symbol_for_user_downloads():
