@@ -492,6 +492,25 @@
     });
   }
 
+  function welcomeLoginFeedback(result, model) {
+    var error = result && result.error;
+    if (!result || !result.ok) {
+      return remoteReasonLabel(error || 'session_login_failed') + '. No se pudo abrir el dashboard; revisa permiso, sesion o backend y vuelve a intentarlo.';
+    }
+    if (model && model.state === 'active') {
+      return 'Sesion lista. Abriendo dashboard...';
+    }
+    if (model && model.state === 'blocked') {
+      return 'Acceso bloqueado. ' + (((model.items || {}).security || {}).detail || 'El contexto necesita revision del operador.');
+    }
+    var workspace = model && model.items ? model.items.workspace : null;
+    var access = model && model.items ? model.items.access : null;
+    var detail = (workspace && workspace.state !== 'ok' && workspace.detail)
+      || (access && access.state !== 'ok' && access.detail)
+      || 'El workspace remoto todavia no esta activo.';
+    return 'Sesion creada, pero el dashboard aun no esta listo: ' + detail + ' Pulsa el boton de nuevo en unos segundos.';
+  }
+
   function bindRemoteServicePanel(doc) {
     var target = doc || global.document;
     var btn = target && target.getElementById('remote-pro-refresh');
@@ -529,6 +548,7 @@
       primary.dataset.boundRemoteWelcomePrimary = '1';
       primary.addEventListener('click', function() {
         var action = primary.dataset.remoteWelcomeAction || 'refresh';
+        var detail = target && target.getElementById('remote-welcome-detail');
         if (action === 'enter' || action === 'login') {
           clearRemoteSessionRequiredQuery();
         }
@@ -536,16 +556,20 @@
           dismissRemoteWelcomeGate(target);
         } else if (action === 'login') {
           primary.disabled = true;
+          if (detail) detail.textContent = 'Creando sesion de app y preparando tu workspace privado...';
           setRemoteWelcomeDismissed(false);
           loginRemoteSession(target, refreshRemoteServiceStatus).then(function(result) {
             var model = result && result.model;
             if (result && result.ok && model && model.state === 'active') {
+              if (detail) detail.textContent = welcomeLoginFeedback(result, model);
               dismissRemoteWelcomeGate(target);
             } else if (primary) {
+              if (detail) detail.textContent = welcomeLoginFeedback(result, model);
               primary.disabled = false;
             }
             return result;
           }).catch(function() {
+            if (detail) detail.textContent = welcomeLoginFeedback({ ok: false, error: 'request_failed' });
             if (primary) primary.disabled = false;
           });
         } else if (action === 'requestAccess') {

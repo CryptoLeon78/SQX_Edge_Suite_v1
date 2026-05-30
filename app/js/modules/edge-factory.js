@@ -7,6 +7,8 @@
   var PORTFOLIO_LAB_VERSION = 'portfolio-lab-governed-v1';
   var PORTFOLIO_MASTER_VERSION = 'portfolio-master-contract-v1';
   var PORTFOLIO_MASTER_INPUTS_VERSION = 'portfolio-master-inputs-pending-v1';
+  var PORTFOLIO_CORRELATION_STABILITY_VERSION = 'sqx142-portfolio-corr1-stability-audit-v1';
+  var BACKPORT_OPERATOR_PANEL_VERSION = 'ui-integration1-backport-operator-panel-v1';
   var PORTFOLIO_TARGET_MIN = 8;
   var PORTFOLIO_TARGET_MAX = 12;
   var PORTFOLIO_MASTER_MIN_OBSERVATIONS = 3;
@@ -44,7 +46,9 @@
       c2Template: null,
       capa2Outputs: [],
       portfolioLab: null,
+      portfolioCorrelationStability: null,
       portfolioMasterContract: null,
+      backportOperatorPanel: null,
       downloads: [],
       lastEvent: null,
       completedSteps: []
@@ -334,6 +338,56 @@
     }, clean.status === 'ready_for_master_review' ? ['portfolio'] : [], 'portfolio', 'edge-factory-portfolio-master-contract');
   }
 
+  function recordPortfolioCorrelationStability(report) {
+    report = report || {};
+    var clean = sanitizePlainObject(report, 12000);
+    clean.version = sanitizeText(clean.version || PORTFOLIO_CORRELATION_STABILITY_VERSION, PORTFOLIO_CORRELATION_STABILITY_VERSION, 80);
+    clean.recordedAt = new Date().toISOString();
+    return saveEvent({
+      portfolioCorrelationStability: clean
+    }, [], 'portfolio', 'edge-factory-portfolio-corr1-stability');
+  }
+
+  function recordMiningRegistryFunnel(input) {
+    input = input || {};
+    var patch = input.edgeFactoryStatePatch || {};
+    var databanks = Array.isArray(input.databanks) ? input.databanks : (patch.capa1Analysis && Array.isArray(patch.capa1Analysis.databanks) ? patch.capa1Analysis.databanks : []);
+    var byName = {};
+    databanks.forEach(function(item) {
+      byName[String(item.databank || '').toLowerCase()] = item;
+    });
+    var results = byName.results || null;
+    var forward = byName.foward || byName.forward || null;
+    var spp = byName.spp || null;
+    var wfm = byName.wfm || null;
+    var selectedCard = patch.selectedCard || {
+      asset: input.asset,
+      timeframe: input.timeframe,
+      direction: input.direction,
+      family: input.blocksettingFamily,
+      blockSetting: input.blocksettingFamily,
+      source: 'sqx142-mining-results-registry-v1'
+    };
+    var analysis = Object.assign({
+      version: 'sqx142-mining-results-registry-v1',
+      projectKey: input.projectKey,
+      status: 'recorded',
+      databanks: databanks,
+      tests: Array.isArray(input.tests) ? input.tests : [],
+      total: results ? numeric(results.row_count, 0) : 0,
+      passed: forward ? numeric(forward.row_count, 0) : 0,
+      winners: Math.max(numeric(spp && spp.row_count, 0), numeric(wfm && wfm.row_count, 0)),
+      forwardCount: forward ? numeric(forward.row_count, 0) : 0,
+      sppCount: spp ? numeric(spp.row_count, 0) : 0,
+      wfmCount: wfm ? numeric(wfm.row_count, 0) : 0
+    }, patch.capa1Analysis || {});
+    return saveEvent({
+      selectedCard: normalizeCard(selectedCard),
+      capa1Analysis: analysis,
+      miningRegistryFunnel: input
+    }, ['asset', 'capa1-generate', 'capa1-analyze'], 'c2-template', 'edge-factory-mining-registry-funnel');
+  }
+
   function recordDownloadRequest(payload) {
     payload = payload || {};
     var download = {
@@ -392,7 +446,7 @@
         ? 'Listo para Portfolio Lab: importa resultados Capa 2.'
         : 'Pendiente: genera Capa 2 antes del análisis.',
       portfolio: state.portfolioLab && state.portfolioLab.total
-        ? 'Portfolio Lab ' + (state.portfolioLab.version || PORTFOLIO_LAB_VERSION) + ': ' + state.portfolioLab.total + ' candidatos · ' + state.portfolioLab.winners + ' ganadores · Master ' + (master ? master.status : 'bloqueado') + '.'
+        ? 'Portfolio Lab ' + (state.portfolioLab.version || PORTFOLIO_LAB_VERSION) + ': ' + state.portfolioLab.total + ' candidatos · ' + state.portfolioLab.winners + ' ganadores · Corr ' + (state.portfolioCorrelationStability ? (state.portfolioCorrelationStability.summary && state.portfolioCorrelationStability.summary.status || 'audit') : 'pendiente') + ' · Master ' + (master ? master.status : 'bloqueado') + '.'
         : 'Pendiente: calcula shortlist en Portfolio Lab.'
     };
   }
@@ -502,6 +556,28 @@
       .trim();
     if (maxLength && out.length > maxLength) out = out.slice(0, Math.max(0, maxLength - 3)).trim() + '...';
     return out;
+  }
+
+  function sanitizePlainObject(value, maxLength) {
+    var budget = { remaining: maxLength || 12000 };
+    function walk(item) {
+      if (budget.remaining <= 0) return '[truncated]';
+      if (item == null || typeof item === 'number' || typeof item === 'boolean') return item;
+      if (typeof item === 'string') {
+        budget.remaining -= item.length;
+        return sanitizePrivateText(item, '', 500);
+      }
+      if (Array.isArray(item)) return item.slice(0, 80).map(walk);
+      if (typeof item === 'object') {
+        var out = {};
+        Object.keys(item).slice(0, 80).forEach(function(key) {
+          out[sanitizeText(key, '', 80)] = walk(item[key]);
+        });
+        return out;
+      }
+      return '';
+    }
+    return walk(value || {});
   }
 
   function countPrivacyMarkers(value) {
@@ -1350,6 +1426,278 @@
     };
   }
 
+  var BACKPORT_OPERATOR_OPERATIONS = [
+    {
+      id: 'mcp-status',
+      label: 'MCP-like status',
+      method: 'GET',
+      endpoint: '/sqx142/mcp-like/status',
+      expectedVersion: 'sqx142-mcp-like-readonly-v1'
+    },
+    {
+      id: 'results-readiness',
+      label: 'Results Plugin readiness',
+      method: 'GET',
+      endpoint: '/sqx142/mcp-like/results-plugin-readiness',
+      expectedVersion: 'sqx142-mcp-like-readonly-v1'
+    },
+    {
+      id: 'correlation-filter',
+      label: 'Correlation Filter external',
+      method: 'POST',
+      endpoint: '/sqx142/correlation-filter/external',
+      expectedVersion: 'sqx142-correlation-filter-external-v1'
+    },
+    {
+      id: 'portfolio-correlation-stability',
+      label: 'Portfolio CORR1 stability audit',
+      method: 'POST',
+      endpoint: '/sqx142/portfolio-correlation/stability-audit',
+      expectedVersion: PORTFOLIO_CORRELATION_STABILITY_VERSION
+    },
+    {
+      id: 'monte-carlo-benchmarks',
+      label: 'Monte Carlo benchmarks',
+      method: 'POST',
+      endpoint: '/sqx142/monte-carlo/benchmarks',
+      expectedVersion: 'sqx142-monte-carlo-candidate-benchmarks-v1'
+    },
+    {
+      id: 'mt5-data-probe',
+      label: 'MT5 data intake probe',
+      method: 'POST',
+      endpoint: '/sqx142/mt5-data-intake/probe',
+      expectedVersion: 'sqx142-mt5-data-intake-probe-v1'
+    },
+    {
+      id: 'migration-checklist',
+      label: 'Copy-only migration checklist',
+      method: 'POST',
+      endpoint: '/sqx142/migration/copy-only-checklist',
+      expectedVersion: 'sqx142-copy-only-migration-checklist-v1'
+    }
+  ];
+
+  function backportOperatorOperations() {
+    return BACKPORT_OPERATOR_OPERATIONS.map(function(item) { return Object.assign({}, item); });
+  }
+
+  function backportOperatorOperation(operationId) {
+    var id = safeString(operationId, 'mcp-status');
+    return BACKPORT_OPERATOR_OPERATIONS.find(function(item) { return item.id === id; }) || BACKPORT_OPERATOR_OPERATIONS[0];
+  }
+
+  function safeJsonObject(text) {
+    try {
+      var parsed = JSON.parse(String(text || ''));
+      return parsed && typeof parsed === 'object' ? parsed : null;
+    } catch (_err) {
+      return null;
+    }
+  }
+
+  function parseBackportCsvRows(text) {
+    var lines = String(text || '').split(/\r?\n/).map(function(line) { return line.trim(); }).filter(Boolean);
+    if (!lines.length) return [];
+    var delimiter = detectDelimiter(lines[0]);
+    var headers = splitDelimitedLine(lines[0], delimiter);
+    return lines.slice(1).map(function(line) {
+      var values = splitDelimitedLine(line, delimiter);
+      return headers.reduce(function(row, header, index) {
+        row[header] = values[index] == null ? '' : values[index];
+        return row;
+      }, {});
+    });
+  }
+
+  function backportValueByAliases(row, aliases, fallback) {
+    row = row || {};
+    for (var i = 0; i < aliases.length; i += 1) {
+      if (row[aliases[i]] != null && row[aliases[i]] !== '') return row[aliases[i]];
+    }
+    var normalized = {};
+    Object.keys(row).forEach(function(key) {
+      normalized[normalizeKey(key)] = row[key];
+    });
+    for (var j = 0; j < aliases.length; j += 1) {
+      var value = normalized[normalizeKey(aliases[j])];
+      if (value != null && value !== '') return value;
+    }
+    return fallback || '';
+  }
+
+  function migrationItemsFromText(text) {
+    var parsed = safeJsonObject(text);
+    if (parsed && Array.isArray(parsed.items)) return parsed.items;
+    if (Array.isArray(parsed)) return parsed;
+    var rows = parseBackportCsvRows(text);
+    if (rows.length) {
+      return rows.map(function(row, index) {
+        return {
+          kind: backportValueByAliases(row, ['kind', 'type'], 'operator_item'),
+          label: backportValueByAliases(row, ['label', 'name'], 'operator item ' + (index + 1)),
+          relativePath: backportValueByAliases(row, ['relativePath', 'path', 'target'], ''),
+          operation: backportValueByAliases(row, ['operation', 'action'], 'copy_review')
+        };
+      });
+    }
+    return String(text || '').split(/\r?\n/).map(function(line, index) {
+      return {
+        kind: 'operator_line',
+        label: line.trim() || 'operator item ' + (index + 1),
+        relativePath: line.trim(),
+        operation: 'copy_review'
+      };
+    }).filter(function(item) { return item.relativePath || item.label; });
+  }
+
+  function backportOperatorSample(operationId) {
+    var operation = backportOperatorOperation(operationId).id;
+    if (operation === 'portfolio-correlation-stability') {
+      return [
+        'strategy,asset,timeframe,profitFactor,retDd,maxDd,trades,blockSetting,isReturnSeries,oos3ReturnSeries',
+        'AUDCAD_H1_A,AUDCAD,H1,1.55,5.4,18,160,BS_Momentum_v6,0.01|0.02|-0.01|0.03|0.02|0.01|0.00|0.02|0.01|0.01|0.02|0.00,0.006|0.004|-0.003|0.009|0.002|-0.001|0.008|0.004|-0.002|0.007|0.003|0.005',
+        'AUDCAD_H1_B,AUDCAD,H1,1.48,4.9,20,150,BS_Momentum_v6,-0.01|0.01|0.00|0.02|-0.01|0.01|0.02|-0.01|0.00|0.01|0.02|-0.01,-0.002|0.006|0.003|-0.001|0.008|0.002|0.004|-0.003|0.006|0.003|-0.001|0.005'
+      ].join('\n');
+    }
+    if (operation === 'correlation-filter' || operation === 'monte-carlo-benchmarks') {
+      return [
+        'strategy,asset,timeframe,Source Phase,Source Databank,Forward Status,Pass Source,returnSeries,equitySeries',
+        'AUDCAD_H4_A,AUDCAD,H4,phase28_capa2_forward,Foward,PASSED,natural,0.01|0.02|-0.01|0.03,10000|10100|10302|10199|10504',
+        'AUDCAD_H1_B,AUDCAD,H1,phase28_capa2_forward,Foward,PASSED,natural,0.008|0.012|-0.006|0.018,10000|10080|10201|10140|10322',
+        'XAUUSD_H1_C,XAUUSD,H1,phase28_capa2_forward,Forward,PASSED,natural,0.012|-0.004|0.018|0.006,10000|10120|10080|10261|10322'
+      ].join('\n');
+    }
+    if (operation === 'mt5-data-probe') {
+      return [
+        'time,open,high,low,close,volume',
+        '2026-01-02 00:00:00,1.1000,1.1020,1.0990,1.1010,120',
+        '2026-01-02 01:00:00,1.1010,1.1030,1.1000,1.1022,118',
+        '2026-01-02 02:00:00,1.1022,1.1040,1.1015,1.1031,121',
+        '2026-01-02 03:00:00,1.1031,1.1045,1.1020,1.1028,119'
+      ].join('\n');
+    }
+    if (operation === 'migration-checklist') {
+      return [
+        'kind,label,relativePath,operation',
+        'results_plugin_owned,SQX Edge Readiness Panel,user/extend/ResultsPlugins/SQX Edge Readiness Panel,copy_folder',
+        'project_copy,Operator-selected project copy,user/projects/operator-selected-copy,copy_folder_after_backup',
+        'license_material,License material,license/activation,never_copy'
+      ].join('\n');
+    }
+    return '';
+  }
+
+  function buildBackportOperatorPayload(operationId, input, options) {
+    var operation = backportOperatorOperation(operationId);
+    options = options || {};
+    if (operation.method === 'GET') return null;
+    var parsed = safeJsonObject(input);
+    if (operation.id === 'correlation-filter') {
+      if (parsed) return Object.assign({ includeCsvExport: true, includeSqxTagCsv: true }, parsed);
+      return {
+        csv: String(input || ''),
+        settings: {
+          maxCorrelation: numeric(options.maxCorrelation, 0.50),
+          warnCorrelation: numeric(options.warnCorrelation, 0.35),
+          minComparablePoints: numeric(options.minComparablePoints, 12),
+          similarityThreshold: numeric(options.similarityThreshold, 0.78)
+        },
+        includeCsvExport: true,
+        includeSqxTagCsv: true
+      };
+    }
+    if (operation.id === 'portfolio-correlation-stability') {
+      return parsed || {
+        csv: String(input || ''),
+        settings: {
+          maxIsCorrelation: numeric(options.maxIsCorrelation || options.maxCorrelation, 0.50),
+          maxOos3Correlation: numeric(options.maxOos3Correlation, 0.60),
+          warnOos3Correlation: numeric(options.warnOos3Correlation, 0.45),
+          maxCorrelationDrift: numeric(options.maxCorrelationDrift, 0.25),
+          minComparablePoints: numeric(options.minComparablePoints, 12)
+        },
+        includeCsvExport: true
+      };
+    }
+    if (operation.id === 'monte-carlo-benchmarks') {
+      return parsed || {
+        csv: String(input || ''),
+        settings: {
+          simulations: numeric(options.simulations, 64),
+          blockSize: numeric(options.blockSize, 4),
+          parameterJitterPct: numeric(options.parameterJitterPct, 0.15),
+          executionDegradeBps: numeric(options.executionDegradeBps, 2.0)
+        },
+        includeCsvExport: true
+      };
+    }
+    if (operation.id === 'mt5-data-probe') {
+      return parsed || {
+        csv: String(input || ''),
+        asset: sanitizeText(options.asset, 'UNKNOWN', 40),
+        timeframe: upper(options.timeframe, 'UNKNOWN'),
+        settings: {
+          minBars: numeric(options.minBars, 20),
+          minOverlapDays: numeric(options.minOverlapDays, 1)
+        },
+        includeCsvExport: true
+      };
+    }
+    if (operation.id === 'migration-checklist') {
+      return parsed || {
+        items: migrationItemsFromText(input),
+        includeCsvExport: true
+      };
+    }
+    return parsed || { rows: parseBackportCsvRows(input), includeCsvExport: true };
+  }
+
+  function summarizeBackportOperatorResult(operationId, report) {
+    var operation = backportOperatorOperation(operationId);
+    report = report || {};
+    var summary = report.summary && typeof report.summary === 'object' ? report.summary : {};
+    var privacy = report.privacy && typeof report.privacy === 'object' ? report.privacy : {};
+    var guards = report.guards && typeof report.guards === 'object' ? report.guards : {};
+    var rawStatus = report.decision || report.status || report.error || (report.ok === false ? 'blocked' : 'ok');
+    return {
+      panelVersion: BACKPORT_OPERATOR_PANEL_VERSION,
+      operationId: operation.id,
+      label: operation.label,
+      endpoint: operation.endpoint,
+      method: operation.method,
+      expectedVersion: operation.expectedVersion,
+      responseVersion: safeString(report.version),
+      ok: report.ok !== false && !report.error,
+      status: safeString(rawStatus, 'ok'),
+      total: numeric(summary.total || summary.inputRows || summary.inputItems || report.total, 0),
+      primaryCount: numeric(summary.portfolio || summary.selectedByIs || summary.benchmarkPass || summary.validBars || summary.allowCopy || report.winners, 0),
+      reviewCount: numeric(summary.review || summary.benchmarkReview || summary.reviewCopy || summary.catalogMatches || report.review, 0),
+      blockCount: numeric(summary.blocked || summary.benchmarkFail || summary.invalidRows || summary.blockCopy || report.rejected, 0),
+      csvExportAvailable: !!report.csvExport,
+      sqxTagCsvAvailable: !!report.sqxTagCsv,
+      localOnly: privacy.local_paths_returned === false || privacy.localPathsReturned === false || true,
+      remoteTesterBlocked: guards.remote_tester_access === false || report.error === 'local_operator_required',
+      sqxRuntimeStarted: guards.sqx_runtime_started === true || guards.sqxRuntimeStarted === true,
+      dataDbWriteAllowed: guards.data_db_write_allowed === true || guards.dataDbWriteAllowed === true,
+      raw: report
+    };
+  }
+
+  function recordBackportOperatorResult(operationId, report) {
+    var clean = summarizeBackportOperatorResult(operationId, report || {});
+    clean.recordedAt = new Date().toISOString();
+    var state = readState();
+    var history = pushRecent((state.backportOperatorPanel && state.backportOperatorPanel.history) || [], clean, 8);
+    return saveEvent({
+      backportOperatorPanel: {
+        version: BACKPORT_OPERATOR_PANEL_VERSION,
+        lastOperation: clean,
+        history: history
+      }
+    }, [], null, 'ui-integration1-backport-operator-panel');
+  }
+
   function buildPortfolioShortlist(inputRows, options) {
     var settings = portfolioSettings(options || {});
     var rows = (Array.isArray(inputRows) ? inputRows : parsePortfolioRows(inputRows)).map(function(row, index) {
@@ -1460,6 +1808,8 @@
     portfolioLabVersion: PORTFOLIO_LAB_VERSION,
     portfolioMasterVersion: PORTFOLIO_MASTER_VERSION,
     portfolioMasterInputsVersion: PORTFOLIO_MASTER_INPUTS_VERSION,
+    portfolioCorrelationStabilityVersion: PORTFOLIO_CORRELATION_STABILITY_VERSION,
+    backportOperatorPanelVersion: BACKPORT_OPERATOR_PANEL_VERSION,
     storageKey: storageKey,
     defaultState: defaultState,
     getState: readState,
@@ -1475,7 +1825,9 @@
     recordTemplateMakerAnalysis: recordTemplateMakerAnalysis,
     recordC2Template: recordC2Template,
     recordPortfolioLab: recordPortfolioLab,
+    recordPortfolioCorrelationStability: recordPortfolioCorrelationStability,
     recordPortfolioMasterContract: recordPortfolioMasterContract,
+    recordMiningRegistryFunnel: recordMiningRegistryFunnel,
     recordDownloadRequest: recordDownloadRequest,
     contextSummary: contextSummary,
     parsePortfolioRows: parsePortfolioRows,
@@ -1484,7 +1836,13 @@
     sanitizePortfolioReport: sanitizePortfolioReport,
     sanitizePortfolioMasterContract: sanitizePortfolioMasterContract,
     buildPortfolioMasterContract: buildPortfolioMasterContract,
-    buildPortfolioShortlist: buildPortfolioShortlist
+    buildPortfolioShortlist: buildPortfolioShortlist,
+    backportOperatorOperations: backportOperatorOperations,
+    backportOperatorOperation: backportOperatorOperation,
+    backportOperatorSample: backportOperatorSample,
+    buildBackportOperatorPayload: buildBackportOperatorPayload,
+    summarizeBackportOperatorResult: summarizeBackportOperatorResult,
+    recordBackportOperatorResult: recordBackportOperatorResult
   };
 
   if (SQX.registerModule) SQX.registerModule('edge-factory', SQX.edgeFactory);

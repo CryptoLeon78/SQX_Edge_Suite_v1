@@ -226,7 +226,26 @@ assert.equal(replacedLoginUrl, '/dashboard');
 assert.equal(document.getElementById('remote-welcome-gate').hidden, false);
 assert.equal(document.getElementById('remote-welcome-primary').dataset.remoteWelcomeAction, 'refresh');
 assert.equal(document.getElementById('remote-welcome-workspace-status').textContent, 'Pendiente');
+assert.match(document.getElementById('remote-welcome-detail').textContent, /Sesion creada, pero el dashboard aun no esta listo/);
+assert.equal(document.getElementById('remote-welcome-primary').disabled, false);
 sandbox.localStorage.removeItem('sqx_remote_welcome_dismissed_v1');
+
+SQX.home.applyRemoteServiceModel(remoteNeedsTesterLogin, document);
+sandbox.fetch = (url, options = {}) => {
+  const path = new URL(url).pathname;
+  if (path === '/api/remote/session/login') {
+    return Promise.resolve({
+      status: 403,
+      ok: false,
+      json: () => Promise.resolve({ ok: false, error: 'remote_session_secret_missing_or_short' }),
+    });
+  }
+  throw new Error(`Unexpected remote welcome failure request ${path}`);
+};
+document.getElementById('remote-welcome-primary').click();
+await new Promise(resolve => setTimeout(resolve, 0));
+assert.match(document.getElementById('remote-welcome-detail').textContent, /No se pudo abrir el dashboard/);
+assert.equal(document.getElementById('remote-welcome-primary').disabled, false);
 
 const remoteActive = SQX.home.computeRemoteServiceModel({
   access: { mode: 'remote_tunnel_only', authenticated: true, access: { allowed: true, reason: 'access_allowed', feature_scope: 'full' }, entitlement: { kind: 'tester_free' } },

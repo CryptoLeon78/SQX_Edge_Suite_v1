@@ -2,6 +2,8 @@
   'use strict';
 
   var SQX = global.SQX = global.SQX || {};
+  var REGISTRY_DATABANK_ORDER = ['Results', 'RETEST 0', 'retest 1', 'TICK', 'MC', 'MC2', 'Sequential', 'Monkey Test', 'Synthetic', 'Syntetic', 'SPP', 'WFM', 'Forward', 'Foward', 'SQX EDGE CORR1 STABILITY', 'SQX EDGE CORR1 TAGGED'];
+  var registryReadback = null;
 
   function byId(id) {
     return global.document.getElementById(id);
@@ -104,6 +106,7 @@
     state = state || {};
     var card = state.selectedCard || {};
     var c1 = latest(state.capa1Outputs);
+    var c1Registry = state.capa1Analysis && state.capa1Analysis.projectKey ? state.capa1Analysis : null;
     var c2Template = state.c2Template || null;
     var portfolio = state.portfolioLab || null;
     var master = state.portfolioMasterContract || null;
@@ -115,9 +118,9 @@
     );
     setSignal(
       'capa1',
-      c1 ? ((c1.results ? ((c1.results.ok || 0) + '/' + (c1.results.total || 0) + ' OK') : 'Generada')) : 'Pendiente',
-      c1 && c1.files && c1.files.length ? c1.files.length + ' archivo(s) listos para descarga' : '.cfx y descarga del navegador',
-      !!c1
+      c1Registry ? ((c1Registry.forwardCount || c1Registry.passed || 0) + ' Forward · ' + (c1Registry.total || 0) + ' Results') : (c1 ? ((c1.results ? ((c1.results.ok || 0) + '/' + (c1.results.total || 0) + ' OK') : 'Generada')) : 'Pendiente'),
+      c1Registry ? c1Registry.projectKey : (c1 && c1.files && c1.files.length ? c1.files.length + ' archivo(s) listos para descarga' : '.cfx y descarga del navegador'),
+      !!(c1Registry || c1)
     );
     setSignal(
       'template',
@@ -210,6 +213,28 @@
     ].join('\n');
   }
 
+  function correlationStabilitySample() {
+    var candidates = [
+      'strategy,asset,timeframe,profitFactor,retDd,maxDd,trades,blockSetting',
+      'AUDCAD_H1_A,AUDCAD,H1,1.55,5.4,18,160,BS_Momentum_v6',
+      'AUDCAD_H1_B,AUDCAD,H1,1.48,4.9,20,150,BS_Momentum_v6',
+      'AUDCAD_H1_C,AUDCAD,H1,1.42,4.6,21,140,BS_Momentum_v6'
+    ].join('\n');
+    var isRows = [
+      'strategy,isReturnSeries',
+      'AUDCAD_H1_A,"0.01|-0.004|0.012|0.006|-0.003|0.009|0.004|-0.002|0.011|0.005|0.003|0.007"',
+      'AUDCAD_H1_B,"-0.003|0.008|-0.002|0.010|0.004|-0.001|0.006|0.003|-0.002|0.009|0.004|0.002"',
+      'AUDCAD_H1_C,"0.009|-0.003|0.011|0.005|-0.002|0.008|0.003|-0.001|0.010|0.004|0.002|0.006"'
+    ].join('\n');
+    var oos3Rows = [
+      'strategy,oos3ReturnSeries',
+      'AUDCAD_H1_A,"0.006|0.004|-0.003|0.009|0.002|-0.001|0.008|0.004|-0.002|0.007|0.003|0.005"',
+      'AUDCAD_H1_B,"-0.002|0.006|0.003|-0.001|0.008|0.002|0.004|-0.003|0.006|0.003|-0.001|0.005"',
+      'AUDCAD_H1_C,"0.006|0.004|-0.002|0.008|0.002|-0.001|0.007|0.004|-0.002|0.006|0.003|0.005"'
+    ].join('\n');
+    return { candidates: candidates, isRows: isRows, oos3Rows: oos3Rows };
+  }
+
   function statusLabel(status) {
     return status === 'portfolio' ? 'Portfolio' : (status === 'similar' ? 'Similar' : 'Revisar');
   }
@@ -229,6 +254,59 @@
       maxPerIndicator: numberFrom('edge-portfolio-max-indicator', 3),
       maxPerCluster: numberFrom('edge-portfolio-max-cluster', 1)
     };
+  }
+
+  function readCorrelationStabilitySettings() {
+    function numberFrom(id, fallback) {
+      var node = byId(id);
+      var value = node ? Number(String(node.value || '').replace(',', '.')) : NaN;
+      return Number.isFinite(value) ? value : fallback;
+    }
+    return {
+      maxIsCorrelation: numberFrom('edge-corr-max-is', 0.50),
+      maxOos3Correlation: numberFrom('edge-corr-max-oos3', 0.60),
+      warnOos3Correlation: numberFrom('edge-corr-warn-oos3', 0.45),
+      maxCorrelationDrift: numberFrom('edge-corr-max-drift', 0.25),
+      minComparablePoints: numberFrom('edge-corr-min-points', 12)
+    };
+  }
+
+  function renderCorrelationStability(report) {
+    var output = byId('edge-corr-results');
+    if (!output) return;
+    if (!report) {
+      output.innerHTML = '<div class="edge-portfolio-empty"><strong>Sin auditoria CORR1.</strong><span>Aporta candidatos, series IS y series OOS3 comparables.</span></div>';
+      return;
+    }
+    var summary = report.summary || {};
+    var methodology = report.methodology || {};
+    var pairs = Array.isArray(report.selectedPairAudit) ? report.selectedPairAudit : [];
+    output.innerHTML =
+      '<div class="edge-portfolio-summary edge-corr-summary">' +
+        '<div class="edge-portfolio-stat ' + escapeHtml(summary.status && summary.status.indexOf('blocked') === 0 ? 'review' : 'portfolio') + '"><span>Estado</span><strong>' + escapeHtml(summary.status || 'n/a') + '</strong></div>' +
+        '<div class="edge-portfolio-stat"><span>Input</span><strong>' + escapeHtml(summary.inputRows || 0) + '</strong></div>' +
+        '<div class="edge-portfolio-stat portfolio"><span>IS select</span><strong>' + escapeHtml(summary.selectedByIs || 0) + '</strong></div>' +
+        '<div class="edge-portfolio-stat similar"><span>IS similar</span><strong>' + escapeHtml(summary.similarByIs || 0) + '</strong></div>' +
+        '<div class="edge-portfolio-stat review"><span>OOS3 break</span><strong>' + escapeHtml(summary.oos3CorrelationBreaks || 0) + '</strong></div>' +
+        '<div class="edge-portfolio-stat review"><span>Warnings</span><strong>' + escapeHtml(summary.oos3Warnings || 0) + '</strong></div>' +
+      '</div>' +
+      '<div class="edge-portfolio-empty">' +
+        '<strong>Regla de seleccion</strong>' +
+        '<span>' + escapeHtml(methodology.selectionBasis || 'IS_CORR only') + ' · ' + escapeHtml(methodology.auditBasis || 'OOS3_CORR stability confirmation only') + ' · OOS3 elige sustitutos=' + escapeHtml(methodology.oos3MaySelectAlternates === true ? 'true' : 'false') + '.</span>' +
+      '</div>' +
+      '<table><thead><tr><th>Par</th><th>Corr IS</th><th>Corr OOS3</th><th>Drift</th><th>Estado IS</th><th>Estado OOS3</th><th>Flags</th></tr></thead><tbody>' +
+      pairs.map(function(pair) {
+        return '<tr>' +
+          '<td>' + escapeHtml(pair.leftCandidateId) + ' / ' + escapeHtml(pair.rightCandidateId) + '</td>' +
+          '<td>' + escapeHtml(pair.isCorrelation == null ? '' : pair.isCorrelation) + '</td>' +
+          '<td>' + escapeHtml(pair.oos3Correlation == null ? '' : pair.oos3Correlation) + '</td>' +
+          '<td>' + escapeHtml(pair.correlationDrift == null ? '' : pair.correlationDrift) + '</td>' +
+          '<td>' + escapeHtml(pair.isStatus || '') + '</td>' +
+          '<td>' + escapeHtml(pair.oos3Status || '') + '</td>' +
+          '<td>' + escapeHtml((pair.flags || []).join(' · ')) + '</td>' +
+        '</tr>';
+      }).join('') +
+      '</tbody></table>';
   }
 
   function renderPortfolioReport(report) {
@@ -409,6 +487,152 @@
     renderPortfolioMasterContract(SQX.edgeFactory.getState().portfolioMasterContract);
     renderState();
     return report;
+  }
+
+  function currentCorrelationStability() {
+    if (!SQX.edgeFactory) return null;
+    var state = SQX.edgeFactory.getState();
+    return state.portfolioCorrelationStability || null;
+  }
+
+  function fillCorrelationFromLab() {
+    var candidates = byId('edge-corr-candidates-input');
+    var portfolioInput = byId('edge-portfolio-input');
+    if (candidates && portfolioInput && portfolioInput.value) candidates.value = portfolioInput.value;
+    var lab = currentPortfolioLab();
+    if (lab && lab.rows && candidates && !candidates.value) {
+      candidates.value = [
+        'strategy,asset,timeframe,profitFactor,retDd,maxDd,trades,blockSetting'
+      ].concat(lab.rows.map(function(row) {
+        return [row.strategy, row.asset, row.timeframe, row.profitFactor, row.retDd, row.maxDd, row.trades, row.blockSetting].map(function(value) {
+          return '"' + String(value == null ? '' : value).replace(/"/g, '""') + '"';
+        }).join(',');
+      })).join('\n');
+    }
+  }
+
+  function runCorrelationStability() {
+    var candidates = byId('edge-corr-candidates-input');
+    var portfolioInput = byId('edge-portfolio-input');
+    var isInput = byId('edge-corr-is-input');
+    var oos3Input = byId('edge-corr-oos3-input');
+    var output = byId('edge-corr-results');
+    var csv = candidates && candidates.value ? candidates.value : (portfolioInput ? portfolioInput.value : '');
+    if (output) output.innerHTML = '<div class="edge-portfolio-empty"><strong>Auditando estabilidad.</strong><span>POST /sqx142/portfolio-correlation/stability-audit</span></div>';
+    if (!global.fetch) {
+      renderCorrelationStability({ ok: false, summary: { status: 'fetch_unavailable' }, selectedPairAudit: [] });
+      return Promise.resolve(null);
+    }
+    return global.fetch(apiBase() + '/sqx142/portfolio-correlation/stability-audit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        csv: csv,
+        isSeriesCsv: isInput ? isInput.value : '',
+        oos3SeriesCsv: oos3Input ? oos3Input.value : '',
+        settings: readCorrelationStabilitySettings(),
+        includeCsvExport: true
+      })
+    })
+      .then(function(response) {
+        return response.json().catch(function() {
+          return { ok: false, version: 'sqx142-portfolio-corr1-stability-audit-v1', summary: { status: 'invalid_json_response' }, selectedPairAudit: [] };
+        }).then(function(json) {
+          if (!response.ok && !json.error) json.error = 'http_' + response.status;
+          return json;
+        });
+      })
+      .then(function(report) {
+        if (SQX.edgeFactory && SQX.edgeFactory.recordPortfolioCorrelationStability) {
+          SQX.edgeFactory.recordPortfolioCorrelationStability(report);
+        } else if (SQX.edgeFactory) {
+          SQX.edgeFactory.savePatch({ portfolioCorrelationStability: report }, 'portfolio-corr1-stability');
+        }
+        renderCorrelationStability(report);
+        renderState();
+        return report;
+      })
+      .catch(function(err) {
+        var report = { ok: false, version: 'sqx142-portfolio-corr1-stability-audit-v1', summary: { status: err && err.name ? err.name : 'network_error' }, selectedPairAudit: [] };
+        renderCorrelationStability(report);
+        return report;
+      });
+  }
+
+  function runRegisteredCorrelationDecision() {
+    var key = String(registryProjectKey() || '').trim();
+    var output = byId('edge-corr-results');
+    syncRegistryInputs(key);
+    if (output) output.innerHTML = '<div class="edge-portfolio-empty"><strong>Auditando CORR1 registrado.</strong><span>Leyendo SQX local cerrado y series dailyEquity de SQX EDGE CORR1 TAGGED.</span></div>';
+    if (!key || !global.fetch) {
+      renderCorrelationStability({ ok: false, summary: { status: key ? 'fetch_unavailable' : 'project_key_missing' }, selectedPairAudit: [] });
+      return Promise.resolve(null);
+    }
+    return global.fetch(apiBase() + '/sqx142/portfolio-corr1/registered-decision', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'analyze',
+        projectKey: key,
+        databank: 'SQX EDGE CORR1 TAGGED',
+        settings: readCorrelationStabilitySettings()
+      })
+    })
+      .then(function(response) {
+        return response.json().catch(function() {
+          return { ok: false, version: 'sqx142-portfolio-corr1-registered-decision-v1', report: { summary: { status: 'invalid_json_response' }, selectedPairAudit: [] } };
+        }).then(function(json) {
+          if (!response.ok && !json.error) json.error = 'http_' + response.status;
+          return json;
+        });
+      })
+      .then(function(json) {
+        var report = json && json.report ? json.report : { ok: false, summary: { status: json && json.error ? json.error : 'missing_report' }, selectedPairAudit: [] };
+        if (SQX.edgeFactory && SQX.edgeFactory.recordPortfolioCorrelationStability) {
+          SQX.edgeFactory.recordPortfolioCorrelationStability(report);
+        } else if (SQX.edgeFactory) {
+          SQX.edgeFactory.savePatch({ portfolioCorrelationStability: report }, 'portfolio-corr1-registered-decision');
+        }
+        renderCorrelationStability(report);
+        renderState();
+        return fetchRegistryFunnel(key).then(function() { return json; });
+      })
+      .catch(function(err) {
+        var report = { ok: false, version: 'sqx142-portfolio-corr1-registered-decision-v1', summary: { status: err && err.name ? err.name : 'network_error' }, selectedPairAudit: [] };
+        renderCorrelationStability(report);
+        return report;
+      });
+  }
+
+  function sampleCorrelationStability() {
+    var sample = correlationStabilitySample();
+    var candidates = byId('edge-corr-candidates-input');
+    var isInput = byId('edge-corr-is-input');
+    var oos3Input = byId('edge-corr-oos3-input');
+    if (candidates) candidates.value = sample.candidates;
+    if (isInput) isInput.value = sample.isRows;
+    if (oos3Input) oos3Input.value = sample.oos3Rows;
+    return runCorrelationStability();
+  }
+
+  function downloadCorrelationStability() {
+    var report = currentCorrelationStability();
+    if (!report) return;
+    var filename = 'sqx-edge-correlation-stability-audit.json';
+    try {
+      var blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+      var link = global.document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      link.click();
+      URL.revokeObjectURL(link.href);
+      if (SQX.edgeFactory.recordDownloadRequest) {
+        SQX.edgeFactory.recordDownloadRequest({ kind: 'portfolio-correlation-stability', files: [filename] });
+      }
+    } catch (_err) {
+      var output = byId('edge-corr-results');
+      if (output) output.textContent = JSON.stringify(report, null, 2);
+    }
   }
 
   function readPortfolioMasterInputs() {
@@ -637,6 +861,554 @@
     }
   }
 
+  function bindCorrelationStability() {
+    var fromLab = byId('edge-corr-from-lab');
+    var registered = byId('edge-corr-registered');
+    var sample = byId('edge-corr-sample');
+    var run = byId('edge-corr-run');
+    var exportBtn = byId('edge-corr-export');
+    if (fromLab && !fromLab.__edgeCorrBound) {
+      fromLab.__edgeCorrBound = true;
+      fromLab.addEventListener('click', fillCorrelationFromLab);
+    }
+    if (registered && !registered.__edgeCorrBound) {
+      registered.__edgeCorrBound = true;
+      registered.addEventListener('click', runRegisteredCorrelationDecision);
+    }
+    if (sample && !sample.__edgeCorrBound) {
+      sample.__edgeCorrBound = true;
+      sample.addEventListener('click', sampleCorrelationStability);
+    }
+    if (run && !run.__edgeCorrBound) {
+      run.__edgeCorrBound = true;
+      run.addEventListener('click', runCorrelationStability);
+    }
+    if (exportBtn && !exportBtn.__edgeCorrBound) {
+      exportBtn.__edgeCorrBound = true;
+      exportBtn.addEventListener('click', downloadCorrelationStability);
+    }
+    renderCorrelationStability(currentCorrelationStability());
+  }
+
+  function backportOperationSelect() {
+    return byId('edge-backport-operation');
+  }
+
+  function currentBackportOperation() {
+    if (!SQX.edgeFactory || !SQX.edgeFactory.backportOperatorOperation) return null;
+    var select = backportOperationSelect();
+    return SQX.edgeFactory.backportOperatorOperation(select ? select.value : 'mcp-status');
+  }
+
+  function readBackportOptions() {
+    return {
+      asset: (byId('edge-backport-asset') || {}).value || '',
+      timeframe: (byId('edge-backport-timeframe') || {}).value || '',
+      maxCorrelation: (byId('edge-backport-max-correlation') || {}).value || '',
+      simulations: (byId('edge-backport-simulations') || {}).value || '',
+      minBars: (byId('edge-backport-min-bars') || {}).value || ''
+    };
+  }
+
+  function apiBase() {
+    try {
+      if (global.SQX_CONFIG && typeof global.SQX_CONFIG.apiBase === 'function') {
+        return String(global.SQX_CONFIG.apiBase() || '/api').replace(/\/$/, '');
+      }
+    } catch (_err) {}
+    return '/api';
+  }
+
+  function registryProjectKey() {
+    var input = byId('edge-registry-project-key') || byId('ps-registry-project-key');
+    if (input && input.value) return String(input.value).trim();
+    var state = SQX.edgeFactory && SQX.edgeFactory.getState ? SQX.edgeFactory.getState() : {};
+    return state && state.capa1Analysis ? String(state.capa1Analysis.projectKey || '').trim() : '';
+  }
+
+  function syncRegistryInputs(value) {
+    ['edge-registry-project-key', 'ps-registry-project-key'].forEach(function(id) {
+      var input = byId(id);
+      if (input && value && input.value !== value) input.value = value;
+    });
+  }
+
+  function registryProjectFromPayload(payload) {
+    var projects = payload && Array.isArray(payload.projects) ? payload.projects : [];
+    return projects[0] || null;
+  }
+
+  function registryDatabanks(project) {
+    var rows = Array.isArray(project && project.databanks) ? project.databanks : [];
+    var byName = {};
+    rows.forEach(function(row) { byName[String(row.databank || '').toLowerCase()] = row; });
+    var ordered = REGISTRY_DATABANK_ORDER.map(function(name) {
+      return byName[name.toLowerCase()] || { databank: name, row_count: 0, source_kind: 'pending' };
+    });
+    rows.forEach(function(row) {
+      var key = String(row.databank || '').toLowerCase();
+      if (!REGISTRY_DATABANK_ORDER.some(function(name) { return name.toLowerCase() === key; })) ordered.push(row);
+    });
+    return ordered;
+  }
+
+  function registrySummaryText(project) {
+    if (!project) return 'Esperando custom project registrado.';
+    var rows = registryDatabanks(project);
+    var byName = {};
+    rows.forEach(function(row) { byName[String(row.databank || '').toLowerCase()] = row; });
+    var results = byName.results ? Number(byName.results.row_count || 0) : 0;
+    var forward = byName.foward || byName.forward;
+    var spp = byName.spp;
+    var wfm = byName.wfm;
+    return [
+      project.projectKey,
+      [project.asset, project.timeframe, project.direction, project.blocksettingFamily].filter(Boolean).join(' · '),
+      'Results ' + results,
+      'Forward ' + (forward ? Number(forward.row_count || 0) : 0),
+      'SPP ' + (spp ? Number(spp.row_count || 0) : 0),
+      'WFM ' + (wfm ? Number(wfm.row_count || 0) : 0)
+    ].filter(Boolean).join(' · ');
+  }
+
+  function corr2BackupId() {
+    var input = byId('edge-corr2-backup-id') || byId('ps-corr2-backup-id');
+    return input && input.value ? String(input.value).trim() : '';
+  }
+
+  function syncCorr2BackupId(value) {
+    ['edge-corr2-backup-id', 'ps-corr2-backup-id'].forEach(function(id) {
+      var input = byId(id);
+      if (input && value && input.value !== value) input.value = value;
+    });
+  }
+
+  function renderCorr2Status(report, message) {
+    report = report || null;
+    var cfx = report && (report.after || report.cfx || (report.status && report.status.cfx) || {});
+    var expected = report && (report.expected || (report.status && report.status.expected) || {});
+    var integrated = cfx && cfx.corr2Integrated;
+    var backup = report && report.backupId;
+    if (backup) syncCorr2BackupId(backup);
+    var state = report && report.ok === false ? (report.error || 'Error') : (message || (integrated ? 'Integrado' : 'Pendiente'));
+    var summary = report
+      ? [
+          'CORR2 ' + (integrated ? 'integrado' : 'no integrado'),
+          ((report.actual || {}).sourceDatabank || expected.sourceDatabank) ? ('Input ' + ((report.actual || {}).sourceDatabank || expected.sourceDatabank)) : 'Input Forward',
+          expected.stabilityDatabank ? ('Output ' + expected.stabilityDatabank) : 'Output stability',
+          backup ? ('Backup ' + backup) : ''
+        ].filter(Boolean).join(' · ')
+      : 'CORR2 pendiente de preflight.';
+    ['edge-corr2-status', 'ps-corr2-status'].forEach(function(id) { setText(id, state); });
+    ['edge-corr2-summary', 'ps-corr2-summary'].forEach(function(id) { setText(id, summary); });
+  }
+
+  function renderRegistryPanel(payload, message) {
+    var project = registryProjectFromPayload(payload);
+    var summary = registrySummaryText(project);
+    var status = project ? 'Registrado' : (message || 'Sin lectura');
+    syncRegistryInputs(project ? project.projectKey : registryProjectKey());
+    ['edge-registry-status', 'ps-registry-status'].forEach(function(id) { setText(id, status); });
+    ['edge-registry-summary', 'ps-registry-summary'].forEach(function(id) { setText(id, summary); });
+    ['edge-registry-funnel', 'ps-registry-funnel'].forEach(function(id) {
+      var target = byId(id);
+      if (!target) return;
+      if (!project) {
+        target.innerHTML = '<div class="edge-registry-empty">No hay embudo registrado para este custom.</div>';
+        return;
+      }
+      var rows = registryDatabanks(project);
+      var max = rows.reduce(function(acc, row) { return Math.max(acc, Number(row.row_count || 0)); }, 0) || 1;
+      target.innerHTML = rows.map(function(row, index) {
+        var count = Number(row.row_count || 0);
+        var pct = Math.max(2, Math.round((count / max) * 100));
+        var finalNode = String(row.databank || '').toLowerCase() === 'foward' || String(row.databank || '').toLowerCase() === 'forward';
+        return '<div class="edge-registry-node ' + (count ? 'is-recorded' : 'is-empty') + (finalNode ? ' is-final' : '') + '">' +
+          '<span class="edge-registry-order">' + escapeHtml(index + 1) + '</span>' +
+          '<strong>' + escapeHtml(row.databank || '') + '</strong>' +
+          '<div class="edge-registry-bar"><i style="width:' + escapeHtml(pct) + '%"></i></div>' +
+          '<em>' + escapeHtml(count) + '</em>' +
+        '</div>';
+      }).join('');
+    });
+  }
+
+  function corr2LocalProject(action) {
+    var key = String(registryProjectKey() || '').trim();
+    syncRegistryInputs(key);
+    if (!key || !global.fetch) {
+      renderCorr2Status(null, key ? 'Fetch no disponible' : 'Sin custom');
+      return Promise.resolve(null);
+    }
+    var payload = { action: action || 'status', projectKey: key };
+    if (payload.action === 'rollback') payload.backupId = corr2BackupId();
+    renderCorr2Status(null, payload.action === 'apply' ? 'Parcheando' : 'Consultando');
+    return global.fetch(apiBase() + '/sqx142/portfolio-corr2/local-project', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+      .then(function(response) { return response.json().then(function(json) { if (!response.ok) json.ok = false; return json; }); })
+      .then(function(json) {
+        renderCorr2Status(json, json && json.ok === false ? (json.error || 'Error') : (payload.action === 'apply' ? 'Integrado' : payload.action === 'record' ? 'Registrado' : payload.action));
+        if (payload.action === 'apply' || payload.action === 'rollback' || payload.action === 'record') {
+          return scanRegistryProject().then(function() { return json; });
+        }
+        return json;
+      })
+      .catch(function(err) {
+        renderCorr2Status({ ok: false, error: err && err.name ? err.name : 'network_error' }, 'Error');
+        return null;
+      });
+  }
+
+  function fetchRegistryFunnel(projectKey) {
+    var key = String(projectKey || registryProjectKey() || '').trim();
+    syncRegistryInputs(key);
+    if (!key) {
+      renderRegistryPanel(null, 'Sin custom');
+      return Promise.resolve(null);
+    }
+    renderRegistryPanel(null, 'Consultando');
+    if (!global.fetch) {
+      renderRegistryPanel(null, 'Fetch no disponible');
+      return Promise.resolve(null);
+    }
+    return global.fetch(apiBase() + '/sqx142/mining-registry/funnel?projectKey=' + encodeURIComponent(key))
+      .then(function(response) { return response.json().then(function(json) { if (!response.ok) json.ok = false; return json; }); })
+      .then(function(json) {
+        registryReadback = json;
+        renderRegistryPanel(json, json && json.ok === false ? (json.error || 'Error') : 'Registrado');
+        return json;
+      })
+      .catch(function(err) {
+        renderRegistryPanel(null, err && err.name ? err.name : 'Error de red');
+        return null;
+      });
+  }
+
+  function scanRegistryProject() {
+    var key = String(registryProjectKey() || '').trim();
+    syncRegistryInputs(key);
+    if (!key || !global.fetch) return fetchRegistryFunnel(key);
+    renderRegistryPanel(null, 'Actualizando');
+    return global.fetch(apiBase() + '/sqx142/mining-registry/scan-project', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ projectKey: key, maxSqxParse: 300 })
+    })
+      .then(function(response) { return response.json().then(function(json) { if (!response.ok) json.ok = false; return json; }); })
+      .then(function(json) {
+        registryReadback = json && json.funnel ? json.funnel : json;
+        renderRegistryPanel(registryReadback, json && json.ok === false ? (json.error || 'Error') : 'Actualizado');
+        return registryReadback;
+      })
+      .catch(function(err) {
+        renderRegistryPanel(null, err && err.name ? err.name : 'Error de red');
+        return null;
+      });
+  }
+
+  function applyRegistryProject(skipFetch) {
+    var payload = registryReadback;
+    var project = registryProjectFromPayload(payload);
+    if (!project && !skipFetch) return fetchRegistryFunnel(registryProjectKey()).then(function() { return applyRegistryProject(true); });
+    if (!project) {
+      renderRegistryPanel(null, 'Sin embudo');
+      return null;
+    }
+    if (SQX.edgeFactory && SQX.edgeFactory.recordMiningRegistryFunnel) {
+      SQX.edgeFactory.recordMiningRegistryFunnel(project);
+      renderState();
+    }
+    renderRegistryPanel(payload, 'Aplicado');
+    return project;
+  }
+
+  function bindMiningRegistryPanel() {
+    [
+      ['edge-registry-load', fetchRegistryFunnel],
+      ['ps-registry-load', fetchRegistryFunnel],
+      ['edge-registry-scan', scanRegistryProject],
+      ['ps-registry-scan', scanRegistryProject],
+      ['edge-registry-apply', applyRegistryProject],
+      ['ps-registry-apply', applyRegistryProject],
+      ['edge-corr2-status-btn', function() { return corr2LocalProject('status'); }],
+      ['ps-corr2-status-btn', function() { return corr2LocalProject('status'); }],
+      ['edge-corr2-record', function() { return corr2LocalProject('record'); }],
+      ['ps-corr2-record', function() { return corr2LocalProject('record'); }],
+      ['edge-corr1-analyze', runRegisteredCorrelationDecision],
+      ['ps-corr1-analyze', runRegisteredCorrelationDecision],
+      ['edge-corr2-plan', function() { return corr2LocalProject('plan'); }],
+      ['ps-corr2-plan', function() { return corr2LocalProject('plan'); }],
+      ['edge-corr2-apply', function() { return corr2LocalProject('apply'); }],
+      ['ps-corr2-apply', function() { return corr2LocalProject('apply'); }],
+      ['edge-corr2-rollback', function() { return corr2LocalProject('rollback'); }],
+      ['ps-corr2-rollback', function() { return corr2LocalProject('rollback'); }]
+    ].forEach(function(pair) {
+      var button = byId(pair[0]);
+      if (!button || button.__edgeRegistryBound) return;
+      button.__edgeRegistryBound = true;
+      button.addEventListener('click', function() { pair[1](); });
+    });
+    ['edge-registry-project-key', 'ps-registry-project-key'].forEach(function(id) {
+      var input = byId(id);
+      if (!input || input.__edgeRegistryBound) return;
+      input.__edgeRegistryBound = true;
+      input.addEventListener('change', function() { syncRegistryInputs(input.value); });
+    });
+    var state = SQX.edgeFactory && SQX.edgeFactory.getState ? SQX.edgeFactory.getState() : {};
+    registryReadback = state && state.miningRegistryFunnel ? { ok: true, projects: [state.miningRegistryFunnel] } : registryReadback;
+    renderRegistryPanel(registryReadback, registryReadback ? 'Registrado' : 'Sin lectura');
+    renderCorr2Status(null, 'Sin preflight');
+  }
+
+  function renderBackportOperationMode() {
+    var operation = currentBackportOperation();
+    var input = byId('edge-backport-input');
+    var run = byId('edge-backport-run');
+    var sample = byId('edge-backport-sample');
+    var sqxTag = byId('edge-backport-export-sqx-tags');
+    var payloadBox = byId('edge-backport-payload-mode');
+    if (!operation) return;
+    if (input) {
+      input.disabled = operation.method === 'GET';
+      input.placeholder = operation.method === 'GET'
+        ? 'Este modo consulta estado local read-only y no necesita payload.'
+        : (operation.id === 'mt5-data-probe'
+          ? 'time,open,high,low,close,volume'
+          : (operation.id === 'migration-checklist'
+            ? 'kind,label,relativePath,operation'
+            : 'strategy,asset,timeframe,Source Databank,Forward Status,returnSeries,equitySeries'));
+    }
+    if (sample) sample.disabled = operation.method === 'GET';
+    if (sqxTag) sqxTag.disabled = operation.id !== 'correlation-filter';
+    if (run) run.textContent = operation.method === 'GET' ? 'Consultar API' : 'Ejecutar probe';
+    if (payloadBox) {
+      payloadBox.textContent = operation.method + ' ' + operation.endpoint + ' · ' + operation.expectedVersion;
+    }
+  }
+
+  function renderBackportResult(summary) {
+    var output = byId('edge-backport-results');
+    if (!output) return;
+    if (!summary) {
+      output.innerHTML = '<div class="edge-portfolio-empty"><strong>Sin readback BACKPORT.</strong><span>Selecciona un contrato y ejecuta una consulta local.</span></div>';
+      return;
+    }
+    var raw = summary.raw || {};
+    var guards = raw.guards || {};
+    var privacy = raw.privacy || {};
+    var warnings = Array.isArray(raw.warnings) ? raw.warnings : [];
+    var blockers = Array.isArray(raw.blockers) ? raw.blockers : [];
+    output.innerHTML =
+      '<div class="edge-portfolio-summary edge-backport-summary">' +
+        '<div class="edge-portfolio-stat ' + escapeHtml(summary.ok ? 'portfolio' : 'review') + '"><span>Estado</span><strong>' + escapeHtml(summary.status) + '</strong></div>' +
+        '<div class="edge-portfolio-stat"><span>Contrato</span><strong>' + escapeHtml(summary.expectedVersion) + '</strong></div>' +
+        '<div class="edge-portfolio-stat"><span>Total</span><strong>' + escapeHtml(summary.total) + '</strong></div>' +
+        '<div class="edge-portfolio-stat portfolio"><span>OK</span><strong>' + escapeHtml(summary.primaryCount) + '</strong></div>' +
+        '<div class="edge-portfolio-stat similar"><span>Review</span><strong>' + escapeHtml(summary.reviewCount) + '</strong></div>' +
+        '<div class="edge-portfolio-stat review"><span>Block</span><strong>' + escapeHtml(summary.blockCount) + '</strong></div>' +
+      '</div>' +
+      '<div class="edge-portfolio-empty">' +
+        '<strong>' + escapeHtml(summary.label) + '</strong>' +
+        '<span>' + escapeHtml(summary.method + ' ' + summary.endpoint) + ' · response ' + escapeHtml(summary.responseVersion || 'n/a') + ' · CSV ' + escapeHtml(summary.csvExportAvailable ? 'available' : 'n/a') + ' · SQX Tag ' + escapeHtml(summary.sqxTagCsvAvailable ? 'available' : 'n/a') + '.</span>' +
+      '</div>' +
+      '<div class="edge-portfolio-empty">' +
+        '<strong>Guards</strong>' +
+        '<span>SQX runtime started=' + escapeHtml(guards.sqx_runtime_started === true ? 'true' : 'false') +
+          ' · data.db write=' + escapeHtml(guards.data_db_write_allowed === true ? 'true' : 'false') +
+          ' · user/projects write=' + escapeHtml(guards.user_projects_write_allowed === true ? 'true' : 'false') +
+          ' · remote/tester=' + escapeHtml(guards.remote_tester_access === true ? 'true' : 'false') + '</span>' +
+      '</div>' +
+      '<div class="edge-portfolio-empty">' +
+        '<strong>Privacidad</strong>' +
+        '<span>local_paths_returned=' + escapeHtml(privacy.local_paths_returned === true ? 'true' : 'false') +
+          ' · tokens_returned=' + escapeHtml(privacy.tokens_returned === true ? 'true' : 'false') +
+          ' · private_fields_returned=' + escapeHtml(privacy.private_fields_returned === true ? 'true' : 'false') + '</span>' +
+      '</div>' +
+      (warnings.length || blockers.length
+        ? '<div class="edge-portfolio-empty"><strong>Avisos</strong><span>' + warnings.concat(blockers).map(escapeHtml).join(' · ') + '</span></div>'
+        : '<div class="edge-portfolio-empty"><strong>Avisos</strong><span>Sin avisos devueltos por el contrato.</span></div>');
+  }
+
+  function currentBackportSummary() {
+    if (!SQX.edgeFactory) return null;
+    var state = SQX.edgeFactory.getState();
+    return state.backportOperatorPanel && state.backportOperatorPanel.lastOperation;
+  }
+
+  function storeAndRenderBackportResult(operationId, report) {
+    var state = SQX.edgeFactory && SQX.edgeFactory.recordBackportOperatorResult
+      ? SQX.edgeFactory.recordBackportOperatorResult(operationId, report)
+      : null;
+    var summary = state && state.backportOperatorPanel
+      ? state.backportOperatorPanel.lastOperation
+      : (SQX.edgeFactory && SQX.edgeFactory.summarizeBackportOperatorResult ? SQX.edgeFactory.summarizeBackportOperatorResult(operationId, report) : null);
+    renderBackportResult(summary);
+    renderState();
+    return summary;
+  }
+
+  function runBackportOperatorPanel() {
+    if (!SQX.edgeFactory) return Promise.resolve(null);
+    var operation = currentBackportOperation();
+    if (!operation) return Promise.resolve(null);
+    var output = byId('edge-backport-results');
+    var input = byId('edge-backport-input');
+    if (output) {
+      output.innerHTML = '<div class="edge-portfolio-empty"><strong>Consultando contrato local.</strong><span>' + escapeHtml(operation.method + ' ' + operation.endpoint) + '</span></div>';
+    }
+    var url = apiBase() + operation.endpoint;
+    var request = { method: operation.method, headers: { 'Content-Type': 'application/json' } };
+    if (operation.method !== 'GET') {
+      request.body = JSON.stringify(SQX.edgeFactory.buildBackportOperatorPayload(operation.id, input ? input.value : '', readBackportOptions()));
+    }
+    if (!global.fetch) {
+      return Promise.resolve(storeAndRenderBackportResult(operation.id, {
+        ok: false,
+        version: operation.expectedVersion,
+        error: 'fetch_unavailable',
+        privacy: { local_paths_returned: false, tokens_returned: false, private_fields_returned: false },
+        guards: { sqx_runtime_started: false, data_db_write_allowed: false, user_projects_write_allowed: false, remote_tester_access: false }
+      }));
+    }
+    return global.fetch(url, request)
+      .then(function(response) {
+        return response.json().catch(function() {
+          return { ok: false, version: operation.expectedVersion, error: 'invalid_json_response' };
+        }).then(function(json) {
+          if (!response.ok && !json.error) json.error = 'http_' + response.status;
+          return storeAndRenderBackportResult(operation.id, json);
+        });
+      })
+      .catch(function(err) {
+        return storeAndRenderBackportResult(operation.id, {
+          ok: false,
+          version: operation.expectedVersion,
+          error: err && err.name ? err.name : 'network_error',
+          privacy: { local_paths_returned: false, tokens_returned: false, private_fields_returned: false },
+          guards: { sqx_runtime_started: false, data_db_write_allowed: false, user_projects_write_allowed: false, remote_tester_access: false }
+        });
+      });
+  }
+
+  function sampleBackportOperatorPanel() {
+    if (!SQX.edgeFactory) return;
+    var operation = currentBackportOperation();
+    var input = byId('edge-backport-input');
+    if (input && operation && operation.method !== 'GET') {
+      input.value = SQX.edgeFactory.backportOperatorSample(operation.id);
+    }
+  }
+
+  function downloadBackportJson() {
+    var summary = currentBackportSummary();
+    if (!summary) summary = runBackportOperatorPanel();
+    if (!summary || summary.then) return;
+    var filename = 'sqx-edge-backport-operator-readback.json';
+    try {
+      var blob = new Blob([JSON.stringify(summary.raw || summary, null, 2)], { type: 'application/json' });
+      var link = global.document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      link.click();
+      URL.revokeObjectURL(link.href);
+      if (SQX.edgeFactory.recordDownloadRequest) {
+        SQX.edgeFactory.recordDownloadRequest({ kind: 'backport-operator-readback', files: [filename] });
+      }
+    } catch (_err) {
+      var output = byId('edge-backport-results');
+      if (output) output.textContent = JSON.stringify(summary.raw || summary, null, 2);
+    }
+  }
+
+  function downloadBackportCsv() {
+    var summary = currentBackportSummary();
+    if (!summary || !summary.raw || !summary.raw.csvExport) return;
+    var filename = 'sqx-edge-backport-operator-export.csv';
+    try {
+      var blob = new Blob([String(summary.raw.csvExport || '')], { type: 'text/csv;charset=utf-8' });
+      var link = global.document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      link.click();
+      URL.revokeObjectURL(link.href);
+      if (SQX.edgeFactory.recordDownloadRequest) {
+        SQX.edgeFactory.recordDownloadRequest({ kind: 'backport-operator-csv', files: [filename] });
+      }
+    } catch (_err) {
+      var output = byId('edge-backport-results');
+      if (output) output.textContent = String(summary.raw.csvExport || '');
+    }
+  }
+
+  function downloadBackportSqxTagCsv() {
+    var summary = currentBackportSummary();
+    if (!summary || summary.operationId !== 'correlation-filter' || !summary.raw || !summary.raw.sqxTagCsv) return;
+    var filename = 'sqx-edge-correlation-tags.csv';
+    try {
+      var blob = new Blob([String(summary.raw.sqxTagCsv || '')], { type: 'text/csv;charset=utf-8' });
+      var link = global.document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      link.click();
+      URL.revokeObjectURL(link.href);
+      if (SQX.edgeFactory.recordDownloadRequest) {
+        SQX.edgeFactory.recordDownloadRequest({ kind: 'backport-operator-sqx-tag-csv', files: [filename] });
+      }
+    } catch (_err) {
+      var output = byId('edge-backport-results');
+      if (output) output.textContent = String(summary.raw.sqxTagCsv || '');
+    }
+  }
+
+  function bindBackportOperatorPanel() {
+    var select = backportOperationSelect();
+    var run = byId('edge-backport-run');
+    var sample = byId('edge-backport-sample');
+    var exportJson = byId('edge-backport-export-json');
+    var exportCsv = byId('edge-backport-export-csv');
+    var exportSqxTags = byId('edge-backport-export-sqx-tags');
+    var reset = byId('edge-backport-reset');
+    if (select && !select.__edgeBackportBound) {
+      select.__edgeBackportBound = true;
+      select.addEventListener('change', renderBackportOperationMode);
+    }
+    if (run && !run.__edgeBackportBound) {
+      run.__edgeBackportBound = true;
+      run.addEventListener('click', runBackportOperatorPanel);
+    }
+    if (sample && !sample.__edgeBackportBound) {
+      sample.__edgeBackportBound = true;
+      sample.addEventListener('click', sampleBackportOperatorPanel);
+    }
+    if (exportJson && !exportJson.__edgeBackportBound) {
+      exportJson.__edgeBackportBound = true;
+      exportJson.addEventListener('click', downloadBackportJson);
+    }
+    if (exportCsv && !exportCsv.__edgeBackportBound) {
+      exportCsv.__edgeBackportBound = true;
+      exportCsv.addEventListener('click', downloadBackportCsv);
+    }
+    if (exportSqxTags && !exportSqxTags.__edgeBackportBound) {
+      exportSqxTags.__edgeBackportBound = true;
+      exportSqxTags.addEventListener('click', downloadBackportSqxTagCsv);
+    }
+    if (reset && !reset.__edgeBackportBound) {
+      reset.__edgeBackportBound = true;
+      reset.addEventListener('click', function() {
+        var input = byId('edge-backport-input');
+        if (input) input.value = '';
+        if (SQX.edgeFactory) SQX.edgeFactory.savePatch({ backportOperatorPanel: null }, 'ui-integration1-backport-reset');
+        renderBackportResult(null);
+        renderState();
+      });
+    }
+    renderBackportOperationMode();
+    renderBackportResult(currentBackportSummary());
+  }
+
   function init() {
     if (!byId('edge-factory-shell')) return false;
     bindTools();
@@ -644,7 +1416,10 @@
     bindExperienceMode();
     bindStepControls();
     bindPortfolioLab();
+    bindCorrelationStability();
     bindPortfolioMaster();
+    bindBackportOperatorPanel();
+    bindMiningRegistryPanel();
     if (SQX.edgeFactory) renderPortfolioMasterContract(SQX.edgeFactory.getState().portfolioMasterContract);
     renderState();
     return true;
@@ -657,7 +1432,16 @@
     runPortfolioLab: runPortfolioLab,
     runPortfolioMasterContract: runPortfolioMasterContract,
     renderPortfolioReport: renderPortfolioReport,
-    renderPortfolioMasterContract: renderPortfolioMasterContract
+    renderPortfolioMasterContract: renderPortfolioMasterContract,
+    runCorrelationStability: runCorrelationStability,
+    runRegisteredCorrelationDecision: runRegisteredCorrelationDecision,
+    renderCorrelationStability: renderCorrelationStability,
+    runBackportOperatorPanel: runBackportOperatorPanel,
+    renderBackportResult: renderBackportResult,
+    fetchRegistryFunnel: fetchRegistryFunnel,
+    scanRegistryProject: scanRegistryProject,
+    applyRegistryProject: applyRegistryProject,
+    renderRegistryPanel: renderRegistryPanel
   };
 
   if (SQX.registerModule) SQX.registerModule('edge-factory-ui', SQX.edgeFactoryUI);

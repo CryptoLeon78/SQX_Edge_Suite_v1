@@ -794,6 +794,33 @@
         Click en cualquier valor para editar. Los datos se guardan por mining y template dentro del estado de trabajo.
       </div>
     </div>
+
+    <!-- REGISTRY2: embudo real registrado desde SQX142 local -->
+    <div class="card ps-registry-card" id="ps-registry-card">
+      <div class="card-header">
+        <h2>Embudo registrado <span style="font-size:12px;color:var(--text2);font-weight:normal;">— SQX142 local</span></h2>
+        <span class="badge info" id="ps-registry-status">Sin lectura</span>
+      </div>
+      <div class="edge-registry-controls">
+        <input class="edge-registry-input" id="ps-registry-project-key" type="text" value="SQX_EDGE_API_FRESH_AUDCAD_H1_Momentum_20260528_090029_Capa1" aria-label="Custom project SQX142" placeholder="Custom project SQX142">
+        <button class="filter-btn" id="ps-registry-load" type="button">Cargar embudo local</button>
+        <button class="filter-btn" id="ps-registry-scan" type="button">Actualizar desde SQX local</button>
+        <button class="export-btn" id="ps-registry-apply" type="button">Aplicar a Edge Factory</button>
+      </div>
+      <div class="edge-registry-controls edge-corr2-controls">
+        <button class="filter-btn" id="ps-corr2-status-btn" type="button">Estado CORR1 local</button>
+        <button class="filter-btn" id="ps-corr2-record" type="button">Registrar CORR1</button>
+        <button class="filter-btn active" id="ps-corr1-analyze" type="button">Analizar CORR1</button>
+        <button class="filter-btn" id="ps-corr2-plan" type="button">Preflight CORR1</button>
+        <button class="export-btn" id="ps-corr2-apply" type="button">Parchear custom SQX</button>
+        <input class="edge-registry-input edge-corr2-backup-input" id="ps-corr2-backup-id" type="text" aria-label="Backup CORR1" placeholder="Backup id rollback">
+        <button class="filter-btn danger" id="ps-corr2-rollback" type="button">Rollback CORR1</button>
+      </div>
+      <div class="edge-registry-summary edge-corr2-summary" id="ps-corr2-summary">CORR2 pendiente de preflight.</div>
+      <span class="edge-registry-state edge-corr2-state" id="ps-corr2-status">Sin preflight</span>
+      <div class="edge-registry-summary" id="ps-registry-summary">Esperando custom project registrado.</div>
+      <div class="edge-registry-funnel" id="ps-registry-funnel" aria-label="Databanks registrados"></div>
+    </div>
   </div>
 
   <!-- TAB: PROJECT GENERATOR — genera Custom Projects .cfx para SQX vía API SQX Edge -->
@@ -980,7 +1007,7 @@
           <div class="pg-target-profile-panel" id="pg-target-profile-panel">
             <div>
               <strong>Compatibilidad del SQX destino</strong>
-              <p id="pg-target-profile-warning">Perfil recomendado para usuarios que abrirán el .cfx en SQX local con símbolos sin sufijo y Broker profile SQ default. Retest 1/OOS2 conserva Dukascopy por metodología.</p>
+              <p id="pg-target-profile-warning">Perfil para usuarios cuyo Data Manager tenga el símbolo exacto sin sufijo y Broker profile SQ default. Si tu SQX local usa _darwinex, elige SQX Edge / Darwinex.</p>
             </div>
             <div class="pg-target-custom-fields" id="pg-target-custom-fields" hidden>
               <label>Sufijo broker <input type="text" id="pg-target-postfix" placeholder="_darwinex, _dukascopy, _broker"></label>
@@ -990,7 +1017,7 @@
               <label>Nombre broker <input type="text" id="pg-target-broker-name" placeholder="[[Broker]]"></label>
               <label>Timezone <input type="text" id="pg-target-timezone" placeholder="EETUS"></label>
             </div>
-            <small>Nota metodológica: Retest 1/OOS2 siempre se genera con Dukascopy 2010.01.01-2017.10.02 para validar supervivencia cross-broker; este selector remapea el resto del proyecto al SQX destino del usuario.</small>
+            <small>Nota metodológica: Retest 1/OOS2 conserva velas Dukascopy 2010.01.01-2017.10.02 para validar supervivencia cross-broker; este selector remapea el recurso de ejecución al SQX destino del usuario.</small>
           </div>
 
           <div class="pg-mode-placeholder" id="pg-mode-placeholder">
@@ -2240,6 +2267,35 @@
         <article data-edge-signal="portfolio"><span>Portfolio</span><strong>Pendiente</strong><small>Shortlist diversa Capa 2</small></article>
       </div>
 
+      <section class="edge-mining-registry-panel" id="edge-mining-registry-panel" aria-label="Embudo real SQX142 registrado">
+        <div class="edge-registry-head">
+          <div>
+            <span class="badge info">SQX142-MINING-REGISTRY2</span>
+            <h3>Embudo real del custom project</h3>
+          </div>
+          <span class="edge-registry-state" id="edge-registry-status">Sin lectura</span>
+        </div>
+        <div class="edge-registry-controls">
+          <input class="edge-registry-input" id="edge-registry-project-key" type="text" value="SQX_EDGE_API_FRESH_AUDCAD_H1_Momentum_20260528_090029_Capa1" aria-label="Custom project SQX142" placeholder="Custom project SQX142">
+          <button class="filter-btn" id="edge-registry-load" type="button">Cargar embudo local</button>
+          <button class="filter-btn" id="edge-registry-scan" type="button">Actualizar desde SQX local</button>
+          <button class="export-btn" id="edge-registry-apply" type="button">Aplicar a Edge Factory</button>
+        </div>
+        <div class="edge-registry-controls edge-corr2-controls">
+          <button class="filter-btn" id="edge-corr2-status-btn" type="button">Estado CORR1 local</button>
+          <button class="filter-btn" id="edge-corr2-record" type="button">Registrar CORR1</button>
+          <button class="filter-btn active" id="edge-corr1-analyze" type="button">Analizar CORR1</button>
+          <button class="filter-btn" id="edge-corr2-plan" type="button">Preflight CORR1</button>
+          <button class="export-btn" id="edge-corr2-apply" type="button">Parchear custom SQX</button>
+          <input class="edge-registry-input edge-corr2-backup-input" id="edge-corr2-backup-id" type="text" aria-label="Backup CORR1" placeholder="Backup id rollback">
+          <button class="filter-btn danger" id="edge-corr2-rollback" type="button">Rollback CORR1</button>
+        </div>
+        <div class="edge-registry-summary edge-corr2-summary" id="edge-corr2-summary">CORR2 pendiente de preflight.</div>
+        <span class="edge-registry-state edge-corr2-state" id="edge-corr2-status">Sin preflight</span>
+        <div class="edge-registry-summary" id="edge-registry-summary">Esperando custom project registrado.</div>
+        <div class="edge-registry-funnel" id="edge-registry-funnel" aria-label="Databanks registrados"></div>
+      </section>
+
         <section class="agent-guide-dock" id="agent-guide-dock" aria-label="Agente IA SQX">
         <div class="agent-guide-head">
           <div>
@@ -2402,6 +2458,60 @@
             <span>Plan de riesgo: base 0.2%, cap 0.30%, 8-12 ganadores, caps de diversidad, correlacion real solo con equity/returns comparables y despliegue gradual.</span>
           </div>
         </div>
+        <div class="edge-portfolio-head" id="edge-portfolio-corr-stability">
+          <div>
+            <span class="badge info">SQX142-PORTFOLIO-CORR1 · sqx142-portfolio-corr1-stability-audit-v1</span>
+            <h3>Auditoria de descorrelacion IS vs OOS3</h3>
+            <p>Selecciona diversidad con IS_CORR y usa OOS3_CORR solo como confirmacion/veto de estabilidad. Si OOS3 se usa para elegir sustitutos, deja de ser holdout final y exige otro periodo posterior.</p>
+          </div>
+          <div class="edge-portfolio-contract">
+            <strong>Regla academica</strong>
+            <span>IS selecciona · OOS3 audita · no optimiza Forward</span>
+          </div>
+        </div>
+        <div class="edge-portfolio-workbench edge-corr-stability-workbench" aria-label="Auditoria de correlacion IS OOS3">
+          <div class="edge-portfolio-input-panel">
+            <div class="edge-portfolio-panel-title">
+              <strong>Candidatos</strong>
+              <span>Puede usar la entrada del Portfolio Lab o un CSV equivalente.</span>
+            </div>
+            <textarea id="edge-corr-candidates-input" rows="5" placeholder="strategy,asset,timeframe,profitFactor,retDd,maxDd,trades,blockSetting"></textarea>
+          </div>
+          <div class="edge-portfolio-input-panel">
+            <div class="edge-portfolio-panel-title">
+              <strong>Series IS_CORR</strong>
+              <span>Ventana amplia: minado + Retest 0.</span>
+            </div>
+            <textarea id="edge-corr-is-input" rows="5" placeholder="strategy,isReturnSeries"></textarea>
+          </div>
+          <div class="edge-portfolio-input-panel">
+            <div class="edge-portfolio-panel-title">
+              <strong>Series OOS3_CORR</strong>
+              <span>Forward/Foward final como auditoria, no como selector.</span>
+            </div>
+            <textarea id="edge-corr-oos3-input" rows="5" placeholder="strategy,oos3ReturnSeries"></textarea>
+          </div>
+          <div class="edge-portfolio-controls edge-corr-stability-controls" aria-label="Ajustes auditoria correlacion">
+            <label>Max corr IS<input id="edge-corr-max-is" type="number" min="0.10" max="0.95" step="0.01" value="0.50"></label>
+            <label>Max corr OOS3<input id="edge-corr-max-oos3" type="number" min="0.10" max="0.95" step="0.01" value="0.60"></label>
+            <label>Warning OOS3<input id="edge-corr-warn-oos3" type="number" min="0.10" max="0.95" step="0.01" value="0.45"></label>
+            <label>Drift max<input id="edge-corr-max-drift" type="number" min="0.05" max="0.80" step="0.01" value="0.25"></label>
+            <label>Puntos min<input id="edge-corr-min-points" type="number" min="3" max="250" step="1" value="12"></label>
+            <div class="edge-portfolio-actions">
+              <button class="filter-btn" type="button" id="edge-corr-from-lab">Tomar Lab</button>
+              <button class="filter-btn" type="button" id="edge-corr-registered">Auditar registrado</button>
+              <button class="filter-btn" type="button" id="edge-corr-sample">Ver muestra</button>
+              <button class="filter-btn active" type="button" id="edge-corr-run">Auditar estabilidad</button>
+              <button class="filter-btn" type="button" id="edge-corr-export">Descargar auditoria</button>
+            </div>
+          </div>
+        </div>
+        <div class="edge-portfolio-results" id="edge-corr-results">
+          <div class="edge-portfolio-empty">
+            <strong>Sin auditoria CORR1.</strong>
+            <span>Primero calcula o pega candidatos, aporta series IS y OOS3 comparables, y ejecuta la auditoria antes de Portfolio Master.</span>
+          </div>
+        </div>
         <div class="edge-portfolio-head" id="edge-portfolio-master-contract">
           <div>
             <span class="badge info">Portfolio Master Contract · portfolio-master-contract-v1 · portfolio-master-inputs-pending-v1</span>
@@ -2453,6 +2563,57 @@
           <div class="edge-portfolio-empty">
             <strong>Sin contrato Portfolio Master.</strong>
             <span>El readback requerido bloquea Lab report ausente, Forward CSV ausente, equity/returns no comparables, cuenta publica faltante o contexto broker/simbolos faltante.</span>
+          </div>
+        </div>
+
+        <div class="edge-portfolio-head edge-backport-head" id="edge-backport-operator-panel">
+          <div>
+            <span class="badge info">UI-INTEGRATION1 · ui-integration1-backport-operator-panel-v1</span>
+            <h3>Backport Operator Panel</h3>
+            <p>Consola local para consultar los contratos SQX142/144 backport ya cerrados: MCP-like read-only, Results Plugin readiness, Correlation Filter, Monte Carlo benchmarks, MT5 data probe y copy-only migration checklist.</p>
+          </div>
+          <div class="edge-portfolio-contract">
+            <strong>SQX 142 local-only</strong>
+            <span>Sin SQX runtime · sin data.db writes · sin user/projects writes · Correlation Pack lab-only: no borra databank, no filtra en SQX</span>
+          </div>
+        </div>
+        <div class="edge-portfolio-workbench edge-backport-workbench" aria-label="Backport Operator Panel">
+          <div class="edge-portfolio-input-panel">
+            <div class="edge-portfolio-panel-title">
+              <strong>Contrato</strong>
+              <span id="edge-backport-payload-mode">GET /sqx142/mcp-like/status · sqx142-mcp-like-readonly-v1</span>
+            </div>
+            <select id="edge-backport-operation" class="search-input">
+              <option value="mcp-status">MCP-like status</option>
+              <option value="results-readiness">Results Plugin readiness</option>
+              <option value="correlation-filter">Correlation Filter external</option>
+              <option value="portfolio-correlation-stability">Portfolio CORR1 stability audit</option>
+              <option value="monte-carlo-benchmarks">Monte Carlo benchmarks</option>
+              <option value="mt5-data-probe">MT5 data intake probe</option>
+              <option value="migration-checklist">Copy-only migration checklist</option>
+            </select>
+            <textarea id="edge-backport-input" rows="7" placeholder="Este modo consulta estado local read-only y no necesita payload."></textarea>
+          </div>
+          <div class="edge-portfolio-controls edge-backport-controls" aria-label="Parametros Backport">
+            <label>Asset<input id="edge-backport-asset" type="text" value="AUDCAD"></label>
+            <label>Timeframe<input id="edge-backport-timeframe" type="text" value="H1"></label>
+            <label>Max correlation<input id="edge-backport-max-correlation" type="number" min="0.10" max="0.95" step="0.01" value="0.50"></label>
+            <label>MC simulations<input id="edge-backport-simulations" type="number" min="16" max="512" step="1" value="64"></label>
+            <label>Min bars<input id="edge-backport-min-bars" type="number" min="1" max="2000" step="1" value="20"></label>
+          </div>
+          <div class="edge-portfolio-actions">
+            <button class="filter-btn" type="button" id="edge-backport-sample">Ver formato ejemplo</button>
+            <button class="filter-btn active" type="button" id="edge-backport-run">Consultar API</button>
+            <button class="filter-btn" type="button" id="edge-backport-export-json">Descargar JSON</button>
+            <button class="filter-btn" type="button" id="edge-backport-export-csv">Descargar CSV</button>
+            <button class="filter-btn" type="button" id="edge-backport-export-sqx-tags">Descargar SQX Tag CSV</button>
+            <button class="filter-btn danger" type="button" id="edge-backport-reset">Limpiar panel</button>
+          </div>
+        </div>
+        <div class="edge-portfolio-results edge-backport-results" id="edge-backport-results">
+          <div class="edge-portfolio-empty">
+            <strong>Sin readback BACKPORT.</strong>
+            <span>Selecciona un contrato y ejecuta una consulta local. El panel conserva guards de no runtime, no escritura y acceso solo operador.</span>
           </div>
         </div>
       </section>

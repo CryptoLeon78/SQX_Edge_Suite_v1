@@ -16,6 +16,7 @@ assert.equal(SQX.edgeFactory.version, 'edge-factory-state-v1');
 assert.equal(SQX.edgeFactory.portfolioLabVersion, 'portfolio-lab-governed-v1');
 assert.equal(SQX.edgeFactory.portfolioMasterVersion, 'portfolio-master-contract-v1');
 assert.equal(SQX.edgeFactory.portfolioMasterInputsVersion, 'portfolio-master-inputs-pending-v1');
+assert.equal(SQX.edgeFactory.backportOperatorPanelVersion, 'ui-integration1-backport-operator-panel-v1');
 assert.equal(SQX.edgeFactory.storageKey(), 'sqx_edge_factory_state_v1');
 assert.equal(SQX.edgeFactory.steps().length, 8);
 assert.equal(SQX.edgeFactory.steps()[0].id, 'session');
@@ -194,6 +195,59 @@ assert.equal(edgeState.portfolioMasterContract.status, 'ready_for_master_review'
 assert.equal(JSON.stringify(edgeState.portfolioMasterContract).includes('123456'), false);
 assert.equal(edgeState.completedSteps.includes('portfolio'), true);
 
+const backportOps = SQX.edgeFactory.backportOperatorOperations();
+assert.equal(backportOps.length, 7);
+assert.equal(backportOps.some(op => op.id === 'mcp-status' && op.method === 'GET' && op.endpoint === '/sqx142/mcp-like/status'), true);
+assert.equal(backportOps.some(op => op.id === 'correlation-filter' && op.endpoint === '/sqx142/correlation-filter/external'), true);
+assert.equal(backportOps.some(op => op.id === 'portfolio-correlation-stability' && op.endpoint === '/sqx142/portfolio-correlation/stability-audit'), true);
+assert.equal(backportOps.some(op => op.id === 'monte-carlo-benchmarks' && op.expectedVersion === 'sqx142-monte-carlo-candidate-benchmarks-v1'), true);
+assert.equal(backportOps.some(op => op.id === 'mt5-data-probe' && op.endpoint === '/sqx142/mt5-data-intake/probe'), true);
+assert.equal(backportOps.some(op => op.id === 'migration-checklist' && op.endpoint === '/sqx142/migration/copy-only-checklist'), true);
+assert.equal(SQX.edgeFactory.buildBackportOperatorPayload('mcp-status'), null);
+const correlationPayload = SQX.edgeFactory.buildBackportOperatorPayload('correlation-filter', SQX.edgeFactory.backportOperatorSample('correlation-filter'), { maxCorrelation: 0.5 });
+assert.equal(correlationPayload.includeCsvExport, true);
+assert.equal(correlationPayload.includeSqxTagCsv, true);
+assert.equal(correlationPayload.settings.maxCorrelation, 0.5);
+assert.match(correlationPayload.csv, /returnSeries/);
+const corrStabilityPayload = SQX.edgeFactory.buildBackportOperatorPayload('portfolio-correlation-stability', SQX.edgeFactory.backportOperatorSample('portfolio-correlation-stability'), { maxIsCorrelation: 0.5 });
+assert.equal(corrStabilityPayload.includeCsvExport, true);
+assert.equal(corrStabilityPayload.settings.maxIsCorrelation, 0.5);
+assert.match(corrStabilityPayload.csv, /oos3ReturnSeries/);
+const mt5Payload = SQX.edgeFactory.buildBackportOperatorPayload('mt5-data-probe', SQX.edgeFactory.backportOperatorSample('mt5-data-probe'), { asset: 'AUDCAD', timeframe: 'H1', minBars: 20 });
+assert.equal(mt5Payload.asset, 'AUDCAD');
+assert.equal(mt5Payload.timeframe, 'H1');
+assert.equal(mt5Payload.settings.minBars, 20);
+assert.match(mt5Payload.csv, /time,open,high,low,close,volume/);
+const migrationPayload = SQX.edgeFactory.buildBackportOperatorPayload('migration-checklist', SQX.edgeFactory.backportOperatorSample('migration-checklist'));
+assert.equal(migrationPayload.items.length, 3);
+assert.equal(migrationPayload.items[0].relativePath, 'user/extend/ResultsPlugins/SQX Edge Readiness Panel');
+const backportSummary = SQX.edgeFactory.summarizeBackportOperatorResult('migration-checklist', {
+  ok: true,
+  version: 'sqx142-copy-only-migration-checklist-v1',
+  summary: { inputItems: 3, allowCopy: 1, reviewCopy: 1, blockCopy: 1 },
+  guards: { sqx_runtime_started: false, data_db_write_allowed: false, user_projects_write_allowed: false, remote_tester_access: false },
+  privacy: { local_paths_returned: false, tokens_returned: false, private_fields_returned: false },
+  csvExport: 'itemId,decision\nx,allow_copy\n',
+});
+assert.equal(backportSummary.panelVersion, 'ui-integration1-backport-operator-panel-v1');
+assert.equal(backportSummary.status, 'ok');
+assert.equal(backportSummary.total, 3);
+assert.equal(backportSummary.primaryCount, 1);
+assert.equal(backportSummary.csvExportAvailable, true);
+const correlationSummary = SQX.edgeFactory.summarizeBackportOperatorResult('correlation-filter', {
+  ok: true,
+  version: 'sqx142-correlation-filter-external-v1',
+  summary: { inputRows: 2, portfolio: 1, similar: 1, review: 0 },
+  privacy: { local_paths_returned: false, tokens_returned: false, private_fields_returned: false },
+  csvExport: 'candidateId,decision\nx,portfolio\n',
+  sqxTagCsv: 'strategyRef,candidateId,decision\nstrategy_abc,x,portfolio\n',
+});
+assert.equal(correlationSummary.sqxTagCsvAvailable, true);
+SQX.edgeFactory.recordBackportOperatorResult('migration-checklist', backportSummary.raw);
+edgeState = JSON.parse(sandbox.localStorage.getItem('sqx_edge_factory_state_v1'));
+assert.equal(edgeState.backportOperatorPanel.version, 'ui-integration1-backport-operator-panel-v1');
+assert.equal(edgeState.backportOperatorPanel.lastOperation.endpoint, '/sqx142/migration/copy-only-checklist');
+
 const exampleOnlyForward = sample.replace('strategy,asset,timeframe,profitFactor,retDd,maxDd,trades,blockSetting,indicator,cluster,Source Phase,Source Databank,Forward Status,Pass Source,Returns', 'strategy,asset,timeframe,profitFactor,retDd,maxDd,trades,blockSetting,indicator,cluster,Source Phase,Source Databank,Forward Status,Pass Source,Returns,Example Only')
   .split('\n').map((line, index) => index === 0 ? line : `${line},true`).join('\n');
 const sampleBlockedMaster = SQX.edgeFactory.buildPortfolioMasterContract({
@@ -231,6 +285,22 @@ assert.equal(html.includes('id="edge-master-account-input"'), true);
 assert.equal(html.includes('id="edge-master-broker-input"'), true);
 assert.equal(html.includes('portfolio-master-inputs-pending-v1'), true);
 assert.equal(html.includes('no autoriza despliegue real'), true);
+assert.equal(html.includes('id="edge-backport-operator-panel"'), true);
+assert.equal(html.includes('UI-INTEGRATION1'), true);
+assert.equal(html.includes('ui-integration1-backport-operator-panel-v1'), true);
+assert.equal(html.includes('id="edge-backport-operation"'), true);
+assert.equal(html.includes('value="correlation-filter"'), true);
+assert.equal(html.includes('value="monte-carlo-benchmarks"'), true);
+assert.equal(html.includes('value="mt5-data-probe"'), true);
+assert.equal(html.includes('value="migration-checklist"'), true);
+assert.equal(html.includes('id="edge-backport-run"'), true);
+assert.equal(html.includes('id="edge-backport-export-sqx-tags"'), true);
+assert.equal(html.includes('id="edge-backport-results"'), true);
+assert.equal(html.includes('sin data.db writes'), true);
+assert.equal(html.includes('sin user/projects writes'), true);
+assert.equal(html.includes('lab-only'), true);
+assert.equal(html.includes('no borra databank'), true);
+assert.equal(html.includes('no filtra en SQX'), true);
 assert.equal(html.includes('id="edge-portfolio-threshold"'), true);
 assert.equal(html.includes('id="edge-portfolio-export-csv"'), true);
 assert.equal(html.includes('portfolio-lab-governed-v1'), true);
