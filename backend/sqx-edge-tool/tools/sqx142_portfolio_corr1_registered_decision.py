@@ -160,7 +160,47 @@ def numeric(value: Any, default: float = 0.0) -> float:
     return parsed if math.isfinite(parsed) else default
 
 
-def parse_strategy_sqx(path: Path, *, is_start: date, is_end: date, oos3_start: date, oos3_end: date) -> dict[str, Any]:
+def project_identity(project: Path) -> dict[str, str]:
+    name = project.name
+    identity = {
+        "asset": "GENERIC",
+        "timeframe": "H1",
+        "blockSetting": "BS_Custom",
+    }
+    match = re.match(r"SQX_EDGE_API_FRESH_([A-Z0-9]+)_([A-Z0-9]+)_([^_]+)_", name, flags=re.IGNORECASE)
+    if match:
+        identity["asset"] = match.group(1).upper()
+        identity["timeframe"] = match.group(2).upper()
+        family = match.group(3)
+        identity["blockSetting"] = f"BS_{family}_v6"
+        if family.lower() == "volatilidad" and identity["timeframe"] in {"M5", "M15", "M30", "H1"}:
+            identity["blockSetting"] = "BS_Volatilidad_v6_intraday_v6"
+    try:
+        root = load_cfx(project / "project.cfx")
+        build_candidates: list[str] = []
+        for elem in root.iter():
+            title = elem.get("title") or elem.get("name") or ""
+            build_match = re.search(r"\bBuild\s+(BS_[^·]+?)(?:\s*·|$)", title)
+            if build_match:
+                build_candidates.append(build_match.group(1).strip())
+        if build_candidates:
+            cfx_block = max(build_candidates, key=len)
+            if len(cfx_block) > len(identity["blockSetting"]):
+                identity["blockSetting"] = cfx_block
+    except Exception:
+        pass
+    return identity
+
+
+def parse_strategy_sqx(
+    path: Path,
+    *,
+    is_start: date,
+    is_end: date,
+    oos3_start: date,
+    oos3_end: date,
+    identity: dict[str, str] | None = None,
+) -> dict[str, Any]:
     with zipfile.ZipFile(path) as archive:
         names = archive.namelist()
         equity_name = next((name for name in names if name.endswith(DAILY_EQUITY_SUFFIX)), "")
@@ -175,17 +215,18 @@ def parse_strategy_sqx(path: Path, *, is_start: date, is_end: date, oos3_start: 
     ret_dd = profit / drawdown if drawdown else 0.0
     is_series = equity_deltas(equity, is_start, is_end)
     oos3_series = equity_deltas(equity, oos3_start, oos3_end + timedelta(days=1))
+    identity = identity or {}
     return {
         "strategy": strategy_name,
         "candidate": {
             "strategy": strategy_name,
-            "asset": "AUDCAD",
-            "timeframe": "H1",
+            "asset": identity.get("asset") or "GENERIC",
+            "timeframe": identity.get("timeframe") or "H1",
             "profitFactor": "",
             "retDd": round(ret_dd, 6),
             "maxDd": "",
             "trades": int(numeric(fingerprint.get("trades"))),
-            "blockSetting": "BS_Momentum_v6",
+            "blockSetting": identity.get("blockSetting") or "BS_Custom",
         },
         "isRow": {
             "strategy": strategy_name,
@@ -224,6 +265,7 @@ def project_periods(project: Path) -> dict[str, Any]:
 
 def build_payload_from_registered_databank(project: Path, databank: str) -> dict[str, Any]:
     periods = project_periods(project)
+    identity = project_identity(project)
     databank_dir = project / "databanks" / databank
     if not databank_dir.is_dir():
         raise ValueError("registered_databank_missing")
@@ -237,6 +279,7 @@ def build_payload_from_registered_databank(project: Path, databank: str) -> dict
                 is_end=periods["isEnd"],
                 oos3_start=periods["oos3Start"],
                 oos3_end=periods["oos3End"],
+                identity=identity,
             ))
         except Exception as exc:
             errors.append({"fileHash": hashlib.sha256(path.name.encode("utf-8")).hexdigest()[:16], "error": type(exc).__name__})

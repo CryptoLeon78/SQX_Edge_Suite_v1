@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-30 - SQX142 USDJPY Capa1 CORR1 Single-Candidate Registration
+
+- Registers the real `SQX_EDGE_API_FRESH_USDJPY_H1_Volatilidad_20260530_082732_Capa1` funnel read-only after operator SQX close: `Results=2000`, `RETEST 0=682`, `retest 1=256`, `TICK=108`, `MC=97`, `MC2=70`, `Sequential=70`, `Monkey Test=1`, `Synthetic=1`, `SPP=1`, `WFM=1`, `Forward=1`, `SQX EDGE CORR1 STABILITY=1`, `SQX EDGE CORR1 TAGGED=1`.
+- Records the CORR1 result as `capa1_c2_template_selection` with `inputRows=1`, `selectedByIs=1`, `selectedPairs=0`, `status=pass`; this is a single Template C2 winner pass-through, not proof of pairwise decorrelation.
+- Fixes the registered CORR1 local reader so candidate trace metadata is derived from the active project identity instead of the old AUDCAD/Momentum fallback; USDJPY H1 Volatilidad now records `BS_Volatilidad_v6_intraday_v6`.
+- Preserves boundaries: SQX was closed, analysis was read-only, no SQX launch, no project/databank mutation during analysis, no `data.db` writes, no jars/internal plugins/license changes, no `run_project`, no Migration Tool and no `checkResources`.
+
 ## 2026-05-30 - SQX142 Activos Basic/Advanced Workflow Alignment
 
 - Adds `sqxSelectionPolicy` so Activos separates recommended SQX config, selected config and generation permission: Forex can be selected in A/B/C/D, while index/gold `Only Short` generation is blocked.

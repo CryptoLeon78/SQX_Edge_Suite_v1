@@ -24,6 +24,9 @@ assert.match(registeredTool, /VERSION = "sqx142-capa1-c2-corr1-registered-decisi
 assert.match(registeredTool, /DEPRECATED_PORTFOLIO_ALIAS_VERSION = "sqx142-portfolio-corr1-registered-decision-v1"/);
 assert.match(registeredTool, /DAILY_EQUITY_SUFFIX = "\/dailyEquity\.bin"/);
 assert.match(registeredTool, /capa1_c2_corr1_registered_selection_decision/);
+assert.match(registeredTool, /def project_identity/);
+assert.doesNotMatch(registeredTool, /"asset": "AUDCAD"/);
+assert.doesNotMatch(registeredTool, /"blockSetting": "BS_Momentum_v6"/);
 assert.doesNotMatch(registeredTool, /Start-Process|Stop-Process|Remove-Item|run_project|checkResources/);
 
 assert.match(registeredWrapper, /Assert-NoSqxProcess/);
