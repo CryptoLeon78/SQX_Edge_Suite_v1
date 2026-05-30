@@ -38,7 +38,7 @@ assert.ok(html.includes('id="pg-capa2-bs"'), 'Project Generator should expose th
 assert.ok(html.includes('id="pg-target-profile"'), 'Project Generator should expose target SQX profile selector');
 assert.ok(html.includes('id="pg-target-custom-fields"'), 'Project Generator should expose user-broker remap fields');
 assert.ok(html.includes('id="pg-target-symbol"'), 'Project Generator should allow exact target symbol remap for arbitrary brokers');
-assert.ok(html.includes('Retest 1/OOS2 siempre se genera con Dukascopy'), 'Project Generator should explain protected Dukascopy OOS2 retest');
+assert.ok(html.includes('Retest 1/OOS2 conserva velas Dukascopy'), 'Project Generator should explain protected Dukascopy OOS2 retest');
 assert.ok(html.includes('id="pg-select-all-minings"'), 'Project Generator should allow selecting all Plan Mining rows');
 assert.ok(html.includes('id="pg-custom-save-preset"'), 'Project Generator should keep custom preset save action');
 assert.ok(html.includes('id="pg-custom-import-presets-file"'), 'Project Generator should keep preset pack import input');

@@ -38,6 +38,14 @@ Server/operator profile:
 - source id `4`
 - intended for the SQX Edge Suite server and the current operator SQX 142 host.
   Use it only when the recipient SQX also has Darwinex-compatible symbols/data.
+- Retest 1/OOS2 keeps Dukascopy bars (`source=2`, `{asset}_dukascopy`) but
+  uses the Darwinex execution resource (`broker=4`, `{asset}_darwinex`) for
+  this target, even when generation runs without direct access to the
+  operator's local `data.db`.
+- Generated projects for this profile strip packaged `<CustomBlocks>` donor
+  definitions. The operator SQX142 installation owns those snippets locally;
+  carrying donor copies can trigger SQX's `Undefined / different blocks found`
+  resolver and fail while updating the loaded project.
 
 Manual user-broker profile:
 
@@ -54,13 +62,36 @@ Manual user-broker profile:
 Retest 1 for Capa 1 is not a regular target-host resource. It is:
 
 - label: `Retest 1 / OOS2 Dukascopy`
-- broker profile: Dukascopy
+- data source: Dukascopy
 - source id: `2`
-- broker id: `3`
+- default pure broker id: `3`
 - period: `2010.01.01 -> 2017.10.02`
 
 The target profile selector must not override this retest. If a generated `.cfx`
 uses a primary user broker and Retest 1 uses Dukascopy, that is expected.
+
+Operator-local hybrid convention:
+
+- Some SQX 142 Data Manager assets intentionally store `SYMBOL={asset}_dukascopy`
+  with `DATA.SOURCE=2` while `DATA.INSTRUMENT={asset}_darwinex` and
+  `DATA.BROKER_ID=4`.
+- This means Retest 1 uses Dukascopy candles under Darwinex execution
+  assumptions: spread, commissions, swap, tick size and broker resource remain
+  Darwinex.
+- The generator preserves this when `data.db` exposes the hybrid row:
+  chart/resource symbol stays `{asset}_dukascopy`, source stays `2`, resource
+  broker becomes the inherited Darwinex broker, and `InstrumentInfo` comes from
+  `{asset}_darwinex`.
+- This is not a broker-robustness claim. It is a data-vendor/OOS candle
+  validation under the current Darwinex execution model, and must be described
+  that way in evidence.
+
+When SQX `data.db` is available during generation, the generator checks the real
+Dukascopy/OOS2 coverage for the selected asset. If the local data starts later
+than the canonical 2010 start but still gives at least two years of historical
+pre-Build coverage, Retest 1 is bounded to the real available range. If coverage
+is missing or too short, generation must fail before SQX import instead of
+creating a project that opens with unresolved resources.
 
 ## Compatibility Warning
 
@@ -77,6 +108,12 @@ RILIS compatibility note:
 
 - If the user's Data Manager shows `Broker profile = SQ default` and symbols
   like `GBPJPY`, choose `SQ default / símbolo exacto`.
+- If the operator/local SQX142 Data Manager shows symbols such as
+  `AUDCAD_darwinex` and cross-provider data such as `AUDCAD_dukascopy`, choose
+  `SQX Edge / Darwinex`.
+- If SQX first reports resources resolved and then shows custom blocks as
+  `Different`, regenerate with `SQX Edge / Darwinex` after this profile fix so
+  SQX uses its installed snippets instead of donor-packaged block definitions.
 - If their Data Manager shows a custom broker name or suffixed symbols, choose
   `Broker del usuario` and enter the exact symbol plus broker/source ids from
   that SQX.

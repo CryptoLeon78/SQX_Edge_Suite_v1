@@ -11,7 +11,9 @@
       "brokerName": "[[Darwinex]]",
       "brokerDescription": "Darwinex CFDs",
       "timezone": "EETUS",
-      "precision": "TICK"
+      "precision": "TICK",
+      "stripCustomBlockResources": true,
+      "stripInstrumentResources": true
     },
     "dukascopy_oos2": {
       "id": "dukascopy_oos2",
@@ -19,6 +21,7 @@
       "brokerPostfix": "_dukascopy",
       "brokerId": 3,
       "sourceId": 2,
+      "inheritInstrumentFromData": true,
       "brokerName": "[[Dukascopy]]",
       "brokerDescription": "Dukascopy",
       "timezone": "EETUS",
@@ -41,6 +44,7 @@
       "dataType": 1,
       "symbolTemplate": "{asset}",
       "forceExactSymbol": true,
+      "stripCustomBlockResources": false,
       "warning": "Perfil recomendado para usuarios que abren el .cfx en su SQX local con símbolos sin sufijo y Broker profile SQ default. Retest 1/OOS2 sigue usando Dukascopy por metodología."
     },
     "sqxedge_darwinex": {
@@ -55,6 +59,7 @@
       "label": "Broker del usuario / remapeo manual",
       "brokerProfile": "darwinex",
       "mode": "custom_override",
+      "stripCustomBlockResources": false,
       "warning": "Usa este modo cuando el usuario abrirá el .cfx en un SQX con otro broker. Requiere sufijo o símbolo compatible con su Data Manager."
     }
   },
@@ -62,15 +67,25 @@
     "1": {
       "Retest-Task1.xml": {
         "brokerProfile": "dukascopy_oos2",
+        "executionBrokerProfileForTargets": {
+          "sqxedge_darwinex": "darwinex"
+        },
         "period": "RETEST_1_C1",
-        "label": "Retest 1 / OOS2 Dukascopy 2010.01.01-2017.10.02"
+        "label": "Retest 1 / OOS2 Dukascopy 2010.01.01-2017.10.02",
+        "boundToAvailableData": true,
+        "minCoverageDays": 730
       }
     },
     "2": {
       "AutomaticRetest-Task7.xml": {
         "brokerProfile": "dukascopy_oos2",
+        "executionBrokerProfileForTargets": {
+          "sqxedge_darwinex": "darwinex"
+        },
         "period": "RETEST_1",
-        "label": "Capa2 Retest 1 / historical Dukascopy 2010.01.01-2017.10.02"
+        "label": "Capa2 Retest 1 / historical Dukascopy 2010.01.01-2017.10.02",
+        "boundToAvailableData": true,
+        "minCoverageDays": 730
       }
     }
   },

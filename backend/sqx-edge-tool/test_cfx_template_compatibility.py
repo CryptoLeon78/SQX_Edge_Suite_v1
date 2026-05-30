@@ -1,4 +1,5 @@
 import hashlib
+import sqlite3
 import zipfile
 import tempfile
 from pathlib import Path
@@ -7,19 +8,98 @@ from xml.etree import ElementTree as ET
 from core.plan import Mining
 from core.blocksettings import load_blocksettings_manifest
 from core.cfx_compatibility import audit_cfx_compatibility
-from core.project_generator import generate_project
+from core.project_generator import _bound_retest_period_to_available_data, generate_project
 from core.xml_patcher import (
     patch_backtest_precision,
+    patch_custom_block_resources,
     patch_embedded_strategy_metadata,
     patch_no_session,
     patch_symbol_resources,
 )
 
 
+def _create_hybrid_xau_data_db(path: Path) -> None:
+    commission = '<Method type="SizeBased" use="true"><Params><Param key="Commission" className="SizeBased">6</Param></Params></Method>'
+    swap = '<Swap use="true" type="money" long="-65" short="45" tripleSwapOn="WEDNESDAY" rolloutHour="23:00"/>'
+    duk_commission = '<Method type="SizeBased" use="true"><Params><Param key="Commission" className="SizeBased">0.00</Param></Params></Method>'
+    duk_swap = '<Swap use="true" type="points" long="-460.53" short="247.5" tripleSwapOn="NEVER" rolloutHour="23:00"/>'
+    con = sqlite3.connect(path)
+    try:
+        con.executescript(
+            """
+            CREATE TABLE BROKER (ID INTEGER PRIMARY KEY, NAME TEXT, SYSTEM BOOLEAN, DESC TEXT, STOCKPICKER_USE INTEGER, MT_USE INTEGER, MT_TIMEZONE TEXT, POSTFIX TEXT);
+            CREATE TABLE INSTRUMENTS (
+              INSTRUMENT TEXT PRIMARY KEY, DESCRIPTION TEXT, POINTVALUE REAL, TICKSIZE REAL, TICKSTEP REAL,
+              DEFAULTSPREAD REAL, COMMISSIONS TEXT, DATATYPE INT, EXCHANGE TEXT, COUNTRY TEXT, SECTOR TEXT,
+              DEFAULTSLIPPAGE REAL, SWAP TEXT, ORDERSIZEMULTIPLIER REAL, ORDERSIZESTEP REAL, BROKER_ID INT,
+              MIN_DISTANCE REAL
+            );
+            CREATE TABLE DATA (
+              ID INTEGER PRIMARY KEY, SOURCEDATA_ID INTEGER, CONNECTION TEXT, SYMBOL TEXT, INSTRUMENT TEXT,
+              TIMEFRAME TEXT, TIMEZONE TEXT, FILENAME TEXT, DATEFROM LONG, DATETO LONG, DATATYPE INT,
+              ROWS INT, DECIMALS INT, SOURCE INT, SECONDS_RECORDS LONG, USYMBOL TEXT, USYMBOLNAME TEXT,
+              REMOVE_WEEKENDS INT, SHOW INT, BASKET_ID INT, BROKER_ID INT
+            );
+            """
+        )
+        con.executemany(
+            "INSERT INTO BROKER (ID,NAME,SYSTEM,DESC,MT_TIMEZONE,POSTFIX) VALUES (?,?,?,?,?,?)",
+            [
+                (3, "[[Dukascopy]]", True, "Dukascopy", "EETUS", "_dukascopy"),
+                (4, "[[Darwinex]]", True, "Darwinex CFDs", "EETUS", "_darwinex"),
+            ],
+        )
+        con.executemany(
+            """
+            INSERT INTO INSTRUMENTS (
+              INSTRUMENT,DESCRIPTION,POINTVALUE,TICKSIZE,TICKSTEP,DEFAULTSPREAD,COMMISSIONS,DATATYPE,
+              EXCHANGE,COUNTRY,SECTOR,DEFAULTSLIPPAGE,SWAP,ORDERSIZEMULTIPLIER,ORDERSIZESTEP,BROKER_ID,MIN_DISTANCE
+            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+            """,
+            [
+                ("XAUUSD_darwinex", "Futures_Commodities", 100.0, 0.01, 0.01, 30.0, commission, 4, "", "", "Commodities", 0.0, swap, 1.0, 0.01, 4, 0.0),
+                ("XAUUSD_dukascopy", "FX_Commodities", 100.0, 0.001, 0.001, 361.0, duk_commission, 4, "", "", "Commodities", 500.0, duk_swap, 1.0, 0.01, 3, 0.0),
+            ],
+        )
+        con.execute(
+            """
+            INSERT INTO DATA (
+              SOURCEDATA_ID,CONNECTION,SYMBOL,INSTRUMENT,TIMEFRAME,TIMEZONE,FILENAME,DATEFROM,DATETO,DATATYPE,
+              ROWS,DECIMALS,SOURCE,SECONDS_RECORDS,USYMBOL,USYMBOLNAME,REMOVE_WEEKENDS,SHOW,BASKET_ID,BROKER_ID
+            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+            """,
+            (
+                0,
+                "",
+                "XAUUSD_dukascopy",
+                "XAUUSD_darwinex",
+                "TICK",
+                "EETUS",
+                "",
+                1262311321950,
+                1776049199924,
+                1,
+                644187170,
+                2,
+                2,
+                0,
+                "XAUUSD",
+                "XAUUSD",
+                0,
+                1,
+                -1,
+                4,
+            ),
+        )
+        con.commit()
+    finally:
+        con.close()
+
+
 TOOL_ROOT = Path(__file__).resolve().parent
 TEMPLATE_DIR = TOOL_ROOT / "templates"
 C1_FASTEST_ROBUSTNESS_TEST_PRECISION = "1"
-C1_TICK_TEST_PRECISION = "2"
+C1_TICK_TEST_PRECISION = "4"
 
 
 def _blocksetting_entry(canonical_id: str) -> dict:
@@ -263,12 +343,13 @@ def _assert_synthetic_data_databanks_resources_options_contract(
     expected_symbol: str | None = None,
     expected_timeframe: str | None = None,
     expected_spread: str | None = None,
+    expected_output_databank: str = "Synthetic",
 ) -> None:
     databanks = {
         databank.get("name"): databank.get("value")
         for databank in synthetic.findall(".//Databanks/Databank")
     }
-    assert databanks == {"Output": "Syntetic", "Input": "Monkey Test"}
+    assert databanks == {"Output": expected_output_databank, "Input": "Monkey Test"}
     assert synthetic.findall(".//Data/OutOfSample/Range") == []
 
     data_setup = synthetic.find("./Data/Setups/Setup")
@@ -502,7 +583,7 @@ def _assert_spp_static_tabs_contract(spp: ET.Element) -> None:
     rankings = spp.find(".//Rankings")
     assert rankings is not None
     assert rankings.get("type") == "never"
-    assert rankings.findtext("DeleteFailedStrategies") == "false"
+    assert rankings.findtext("DeleteFailedStrategies") == "true"
     assert rankings.findtext("ForceRunCrossChecks") == "false"
     assert rankings.findall("./Conditions/Condition") == []
     assert rankings.find("FitPortfolio").get("active") == "false"
@@ -643,7 +724,7 @@ def _assert_capa2_mc_contract(mc: ET.Element, expected_symbol: str, expected_tim
     rankings = mc.find(".//Rankings")
     assert rankings is not None
     assert rankings.get("type") == "never"
-    assert rankings.findtext("DeleteFailedStrategies") == "false"
+    assert rankings.findtext("DeleteFailedStrategies") == "true"
     assert rankings.findtext("ForceRunCrossChecks") == "false"
     assert rankings.find("FitPortfolio").get("active") == "false"
     assert rankings.find("CustomAnalysis").get("filter") == "false"
@@ -733,7 +814,7 @@ def _assert_capa2_mc2_contract(
     rankings = mc2.find(".//Rankings")
     assert rankings is not None
     assert rankings.get("type") == "never"
-    assert rankings.findtext("DeleteFailedStrategies") == "false"
+    assert rankings.findtext("DeleteFailedStrategies") == "true"
     assert rankings.findtext("ForceRunCrossChecks") == "false"
     assert rankings.find("FitPortfolio").get("active") == "false"
     assert rankings.find("CustomAnalysis").get("filter") == "false"
@@ -818,7 +899,7 @@ def _assert_capa2_sequential_contract(
     rankings = sequential.find(".//Rankings")
     assert rankings is not None
     assert rankings.get("type") == "never"
-    assert rankings.findtext("DeleteFailedStrategies") == "false"
+    assert rankings.findtext("DeleteFailedStrategies") == "true"
     assert rankings.findtext("ForceRunCrossChecks") == "false"
     assert rankings.find("FitPortfolio").get("active") == "false"
     assert rankings.find("CustomAnalysis").get("filter") == "false"
@@ -907,7 +988,7 @@ def _assert_capa2_monkey_contract(
     rankings = monkey.find(".//Rankings")
     assert rankings is not None
     assert rankings.get("type") == "never"
-    assert rankings.findtext("DeleteFailedStrategies") == "false"
+    assert rankings.findtext("DeleteFailedStrategies") == "true"
     assert rankings.findtext("ForceRunCrossChecks") == "false"
     assert rankings.find("FitPortfolio").get("active") == "false"
     assert rankings.find("CustomAnalysis").get("filter") == "false"
@@ -944,7 +1025,7 @@ def _assert_capa2_synthetic_contract(
     assert {
         databank.get("name"): databank.get("value")
         for databank in synthetic.findall(".//Databanks/Databank")
-    } == {"Output": "Syntetic", "Input": "Monkey Test"}
+    } == {"Output": "Synthetic", "Input": "Monkey Test"}
     symbols = synthetic.findall(".//Resources/Symbols/Symbol")
     assert {node.get("name") for node in symbols} == {expected_symbol}
     assert {node.get("source") for node in symbols} == {expected_source}
@@ -1006,7 +1087,7 @@ def _assert_capa2_synthetic_contract(
     rankings = synthetic.find(".//Rankings")
     assert rankings is not None
     assert rankings.get("type") == "never"
-    assert rankings.findtext("DeleteFailedStrategies") == "false"
+    assert rankings.findtext("DeleteFailedStrategies") == "true"
     assert rankings.findtext("ForceRunCrossChecks") == "false"
     assert rankings.find("FitPortfolio").get("active") == "false"
     assert rankings.find("CustomAnalysis").get("filter") == "false"
@@ -1031,7 +1112,7 @@ def _assert_capa2_spp_contract(
         databank.get("name"): databank.get("value")
         for databank in spp.findall(".//Databanks/Databank")
     }
-    assert databanks == {"Output": "SPP", "Input": "Syntetic"}
+    assert databanks == {"Output": "SPP", "Input": "Synthetic"}
     assert spp.findall("./Data/OutOfSample/Range") == []
 
     for section in ("Data", "CustomData"):
@@ -1079,7 +1160,7 @@ def _assert_capa2_spp_contract(
         assert nested_setup.get("session") == "No Session"
 
     _assert_mc2_static_tabs_contract(spp)
-    assert spp.find(".//WhatToBuild/StrategyType").get("improveDatabank") == "Syntetic"
+    assert spp.find(".//WhatToBuild/StrategyType").get("improveDatabank") == "Synthetic"
     exit_types = {block.get("key"): block.get("use") for block in spp.findall(".//Blocks/ExitTypes/Block")}
     assert exit_types["ExitAfterBars.ExitAfterBars"] == "false"
     assert exit_types["StopLoss.StopLoss"] == "true"
@@ -1091,7 +1172,7 @@ def _assert_mc2_static_tabs_contract(mc2: ET.Element) -> None:
     rankings = mc2.find(".//Rankings")
     assert rankings is not None
     assert rankings.get("type") == "never"
-    assert rankings.findtext("DeleteFailedStrategies") == "false"
+    assert rankings.findtext("DeleteFailedStrategies") == "true"
     assert rankings.findtext("ForceRunCrossChecks") == "false"
     assert rankings.find("FitPortfolio").get("active") == "false"
     assert rankings.find("CustomAnalysis").get("filter") == "false"
@@ -1212,6 +1293,7 @@ def _assert_spp_data_databanks_resources_options_contract(
     expected_symbol: str | None = None,
     expected_timeframe: str | None = None,
     expected_spread: str | None = None,
+    expected_input_databank: str = "Synthetic",
 ) -> None:
     assert spp.find("./Data") is None
     setup = spp.find("./CustomData/Setups/Setup")
@@ -1247,7 +1329,7 @@ def _assert_spp_data_databanks_resources_options_contract(
         databank.get("name"): databank.get("value")
         for databank in spp.findall(".//Databanks/Databank")
     }
-    assert databanks == {"Output": "SPP", "Input": "Syntetic"}
+    assert databanks == {"Output": "SPP", "Input": expected_input_databank}
 
     resources = spp.find(".//Resources")
     assert resources is not None
@@ -1583,7 +1665,7 @@ def _assert_capa2_forward_contract(
         databank.get("name"): databank.get("value")
         for databank in forward.findall(".//Databanks/Databank")
     }
-    assert databanks == {"Output": "Foward", "Input": "WFM"}
+    assert databanks == {"Output": "Forward", "Input": "WFM"}
 
     resources = forward.find(".//Resources")
     assert resources is not None
@@ -1623,7 +1705,7 @@ def _assert_capa2_forward_contract(
     rankings = forward.find(".//Rankings")
     assert rankings is not None
     assert rankings.get("type") == "never"
-    assert rankings.findtext("DeleteFailedStrategies") == "false"
+    assert rankings.findtext("DeleteFailedStrategies") == "true"
     assert rankings.findtext("ForceRunCrossChecks") == "false"
     assert rankings.find("FitPortfolio").get("active") == "false"
     assert rankings.find("CustomAnalysis").get("filter") == "false"
@@ -1654,6 +1736,10 @@ def _assert_foward_contract(
     expected_timeframe: str | None = None,
     expected_spread: str | None = None,
     expected_window: tuple[str, str] = ("7200", "79200"),
+    expected_input_databank: str = "Synthetic",
+    expected_output_databank: str = "Forward",
+    expected_improve_databank: str = "Synthetic",
+    expected_delete_failed: str = "true",
 ) -> None:
     setup = forward.find(".//Data/Setups/Setup")
     assert setup is not None
@@ -1670,7 +1756,7 @@ def _assert_foward_contract(
         databank.get("name"): databank.get("value")
         for databank in forward.findall(".//Databanks/Databank")
     }
-    assert databanks == {"Output": "Foward", "Input": "Syntetic"}
+    assert databanks == {"Output": expected_output_databank, "Input": expected_input_databank}
     charts = setup.findall("Chart")
     if expected_symbol is not None:
         assert {chart.get("symbol") for chart in charts} == {expected_symbol}
@@ -1701,7 +1787,7 @@ def _assert_foward_contract(
     rankings = forward.find(".//Rankings")
     assert rankings is not None
     assert rankings.get("type") == "never"
-    assert rankings.findtext("DeleteFailedStrategies") == "false"
+    assert rankings.findtext("DeleteFailedStrategies") == expected_delete_failed
     assert rankings.findtext("ForceRunCrossChecks") == "false"
     assert rankings.find("FitPortfolio").get("active") == "false"
     assert rankings.find("CustomAnalysis").get("filter") == "false"
@@ -1721,7 +1807,7 @@ def _assert_foward_contract(
     _assert_static_crosschecks_contract(forward, require_selected_strategies=True)
     strategy_type = forward.find(".//WhatToBuild/StrategyType")
     assert strategy_type is not None
-    assert strategy_type.get("improveDatabank") == "Syntetic"
+    assert strategy_type.get("improveDatabank") == expected_improve_databank
     build_mode = forward.find(".//WhatToBuild/BuildMode")
     assert build_mode.findtext("ShowLastGenerationDatabank") == "false"
     assert build_mode.findtext("FreshBloodReplaceSimilar") == "false"
@@ -1829,7 +1915,7 @@ def _assert_tick_real_options_rankings_contract(tick_real: ET.Element, expected_
     rankings = tick_real.find(".//Rankings")
     assert rankings is not None
     assert rankings.findtext("ConditionsType") == "1"
-    assert rankings.findtext("DeleteFailedStrategies") == "false"
+    assert rankings.findtext("DeleteFailedStrategies") == "true"
     assert rankings.findtext("ForceRunCrossChecks") == "false"
     assert rankings.find("FitPortfolio").get("active") == "false"
     assert rankings.find("CustomAnalysis").get("filter") == "false"
@@ -1864,6 +1950,13 @@ def _xml_roots(cfx_path: Path):
         for name in archive.namelist():
             if name.endswith(".xml"):
                 yield name, ET.fromstring(archive.read(name))
+
+
+def _task_databanks(root: ET.Element) -> dict[str, str | None]:
+    return {
+        databank.get("name"): databank.get("value")
+        for databank in root.findall(".//Databanks/Databank")
+    }
 
 
 def _resource_issues(cfx_path: Path) -> list[str]:
@@ -1994,7 +2087,7 @@ def test_capa1_base_v2_matches_active_methodology():
         "SignalTimeRangeTo": "79200",
     }
     retest1_rankings = retest1.find(".//Rankings")
-    assert retest1_rankings.findtext("DeleteFailedStrategies") == "false"
+    assert retest1_rankings.findtext("DeleteFailedStrategies") == "true"
     assert retest1_rankings.find("FitPortfolio").get("active") == "false"
     retest1_ranking_conditions = [
         (
@@ -2006,9 +2099,14 @@ def test_capa1_base_v2_matches_active_methodology():
     ]
     assert retest1_ranking_conditions == [
         ("NumberOfTrades", ">=", "100"),
-        ("RExpectancy", ">", "0.05"),
+        ("RExpectancy", ">=", "0.05"),
         ("NetProfit", ">=", "0"),
     ]
+    retest1_auto_dismissal = {
+        problem.get("code"): problem.get("dismiss")
+        for problem in retest1_rankings.findall("./AutomaticDismissal/Problem")
+    }
+    assert retest1_auto_dismissal["2"] == "false"
     _assert_retest1_passive_generation_contract(retest1)
     _assert_retest1_static_crosschecks_contract(retest1)
 
@@ -2153,8 +2251,8 @@ def test_capa2_base_synthetic_matches_phase25_methodology():
         for databank in config.findall(".//Databank")
     }
 
-    assert task.get("title") == "Syntetic"
-    assert databanks["Syntetic"] == "MC SYNTHETIC RETEST"
+    assert task.get("title") == "Synthetic"
+    assert databanks["Synthetic"] == "MC SYNTHETIC RETEST"
     _assert_capa2_synthetic_contract(
         roots["AutomaticRetest-Task5.xml"],
         expected_symbol="AUDCAD_darwinex",
@@ -2216,8 +2314,8 @@ def test_capa2_base_forward_matches_phase28_methodology():
         for databank in config.findall(".//Databank")
     }
 
-    assert task.get("title") == "FOWARD"
-    assert databanks["Foward"] == "RETEST QUICK REVIEW"
+    assert task.get("title") == "Forward"
+    assert databanks["Forward"] == "RETEST QUICK REVIEW"
     _assert_capa2_forward_contract(
         roots["Retest-Task2.xml"],
         expected_symbol="AUDCAD_darwinex",
@@ -2281,7 +2379,7 @@ def test_capa1_build_static_tabs_keep_confirmed_current_contract():
         "ATMs": "5B18484BDCBB462F169B894A8861C05F7DA323B05EE808FA49BB300442E56C40",
         "PartsToImprove": "14258C2F5FBFB077CE7FC4009F1D89FB32BD7FD2EBD66EAFF5F1ECB33411AC87",
         "RiskMoneyManagement": "CFBC9E6C4D1C30782BAC103AED72CFAF66AAA71BF4B892A4CEDDBA1E6317B76F",
-        "Databanks": "31F633435ACD49E3837422C376421A28723FBE7017B4EEBD9EA2F20C29B7BB98",
+        "Databanks": "50A09F40FAE0412D200151C0C74AA424BE6B19573B3514AA2D5DF6379F47BAB2",
         "Notes": "7E0C7BB76E5A63E6CD5B9B97F2571F549C95DF5F79CD0C315895ADAF2742E880",
         "Optimization": "63655CE465154201278796A666D9FC0A21B36EAF825B356797927DBC8402E3A8",
     }
@@ -2292,7 +2390,7 @@ def test_capa1_build_static_tabs_keep_confirmed_current_contract():
         databank.get("name"): databank.get("value")
         for databank in build.findall(".//Databanks/Databank")
     }
-    assert databanks == {"Output": "null", "Input": "Syntetic"}
+    assert databanks == {"Output": "null", "Input": "Synthetic"}
     assert build.find(".//RiskMoneyManagement//Method[@type='FixedSize']").get("use") == "true"
     assert build.find(".//RiskMoneyManagement//Method[@type='FixedAmount']").get("use") == "false"
 
@@ -2311,7 +2409,7 @@ def test_capa1_base_uses_phase1_review_views():
     assert views["Strategies to optimize"] == "MINING FAST REVIEW"
     assert views["RETEST 0"] == "RETEST QUICK REVIEW"
     assert views["retest 1"] == "RETEST QUICK REVIEW"
-    assert views["Foward"] == "RETEST QUICK REVIEW"
+    assert views["Forward"] == "RETEST QUICK REVIEW"
     assert views["TICK"] == "RETEST ROBUST REVIEW"
     assert views["MC"] == "RETEST ROBUST REVIEW"
     assert views["MC2"] == "RETEST ROBUST REVIEW"
@@ -2319,7 +2417,7 @@ def test_capa1_base_uses_phase1_review_views():
     assert views["SPP"] == "RETEST ROBUST REVIEW"
     assert views["WFM"] == "RETEST ROBUST REVIEW"
     assert views["Monkey Test"] == "MC MONKEY RETEST"
-    assert views["Syntetic"] == "MC SYNTHETIC RETEST"
+    assert views["Synthetic"] == "MC SYNTHETIC RETEST"
 
 
 def test_capa1_mc2_crosschecks_use_adaptive_seed_spread_range():
@@ -2421,7 +2519,7 @@ def test_capa1_sequential_open_gate_receives_mc2_and_keeps_sequential_optimizati
     rankings = sequential.find(".//Rankings")
     assert rankings is not None
     assert rankings.get("type") == "never"
-    assert rankings.findtext("DeleteFailedStrategies") == "false"
+    assert rankings.findtext("DeleteFailedStrategies") == "true"
     assert rankings.findtext("ForceRunCrossChecks") == "false"
     assert rankings.find("CustomAnalysis").get("filter") == "false"
     assert sequential.findall(".//Data/OutOfSample/Range") == []
@@ -2731,6 +2829,7 @@ def test_generate_project_names_build_task_and_applies_capa1_time_window():
         expected_symbol="AUDCAD",
         expected_timeframe="H4",
         expected_spread="10",
+        expected_output_databank="Synthetic",
     )
     assert {chart.get("spread") for chart in synthetic.findall(".//Setup/Chart")} == {"10"}
     _assert_synthetic_crosschecks_contract(synthetic)
@@ -2743,6 +2842,7 @@ def test_generate_project_names_build_task_and_applies_capa1_time_window():
         expected_symbol="AUDCAD",
         expected_timeframe="H4",
         expected_spread="10",
+        expected_input_databank="Synthetic",
     )
     assert {chart.get("spread") for chart in spp.findall(".//Setup/Chart")} == {"10"}
     _assert_spp_crosschecks_contract(spp)
@@ -2775,7 +2875,7 @@ def test_generate_project_names_build_task_and_applies_capa1_time_window():
         "SignalTimeRangeTo": "72000",
     }
     retest1_rankings = retest1.find(".//Rankings")
-    assert retest1_rankings.findtext("DeleteFailedStrategies") == "false"
+    assert retest1_rankings.findtext("DeleteFailedStrategies") == "true"
     assert retest1_rankings.find("FitPortfolio").get("active") == "false"
     retest1_ranking_conditions = [
         (
@@ -2787,9 +2887,14 @@ def test_generate_project_names_build_task_and_applies_capa1_time_window():
     ]
     assert retest1_ranking_conditions == [
         ("NumberOfTrades", ">=", "100"),
-        ("RExpectancy", ">", "0.05"),
+        ("RExpectancy", ">=", "0.05"),
         ("NetProfit", ">=", "0"),
     ]
+    retest1_auto_dismissal = {
+        problem.get("code"): problem.get("dismiss")
+        for problem in retest1_rankings.findall("./AutomaticDismissal/Problem")
+    }
+    assert retest1_auto_dismissal["2"] == "false"
     retest1_symbols = retest1.findall(".//Resources/Symbols/Symbol")
     assert {node.get("name") for node in retest1_symbols} == {"AUDCAD_dukascopy"}
     assert {node.get("source") for node in retest1_symbols} == {"2"}
@@ -2806,7 +2911,82 @@ def test_generate_project_names_build_task_and_applies_capa1_time_window():
         expected_timeframe="H4",
         expected_spread="10",
         expected_window=("14400", "72000"),
+        expected_input_databank="WFM",
+        expected_output_databank="Forward",
+        expected_improve_databank="WFM",
+        expected_delete_failed="false",
     )
+
+
+def test_generate_capa1_project_applies_registered_forward_corr1_pipeline():
+    mining = Mining(num=142, phase=1, asset="USDJPY", tf="H1", bs="BS_Volatilidad", dir="both")
+    with tempfile.TemporaryDirectory() as tmp:
+        out_path = generate_project(
+            mining,
+            str(TEMPLATE_DIR / "Capa1_Long.cfx"),
+            tmp,
+            capa=1,
+            sqx_db_path=None,
+            target_profile="sqxedge_darwinex",
+        )
+        roots = dict(_xml_roots(Path(out_path)))
+
+    config = roots["config.xml"]
+    tasks = {task.get("taskXMLFile"): task for task in config.findall(".//Task")}
+    databanks = {
+        databank.get("name"): databank.get("view")
+        for databank in config.findall(".//Databank")
+    }
+
+    assert tasks["AutomaticRetest-Task5.xml"].get("title") == "Synthetic"
+    assert tasks["Retest-Task2.xml"].get("title") == "Forward"
+    assert tasks["Retest-Task4.xml"].get("title") == "CORR1 STABILITY RETEST"
+    assert tasks["Retest-Task5.xml"].get("title") == "CORR1 TAG REVIEW"
+    assert tasks["Retest-Task4.xml"].get("active") == "true"
+    assert tasks["Retest-Task5.xml"].get("active") == "true"
+    assert [task.get("taskXMLFile") for task in config.findall(".//Task")][-2:] == [
+        "Retest-Task4.xml",
+        "Retest-Task5.xml",
+    ]
+
+    assert "Synthetic" in databanks
+    assert "Forward" in databanks
+    legacy_databank_names = {"Syntetic", "Foward"}
+    assert legacy_databank_names.isdisjoint(databanks)
+    assert databanks["SQX EDGE CORR1 STABILITY"] == "SQX EDGE CORRELATION REVIEW"
+    assert databanks["SQX EDGE CORR1 TAGGED"] == "SQX EDGE CORRELATION REVIEW"
+
+    assert _task_databanks(roots["AutomaticRetest-Task5.xml"]) == {"Output": "Synthetic", "Input": "Monkey Test"}
+    assert _task_databanks(roots["AutomaticRetest-Task7.xml"]) == {"Output": "SPP", "Input": "Synthetic"}
+    assert _task_databanks(roots["AutomaticRetest-Task4.xml"]) == {"Output": "WFM", "Input": "SPP"}
+    assert _task_databanks(roots["Retest-Task2.xml"]) == {"Output": "Forward", "Input": "WFM"}
+    assert roots["Retest-Task2.xml"].find(".//WhatToBuild/StrategyType").get("improveDatabank") == "WFM"
+    assert roots["Retest-Task2.xml"].find(".//CustomAnalysis").get("method") == "none"
+    assert roots["Retest-Task2.xml"].find(".//DeleteFailedStrategies").text == "false"
+
+    stability = roots["Retest-Task4.xml"]
+    assert _task_databanks(stability) == {"Output": "SQX EDGE CORR1 STABILITY", "Input": "Forward"}
+    stability_setup = stability.find(".//Data/Setups/Setup")
+    assert stability_setup.get("dateFrom") == "2017.10.02"
+    assert stability_setup.get("dateTo") == "2026.04.08"
+    assert stability_setup.get("testPrecision") == C1_TICK_TEST_PRECISION
+    assert [node.attrib for node in stability.findall(".//Data/OutOfSample/Range")] == [
+        {"dateFrom": "2025.01.01", "dateTo": "2026.04.08"}
+    ]
+    assert stability.find(".//CustomAnalysis").get("method") == "none"
+    assert stability.find(".//DeleteFailedStrategies").text == "false"
+    assert stability.find(".//CrossChecks").get("use") == "false"
+
+    tag_review = roots["Retest-Task5.xml"]
+    assert _task_databanks(tag_review) == {
+        "Output": "SQX EDGE CORR1 TAGGED",
+        "Input": "SQX EDGE CORR1 STABILITY",
+    }
+    assert tag_review.find(".//Data/Setups/Setup").get("testPrecision") == C1_TICK_TEST_PRECISION
+    assert tag_review.find(".//CustomAnalysis").get("method") == "SQXEdgeCorrelationTagger"
+    assert tag_review.find(".//CustomAnalysis").get("filter") == "false"
+    assert tag_review.find(".//DeleteFailedStrategies").text == "false"
+    assert tag_review.find(".//CrossChecks").get("use") == "false"
 
 
 def test_generate_project_applies_selected_market_side_to_all_tasks():
@@ -3087,6 +3267,111 @@ def test_generate_project_defaults_to_sq_default_exact_symbol_for_user_downloads
     assert report["failCount"] == 0
 
 
+def test_sqxedge_darwinex_target_uses_hybrid_oos2_without_local_db():
+    mining = Mining(num=97, phase=1, asset="AUDCAD", tf="H1", bs="BS_Tendencia", dir="both")
+    with tempfile.TemporaryDirectory() as tmp:
+        out_path = generate_project(
+            mining,
+            str(TEMPLATE_DIR / "Capa1_Long.cfx"),
+            tmp,
+            capa=1,
+            sqx_db_path=None,
+            target_profile="sqxedge_darwinex",
+        )
+        roots = dict(_xml_roots(Path(out_path)))
+        report = audit_cfx_compatibility(out_path)
+
+    build = roots["Build-Task1.xml"]
+    build_symbol = build.find(".//Resources/Symbols/Symbol")
+    assert build_symbol.get("name") == "AUDCAD_darwinex"
+    assert build_symbol.get("source") == "4"
+    assert build_symbol.get("broker") == "4"
+    assert build_symbol.find("InstrumentInfo").get("instrument") == "AUDCAD_darwinex"
+
+    retest1 = roots["Retest-Task1.xml"]
+    retest1_chart = retest1.find(".//Data/Setups/Setup/Chart")
+    retest1_symbol = retest1.find(".//Resources/Symbols/Symbol")
+    retest1_info = retest1_symbol.find("InstrumentInfo")
+    assert retest1_chart.get("symbol") == "AUDCAD_dukascopy"
+    assert retest1_symbol.get("name") == "AUDCAD_dukascopy"
+    assert retest1_symbol.get("source") == "2"
+    assert retest1_symbol.get("broker") == "4"
+    assert retest1_info.get("instrument") == "AUDCAD_darwinex"
+    assert retest1_info.get("broker") == "4"
+    assert [broker.get("id") for broker in retest1.findall(".//Resources/Brokers/Broker")] == ["4"]
+    assert [broker.get("postfix") for broker in retest1.findall(".//Resources/Brokers/Broker")] == ["_darwinex"]
+    assert report["hostProfile"] == "sqx_edge_cross_broker_oos2"
+    assert report["failCount"] == 0
+    assert all(root.findall(".//Resources/CustomBlocks/*") == [] for root in roots.values())
+    assert all(root.findall(".//Resources/Instruments/InstrumentInfo") == [] for root in roots.values())
+
+
+def test_capa2_sqxedge_darwinex_target_uses_hybrid_oos2_without_local_db():
+    mining = Mining(num=98, phase=2, asset="AUDCAD", tf="H4", bs="BS_Tendencia", dir="long")
+    with tempfile.TemporaryDirectory() as tmp:
+        out_path = generate_project(
+            mining,
+            str(TEMPLATE_DIR / "Capa2_Base.cfx"),
+            tmp,
+            capa=2,
+            sqx_db_path=None,
+            target_profile="sqxedge_darwinex",
+        )
+        roots = dict(_xml_roots(Path(out_path)))
+
+    retest1 = roots["AutomaticRetest-Task7.xml"]
+    retest1_chart = retest1.find(".//CustomData/Setups/Setup/Chart")
+    retest1_symbol = retest1.find(".//Resources/Symbols/Symbol")
+    retest1_info = retest1_symbol.find("InstrumentInfo")
+    assert retest1_chart.get("symbol") == "AUDCAD_dukascopy"
+    assert retest1_symbol.get("name") == "AUDCAD_dukascopy"
+    assert retest1_symbol.get("source") == "2"
+    assert retest1_symbol.get("broker") == "4"
+    assert retest1_info.get("instrument") == "AUDCAD_darwinex"
+    assert retest1_info.get("broker") == "4"
+    assert [broker.get("id") for broker in retest1.findall(".//Resources/Brokers/Broker")] == ["4"]
+    assert all(root.findall(".//Resources/CustomBlocks/*") == [] for root in roots.values())
+    assert all(root.findall(".//Resources/Instruments/InstrumentInfo") == [] for root in roots.values())
+
+
+def test_patch_custom_block_resources_strips_packaged_donor_blocks():
+    root = ET.fromstring(
+        """
+        <Task>
+          <Resources>
+            <CustomBlocks>
+              <CustomBlock name="Legacy Block A" />
+              <CustomBlock name="Legacy Block B" />
+            </CustomBlocks>
+          </Resources>
+        </Task>
+        """
+    )
+
+    assert patch_custom_block_resources(root, strip=True) == 2
+    custom_blocks = root.find(".//Resources/CustomBlocks")
+    assert custom_blocks is not None
+    assert list(custom_blocks) == []
+    assert custom_blocks.text is None
+
+
+def test_sq_default_target_keeps_packaged_custom_blocks_for_external_hosts():
+    mining = Mining(num=99, phase=1, asset="AUDCAD", tf="H1", bs="BS_Tendencia", dir="both")
+    with tempfile.TemporaryDirectory() as tmp:
+        out_path = generate_project(
+            mining,
+            str(TEMPLATE_DIR / "Capa1_Long.cfx"),
+            tmp,
+            capa=1,
+            sqx_db_path=None,
+            target_profile="sq_default_exact",
+        )
+        roots = dict(_xml_roots(Path(out_path)))
+
+    packaged = sum(len(root.findall(".//Resources/CustomBlocks/*")) for root in roots.values())
+    assert packaged > 0
+
+
 def test_patch_symbol_resources_rebuilds_empty_brokers_for_sqx142():
     root = ET.fromstring(
         """
@@ -3216,6 +3501,93 @@ def test_patch_symbol_resources_uses_available_data_range_when_task_is_older_tha
     symbol = root.find(".//Resources/Symbols/Symbol")
     assert symbol.get("dateFrom") == "1506902400000"
     assert symbol.get("dateTo") == "1775617199907"
+
+
+def test_cross_broker_retest_period_is_bounded_to_available_local_data():
+    period = _bound_retest_period_to_available_data(
+        ("2010.01.01", "2017.10.02"),
+        {
+            "source": "db",
+            "symbol": "XAUUSD_dukascopy",
+            "data_available": True,
+            "date_from_ms": "1388624402064",
+            "date_to_ms": "1776049199924",
+        },
+        min_coverage_days=730,
+    )
+
+    assert period == ("2014.01.02", "2017.10.02")
+
+
+def test_capa1_retest1_uses_dukascopy_bars_with_darwinex_execution_contract():
+    mining = Mining(num=96, phase=1, asset="XAUUSD", tf="H1", bs="BS_SoporteResistencia", dir="long")
+    with tempfile.TemporaryDirectory() as tmp:
+        db_path = Path(tmp) / "data.db"
+        _create_hybrid_xau_data_db(db_path)
+        out_path = generate_project(
+            mining,
+            str(TEMPLATE_DIR / "Capa1_Long.cfx"),
+            tmp,
+            capa=1,
+            sqx_db_path=str(db_path),
+        )
+        roots = dict(_xml_roots(Path(out_path)))
+
+    retest1 = roots["Retest-Task1.xml"]
+    setup = retest1.find(".//Data/Setups/Setup")
+    assert setup is not None
+    assert setup.get("dateFrom") == "2010.01.01"
+    assert setup.get("dateTo") == "2017.10.02"
+    assert setup.get("testPrecision") == "2"
+    chart = setup.find("Chart")
+    assert chart is not None
+    assert chart.get("symbol") == "XAUUSD_dukascopy"
+    assert chart.get("spread") == "30.0"
+    assert setup.find("Commissions/Method[@type='SizeBased']/Params/Param[@key='Commission']").text == "6.0"
+    swap = setup.find("Swap")
+    assert swap is not None
+    assert swap.get("type") == "money"
+    assert swap.get("long") == "-65.0"
+    assert swap.get("short") == "45.0"
+
+    symbol = retest1.find(".//Resources/Symbols/Symbol")
+    assert symbol is not None
+    info = symbol.find("InstrumentInfo")
+    assert info is not None
+    assert symbol.get("name") == "XAUUSD_dukascopy"
+    assert symbol.get("source") == "2"
+    assert symbol.get("broker") == "4"
+    assert info.get("instrument") == "XAUUSD_darwinex"
+    assert info.get("broker") == "4"
+    assert info.get("tickSize") == "0.01"
+    assert info.get("tickStep") == "0.01"
+    assert info.get("defaultSpread") == "30.0"
+    assert info.get("defaultSlippage") == "0.0"
+    assert info.get("decimals") == "2"
+    assert info.get("dataType") == "4"
+    broker = retest1.find(".//Resources/Brokers/Broker")
+    assert broker is not None
+    assert broker.get("id") == "4"
+    assert broker.get("postfix") == "_darwinex"
+
+
+def test_cross_broker_retest_period_rejects_too_short_local_data():
+    try:
+        _bound_retest_period_to_available_data(
+            ("2010.01.01", "2017.10.02"),
+            {
+                "source": "db",
+                "symbol": "XAUUSD_dukascopy",
+                "data_available": True,
+                "date_from_ms": "1483228800000",
+                "date_to_ms": "1506902400000",
+            },
+            min_coverage_days=730,
+        )
+    except ValueError as exc:
+        assert "below minimum" in str(exc)
+    else:
+        raise AssertionError("Expected short cross-broker data coverage to be rejected")
 
 
 def test_patch_no_session_clears_stale_market_open_session():

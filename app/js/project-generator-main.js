@@ -207,8 +207,8 @@ function pgUpdateTargetProfileUi() {
   const warning = id === 'custom_user_broker'
     ? 'Modo remapeo: usa símbolo exacto o sufijo, Broker ID y Source ID del Data Manager del usuario destino. Úsalo cuando el SQX del usuario tenga nombres de broker propios.'
     : (id === 'sqxedge_darwinex'
-      ? 'Perfil del servidor SQX Edge Suite. Úsalo sólo si el SQX destino tiene Darwinex/data compatible; si no, el usuario verá el diálogo de recursos.'
-      : 'Perfil recomendado para usuarios como RILIS: símbolo exacto sin sufijo y Broker profile SQ default. Retest 1/OOS2 mantiene Dukascopy por metodología.');
+      ? 'Perfil para SQX Edge/local SQX142 con símbolos Darwinex. El Retest 1/OOS2 usa velas Dukascopy con recurso Darwinex; no usar si el Data Manager sólo tiene símbolos sin sufijo.'
+      : 'Perfil para usuarios cuyo Data Manager tenga el símbolo exacto sin sufijo y Broker profile SQ default. Si tu SQX local usa _darwinex, elige SQX Edge / Darwinex.');
   pgSetText('pg-target-profile-warning', warning);
 }
 

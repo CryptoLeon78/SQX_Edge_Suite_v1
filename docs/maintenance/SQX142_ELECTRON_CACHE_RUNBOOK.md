@@ -21,13 +21,13 @@ For the Source Code Translator, the expected local app path is:
 Run from the repository root:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File tools\sqx142_electron_cache_refresh.ps1 -SQXRoot "C:\BOTS\Versiones\SQX_142_Crack" -Restart
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\sqx142_electron_cache_refresh.ps1 -SQXRoot $env:SQX142_ROOT -Restart
 ```
 
 The script:
 
 - stops only StrategyQuant processes whose command line points at the selected SQX root;
-- moves Electron cache folders to `C:\BOTS\Versiones\SQX_142_Crack\.local_cache_backups\electron_squant_<timestamp>`;
+- moves Electron cache folders to `SQX142_ROOT\.local_cache_backups\electron_squant_<timestamp>`;
 - does not delete projects, databanks, SQX user settings, licenses or repository files;
 - restarts `StrategyQuantX_nocheck.exe` when `-Restart` is used.
 

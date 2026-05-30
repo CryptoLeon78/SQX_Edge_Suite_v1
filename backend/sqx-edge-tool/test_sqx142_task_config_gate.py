@@ -215,7 +215,7 @@ def test_retest1_data_resources_target_is_protected_dukascopy_oos2():
     assert root.findall(".//Resources/CustomBlocks/*") == []
 
 
-def test_retest1_options_databanks_rankings_are_advisory_not_coladero():
+def test_retest1_options_databanks_rankings_keep_only_survivors_downstream():
     root = ET.fromstring(
         """
         <Task>
@@ -239,7 +239,7 @@ def test_retest1_options_databanks_rankings_are_advisory_not_coladero():
           <Rankings type="always">
             <MaxStrategies>500</MaxStrategies>
             <ConditionsType>0</ConditionsType>
-            <DeleteFailedStrategies>true</DeleteFailedStrategies>
+            <DeleteFailedStrategies>false</DeleteFailedStrategies>
             <ForceRunCrossChecks>true</ForceRunCrossChecks>
             <FitPortfolio active="true" databank="Existing portfolio" />
             <StopCondition type="passed" passedStrategies="10" restartCount="1" days="1" hours="1" minutes="1" />
@@ -265,7 +265,7 @@ def test_retest1_options_databanks_rankings_are_advisory_not_coladero():
         "Output": "retest 1",
         "Input": "RETEST 0",
     }
-    assert root.find(".//Rankings/DeleteFailedStrategies").text == "false"
+    assert root.find(".//Rankings/DeleteFailedStrategies").text == "true"
     assert root.find(".//Rankings/FitPortfolio").get("active") == "false"
     conditions = root.findall(".//Rankings/Conditions/Condition")
     assert [item.find(".//Column-Value").get("column") for item in conditions] == [
@@ -273,6 +273,13 @@ def test_retest1_options_databanks_rankings_are_advisory_not_coladero():
         "RExpectancy",
         "NetProfit",
     ]
+    assert [item.find(".//Comparator").get("value") for item in conditions] == [">=", ">=", ">="]
+    automatic_dismissal = root.find(".//Rankings/AutomaticDismissal")
+    assert automatic_dismissal is not None
+    assert automatic_dismissal.get("warnings") == "false"
+    problem2 = automatic_dismissal.find("./Problem[@code='2']")
+    assert problem2 is not None
+    assert problem2.get("dismiss") == "false"
 
 
 def test_retest1_passive_generation_disables_improve_and_generation_remnants():
@@ -462,7 +469,7 @@ def test_tick_real_data_databanks_resources_chain_after_retest1_preserves_generi
     setup = root.find(".//Data/Setups/Setup")
     assert setup.get("dateFrom") == "2017.10.02"
     assert setup.get("dateTo") == "2023.12.31"
-    assert setup.get("testPrecision") == "2"
+    assert setup.get("testPrecision") == "4"
     assert root.findall(".//Data/OutOfSample/Range") == []
     assert {node.get("name"): node.get("value") for node in root.findall(".//Databanks/Databank")} == {
         "Output": "TICK",
@@ -477,7 +484,7 @@ def test_tick_real_data_databanks_resources_chain_after_retest1_preserves_generi
     assert len(root.findall(".//Resources/CustomBlocks/Item")) == 1
 
 
-def test_tick_real_options_rankings_keep_failed_rows_but_not_coladero():
+def test_tick_real_options_rankings_keep_only_real_tick_survivors():
     root = ET.fromstring(
         """
         <Task>
@@ -496,7 +503,7 @@ def test_tick_real_options_rankings_keep_failed_rows_but_not_coladero():
           <Rankings type="never">
             <MaxStrategies>10000</MaxStrategies>
             <ConditionsType>1</ConditionsType>
-            <DeleteFailedStrategies>true</DeleteFailedStrategies>
+            <DeleteFailedStrategies>false</DeleteFailedStrategies>
             <ForceRunCrossChecks>true</ForceRunCrossChecks>
             <FitPortfolio active="true" databank="Existing portfolio" />
             <CustomAnalysis filter="true" inputArgs="" method="none" />
@@ -520,7 +527,7 @@ def test_tick_real_options_rankings_keep_failed_rows_but_not_coladero():
     assert params["SignalTimeRangeTo"] == "79200"
     assert params["RealisticGapsHandling"] == "true"
     rankings = root.find(".//Rankings")
-    assert rankings.findtext("DeleteFailedStrategies") == "false"
+    assert rankings.findtext("DeleteFailedStrategies") == "true"
     assert rankings.findtext("ForceRunCrossChecks") == "false"
     assert rankings.find("FitPortfolio").get("active") == "false"
     assert rankings.find("CustomAnalysis").get("filter") == "false"
@@ -557,7 +564,7 @@ def test_tick_real_options_rankings_guard_rejects_oos_split_and_empty_filters():
           </Params></BuildTradingOptions></Options>
           <Rankings>
             <ConditionsType>0</ConditionsType>
-            <DeleteFailedStrategies>true</DeleteFailedStrategies>
+            <DeleteFailedStrategies>false</DeleteFailedStrategies>
             <ForceRunCrossChecks>false</ForceRunCrossChecks>
             <FitPortfolio active="true" databank="Existing portfolio" />
             <CustomAnalysis filter="false" inputArgs="" method="none" />
@@ -570,7 +577,7 @@ def test_tick_real_options_rankings_guard_rejects_oos_split_and_empty_filters():
     issues = enforce_tick_real_options_rankings_guard(root)
 
     assert any("must not add an internal OOS split" in issue for issue in issues)
-    assert any("failed strategies visible" in issue for issue in issues)
+    assert any("only real-tick survivors continue" in issue for issue in issues)
     assert any("conditions must stay active" in issue for issue in issues)
     assert any("portfolio fit" in issue for issue in issues)
     assert any("ranking conditions" in issue for issue in issues)
@@ -748,7 +755,7 @@ def test_tick_real_static_crosschecks_target_turns_off_internal_checks_and_keeps
           <Rankings>
             <MaxStrategies>100</MaxStrategies>
             <ConditionsType>0</ConditionsType>
-            <DeleteFailedStrategies>true</DeleteFailedStrategies>
+            <DeleteFailedStrategies>false</DeleteFailedStrategies>
             <ForceRunCrossChecks>true</ForceRunCrossChecks>
             <Conditions />
             <FitPortfolio active="true" databank="Existing portfolio" />
@@ -1378,7 +1385,7 @@ def test_mc_static_tabs_guard_rejects_portfolio_fit_rank_filters_and_customdata_
           <Rankings type="always">
             <MaxStrategies>10000</MaxStrategies>
             <ConditionsType>1</ConditionsType>
-            <DeleteFailedStrategies>true</DeleteFailedStrategies>
+            <DeleteFailedStrategies>false</DeleteFailedStrategies>
             <ForceRunCrossChecks>true</ForceRunCrossChecks>
             <FitPortfolio active="true" databank="Existing portfolio" />
             <CustomAnalysis filter="true" inputArgs="" method="none" />
@@ -2799,7 +2806,7 @@ def test_synthetic_static_tabs_closes_rankings_risk_and_customdata_without_turni
     assert root.find(".//CrossChecks/MonteCarloRetest").get("use") == "true"
     assert root.find(".//CrossChecks/MonteCarloRetest/Settings/Methods/Method[@type='SyntheticBootstrapV3']").get("use") == "true"
     assert root.find(".//Rankings").get("type") == "never"
-    assert root.find(".//Rankings/DeleteFailedStrategies").text == "false"
+    assert root.find(".//Rankings/DeleteFailedStrategies").text == "true"
     assert root.find(".//Rankings/ForceRunCrossChecks").text == "false"
     assert root.find(".//Rankings/FitPortfolio").get("active") == "false"
     assert root.find(".//Rankings/CustomAnalysis").get("filter") == "false"
@@ -2852,7 +2859,7 @@ def test_synthetic_static_tabs_guard_rejects_portfolio_filters_and_customdata_dr
           <Rankings type="always">
             <MaxStrategies>500</MaxStrategies>
             <ConditionsType>1</ConditionsType>
-            <DeleteFailedStrategies>true</DeleteFailedStrategies>
+            <DeleteFailedStrategies>false</DeleteFailedStrategies>
             <ForceRunCrossChecks>true</ForceRunCrossChecks>
             <FitPortfolio active="true" databank="Existing portfolio" />
             <CustomAnalysis filter="true" inputArgs="" method="SyntheticStressTest" />
@@ -3529,7 +3536,7 @@ def test_capa2_build_rankings_guard_rejects_drift():
           <Rankings type="top">
             <MaxStrategies>1000</MaxStrategies>
             <ConditionsType>0</ConditionsType>
-            <DeleteFailedStrategies>true</DeleteFailedStrategies>
+            <DeleteFailedStrategies>false</DeleteFailedStrategies>
             <ForceRunCrossChecks>true</ForceRunCrossChecks>
             <AutomaticDismissal warnings="true" />
             <StopCondition type="time-limit" passedStrategies="1000" restartCount="5" days="0" hours="6" minutes="0" />
@@ -5388,7 +5395,7 @@ def test_capa2_forward_target_applies_tick_precision_and_is_idempotent(monkeypat
     setup = root.find("./Data/Setups/Setup")
     assert setup.get("dateFrom") == "2025.01.01"
     assert setup.get("dateTo") == "2026.04.30"
-    assert setup.get("testPrecision") == "2"
+    assert setup.get("testPrecision") == "4"
     assert setup.find("Chart").attrib == {"symbol": "AUDCAD_darwinex", "timeframe": "H1", "spread": "2.0"}
     assert [node.attrib for node in root.findall("./Data/OutOfSample/Range")] == [
         {"dateFrom": "2025.01.01", "dateTo": "2026.01.01"},
@@ -6385,7 +6392,7 @@ def test_wfm_static_tabs_make_rankings_inert_and_preserve_dual_customdata():
           <Rankings type="all">
             <MaxStrategies>5</MaxStrategies>
             <ConditionsType>2</ConditionsType>
-            <DeleteFailedStrategies>true</DeleteFailedStrategies>
+            <DeleteFailedStrategies>false</DeleteFailedStrategies>
             <ForceRunCrossChecks>true</ForceRunCrossChecks>
             <FitPortfolio active="true" databank="Old" />
             <CustomAnalysis filter="true" method="old" />
@@ -6409,7 +6416,7 @@ def test_wfm_static_tabs_make_rankings_inert_and_preserve_dual_customdata():
     assert root.find("./Data") is not None
     rankings = root.find("./Rankings")
     assert rankings.get("type") == "never"
-    assert rankings.findtext("DeleteFailedStrategies") == "false"
+    assert rankings.findtext("DeleteFailedStrategies") == "true"
     assert rankings.findtext("ForceRunCrossChecks") == "false"
     assert rankings.findall("./Conditions/Condition") == []
     assert root.find(".//RiskMoneyManagement//Method[@type='FixedSize']").get("use") == "true"
@@ -6450,7 +6457,7 @@ def test_wfm_static_tabs_guard_rejects_ranking_portfolio_and_customdata_drift():
           <Rankings type="all">
             <MaxStrategies>1</MaxStrategies>
             <ConditionsType>2</ConditionsType>
-            <DeleteFailedStrategies>true</DeleteFailedStrategies>
+            <DeleteFailedStrategies>false</DeleteFailedStrategies>
             <ForceRunCrossChecks>true</ForceRunCrossChecks>
             <FitPortfolio active="true" databank="Existing portfolio" />
             <CustomAnalysis filter="true" method="custom" />
@@ -6534,7 +6541,7 @@ def _foward_dirty_root() -> ET.Element:
             <Param key="StoreChartData">true</Param>
           </Params></BuildTradingOptions></Options>
           <CrossChecks use="true" evaluateAll="true"><MonteCarloRetest use="false"><Settings><Methods><Method type="RandomizeSpread" use="true" /></Methods></Settings></MonteCarloRetest><WhatIf use="false"><Settings><Methods><Method type="ExcludeTradesWithBiggestPl" use="true" /></Methods></Settings></WhatIf></CrossChecks>
-          <Rankings type="all"><MaxStrategies>1</MaxStrategies><ConditionsType>2</ConditionsType><DeleteFailedStrategies>true</DeleteFailedStrategies><ForceRunCrossChecks>true</ForceRunCrossChecks><FitPortfolio active="true" databank="Existing portfolio" /><Conditions /></Rankings>
+          <Rankings type="all"><MaxStrategies>1</MaxStrategies><ConditionsType>2</ConditionsType><DeleteFailedStrategies>false</DeleteFailedStrategies><ForceRunCrossChecks>true</ForceRunCrossChecks><FitPortfolio active="true" databank="Existing portfolio" /><Conditions /></Rankings>
           <RiskMoneyManagement><MoneyManagement><Method type="FixedSize" use="false" /><Method type="FixedAmount" use="true" /></MoneyManagement></RiskMoneyManagement>
           <ATMs enable="true" />
           <SelectedStrategies><Strategy id="legacy" /></SelectedStrategies>
@@ -6556,7 +6563,7 @@ def test_foward_data_databanks_resources_options_keeps_forward_oos_blocks():
     setup = root.find(".//Data/Setups/Setup")
     assert setup.get("dateFrom") == "2025.01.01"
     assert setup.get("dateTo") == "2026.04.08"
-    assert setup.get("testPrecision") == "2"
+    assert setup.get("testPrecision") == "4"
     assert setup.find("Chart").attrib == {"symbol": "AUDCAD_darwinex", "timeframe": "H1", "spread": "2.0"}
     assert [node.attrib for node in root.findall(".//Data/OutOfSample/Range")] == [
         {"dateFrom": "2025.01.01", "dateTo": "2026.01.01"},
@@ -6587,7 +6594,7 @@ def test_foward_crosschecks_and_static_tabs_make_task_passive():
     assert enforce_foward_crosschecks_guard(root) == []
     assert enforce_foward_static_tabs_guard(root) == []
     rankings = root.find(".//Rankings")
-    assert rankings.findtext("DeleteFailedStrategies") == "false"
+    assert rankings.findtext("DeleteFailedStrategies") == "true"
     assert rankings.find("FitPortfolio").get("active") == "false"
     conditions = [
         (
@@ -6925,7 +6932,7 @@ def test_spp_static_tabs_make_rankings_inert_and_preserve_spp_customdata():
           <Rankings type="all">
             <MaxStrategies>5</MaxStrategies>
             <ConditionsType>2</ConditionsType>
-            <DeleteFailedStrategies>true</DeleteFailedStrategies>
+            <DeleteFailedStrategies>false</DeleteFailedStrategies>
             <ForceRunCrossChecks>true</ForceRunCrossChecks>
             <FitPortfolio active="true" databank="Old" />
             <CustomAnalysis filter="true" method="old" />
@@ -6948,7 +6955,7 @@ def test_spp_static_tabs_make_rankings_inert_and_preserve_spp_customdata():
     assert root.find("./Data") is None
     rankings = root.find("./Rankings")
     assert rankings.get("type") == "never"
-    assert rankings.findtext("DeleteFailedStrategies") == "false"
+    assert rankings.findtext("DeleteFailedStrategies") == "true"
     assert rankings.findtext("ForceRunCrossChecks") == "false"
     assert rankings.findall("./Conditions/Condition") == []
     assert root.find(".//RiskMoneyManagement//Method[@type='FixedSize']").get("use") == "true"
@@ -6974,7 +6981,7 @@ def test_spp_static_tabs_guard_rejects_ranking_portfolio_and_customdata_drift():
           <Rankings type="all">
             <MaxStrategies>1</MaxStrategies>
             <ConditionsType>2</ConditionsType>
-            <DeleteFailedStrategies>true</DeleteFailedStrategies>
+            <DeleteFailedStrategies>false</DeleteFailedStrategies>
             <ForceRunCrossChecks>true</ForceRunCrossChecks>
             <FitPortfolio active="true" databank="Existing portfolio" />
             <CustomAnalysis filter="true" method="custom" />
@@ -7197,7 +7204,7 @@ def test_monkey_static_tabs_closes_rankings_risk_and_customdata_without_turning_
     assert root.find(".//CrossChecks/MonteCarloRetest").get("use") == "true"
     assert root.find(".//CrossChecks/MonteCarloRetest/Settings/Methods/Method[@type='RealMonkeyTest']").get("use") == "true"
     assert root.find(".//Rankings").get("type") == "never"
-    assert root.find(".//Rankings/DeleteFailedStrategies").text == "false"
+    assert root.find(".//Rankings/DeleteFailedStrategies").text == "true"
     assert root.find(".//Rankings/ForceRunCrossChecks").text == "false"
     assert root.find(".//RiskMoneyManagement//Method[@type='FixedSize']").get("use") == "true"
     assert root.find(".//ATMs").get("enable") == "false"
@@ -7669,7 +7676,7 @@ def test_sequential_static_tabs_closes_rankings_risk_and_customdata_without_turn
     assert enforce_sequential_static_tabs_guard(root) == []
     assert root.find(".//CrossChecks/SequentialOptimization").get("use") == "true"
     assert root.find(".//Rankings").get("type") == "never"
-    assert root.find(".//Rankings/DeleteFailedStrategies").text == "false"
+    assert root.find(".//Rankings/DeleteFailedStrategies").text == "true"
     assert root.find(".//Rankings/ForceRunCrossChecks").text == "false"
     assert root.find(".//RiskMoneyManagement//Method[@type='FixedSize']").get("use") == "true"
     assert root.find(".//ATMs").get("enable") == "false"

@@ -58,6 +58,7 @@ class CfxXmlSummary:
     resource_sessions: set[str] = field(default_factory=set)
     instrument_data_types: set[str] = field(default_factory=set)
     absolute_path_refs: int = 0
+    absolute_strategytype_paths: int = 0
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -76,6 +77,7 @@ class CfxXmlSummary:
             "resourceSessions": sorted(self.resource_sessions),
             "instrumentDataTypes": sorted(self.instrument_data_types),
             "absolutePathRefs": self.absolute_path_refs,
+            "absoluteStrategyTypePaths": self.absolute_strategytype_paths,
         }
 
 
@@ -110,9 +112,11 @@ def _safe_project_name(config_root: ET.Element | None, cfx_path: Path) -> str:
 def _summarize_xml(name: str, root: ET.Element) -> CfxXmlSummary:
     summary = CfxXmlSummary(file=name)
     for node in root.iter():
-        for value in node.attrib.values():
+        for attr, value in node.attrib.items():
             if _is_abs_path(str(value)):
                 summary.absolute_path_refs += 1
+                if node.tag == "StrategyType" and attr == "templateFile":
+                    summary.absolute_strategytype_paths += 1
     for chart in root.findall(".//Setup/Chart"):
         if chart.get("symbol"):
             summary.chart_symbols.add(str(chart.get("symbol")))
@@ -184,6 +188,8 @@ def _inspect_summary(summary: CfxXmlSummary, issues: list[CfxCompatibilityIssue]
         if timezone != "EETUS":
             _issue(issues, "non_darwinex_timezone", "warn", file, f"symbol timezone is {timezone}")
     if summary.absolute_path_refs:
+        if summary.absolute_strategytype_paths:
+            _issue(issues, "absolute_strategytype_path", "warn", file, "StrategyType templateFile keeps an absolute source-machine path")
         _issue(issues, "absolute_xml_path", "warn", file, "XML keeps absolute paths from the source machine")
     if len(summary.chart_symbols) > 1:
         _issue(issues, "mixed_chart_symbols", "warn", file, "multiple chart symbols appear in one task")

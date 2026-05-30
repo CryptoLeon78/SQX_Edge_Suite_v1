@@ -100,6 +100,7 @@ class SqxDb:
         asset: str,
         alias_override: Optional[dict] = None,
         preferred_postfix: Optional[str] = None,
+        inherit_data_instrument: bool = False,
     ) -> dict:
         """
         Devuelve la mejor data disponible para `asset`.
@@ -142,10 +143,29 @@ class SqxDb:
         if row is None:
             return {"source": "fallback", "asset": asset, "instrument": instrument, "error": "not_found"}
 
+        data_symbol = self.best_data_symbol(
+            asset=asset,
+            instrument=instrument,
+            preferred_postfix=preferred_postfix,
+        )
+        if inherit_data_instrument and data_symbol:
+            data_instrument = data_symbol.get("INSTRUMENT")
+            if data_instrument and data_instrument != instrument:
+                inherited_row = self.get_instrument_raw(data_instrument)
+                if inherited_row is not None:
+                    instrument = data_instrument
+                    row = inherited_row
+                    data_symbol = self.best_data_symbol(
+                        asset=asset,
+                        instrument=instrument,
+                        preferred_postfix=preferred_postfix,
+                    ) or data_symbol
+
         info: dict = {
             "source": "db",
             "asset": asset,
             "instrument": instrument,
+            "data_instrument_inherited": bool(data_symbol and data_symbol.get("INSTRUMENT") == instrument and data_symbol.get("SYMBOL") != instrument),
             "description": row["DESCRIPTION"],
             "point_value": row["POINTVALUE"],
             "tick_size": row["TICKSIZE"],
@@ -174,15 +194,19 @@ class SqxDb:
             info["broker_name"] = broker.get("NAME")
             info["broker_description"] = broker.get("DESC")
             info["broker_timezone"] = broker.get("MT_TIMEZONE")
-        data_symbol = self.best_data_symbol(
-            asset=asset,
-            instrument=instrument,
-            preferred_postfix=preferred_postfix or info.get("broker_postfix"),
-        )
+        if data_symbol is None:
+            data_symbol = self.best_data_symbol(
+                asset=asset,
+                instrument=instrument,
+                preferred_postfix=preferred_postfix or info.get("broker_postfix"),
+            )
         if data_symbol:
             info.update({
                 "data_symbol": data_symbol.get("SYMBOL"),
                 "data_timeframe": data_symbol.get("TIMEFRAME"),
+                "data_source_id": data_symbol.get("SOURCE"),
+                "data_broker_id": data_symbol.get("BROKER_ID"),
+                "data_datatype": data_symbol.get("DATATYPE"),
                 "date_from_ms": data_symbol.get("DATEFROM"),
                 "date_to_ms": data_symbol.get("DATETO"),
                 "rows": data_symbol.get("ROWS"),
@@ -220,7 +244,7 @@ class SqxDb:
         postfix = preferred_postfix or ""
         rows = self._conn.execute(
             """
-            SELECT SYMBOL,INSTRUMENT,TIMEFRAME,TIMEZONE,DATEFROM,DATETO,ROWS,DATATYPE,USYMBOL,USYMBOLNAME,REMOVE_WEEKENDS
+            SELECT SYMBOL,INSTRUMENT,TIMEFRAME,TIMEZONE,DATEFROM,DATETO,ROWS,SOURCE,BROKER_ID,DATATYPE,USYMBOL,USYMBOLNAME,REMOVE_WEEKENDS
             FROM DATA
             WHERE INSTRUMENT = ? OR SYMBOL = ? OR SYMBOL LIKE ?
             """,

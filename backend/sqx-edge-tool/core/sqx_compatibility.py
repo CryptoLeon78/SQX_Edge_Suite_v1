@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 
-SQX142_DEFAULT_ROOT = Path(os.environ.get("SQX142_ROOT", r"C:\BOTS\Versiones\SQX_142_Crack"))
+SQX142_DEFAULT_ROOT = Path(os.environ.get("SQX142_ROOT", "<LOCAL_SQX142_ROOT>"))
 SQX143_DEFAULT_ROOT = Path(os.environ.get("SQX143_ROOT", r"C:\BOTS\Versiones\SQX_143\SQX_143"))
 PROCESS_NAME_RE = re.compile(r"StrategyQuant|sqcli|CodeEditor|javaw?|electron|SQUANT", re.IGNORECASE)
 
@@ -178,4 +178,3 @@ def recommendation_for_status(blockers: list[str]) -> str:
     if blockers:
         return "Completar preflight y revisar el ledger antes de tocar archivos."
     return "SQX 142 esta alineado con la referencia 143 para la capa runtime/config."
-

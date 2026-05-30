@@ -9,8 +9,10 @@ from __future__ import annotations
 
 import os
 import shutil
-from datetime import datetime
+import copy
+from datetime import datetime, timezone
 from typing import Optional
+from xml.etree import ElementTree as ET
 
 from .cfx_editor import CfxEditor
 from .blocksettings import apply_blocksetting_to_xml, blocksetting_trace, resolve_blocksetting_entry
@@ -62,6 +64,11 @@ CAPA2_FASTEST_PRECISION_TASKS = {
     "Optimize-Task1.xml",
 }
 CAPA2_TICK_PRECISION_TASKS = {
+    "AutomaticRetest-Task2.xml",
+    "Retest-Task2.xml",
+}
+CAPA1_TICK_PRECISION_TASKS = {
+    "AutomaticRetest-Task2.xml",
     "Retest-Task2.xml",
 }
 CAPA1_FASTEST_PRECISION_TASKS = {
@@ -82,6 +89,16 @@ DEFAULT_BROKER_POSTFIX = (
     or "_darwinex"
 )
 DEFAULT_TARGET_PROFILE_ID = "sq_default_exact"
+CAPA1_SYNTHETIC_DATABANK = "Synthetic"
+CAPA1_FORWARD_DATABANK = "Forward"
+CAPA1_CORR1_STABILITY_DATABANK = "SQX EDGE CORR1 STABILITY"
+CAPA1_CORR1_TAGGED_DATABANK = "SQX EDGE CORR1 TAGGED"
+CAPA1_CORR1_VIEW = "SQX EDGE CORRELATION REVIEW"
+CAPA1_CORR1_STABILITY_TASK_XML = "Retest-Task4.xml"
+CAPA1_CORR1_TAG_TASK_XML = "Retest-Task5.xml"
+CAPA1_CORR1_STABILITY_TASK_TITLE = "CORR1 STABILITY RETEST"
+CAPA1_CORR1_TAG_TASK_TITLE = "CORR1 TAG REVIEW"
+CAPA1_CORR1_TAGGER = "SQXEdgeCorrelationTagger"
 
 
 def _symbol_for_sqx(asset: str, postfix: str = DEFAULT_BROKER_POSTFIX) -> str:
@@ -125,11 +142,69 @@ def _spread_stress_for(capa: int, filename: str) -> Optional[tuple[float, float]
 def _backtest_precision_for_file(capa: int, filename: str) -> str:
     if capa == 1 and filename in CAPA1_FASTEST_PRECISION_TASKS:
         return "1"
+    if capa == 1 and filename in CAPA1_TICK_PRECISION_TASKS:
+        return "4"
     if capa == 2 and filename in CAPA2_FASTEST_PRECISION_TASKS:
         return "1"
     if capa == 2 and filename in CAPA2_TICK_PRECISION_TASKS:
-        return "2"
+        return "4"
     return "2"
+
+
+def _epoch_ms_to_profile_date(value) -> Optional[str]:
+    try:
+        millis = int(value)
+    except (TypeError, ValueError):
+        return None
+    if millis <= 0:
+        return None
+    return datetime.fromtimestamp(millis / 1000, tz=timezone.utc).strftime("%Y.%m.%d")
+
+
+def _profile_date_to_epoch_ms(value: str) -> Optional[int]:
+    try:
+        dt = datetime.strptime(str(value), "%Y.%m.%d").replace(tzinfo=timezone.utc)
+        return int(dt.timestamp() * 1000)
+    except Exception:
+        return None
+
+
+def _bound_retest_period_to_available_data(
+    period: tuple[str, str],
+    resource: dict,
+    *,
+    min_coverage_days: int = 730,
+) -> tuple[str, str]:
+    """Clamp a cross-broker retest to real local data when SQX data starts later.
+
+    This is only used when `data.db` evidence is available. It preserves the
+    protected historical retest concept, but avoids asking SQX for years of data
+    that the local Data Manager does not contain.
+    """
+    if not resource or resource.get("source") != "db":
+        return period
+    if resource.get("data_available") is False:
+        raise ValueError(f"Cross-broker retest has no loaded data rows for {resource.get('symbol')}")
+    data_from = _profile_date_to_epoch_ms(_epoch_ms_to_profile_date(resource.get("date_from_ms")) or "")
+    data_to = _profile_date_to_epoch_ms(_epoch_ms_to_profile_date(resource.get("date_to_ms")) or "")
+    period_from = _profile_date_to_epoch_ms(period[0])
+    period_to = _profile_date_to_epoch_ms(period[1])
+    if data_from is None or data_to is None or period_from is None or period_to is None:
+        return period
+    bounded_from = max(period_from, data_from)
+    bounded_to = min(period_to, data_to)
+    if bounded_from >= bounded_to:
+        raise ValueError(f"Cross-broker retest data range does not overlap requested period for {resource.get('symbol')}")
+    coverage_days = (bounded_to - bounded_from) // (24 * 60 * 60 * 1000)
+    if coverage_days < min_coverage_days:
+        raise ValueError(
+            f"Cross-broker retest coverage for {resource.get('symbol')} is {coverage_days} days, "
+            f"below minimum {min_coverage_days}"
+        )
+    return (
+        datetime.fromtimestamp(bounded_from / 1000, tz=timezone.utc).strftime("%Y.%m.%d"),
+        datetime.fromtimestamp(bounded_to / 1000, tz=timezone.utc).strftime("%Y.%m.%d"),
+    )
 
 
 def _build_task_title(blocksetting_id: str, capa: int, direction: str, timeframe: str) -> str:
@@ -144,6 +219,241 @@ def _disable_exit_after_bars(root) -> int:
             block.set("use", "false")
             patched += 1
     return patched
+
+
+def _set_task_databank(root, label: str, value: str) -> None:
+    for databank in root.findall(".//Databank"):
+        if databank.get("label") == label:
+            databank.set("value", value)
+            return
+    databanks = root.find(".//Databanks")
+    if databanks is None:
+        databanks = ET.SubElement(root, "Databanks", {"retestSelected": "false"})
+    ET.SubElement(
+        databanks,
+        "Databank",
+        {
+            "label": label,
+            "name": "Output" if label.startswith("Output") else "Input",
+            "value": value,
+        },
+    )
+
+
+def _set_strategy_source_databank(root, value: str) -> None:
+    strategy_type = root.find(".//WhatToBuild/StrategyType")
+    if strategy_type is not None:
+        strategy_type.set("improveDatabank", value)
+
+
+def _set_custom_analysis(root, method: str, *, filter_results: str = "false") -> None:
+    rankings = root.find(".//Rankings")
+    if rankings is None:
+        return
+    custom_analysis = rankings.find("CustomAnalysis")
+    if custom_analysis is None:
+        custom_analysis = ET.SubElement(rankings, "CustomAnalysis")
+    custom_analysis.set("method", method)
+    custom_analysis.set("filter", filter_results)
+    custom_analysis.set("inputArgs", custom_analysis.get("inputArgs") or "")
+
+
+def _disable_retest_cross_selection(root) -> None:
+    rankings = root.find(".//Rankings")
+    if rankings is not None:
+        delete_failed = rankings.find("DeleteFailedStrategies")
+        if delete_failed is not None:
+            delete_failed.text = "false"
+        force_cross = rankings.find("ForceRunCrossChecks")
+        if force_cross is not None:
+            force_cross.text = "false"
+        fit_portfolio = rankings.find("FitPortfolio")
+        if fit_portfolio is None:
+            fit_portfolio = ET.SubElement(rankings, "FitPortfolio")
+        fit_portfolio.set("active", "false")
+        fit_portfolio.set("databank", fit_portfolio.get("databank") or "Existing portfolio")
+    cross_checks = root.find(".//CrossChecks")
+    if cross_checks is not None:
+        cross_checks.set("use", "false")
+        cross_checks.set("evaluateAll", "false")
+
+
+def _set_oos_ranges(root, ranges: list[tuple[str, str]]) -> None:
+    out = root.find(".//OutOfSample")
+    if out is None:
+        out = ET.SubElement(root, "OutOfSample", {"showGraph": "false"})
+    for child in list(out):
+        out.remove(child)
+    for start, end in ranges:
+        ET.SubElement(out, "Range", {"dateFrom": start, "dateTo": end})
+
+
+def _rename_config_databank(config_root, old: str, new: str) -> None:
+    for databank in config_root.findall(".//Databank"):
+        if databank.get("name") == old:
+            databank.set("name", new)
+
+
+def _ensure_config_databank(config_root, name: str, view: str) -> None:
+    databanks = config_root.find("Databanks")
+    if databanks is None:
+        databanks = ET.SubElement(config_root, "Databanks")
+    existing = {item.get("name"): item for item in databanks.findall("Databank")}
+    if name in existing:
+        existing[name].set("view", view)
+        if not existing[name].get("syncType"):
+            existing[name].set("syncType", "Auto-sync never")
+        return
+    max_position = 0
+    for item in databanks.findall("Databank"):
+        try:
+            max_position = max(max_position, int(item.get("position", "0")))
+        except ValueError:
+            pass
+    ET.SubElement(
+        databanks,
+        "Databank",
+        {
+            "name": name,
+            "view": view,
+            "syncType": "Auto-sync never",
+            "position": str(max_position + 100),
+        },
+    )
+
+
+def _ensure_config_task(config_root, task_xml: str, title: str, name: str) -> None:
+    tasks = config_root.find("Tasks")
+    if tasks is None:
+        tasks = ET.SubElement(config_root, "Tasks")
+    existing = {task.get("taskXMLFile"): task for task in tasks.findall("Task")}
+    template = existing.get("Retest-Task2.xml")
+    task = existing.get(task_xml)
+    if task is None:
+        attrs = dict(template.attrib) if template is not None else {
+            "type": "Retest",
+            "sampleName": "Custom",
+            "showSettingsOverview": "false",
+        }
+        attrs["taskXMLFile"] = task_xml
+        task = ET.SubElement(tasks, "Task", attrs)
+    task.set("type", "Retest")
+    task.set("name", name)
+    task.set("title", title)
+    task.set("active", "true")
+    task.set("sampleName", task.get("sampleName") or "Custom")
+    task.set("showSettingsOverview", task.get("showSettingsOverview") or "false")
+
+
+def _setup_summary_from_task(root) -> dict[str, str]:
+    setup = root.find(".//Setup")
+    return {
+        "dateFrom": setup.get("dateFrom", "") if setup is not None else "",
+        "dateTo": setup.get("dateTo", "") if setup is not None else "",
+        "testPrecision": setup.get("testPrecision", "") if setup is not None else "",
+    }
+
+
+def _build_corr1_task(forward_tree, *, input_databank: str, output_databank: str, method: str, plan: dict[str, str]):
+    root = copy.deepcopy(forward_tree.getroot())
+    setup = root.find(".//Setup")
+    if setup is not None:
+        setup.set("dateFrom", plan["dateFrom"])
+        setup.set("dateTo", plan["dateTo"])
+        setup.set("testPrecision", "4")
+    _set_oos_ranges(root, [(plan["oos3From"], plan["oos3To"])])
+    _set_task_databank(root, "Input databank", input_databank)
+    _set_task_databank(root, "Output databank", output_databank)
+    _set_strategy_source_databank(root, input_databank)
+    _set_custom_analysis(root, method)
+    _disable_retest_cross_selection(root)
+    return ET.ElementTree(root)
+
+
+def _apply_capa1_registered_pipeline_contract(editor: CfxEditor) -> None:
+    """Apply the post-FEATURES5/CORR2 Capa1 chain to generated customs.
+
+    The base SQX template still carries older labels such as Syntetic/Foward.
+    Generated Capa1 projects should expose the corrected operator-facing chain:
+    Synthetic -> SPP -> WFM -> Forward, then active CORR1 readback tasks.
+    """
+    task_io = {
+        "AutomaticRetest-Task5.xml": ("Monkey Test", CAPA1_SYNTHETIC_DATABANK),
+        "AutomaticRetest-Task7.xml": (CAPA1_SYNTHETIC_DATABANK, "SPP"),
+        "AutomaticRetest-Task4.xml": ("SPP", "WFM"),
+        "Retest-Task2.xml": ("WFM", CAPA1_FORWARD_DATABANK),
+    }
+    for filename, (input_databank, output_databank) in task_io.items():
+        if not editor.has(filename):
+            continue
+        tree = editor.parse_xml(filename)
+        root = tree.getroot()
+        _set_task_databank(root, "Input databank", input_databank)
+        _set_task_databank(root, "Output databank", output_databank)
+        _set_strategy_source_databank(root, input_databank)
+        if filename == "Retest-Task2.xml":
+            _set_custom_analysis(root, "none")
+            _disable_retest_cross_selection(root)
+        editor.update_xml(filename, tree)
+
+    if not editor.has("config.xml") or not editor.has("Retest-Task2.xml"):
+        return
+    forward_tree = editor.parse_xml("Retest-Task2.xml")
+    build_summary = _setup_summary_from_task(editor.parse_xml("Build-Task1.xml").getroot()) if editor.has("Build-Task1.xml") else {}
+    retest0_summary = _setup_summary_from_task(editor.parse_xml("Retest-Task3.xml").getroot()) if editor.has("Retest-Task3.xml") else {}
+    forward_summary = _setup_summary_from_task(forward_tree.getroot())
+    plan = {
+        "dateFrom": build_summary.get("dateFrom") or retest0_summary.get("dateFrom") or "2017.10.02",
+        "dateTo": forward_summary.get("dateTo") or "2026.04.08",
+        "oos3From": forward_summary.get("dateFrom") or "2025.01.01",
+        "oos3To": forward_summary.get("dateTo") or "2026.04.08",
+    }
+    editor.update_xml(
+        CAPA1_CORR1_STABILITY_TASK_XML,
+        _build_corr1_task(
+            forward_tree,
+            input_databank=CAPA1_FORWARD_DATABANK,
+            output_databank=CAPA1_CORR1_STABILITY_DATABANK,
+            method="none",
+            plan=plan,
+        ),
+    )
+    editor.update_xml(
+        CAPA1_CORR1_TAG_TASK_XML,
+        _build_corr1_task(
+            forward_tree,
+            input_databank=CAPA1_CORR1_STABILITY_DATABANK,
+            output_databank=CAPA1_CORR1_TAGGED_DATABANK,
+            method=CAPA1_CORR1_TAGGER,
+            plan=plan,
+        ),
+    )
+
+    config_tree = editor.parse_xml("config.xml")
+    config_root = config_tree.getroot()
+    _rename_config_databank(config_root, "Syntetic", CAPA1_SYNTHETIC_DATABANK)
+    _rename_config_databank(config_root, "Foward", CAPA1_FORWARD_DATABANK)
+    for task in config_root.findall(".//Task"):
+        task_xml = task.get("taskXMLFile")
+        if task_xml == "AutomaticRetest-Task5.xml":
+            task.set("title", "Synthetic")
+        elif task_xml == "Retest-Task2.xml":
+            task.set("title", "Forward")
+    _ensure_config_databank(config_root, CAPA1_CORR1_STABILITY_DATABANK, CAPA1_CORR1_VIEW)
+    _ensure_config_databank(config_root, CAPA1_CORR1_TAGGED_DATABANK, CAPA1_CORR1_VIEW)
+    _ensure_config_task(
+        config_root,
+        CAPA1_CORR1_STABILITY_TASK_XML,
+        CAPA1_CORR1_STABILITY_TASK_TITLE,
+        "SQX Edge CORR1 Stability Retest",
+    )
+    _ensure_config_task(
+        config_root,
+        CAPA1_CORR1_TAG_TASK_XML,
+        CAPA1_CORR1_TAG_TASK_TITLE,
+        "SQX Edge CORR1 Tag Review",
+    )
+    editor.update_xml("config.xml", config_tree)
 
 
 def _clean_profile_value(value, default=None):
@@ -169,10 +479,13 @@ def _profile_from_broker(profile_id: str | None) -> dict:
         "brokerPostfix": raw.get("brokerPostfix"),
         "brokerId": raw.get("brokerId"),
         "sourceId": raw.get("sourceId"),
+        "inheritInstrumentFromData": raw.get("inheritInstrumentFromData"),
         "brokerName": raw.get("brokerName"),
         "brokerDescription": raw.get("brokerDescription"),
         "timezone": raw.get("timezone"),
         "precision": raw.get("precision") or "TICK",
+        "stripCustomBlockResources": raw.get("stripCustomBlockResources"),
+        "stripInstrumentResources": raw.get("stripInstrumentResources"),
         "label": raw.get("label") or profile_id or "",
     }
 
@@ -212,7 +525,19 @@ def normalize_target_profile(target_profile=None, broker_postfix: str = DEFAULT_
                 "mode": raw.get("mode") or "direct_profile",
                 "warning": raw.get("warning") or "",
             })
-            for key in ("brokerPostfix", "brokerId", "sourceId", "brokerName", "brokerDescription", "timezone", "precision", "symbol", "dataType"):
+            for key in (
+                "brokerPostfix",
+                "brokerId",
+                "sourceId",
+                "brokerName",
+                "brokerDescription",
+                "timezone",
+                "precision",
+                "symbol",
+                "dataType",
+                "stripCustomBlockResources",
+                "stripInstrumentResources",
+            ):
                 if raw.get(key) is not None:
                     direct[key] = raw.get(key)
             if raw.get("brokerName") and not raw.get("brokerDescription"):
@@ -247,6 +572,8 @@ def normalize_target_profile(target_profile=None, broker_postfix: str = DEFAULT_
         "symbol",
         "symbolTemplate",
         "forceExactSymbol",
+        "stripCustomBlockResources",
+        "stripInstrumentResources",
     ):
         if profile.get(key) is not None:
             resolved[key] = profile.get(key)
@@ -297,6 +624,8 @@ def public_target_profile(profile: dict) -> dict:
         "symbol": data.get("symbol"),
         "symbolTemplate": data.get("symbolTemplate"),
         "forceExactSymbol": bool(data.get("forceExactSymbol")),
+        "stripCustomBlockResources": bool(data.get("stripCustomBlockResources")),
+        "stripInstrumentResources": bool(data.get("stripInstrumentResources")),
         "dataType": data.get("dataType"),
         "warning": data.get("warning"),
     }
@@ -306,6 +635,89 @@ def _cross_broker_retest(capa: int, filename: str) -> Optional[dict]:
     layer = CROSS_BROKER_RETESTS.get(capa) or {}
     value = layer.get(filename)
     return value if isinstance(value, dict) else None
+
+
+_EXECUTION_RESOURCE_KEYS = {
+    "instrument",
+    "spread",
+    "slippage",
+    "swap_long",
+    "swap_short",
+    "swap_type",
+    "commission_type",
+    "commission_value",
+    "broker_postfix",
+    "broker_id",
+    "broker_name",
+    "broker_description",
+    "broker_timezone",
+    "data_type",
+    "tick_size",
+    "tick_step",
+    "point_value",
+    "description",
+    "min_distance",
+    "commissions_xml",
+    "swap_xml",
+    "exchange",
+    "country",
+    "sector",
+    "ordersize_multiplier",
+    "ordersize_step",
+}
+
+
+def _apply_cross_broker_execution_profile(
+    cross_costs: dict,
+    target_costs: dict,
+    cross_retest: dict,
+    resolved_target_profile: dict,
+) -> dict:
+    """Keep cross-broker bars while matching the target execution resource.
+
+    Some SQX 142 installations store Dukascopy OOS bars as
+    `SYMBOL={asset}_dukascopy` but keep the executable instrument/broker as the
+    Darwinex profile. The generator must preserve the data vendor source while
+    avoiding a pure broker-3 resource when the selected target profile is
+    Darwinex.
+    """
+    mapping = cross_retest.get("executionBrokerProfileForTargets")
+    if not isinstance(mapping, dict):
+        return cross_costs
+    target_id = str((resolved_target_profile or {}).get("id") or "")
+    expected_profile_id = mapping.get(target_id)
+    if not expected_profile_id:
+        return cross_costs
+    if not target_costs or str(target_costs.get("broker_id")) in ("", "-1", "None"):
+        return cross_costs
+
+    patched = dict(cross_costs)
+    data_symbol = patched.get("symbol")
+    data_source_id = patched.get("source_id")
+    data_source_db = patched.get("source")
+    coverage = {
+        key: patched.get(key)
+        for key in ("date_from_ms", "date_to_ms", "rows", "data_available", "data_rows")
+    }
+    target_profile_public = patched.get("target_profile")
+
+    for key in _EXECUTION_RESOURCE_KEYS:
+        value = target_costs.get(key)
+        if value is not None:
+            patched[key] = value
+
+    if data_symbol:
+        patched["symbol"] = data_symbol
+    if data_source_id is not None:
+        patched["source_id"] = data_source_id
+    patched["source"] = data_source_db or patched.get("source")
+    for key, value in coverage.items():
+        if value is not None:
+            patched[key] = value
+    if target_profile_public is not None:
+        patched["target_profile"] = target_profile_public
+    patched["execution_profile"] = expected_profile_id
+    return patched
 
 
 def _fallback_market_shape(asset: str) -> dict:
@@ -362,14 +774,19 @@ def resolve_costs(
                     mining.asset,
                     alias_override=alias_override,
                     preferred_postfix=postfix,
+                    inherit_data_instrument=bool(profile.get("inheritInstrumentFromData")),
                 )
                 if info.get("source") == "db":
-                    pf = postfix if force_exact_symbol else (info.get("broker_postfix") or postfix or "")
-                    broker_id = profile.get("brokerId") if (force_exact_symbol or (profile.get("id") == "custom_user_broker" and profile.get("brokerId") is not None)) else info.get("broker_id")
+                    inherited_instrument = bool(info.get("data_instrument_inherited"))
+                    pf = postfix if force_exact_symbol and not inherited_instrument else (info.get("broker_postfix") or postfix or "")
+                    use_profile_broker = force_exact_symbol or (
+                        profile.get("id") == "custom_user_broker" and profile.get("brokerId") is not None
+                    )
+                    broker_id = profile.get("brokerId") if use_profile_broker and not inherited_instrument else info.get("broker_id")
                     source_id = profile.get("sourceId")
-                    broker_name = profile.get("brokerName") or info.get("broker_name")
-                    broker_description = profile.get("brokerDescription") or info.get("broker_description")
-                    broker_timezone = profile.get("timezone") or info.get("broker_timezone") or "EETUS"
+                    broker_name = info.get("broker_name") if inherited_instrument else (profile.get("brokerName") or info.get("broker_name"))
+                    broker_description = info.get("broker_description") if inherited_instrument else (profile.get("brokerDescription") or info.get("broker_description"))
+                    broker_timezone = info.get("broker_timezone") if inherited_instrument else (profile.get("timezone") or info.get("broker_timezone") or "EETUS")
                     resolved_symbol = explicit_symbol or info.get("data_symbol") or (_symbol_for_sqx(info["instrument"], pf) if pf else info["instrument"])
                     resolved_instrument = resolved_symbol if force_exact_symbol else info["instrument"]
                     profile_data_type = profile.get("dataType")
@@ -421,9 +838,10 @@ def resolve_costs(
     d = ASSET_DEFAULTS.get(mining.asset, {"spread": 10, "swap_long": -1.0, "swap_short": -1.0})
     shape = _fallback_market_shape(mining.asset)
     fallback_symbol = explicit_symbol or (_symbol_for_sqx(mining.asset, postfix) if postfix else mining.asset)
+    fallback_instrument = fallback_symbol if (force_exact_symbol or postfix) else mining.asset
     return {
         "source": "fallback",
-        "instrument": fallback_symbol if force_exact_symbol else mining.asset,
+        "instrument": fallback_instrument,
         "symbol": fallback_symbol,
         "spread": d["spread"],
         "slippage": 0,
@@ -523,6 +941,7 @@ def generate_project(
     # Aplicar patches a todos los XMLs internos del .cfx
     total_stats = {"files_patched": 0, "charts": 0, "swaps": 0, "sides": 0,
                    "dates": 0, "resources": 0, "paths_cleaned": 0, "commissions": 0, "spread_stress": 0,
+                   "instrument_resources": 0,
                    "trading_window": 0, "blocksettings": 0, "exit_after_bars_disabled": 0,
                    "costs_source": costs["source"], "symbol": costs["symbol"],
                    "blocksetting": blocksetting_trace(blocksetting_entry)}
@@ -550,8 +969,20 @@ def generate_project(
                 alias_override=alias_override,
                 target_profile=cross_profile,
             )
+            active_costs = _apply_cross_broker_execution_profile(
+                active_costs,
+                costs,
+                cross_retest,
+                resolved_target_profile,
+            )
             cross_period_key = str(cross_retest.get("period") or period_key)
             period = RETEST_PERIODS.get(cross_period_key, period)
+            if cross_retest.get("boundToAvailableData", True):
+                period = _bound_retest_period_to_available_data(
+                    period,
+                    active_costs,
+                    min_coverage_days=int(cross_retest.get("minCoverageDays") or 730),
+                )
 
         stats = apply_mining_to_xml(
             root,
@@ -570,6 +1001,8 @@ def generate_project(
             spread_stress_multipliers=_spread_stress_for(capa, filename),
             backtest_precision=_backtest_precision_for_file(capa, filename),
             clean_paths=True,
+            strip_custom_block_resources=bool(resolved_target_profile.get("stripCustomBlockResources")),
+            strip_instrument_resources=bool(resolved_target_profile.get("stripInstrumentResources")),
         )
         if apply_blocksetting_to_xml(root, blocksetting_entry):
             total_stats["blocksettings"] += 1
@@ -577,7 +1010,7 @@ def generate_project(
             total_stats["exit_after_bars_disabled"] += _disable_exit_after_bars(root)
         editor.update_xml(filename, tree)
         total_stats["files_patched"] += 1
-        for k in ("charts", "swaps", "sides", "dates", "resources", "paths_cleaned", "commissions", "trading_window", "spread_stress"):
+        for k in ("charts", "swaps", "sides", "dates", "resources", "paths_cleaned", "commissions", "trading_window", "spread_stress", "instrument_resources"):
             total_stats[k] += stats[k]
 
     # Renombrar el proyecto en config.xml (incluye capa en el nombre)
@@ -591,6 +1024,9 @@ def generate_project(
                 task.set("title", build_title)
         total_stats["paths_cleaned"] += clean_external_paths(config_root)
         editor.update_xml("config.xml", config_tree)
+
+    if capa == 1:
+        _apply_capa1_registered_pipeline_contract(editor)
 
     # Guardar el .cfx
     out_name = f"{base_project_name}_Capa{capa}{suffix}.cfx"

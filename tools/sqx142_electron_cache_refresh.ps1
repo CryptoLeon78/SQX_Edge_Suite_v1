@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [string]$SQXRoot = "C:\BOTS\Versiones\SQX_142_Crack",
+    [string]$SQXRoot = $env:SQX142_ROOT,
     [switch]$Restart,
     [switch]$Json
 )

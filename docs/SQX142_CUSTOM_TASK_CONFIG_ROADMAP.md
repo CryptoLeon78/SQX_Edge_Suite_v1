@@ -1,6 +1,24 @@
 # SQX142 Custom Task Config Roadmap
 
 Estado: C1-CONFIG1 con Fase 30 documentada, registrada y bloqueada en inputs pending
+Correccion critica 2026-05-25: SQX 142 local define `testPrecision=2` como
+`1 minute data tick simulation`; real tick / real spread es `testPrecision=4`.
+Desde esta correccion, TICK REAL y Forward/Foward que reclamen precision real
+tick usan `testPrecision=4`. Decision operativa 2026-05-26: todos los retests
+y bloques de robustez que escriben un output databank usan
+`DeleteFailedStrategies=true`, incluyendo MC, MC2, Sequential, Monkey,
+Synthetic, SPP y WFM. La evidencia natural failed/pass queda en el databank/log
+fuente, pero los failed no siguen vivos en la cadena. Las notas historicas que
+dicen `testPrecision=2 tick` o que registran robustness con
+`DeleteFailedStrategies=false` quedan superseded.
+Higiene critica de rerun 2026-05-26: `DeleteFailedStrategies=true` no limpia
+por si solo un output databank contaminado por ejecuciones anteriores. Antes
+de relanzar un bloque que alimenta el siguiente, el operador/agente debe
+preservar la evidencia existente y arrancar desde un output limpio o una fuente
+passed-only. En el E2E Capa1 real, `retest 1` contenia 81 failed y 4 passed;
+TICK REAL valido con `testPrecision=4` acabo en `TICK=0`, por lo que MC queda
+bloqueado y no se debe recuperar candidatos bajando precision o usando el
+TICK simulado preservado.
 `phase30_capa2_portfolio_master_contract` documentada como Portfolio Master operating contract posterior al Lab gobernado Phase29 con evidencia local `phase30_capa2_portfolio_master_contract_20260525_152846.json`; actual SQX artifact generation remains blocked until governed Lab output and operator Forward CSV/equity/account/broker context.
 `phase30_capa2_portfolio_master_inputs_pending` queda registrada con evidencia local `phase30_capa2_portfolio_master_inputs_pending_20260525_154242.json`: `processes=[]`, `cfxGuard=true`, no Capa2 `.cfx` mutation, input status `pending_inputs` y faltan governed Lab output, natural Forward CSV, comparable equity/return series, account context y broker context. `currentPhase=phase30_capa2_portfolio_master_inputs_pending` y `nextPhase=phase30_capa2_portfolio_master_inputs_pending`; no fake winners, fake inputs, lot sizing, SQX execution, retest/optimization ni artifact generation.
 `phase30_capa2_portfolio_master_operator_inputs_intake` queda registrada con evidencia local `phase30_capa2_portfolio_master_operator_inputs_intake_20260525_165548.json`: abre intake gobernado de evidencias de operador, valida Lab JSON, CSV natural `Foward`, equity/returns, account context y broker/symbol context cuando existan, bloquea `Example Only`, forced/synthetic/manual pass y marcadores privados, mantiene `processes=[]`, `cfxGuard=true`, no Capa2 `.cfx` mutation y vuelve a `nextPhase=phase30_capa2_portfolio_master_inputs_pending` porque faltan inputs reales.
@@ -138,7 +156,7 @@ WFM `10/15`, distribuciones `20/20`, `maxSteps=8`), aceptacion
 como `Retest-Task2.xml`, `Input=WFM`, `Output=Foward`, view
 `RETEST QUICK REVIEW`, periodo `FOWARD 2025.01.01-2026.04.30`, portador
 `Data` con `CustomData` superior inerte, data Darwinex `AUDCAD_darwinex`
-source `4` broker `4`, `testPrecision=2 tick`, `No Session`, comision
+source `4` broker `4`, `testPrecision=4 real tick`, `No Session`, comision
 `SizeBased=0.0`, OOS internos `2025.01.01-2026.01.01` y
 `2026.01.01-2026.04.30`, `CrossChecks use=false`, `FitPortfolio=false`,
 `CustomAnalysis=false`, filtros finales amplios `NumberOfTrades >= 30`,
@@ -151,8 +169,8 @@ Portfolio, consume solo supervivientes naturales de Forward y usa defaults
 Capa1 Fastest Precision Correction Before Capa2 SPP queda aplicada como
 correccion importante tras `phase25_capa2_synthetic` y antes de empezar
 `phase26_capa2_spp`: Capa1 MC, MC2, Sequential, Monkey, Synthetic, SPP and
-WFM pasan a `testPrecision=1 fastest`; Capa1 Forward/Foward remains tick
-precision with `testPrecision=2`. TICK REAL mantiene sus setups auditados e inactivos en `testPrecision=2`.
+WFM pasan a `testPrecision=1 fastest`; Capa1 Forward/Foward and TICK REAL
+real-tick gates use `testPrecision=4 real tick`.
 Esta nota supersedes older Capa1 closeout text que registraba MC through WFM como `testPrecision=2`;
 `phase26_capa2_spp` not started by this correction, no SQX launch, no smoke,
 no optimization and no forced `Results=passed`. Fase 0 dejo
@@ -636,10 +654,15 @@ Decision aplicada para `Options` / `Databanks` / `Rankings`:
   que `RETEST 0`.
 - `Databanks` queda cerrado como cadena pasiva `Input=RETEST 0` y
   `Output=retest 1`.
-- `Rankings` queda `advisory-not-coladero`: `DeleteFailedStrategies=false`
-  conserva filas failed para analisis y trazabilidad, pero los filtros siguen
-  activos con `NumberOfTrades >= 100`, `RExpectancy > 0.05` y
-  `NetProfit >= 0`.
+- `Rankings` queda como cadena de supervivientes: `DeleteFailedStrategies=true`
+  conserva evidencia failed/pass en el databank fuente, pero solo los passed
+  continuan hacia los bloques siguientes. Los filtros siguen
+  activos con `NumberOfTrades >= 100`, `RExpectancy >= 0.05` y
+  `NetProfit >= 0`; el automatic dismissal `too little trades` queda apagado
+  porque el conteo minimo ya esta gobernado de forma explicita.
+- En reruns, esta regla exige output limpio o passed-only antes de continuar:
+  SQX puede conservar filas failed antiguas si el databank ya existia, aunque
+  el flag de borrado este activo para la ejecucion nueva.
 - `FitPortfolio=false`; `RETEST 1` valida OOS2/cross-broker en Capa1 y no debe
   hacer seleccion de portfolio ni usar `Existing portfolio`.
 - Ledger local respondido para `RETEST 1 > Options` (`34/34`),
@@ -784,7 +807,9 @@ Decision aplicada para `TICK REAL > Options / Rankings`:
 - `Options`: `No Session`, `StoreChartData=false`,
   `RealisticGapsHandling=true`, `LimitTimeRange=true` y ventana placeholder H1
   `02:00-22:00`; Project Generator reescribe la ventana por timeframe.
-- `Rankings`: `DeleteFailedStrategies=false` para conservar failed naturales,
+- `Rankings`: `DeleteFailedStrategies=true` para que TICK REAL sea cadena de
+  supervivientes limpia; los failed naturales se conservan en el databank/log
+  fuente y en evidencia exportada, no como candidatos downstream.
   `ConditionsType=1`, `ForceRunCrossChecks=false`, `FitPortfolio=false`,
   `CustomAnalysis.filter=false`.
 - Filtros activos total-tick: `NumberOfTrades >= 200`,
@@ -2620,7 +2645,7 @@ Siguiente bloque exacto: `phase21_capa2_mc`.
   `ROBUSTNESS_C2`, y `CAPA2_NO_EXIT_AFTER_BARS_TASKS` protege que la
   generacion no reactive `ExitAfterBars`.
 - Politica aclarada: desde MC los retests de robustez Capa2 pendientes heredan
-  precision-data `fastest`; Forward vuelve a precision tick.
+  precision-data `fastest`; Forward vuelve a precision real tick.
 - Ambos targets quedan idempotentes tras apply: `changedActionCount=0`,
   `guardOk=true`, `issues=[]`, `warnings=[]`, `processes=[]`.
 - No hubo lanzamiento SQX, smoke, optimizacion ni ejecucion real; no se fuerza
@@ -2654,7 +2679,7 @@ Siguiente bloque exacto: `phase22_capa2_mc2`.
   x2-x5, y `CAPA2_NO_EXIT_AFTER_BARS_TASKS` protege que la generacion no
   reactive `ExitAfterBars`.
 - Politica aclarada: los retests de robustez Capa2 pendientes siguen con
-  precision-data `fastest`; Forward vuelve a precision tick.
+  precision-data `fastest`; Forward vuelve a precision real tick.
 - Ambos targets quedan idempotentes tras apply: `changedActionCount=0`,
   `guardOk=true`, `issues=[]`, `warnings=[]`, `processes=[]`.
 - No hubo lanzamiento SQX, smoke, optimizacion ni ejecucion real; no se fuerza
@@ -2689,7 +2714,7 @@ Siguiente bloque exacto: `phase23_capa2_sequential`.
   `ROBUSTNESS_C2`, y `CAPA2_NO_EXIT_AFTER_BARS_TASKS` protege que la
   generacion no reactive `ExitAfterBars`.
 - Politica aclarada: los retests de robustez Capa2 pendientes siguen con
-  precision-data `fastest`; Forward vuelve a precision tick.
+  precision-data `fastest`; Forward vuelve a precision real tick.
 - Ambos targets quedan idempotentes tras apply: `changedActionCount=0`,
   `guardOk=true`, `issues=[]`, `warnings=[]`, `processes=[]`.
 - No hubo lanzamiento SQX, smoke, optimizacion ni ejecucion real; no se fuerza
@@ -2723,7 +2748,7 @@ Siguiente bloque exacto: `phase24_capa2_monkey`.
   `ROBUSTNESS_C2`, y `CAPA2_NO_EXIT_AFTER_BARS_TASKS` protege que la
   generacion no reactive `ExitAfterBars`.
 - Politica aclarada: los retests de robustez Capa2 pendientes siguen con
-  precision-data `fastest`; Forward vuelve a precision tick.
+  precision-data `fastest`; Forward vuelve a precision real tick.
 - Ambos targets quedan idempotentes tras apply: `changedActionCount=0`,
   `guardOk=true`, `issues=[]`, `warnings=[]`, `processes=[]`.
 - No hubo lanzamiento SQX, smoke, optimizacion ni ejecucion real; no se fuerza
@@ -2760,7 +2785,7 @@ Siguiente bloque exacto: `phase25_capa2_synthetic`.
   `ROBUSTNESS_C2`, y `CAPA2_NO_EXIT_AFTER_BARS_TASKS` protege que la
   generacion no reactive `ExitAfterBars`.
 - Politica aclarada: los retests de robustez Capa2 pendientes siguen con
-  precision-data `fastest`; Forward vuelve a precision tick.
+  precision-data `fastest`; Forward vuelve a precision real tick.
 - Ambos targets quedan idempotentes tras apply: `changedActionCount=0`,
   `guardOk=true`, `issues=[]`, `warnings=[]`, `processes=[]`.
 - No hubo lanzamiento SQX, smoke, optimizacion ni ejecucion real; no se fuerza
@@ -2851,7 +2876,7 @@ Siguiente bloque exacto: `phase28_capa2_forward`.
   previo, backup/diff local, dry-run posterior idempotente y `processes=[]`.
 - Contrato tecnico: `Retest-Task2.xml`, `Input=WFM`, `Output=Foward`, view
   `RETEST QUICK REVIEW`, `FOWARD 2025.01.01-2026.04.30`, portador `Data` con
-  `CustomData` superior inerte, `testPrecision=2 tick`, `No Session`,
+  `CustomData` superior inerte, `testPrecision=4 real tick`, `No Session`,
   comision `SizeBased=0.0` y dos rangos OOS internos
   `2025.01.01-2026.01.01` / `2026.01.01-2026.04.30`.
 - Contrato de datos: Forward queda en Darwinex (`AUDCAD_darwinex`, source `4`,

@@ -98,8 +98,10 @@ class BlockSettingsSourceTestCase(unittest.TestCase):
         self.assertEqual(instrument_info.get("dateFrom"), "0")
         self.assertEqual(instrument_info.get("rows"), "0")
         resource_instruments = xml.findall(".//Resources/Instruments/InstrumentInfo")
-        self.assertTrue(resource_instruments)
-        self.assertTrue(all(node.get("instrument") == "USDJPY" for node in resource_instruments))
+        self.assertEqual(resource_instruments, [])
+        nested_instruments = xml.findall(".//Resources/Symbols/Symbol/InstrumentInfo")
+        self.assertTrue(nested_instruments)
+        self.assertTrue(all(node.get("instrument") == "USDJPY" for node in nested_instruments))
         self.assertNotIn("XAUUSD_darwinex", ET.tostring(xml, encoding="unicode"))
         self.assertNotIn("AUDCAD_darwinex", ET.tostring(xml, encoding="unicode"))
 

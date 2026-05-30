@@ -435,6 +435,47 @@ def patch_symbol_resources(root: ET.Element, resource: Optional[dict]) -> int:
     return patched
 
 
+def patch_custom_block_resources(root: ET.Element, strip: bool = False) -> int:
+    """Remove packaged custom block definitions when the target SQX owns them.
+
+    SQX 142 can mark embedded custom blocks as `Different` from the installed
+    snippets and then fail while trying to rewrite the loaded project zip. For
+    local/operator Darwinex targets the custom block catalog is already owned by
+    the SQX installation, so generated projects should not carry donor copies.
+    """
+    if not strip:
+        return 0
+    patched = 0
+    for custom_blocks in root.findall(".//Resources/CustomBlocks"):
+        children = list(custom_blocks)
+        if not children:
+            custom_blocks.text = None
+            continue
+        for node in children:
+            custom_blocks.remove(node)
+            patched += 1
+        custom_blocks.text = None
+    return patched
+
+
+def patch_instrument_resources(root: ET.Element, strip: bool = False) -> int:
+    """Remove sibling Resources/Instruments entries for SQX142 local targets.
+
+    The resolvable instrument contract stays inside each Symbols/Symbol
+    InstrumentInfo node. On SQX142 Darwinex-local projects, the sibling
+    Resources/Instruments copy can trigger unresolved-resource flags even when
+    Symbols, Brokers and Sessions are valid.
+    """
+    if not strip:
+        return 0
+    patched = 0
+    for resources in root.findall(".//Resources"):
+        for instruments in list(resources.findall("./Instruments")):
+            resources.remove(instruments)
+            patched += 1
+    return patched
+
+
 def patch_swap(root: ET.Element, swap_long: float, swap_short: float,
                swap_type: Optional[str] = None) -> int:
     """Cambia los swap long/short (+ type opcional 'money'|'points') en todos los Setup."""
@@ -551,6 +592,8 @@ def apply_mining_to_xml(
     spread_stress_multipliers: Optional[tuple[float, float]] = None,
     backtest_precision: str = "2",
     clean_paths: bool = True,
+    strip_custom_block_resources: bool = False,
+    strip_instrument_resources: bool = False,
 ) -> dict:
     """Aplica el set completo de patches por mining a un XML root."""
     spread_stress_patched = 0
@@ -571,6 +614,8 @@ def apply_mining_to_xml(
         "dates": patch_dates(root, period[0], period[1]),
         "trading_window": patch_trading_time_range(root, trading_window),
         "resources": patch_symbol_resources(root, resource),
+        "custom_block_resources": patch_custom_block_resources(root, strip_custom_block_resources),
+        "instrument_resources": patch_instrument_resources(root, strip_instrument_resources),
         "paths_cleaned": clean_external_paths(root) if clean_paths else 0,
         "spread_stress": spread_stress_patched,
         "commissions": 0,

@@ -20,7 +20,7 @@ import xml.etree.ElementTree as ET
 
 TOOL_ROOT = Path(__file__).resolve().parents[1]
 PROJECT_ROOT = TOOL_ROOT.parents[1]
-DEFAULT_SQX_ROOT = Path(r"C:\BOTS\Versiones\SQX_142_Crack")
+DEFAULT_SQX_ROOT = Path(os.environ.get("SQX142_ROOT", "<LOCAL_SQX142_ROOT>"))
 DEFAULT_DONOR_PROJECT = "Mining15_USDJPY_H4_BS_Volatilidad_v6_LS_Capa1"
 DEFAULT_BASE_PROJECT = "Capa1_Long_SQX142_Base"
 DEFAULT_CAPA2_BASE_PROJECT = "Capa2_Base_SQX142_Base"
@@ -247,7 +247,7 @@ RETEST1_DATABANKS_TARGET = {
 RETEST1_RANKING_TARGET = {
     "MaxStrategies": "10000",
     "ConditionsType": "1",
-    "DeleteFailedStrategies": "false",
+    "DeleteFailedStrategies": "true",
     "ForceRunCrossChecks": "false",
     "FitPortfolio": {"active": "false", "databank": "Existing portfolio"},
     "CustomAnalysis": {"filter": "false", "inputArgs": "", "method": "none"},
@@ -263,9 +263,12 @@ RETEST1_RANKING_TARGET = {
 }
 RETEST1_RANKING_CONDITIONS_TARGET = [
     {"column": "NumberOfTrades", "comparator": ">=", "value": "100", "format": "Decimal2"},
-    {"column": "RExpectancy", "comparator": ">", "value": "0.05", "format": "Decimal2"},
+    {"column": "RExpectancy", "comparator": ">=", "value": "0.05", "format": "Decimal2"},
     {"column": "NetProfit", "comparator": ">=", "value": "0", "format": "Decimal2"},
 ]
+RETEST1_AUTOMATIC_DISMISSAL_PROBLEMS_TARGET = {
+    "2": "false",  # too little trades is governed by the explicit # trades >= 100 filter.
+}
 RETEST1_PASSIVE_SOURCE_TASK_TITLE = "RETEST 0"
 RETEST1_STRATEGY_TYPE_TARGET = {
     "type": "simple",
@@ -298,7 +301,7 @@ RETEST1_CROSSCHECKS_TARGET = {"use": "false", "evaluateAll": "false"}
 
 TICK_REAL_TASK_TITLE = "TICK REAL"
 TICK_REAL_PERIOD_KEY = "ROBUSTNESS_C1"
-TICK_REAL_DATA_TEST_PRECISION = "2"
+TICK_REAL_DATA_TEST_PRECISION = "4"
 TICK_REAL_DATA_SESSION = "No Session"
 TICK_REAL_DATABANKS_TARGET = {
     "Input": "retest 1",
@@ -321,7 +324,7 @@ TICK_REAL_OPTIONS_PARAMS_TARGET = {
 TICK_REAL_RANKING_TARGET = {
     "MaxStrategies": "10000",
     "ConditionsType": "1",
-    "DeleteFailedStrategies": "false",
+    "DeleteFailedStrategies": "true",
     "ForceRunCrossChecks": "false",
     "FitPortfolio": {"active": "false", "databank": "Existing portfolio"},
     "CustomAnalysis": {"filter": "false", "inputArgs": "", "method": "none"},
@@ -483,7 +486,7 @@ MC_STATIC_TABS = ("Rankings", "ATMs", "RiskMoneyManagement", "Notes", "SelectedS
 MC_RANKING_TARGET = {
     "MaxStrategies": "10000",
     "ConditionsType": "1",
-    "DeleteFailedStrategies": "false",
+    "DeleteFailedStrategies": "true",
     "ForceRunCrossChecks": "false",
     "FitPortfolio": {"active": "false", "databank": "Existing portfolio"},
     "CustomAnalysis": {"filter": "false", "inputArgs": "", "method": "none"},
@@ -949,7 +952,7 @@ WFM_ACCEPTANCE_CONDITIONS_TARGET = [
 FOWARD_TASK_TITLE = "FOWARD"
 FOWARD_TASK_XML = "Retest-Task2.xml"
 FOWARD_PERIOD_KEY = "FOWARD_C1"
-FOWARD_DATA_TEST_PRECISION = "2"
+FOWARD_DATA_TEST_PRECISION = "4"
 FOWARD_DATA_SESSION = "No Session"
 FOWARD_DATA_ENGINE = SEQUENTIAL_DATA_ENGINE
 FOWARD_DEFAULT_CHART_TARGET = MC2_DEFAULT_CHART_TARGET
@@ -974,7 +977,7 @@ FOWARD_OPTIONS_PARAMS_TARGET = {
 FOWARD_RANKING_TARGET = {
     "MaxStrategies": "10000",
     "ConditionsType": "1",
-    "DeleteFailedStrategies": "false",
+    "DeleteFailedStrategies": "true",
     "ForceRunCrossChecks": "false",
     "FitPortfolio": {"active": "false", "databank": "Existing portfolio"},
     "CustomAnalysis": {"filter": "false", "inputArgs": "", "method": "none"},
@@ -3047,6 +3050,35 @@ def set_or_create_attrs_child(parent: ET.Element, tag: str, attrs: dict[str, str
     return child
 
 
+def set_automatic_dismissal_problem_targets(
+    automatic: ET.Element,
+    targets: dict[str, str],
+    actions: list[dict[str, Any]],
+    field: str,
+) -> None:
+    before = {
+        problem.get("code", ""): problem.get("dismiss", "")
+        for problem in automatic.findall("Problem")
+        if problem.get("code")
+    }
+    by_code = {
+        problem.get("code", ""): problem
+        for problem in automatic.findall("Problem")
+        if problem.get("code")
+    }
+    for code, dismiss in targets.items():
+        problem = by_code.get(code)
+        if problem is None:
+            problem = ET.SubElement(automatic, "Problem", {"code": code})
+        problem.set("dismiss", dismiss)
+    after = {
+        problem.get("code", ""): problem.get("dismiss", "")
+        for problem in automatic.findall("Problem")
+        if problem.get("code")
+    }
+    actions.append({"field": field, "from": before, "to": after, "changed": before != after})
+
+
 def ranking_conditions_exact(parent: ET.Element | None) -> list[dict[str, str]]:
     items = summarize_conditions(parent)
     return [
@@ -3146,7 +3178,13 @@ def apply_retest1_options_databanks_rankings_to_root(root: ET.Element) -> list[d
     set_or_create_text_child(rankings, "ConditionsType", RETEST1_RANKING_TARGET["ConditionsType"], actions, "Rankings/ConditionsType")
     set_or_create_text_child(rankings, "DeleteFailedStrategies", RETEST1_RANKING_TARGET["DeleteFailedStrategies"], actions, "Rankings/DeleteFailedStrategies")
     set_or_create_text_child(rankings, "ForceRunCrossChecks", RETEST1_RANKING_TARGET["ForceRunCrossChecks"], actions, "Rankings/ForceRunCrossChecks")
-    set_or_create_attrs_child(rankings, "AutomaticDismissal", RETEST1_RANKING_TARGET["AutomaticDismissal"], actions, "Rankings/AutomaticDismissal")
+    automatic = set_or_create_attrs_child(rankings, "AutomaticDismissal", RETEST1_RANKING_TARGET["AutomaticDismissal"], actions, "Rankings/AutomaticDismissal")
+    set_automatic_dismissal_problem_targets(
+        automatic,
+        RETEST1_AUTOMATIC_DISMISSAL_PROBLEMS_TARGET,
+        actions,
+        "Rankings/AutomaticDismissal/Problem",
+    )
     set_or_create_attrs_child(rankings, "StopCondition", RETEST1_RANKING_TARGET["StopCondition"], actions, "Rankings/StopCondition")
     set_or_create_attrs_child(rankings, "FitPortfolio", RETEST1_RANKING_TARGET["FitPortfolio"], actions, "Rankings/FitPortfolio")
     set_or_create_attrs_child(rankings, "CustomAnalysis", RETEST1_RANKING_TARGET["CustomAnalysis"], actions, "Rankings/CustomAnalysis")
@@ -3176,6 +3214,12 @@ def retest1_options_databanks_rankings_summary(root: ET.Element) -> dict[str, An
             "ForceRunCrossChecks": (rankings.findtext("ForceRunCrossChecks") or ""),
             "FitPortfolio": dict(rankings.find("FitPortfolio").attrib) if rankings.find("FitPortfolio") is not None else {},
             "StopCondition": dict(rankings.find("StopCondition").attrib) if rankings.find("StopCondition") is not None else {},
+            "AutomaticDismissal": dict(rankings.find("AutomaticDismissal").attrib) if rankings.find("AutomaticDismissal") is not None else {},
+            "automaticDismissalProblems": {
+                problem.get("code", ""): problem.get("dismiss", "")
+                for problem in rankings.findall("./AutomaticDismissal/Problem")
+                if problem.get("code")
+            },
             "conditions": ranking_conditions_exact(rankings.find("Conditions")),
         }
     return {"optionsParams": params, "databanks": databanks, "rankings": ranking_data}
@@ -3193,10 +3237,16 @@ def enforce_retest1_options_databanks_rankings_guard(root: ET.Element) -> list[s
         if databanks.get(key) != wanted:
             issues.append(f"Databank {key} is {databanks.get(key)!r}, expected {wanted!r}")
     ranking = summary.get("rankings") or {}
-    if ranking.get("DeleteFailedStrategies") != "false":
-        issues.append("RETEST 1 must keep failed strategies visible for advisory review")
+    if ranking.get("DeleteFailedStrategies") != "true":
+        issues.append("RETEST 1 must delete failed strategies from the output databank so only survivors continue downstream")
     if (ranking.get("FitPortfolio") or {}).get("active") != "false":
         issues.append("RETEST 1 must not run portfolio fit selection in Capa1")
+    if (ranking.get("AutomaticDismissal") or {}).get("warnings") != "false":
+        issues.append("RETEST 1 automatic dismissal warnings must stay disabled")
+    dismissal_problems = ranking.get("automaticDismissalProblems") or {}
+    for code, wanted in RETEST1_AUTOMATIC_DISMISSAL_PROBLEMS_TARGET.items():
+        if dismissal_problems.get(code) != wanted:
+            issues.append(f"RETEST 1 automatic dismissal problem {code} is {dismissal_problems.get(code)!r}, expected {wanted!r}")
     expected_conditions = [
         {"column": item["column"], "comparator": item["comparator"], "value": item["value"], "use": "true"}
         for item in RETEST1_RANKING_CONDITIONS_TARGET
@@ -3256,7 +3306,7 @@ def update_retest1_options_databanks_rankings_target_in_cfx(cfx: Path, backup_ro
         "conditions": RETEST1_RANKING_CONDITIONS_TARGET,
     }
     payload["targetRationale"] = {
-        "advisoryNotColadero": "Keep failed rows visible with DeleteFailedStrategies=false, but retain explicit minimum conditions so Result can be failed naturally.",
+        "survivorChain": "DeleteFailedStrategies=true keeps source evidence intact while preventing failed rows from continuing as downstream candidates.",
         "passiveRetest": "Disable FitPortfolio because Capa1 RETEST 1 should validate OOS2/cross-broker behavior, not perform portfolio selection.",
         "realism": "Enable RealisticGapsHandling to avoid a softer cross-broker OOS2 pass than RETEST 0.",
         "generatorOwned": "Time window remains the H1 placeholder in base; Project Generator rewrites it by selected timeframe.",
@@ -4186,7 +4236,7 @@ def enforce_tick_real_data_databanks_resources_guard(root: ET.Element) -> list[s
     if setup.get("dateFrom") != period[0] or setup.get("dateTo") != period[1]:
         issues.append("TICK REAL dates are not ROBUSTNESS_C1")
     if setup.get("testPrecision") != TICK_REAL_DATA_TEST_PRECISION:
-        issues.append("TICK REAL testPrecision is not SQX142 tick/simulated code 2")
+        issues.append("TICK REAL testPrecision must be SQX142 real tick / real spread code 4")
     if setup.get("session") != TICK_REAL_DATA_SESSION:
         issues.append("TICK REAL session must stay No Session")
     if root.findall(".//Data/OutOfSample/Range"):
@@ -4420,8 +4470,8 @@ def enforce_tick_real_options_rankings_guard(root: ET.Element) -> list[str]:
         issues.append("TICK REAL must not add an internal OOS split; RETEST 0 owns IS/OOS1 validation")
 
     ranking = summary.get("rankings") or {}
-    if ranking.get("DeleteFailedStrategies") != "false":
-        issues.append("TICK REAL must keep failed strategies visible for natural passed/failed analysis")
+    if ranking.get("DeleteFailedStrategies") != "true":
+        issues.append("TICK REAL must delete failed strategies from the output databank so only real-tick survivors continue")
     if ranking.get("ConditionsType") != "1":
         issues.append("TICK REAL ranking conditions must stay active")
     if ranking.get("ForceRunCrossChecks") != "false":
@@ -4495,7 +4545,7 @@ def update_tick_real_options_rankings_target_in_cfx(cfx: Path, backup_root: Path
     }
     payload["targetRationale"] = {
         "academic": "Keep a separate robustness gate without re-optimizing on a repeated OOS split; control selection pressure with explicit total-period tick filters.",
-        "naturalResults": "DeleteFailedStrategies=false preserves failed rows, while active conditions let SQX mark natural failed/passed states.",
+        "naturalResults": "DeleteFailedStrategies=true preserves natural pass/fail labels in source evidence while only survivors continue downstream.",
         "notPortfolio": "FitPortfolio=false keeps this precision-data retest separate from portfolio selection.",
         "generatorOwned": "Base time window is the H1 placeholder; Project Generator rewrites it by selected timeframe.",
     }
@@ -15903,7 +15953,7 @@ CAPA2_RETEST0_OPTIONS_PARAMS_TARGET = {
 CAPA2_RETEST0_RANKING_TARGET = {
     "MaxStrategies": "10000",
     "ConditionsType": "1",
-    "DeleteFailedStrategies": "false",
+    "DeleteFailedStrategies": "true",
     "ForceRunCrossChecks": "false",
     "AutomaticDismissal": {"warnings": "false"},
     "StopCondition": {
@@ -15970,7 +16020,7 @@ CAPA2_RETEST1_OPTIONS_PARAMS_TARGET = {
 CAPA2_RETEST1_RANKING_TARGET = {
     "MaxStrategies": "10000",
     "ConditionsType": "1",
-    "DeleteFailedStrategies": "false",
+    "DeleteFailedStrategies": "true",
     "ForceRunCrossChecks": "false",
     "AutomaticDismissal": {"warnings": "false"},
     "StopCondition": {
@@ -16024,7 +16074,7 @@ CAPA2_TICK_REAL_TASK_XML = "AutomaticRetest-Task2.xml"
 CAPA2_TICK_REAL_LEGACY_TITLE = "HBP"
 CAPA2_TICK_REAL_TASK_TITLE = "TICK REAL"
 CAPA2_TICK_REAL_PERIOD_KEY = "ROBUSTNESS_C2"
-CAPA2_TICK_REAL_DATA_TEST_PRECISION = "2"
+CAPA2_TICK_REAL_DATA_TEST_PRECISION = "4"
 CAPA2_TICK_REAL_DATA_SESSION = "No Session"
 CAPA2_TICK_REAL_DATA_ENGINE = "MetaTrader5 (hedged)"
 CAPA2_TICK_REAL_CUSTOM_DATA_ENGINE = "MetaTrader4"
@@ -16036,7 +16086,7 @@ CAPA2_TICK_REAL_RANKING_TARGET = {
     "type": "never",
     "MaxStrategies": "10000",
     "ConditionsType": "1",
-    "DeleteFailedStrategies": "false",
+    "DeleteFailedStrategies": "true",
     "ForceRunCrossChecks": "false",
     "AutomaticDismissal": {"warnings": "false"},
     "StopCondition": {
@@ -22110,7 +22160,7 @@ def promote_capa2_tick_real_target(root142: Path, project_root: Path, target: st
             "decision": "Close Capa2 TICK REAL as a Darwinex precision-data validation gate after retest 1.",
             "taskXml": CAPA2_TICK_REAL_TASK_XML,
             "rename": "Legacy HBP title/databank is normalized to TICK REAL/TICK.",
-            "data": "Darwinex ROBUSTNESS_C2 window 2017.10.02-2023.12.31, testPrecision=2, No Session.",
+            "data": "Darwinex ROBUSTNESS_C2 window 2017.10.02-2023.12.31, testPrecision=4 real tick / real spread, No Session.",
             "chain": "Input=retest 1, Output=TICK.",
             "filters": "Predeclared precision-data filters: NumberOfTrades >= 200, ProfitFactor >= 1.3, WinningPct >= 50, ReturnDDRatio >= 4.",
             "passive": "StrategyType reads retest 1 passively; CrossChecks, FitPortfolio, CustomAnalysis and improvement surfaces are inactive; ExitAfterBars remains false for Capa2.",
@@ -22439,9 +22489,10 @@ def enforce_capa2_mc_guard(root: ET.Element | None, target_name: str) -> list[st
     ranking = (mc_static_tabs_summary(root).get("rankings") or {})
     if ranking.get("type") != "never":
         issues.append(f"{target_name}: Capa2 MC Rankings type must be never")
-    for key in ("DeleteFailedStrategies", "ForceRunCrossChecks"):
-        if ranking.get(key) != "false":
-            issues.append(f"{target_name}: Capa2 MC Rankings {key} must be false")
+    if ranking.get("DeleteFailedStrategies") != "true":
+        issues.append(f"{target_name}: Capa2 MC Rankings DeleteFailedStrategies must be true")
+    if ranking.get("ForceRunCrossChecks") != "false":
+        issues.append(f"{target_name}: Capa2 MC Rankings ForceRunCrossChecks must be false")
     if (ranking.get("FitPortfolio") or {}).get("active") != "false":
         issues.append(f"{target_name}: Capa2 MC FitPortfolio must stay disabled")
     if (ranking.get("CustomAnalysis") or {}).get("filter") != "false":
@@ -22980,9 +23031,10 @@ def enforce_capa2_mc2_guard(root: ET.Element | None, target_name: str) -> list[s
     ranking = (mc_static_tabs_summary(root).get("rankings") or {})
     if ranking.get("type") != "never":
         issues.append(f"{target_name}: Capa2 MC2 Rankings type must be never")
-    for key in ("DeleteFailedStrategies", "ForceRunCrossChecks"):
-        if ranking.get(key) != "false":
-            issues.append(f"{target_name}: Capa2 MC2 Rankings {key} must be false")
+    if ranking.get("DeleteFailedStrategies") != "true":
+        issues.append(f"{target_name}: Capa2 MC2 Rankings DeleteFailedStrategies must be true")
+    if ranking.get("ForceRunCrossChecks") != "false":
+        issues.append(f"{target_name}: Capa2 MC2 Rankings ForceRunCrossChecks must be false")
     if (ranking.get("FitPortfolio") or {}).get("active") != "false":
         issues.append(f"{target_name}: Capa2 MC2 FitPortfolio must stay disabled")
     if (ranking.get("CustomAnalysis") or {}).get("filter") != "false":
@@ -23401,9 +23453,10 @@ def enforce_capa2_sequential_guard(root: ET.Element | None, target_name: str) ->
     ranking = summary.get("rankings") or {}
     if ranking.get("type") != "never":
         issues.append(f"{target_name}: Capa2 Sequential Rankings type must be never")
-    for key in ("DeleteFailedStrategies", "ForceRunCrossChecks"):
-        if ranking.get(key) != "false":
-            issues.append(f"{target_name}: Capa2 Sequential Rankings {key} must be false")
+    if ranking.get("DeleteFailedStrategies") != "true":
+        issues.append(f"{target_name}: Capa2 Sequential Rankings DeleteFailedStrategies must be true")
+    if ranking.get("ForceRunCrossChecks") != "false":
+        issues.append(f"{target_name}: Capa2 Sequential Rankings ForceRunCrossChecks must be false")
     if (ranking.get("FitPortfolio") or {}).get("active") != "false":
         issues.append(f"{target_name}: Capa2 Sequential FitPortfolio must stay disabled")
     if (ranking.get("CustomAnalysis") or {}).get("filter") != "false":
@@ -23827,9 +23880,10 @@ def enforce_capa2_monkey_guard(root: ET.Element | None, target_name: str) -> lis
     ranking = summary.get("rankings") or {}
     if ranking.get("type") != "never":
         issues.append(f"{target_name}: Capa2 Monkey Rankings type must be never")
-    for key in ("DeleteFailedStrategies", "ForceRunCrossChecks"):
-        if ranking.get(key) != "false":
-            issues.append(f"{target_name}: Capa2 Monkey Rankings {key} must be false")
+    if ranking.get("DeleteFailedStrategies") != "true":
+        issues.append(f"{target_name}: Capa2 Monkey Rankings DeleteFailedStrategies must be true")
+    if ranking.get("ForceRunCrossChecks") != "false":
+        issues.append(f"{target_name}: Capa2 Monkey Rankings ForceRunCrossChecks must be false")
     if (ranking.get("FitPortfolio") or {}).get("active") != "false":
         issues.append(f"{target_name}: Capa2 Monkey FitPortfolio must stay disabled")
     if (ranking.get("CustomAnalysis") or {}).get("filter") != "false":
@@ -24276,9 +24330,10 @@ def enforce_capa2_synthetic_guard(root: ET.Element | None, target_name: str) -> 
     ranking = summary.get("rankings") or {}
     if ranking.get("type") != "never":
         issues.append(f"{target_name}: Capa2 Synthetic Rankings type must be never")
-    for key in ("DeleteFailedStrategies", "ForceRunCrossChecks"):
-        if ranking.get(key) != "false":
-            issues.append(f"{target_name}: Capa2 Synthetic Rankings {key} must be false")
+    if ranking.get("DeleteFailedStrategies") != "true":
+        issues.append(f"{target_name}: Capa2 Synthetic Rankings DeleteFailedStrategies must be true")
+    if ranking.get("ForceRunCrossChecks") != "false":
+        issues.append(f"{target_name}: Capa2 Synthetic Rankings ForceRunCrossChecks must be false")
     if (ranking.get("FitPortfolio") or {}).get("active") != "false":
         issues.append(f"{target_name}: Capa2 Synthetic FitPortfolio must stay disabled")
     if (ranking.get("CustomAnalysis") or {}).get("filter") != "false":
@@ -24755,9 +24810,10 @@ def enforce_capa2_spp_guard(root: ET.Element | None, target_name: str) -> list[s
     ranking = summary.get("rankings") or {}
     if ranking.get("type") != "never":
         issues.append(f"{target_name}: Capa2 SPP Rankings type must be never")
-    for key in ("DeleteFailedStrategies", "ForceRunCrossChecks"):
-        if ranking.get(key) != "false":
-            issues.append(f"{target_name}: Capa2 SPP Rankings {key} must be false")
+    if ranking.get("DeleteFailedStrategies") != "true":
+        issues.append(f"{target_name}: Capa2 SPP Rankings DeleteFailedStrategies must be true")
+    if ranking.get("ForceRunCrossChecks") != "false":
+        issues.append(f"{target_name}: Capa2 SPP Rankings ForceRunCrossChecks must be false")
     if (ranking.get("FitPortfolio") or {}).get("active") != "false":
         issues.append(f"{target_name}: Capa2 SPP FitPortfolio must stay disabled")
     if (ranking.get("CustomAnalysis") or {}).get("filter") != "false":
@@ -25254,9 +25310,10 @@ def enforce_capa2_wfm_guard(root: ET.Element | None, target_name: str) -> list[s
     ranking = summary.get("rankings") or {}
     if ranking.get("type") != "never":
         issues.append(f"{target_name}: Capa2 WFM Rankings type must be never")
-    for key in ("DeleteFailedStrategies", "ForceRunCrossChecks"):
-        if ranking.get(key) != "false":
-            issues.append(f"{target_name}: Capa2 WFM Rankings {key} must be false")
+    if ranking.get("DeleteFailedStrategies") != "true":
+        issues.append(f"{target_name}: Capa2 WFM Rankings DeleteFailedStrategies must be true")
+    if ranking.get("ForceRunCrossChecks") != "false":
+        issues.append(f"{target_name}: Capa2 WFM Rankings ForceRunCrossChecks must be false")
     if (ranking.get("FitPortfolio") or {}).get("active") != "false":
         issues.append(f"{target_name}: Capa2 WFM FitPortfolio must stay disabled")
     if (ranking.get("CustomAnalysis") or {}).get("filter") != "false":
@@ -25645,7 +25702,7 @@ def enforce_capa2_forward_guard(root: ET.Element | None, target_name: str) -> li
     if setup.get("dateFrom") != period[0] or setup.get("dateTo") != period[1]:
         issues.append(f"{target_name}: Capa2 Forward dates must be {CAPA2_FORWARD_PERIOD_KEY} {period[0]}-{period[1]}")
     if setup.get("testPrecision") != CAPA2_FORWARD_DATA_TEST_PRECISION:
-        issues.append(f"{target_name}: Capa2 Forward testPrecision must return to tick/simulated code {CAPA2_FORWARD_DATA_TEST_PRECISION}")
+        issues.append(f"{target_name}: Capa2 Forward testPrecision must return to real tick / real spread code {CAPA2_FORWARD_DATA_TEST_PRECISION}")
     if setup.get("session") != CAPA2_TICK_REAL_DATA_SESSION:
         issues.append(f"{target_name}: Capa2 Forward session must be No Session")
     if setup.get("engine") != CAPA2_TICK_REAL_DATA_ENGINE:
@@ -25787,7 +25844,7 @@ def update_capa2_forward_target_in_cfx(cfx: Path, backup_root: Path, apply: bool
     payload["targetRationale"] = {
         "validation": "Capa2 Forward is the final tick-precision holdout before portfolio construction.",
         "antiOverfit": "No portfolio fitting, no custom analysis, no internal robustness checks and only broad predeclared sanity filters are used.",
-        "precision": "Operator decision: Forward breaks the fastest inheritance and returns to tick/testPrecision=2.",
+        "precision": "Operator decision: Forward breaks the fastest inheritance and returns to real tick / real spread with testPrecision=4.",
         "portfolioBoundary": "Forward labels natural final survivors; portfolio selection starts after this phase.",
         "naturalResults": "No SQX launch, no smoke, no optimization and no forced Results=passed.",
     }
@@ -25847,7 +25904,7 @@ def promote_capa2_forward_target(root142: Path, project_root: Path, target: str,
             "decision": "Close Capa2 Forward as the final tick-precision holdout before portfolio construction.",
             "taskXml": CAPA2_FORWARD_TASK_XML,
             "chain": "Input=WFM, Output=Foward.",
-            "data": "Darwinex FOWARD window 2025.01.01-2026.04.30, testPrecision=2 tick, Data carrier, No Session.",
+            "data": "Darwinex FOWARD window 2025.01.01-2026.04.30, testPrecision=4 real tick / real spread, Data carrier, No Session.",
             "oosRanges": CAPA2_FORWARD_OOS_RANGES,
             "filters": "Only broad final sanity filters: NumberOfTrades >= 30, RExpectancy > 0 and NetProfit >= 0.",
             "passive": "StrategyType reads WFM passively; CrossChecks/FitPortfolio/CustomAnalysis stay off; ExitAfterBars remains false and SL/PT/trailing remain active for Capa2.",
