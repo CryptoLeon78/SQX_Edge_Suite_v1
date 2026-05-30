@@ -120,6 +120,79 @@ function sqxBadge(asset, mini=false) {
   return SQX_RENDERERS.sqxBadge ? SQX_RENDERERS.sqxBadge(c, mini) : '';
 }
 
+function edgeExperienceMode() {
+  try {
+    const state = window.SQX && window.SQX.edgeFactory && window.SQX.edgeFactory.getState
+      ? window.SQX.edgeFactory.getState()
+      : null;
+    return state && state.experienceMode === 'advanced' ? 'advanced' : 'basic';
+  } catch(e) {
+    return 'basic';
+  }
+}
+
+function selectedSqxConfigCode() {
+  return ['A', 'B', 'C', 'D'].includes(filterSqx) ? filterSqx : '';
+}
+
+function resolveActionDirection(entryDir) {
+  const selectedConfig = selectedSqxConfigCode();
+  return SQX_DOMAIN.resolveSqxDirection
+    ? SQX_DOMAIN.resolveSqxDirection(selectedConfig, entryDir)
+    : (selectedConfig === 'C' ? 'L' : (selectedConfig === 'D' ? 'S' : (entryDir || 'L/S')));
+}
+
+function actionDirectionLabel(dir) {
+  return dir === 'L' ? 'LONG' : (dir === 'S' ? 'SHORT' : 'LONG / SHORT');
+}
+
+function assetById(assetId) {
+  return ASSETS.find(function(item) { return item.id === assetId; }) || null;
+}
+
+function shortBlockedReason(asset, dir) {
+  const isBlocked = SQX_DOMAIN.isShortBlockedAsset
+    ? SQX_DOMAIN.isShortBlockedAsset(asset)
+    : ['index', 'oro'].includes(String(asset && asset.type || '').toLowerCase());
+  return dir === 'S' && isBlocked ? 'Only Short esta bloqueado para indices y oro en esta metodologia.' : '';
+}
+
+function assertAssetActionAllowed(assetId, dir) {
+  const asset = assetById(assetId);
+  const reason = shortBlockedReason(asset, dir);
+  if (!reason) return true;
+  decisionAlert({
+    title: 'Short bloqueado',
+    message: reason,
+    trace: [
+      'Activo: ' + assetId + ' · tipo: ' + ((asset && asset.type) || 'desconocido'),
+      'Permitido: consultar como referencia o usar Long cuando aplique',
+      'No se crea Plan Mining ni prefill de Project Generator'
+    ]
+  });
+  return false;
+}
+
+function assetActionButtonsHtml(asset, catKey, tf, entryDir) {
+  const catBase = String(catKey || '').replace(/_S$/, '');
+  const dir = resolveActionDirection(entryDir);
+  const blocked = !!shortBlockedReason(asset, dir);
+  const mode = edgeExperienceMode();
+  const note = blocked ? '<div class="asset-action-note blocked">Short bloqueado para índices/oro</div>' : '<div class="asset-action-note">Dirección: ' + dashboardEsc(actionDirectionLabel(dir)) + '</div>';
+  const disabled = blocked ? ' disabled title="Short bloqueado para índices/oro"' : '';
+  if (mode === 'advanced') {
+    return '<div class="quick-actions" data-asset-action-mode="advanced">' +
+      '<button class="action-btn btn-plan" onclick="event.stopPropagation();quickAddToPlan(\'' + asset.id + '\',\'' + catBase + '\',\'' + tf + '\',\'' + dir + '\')"' + disabled + '>+ Plan</button>' +
+      '<button class="action-btn btn-pg" onclick="event.stopPropagation();quickToProjectGen(\'' + asset.id + '\',\'' + catBase + '\',\'' + tf + '\',\'' + dir + '\')"' + disabled + '>Gen Project</button>' +
+      note +
+    '</div>';
+  }
+  return '<div class="quick-actions" data-asset-action-mode="basic">' +
+    '<button class="action-btn btn-pg" onclick="event.stopPropagation();quickToProjectGen(\'' + asset.id + '\',\'' + catBase + '\',\'' + tf + '\',\'' + dir + '\')"' + disabled + '>Preparar custom</button>' +
+    note +
+  '</div>';
+}
+
 // Replica visual del panel "Trading directions settings" de SQX según el código de config (A/B/C/D)
 function sqxPreviewHTML(code) {
   return SQX_RENDERERS.sqxPreviewHTML ? SQX_RENDERERS.sqxPreviewHTML(code) : '';
@@ -200,9 +273,9 @@ function sparkHTML(asset) {
 // RENDER: ASSET GRID
 // ============================================================
 // Filtro SQX:
-//   A / B → match contra la config primaria recomendada (getSqxConfig)
-//   C     → activos con ≥1 categoría dir:'L' (ideas Long puras — índices/oro)
-//   D     → activos con ≥1 categoría dir:'S' (ideas Short puras — índices/oro)
+//   La config recomendada, la config seleccionada y el permiso de generacion
+//   se mantienen separados. Forex puede verse en A/B/C/D; indices/oro no
+//   generan Only Short.
 function assetMatchesSqxFilter(a, code) {
   return SQX_DOMAIN.assetMatchesSqxFilter ? SQX_DOMAIN.assetMatchesSqxFilter(a, code) : true;
 }
@@ -226,7 +299,7 @@ function renderAssetGrid() {
       <div class="name">${a.id}</div>
       <span class="type-badge">${a.sub}</span>
       ${sparkHTML(a)}
-      <div class="score-badge">Score: <span>${a.sc.norm}%</span></div>
+      <div class="score-badge">Hipótesis: <span>${a.sc.norm}%</span></div>
       <div style="margin-top:6px">${sqxBadge(a, true)}</div>
     </div>`
   ).join('');
@@ -263,7 +336,7 @@ function renderDetail() {
     <span class="asset-type" style="background:${typeBg};color:${typeColor}">${a.sub}</span>
     ${sqxBadge(a)}
     <div class="asset-desc">${Object.keys(baseCats).length} categorias | ${a.type==='forex'?'L/S simetrico':'Long != Short'}</div>
-    <div class="detail-score">${sc.norm}%<small>score global</small></div>
+    <div class="detail-score">${sc.norm}%<small>hipótesis previa</small></div>
   </div>
   <div class="sqx-detail-box">
     ${sqxPreviewHTML(sqxConf.code)}
@@ -295,10 +368,7 @@ function renderDetail() {
         ${parseCardTimeframes(entry.tf).length > 1 ? '<div class="tf-selection-hint">Elegir timeframe al enviar</div>' : ''}
         <div class="info-row"><span class="info-label">Por que</span><span class="info-value" style="font-weight:400;font-size:12px">${entry.why}</span></div>
         ${compositeBar(sc)}
-        <div class="quick-actions">
-          <button class="action-btn btn-plan" onclick="event.stopPropagation();quickAddToPlan('${a.id}','${entry.isShort ? catKey + '_S' : catKey}','${entry.tf}','${entry.dir}')">+ Plan</button>
-          <button class="action-btn btn-pg" onclick="event.stopPropagation();quickToProjectGen('${a.id}','${entry.isShort ? catKey + '_S' : catKey}','${entry.tf}','${entry.dir}')">Gen Project</button>
-        </div>
+        ${assetActionButtonsHtml(a, entry.isShort ? catKey + '_S' : catKey, entry.tf, entry.dir)}
       </div>`;
     }
   }
@@ -361,12 +431,7 @@ function renderCategoriesView() {
           <td>${row.tf}${parseCardTimeframes(row.tf).length > 1 ? '<div class="tf-selection-hint">Elegir al enviar</div>' : ''}</td>
           <td><span class="rating ${r.cls}">${r.text}</span></td>
           <td style="font-size:12px;color:var(--text2);max-width:280px">${row.why}</td>
-          <td>
-            <div class="quick-actions" style="margin-top:0">
-              <button class="action-btn btn-plan" onclick="event.stopPropagation();quickAddToPlan('${row.asset.id}','${row.isShort ? catKey + '_S' : catKey}','${row.tf}','${row.dir}')" title="Añadir a Mining Control">+ Plan</button>
-              <button class="action-btn btn-pg" onclick="event.stopPropagation();quickToProjectGen('${row.asset.id}','${row.isShort ? catKey + '_S' : catKey}','${row.tf}','${row.dir}')" title="Ir al Project Generator">Gen</button>
-            </div>
-          </td>
+          <td>${assetActionButtonsHtml(row.asset, row.isShort ? catKey + '_S' : catKey, row.tf, row.dir)}</td>
         </tr>`;
       }
       html+='</tbody></table>';
@@ -1528,6 +1593,13 @@ bindBtns('[data-filter-dir]',  'filterDir',  function(v){ filterDir  = v; }, ren
 bindBtns('[data-priority-min]','priorityMin',function(v){ filterPriorityMin = parseInt(v,10) || 0; }, renderPriority);
 bindBtns('[data-priority-type]','priorityType',function(v){ filterPriorityType = v; }, renderPriority);
 
+window.addEventListener('sqx:edge-factory-state', function(event) {
+  if (!event || !event.detail || event.detail.source !== 'edge-factory-experience-mode') return;
+  renderAssetGrid();
+  renderDetail();
+  renderCategoriesView();
+});
+
 if (SQX_UI_MODULE.bindInput) SQX_UI_MODULE.bindInput('search-asset', renderAssetGrid);
 else document.getElementById('search-asset').addEventListener('input',renderAssetGrid);
 bindChange('asset-sort', function(e){ assetSort=e.target.value; renderAssetGrid(); });
@@ -1651,6 +1723,7 @@ function edgeFactoryRecord(method, payload) {
 
 window.quickAddToPlan = function(asset, cat, tf, dir) {
   const catBase = String(cat || '').replace(/_S$/, '');
+  if (!assertAssetActionAllowed(asset, dir)) return;
   const tfList = parseCardTimeframes(tf);
   if (shouldAskTimeframe(tfList)) {
     openTimeframeSelection({ action: 'plan', asset: asset, cat: catBase, tfList: tfList, dir: dir });
@@ -1673,6 +1746,7 @@ function performQuickAddToPlan(asset, catBase, tf, dir, trace) {
 
 window.quickToProjectGen = function(asset, cat, tf, dir) {
   const catBase = String(cat || '').replace(/_S$/, '');
+  if (!assertAssetActionAllowed(asset, dir)) return;
   const tfList = parseCardTimeframes(tf);
   if (shouldAskTimeframe(tfList)) {
     openTimeframeSelection({ action: 'projectgen', asset: asset, cat: catBase, tfList: tfList, dir: dir });

@@ -94,22 +94,22 @@
       {
         "value": "A",
         "label": "A · Both+Sym",
-        "title": "Forex simétrico (Both + Entry Symmetry)"
+        "title": "Both + Entry Symmetry, especialmente útil cuando la hipótesis L/S es simétrica"
       },
       {
         "value": "B",
         "label": "B · Both",
-        "title": "Long ≠ Short — índices/oro (Both sin Symmetry)"
+        "title": "Both sin Symmetry: SQX optimiza Long y Short por separado"
       },
       {
         "value": "C",
         "label": "C · Long puro",
-        "title": "Activos con categorías sólo-Long puras"
+        "title": "Only Long: búsqueda Long explícita"
       },
       {
         "value": "D",
-        "label": "D · Short puro",
-        "title": "Activos con categorías sólo-Short puras"
+        "label": "D · Short Forex",
+        "title": "Only Short permitido para Forex; índices/oro quedan bloqueados"
       }
     ],
     "directions": [
@@ -791,22 +791,41 @@
     "~": 1,
     "-": 0
   },
+  "sqxSelectionPolicy": {
+    "version": "sqx-asset-selection-policy-v1",
+    "forexSelectableConfigs": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "shortBlockedTypes": [
+      "index",
+      "oro"
+    ],
+    "scoreRole": "hypothesis_prior_not_final_selector",
+    "methodologyNotes": [
+      "Asset scores are pre-mining hypotheses and must not be treated as final proof.",
+      "Avoid tuning asset selection over the full available history; final evidence belongs to SQX custom project databanks and later validation gates.",
+      "Only Short for index/gold is blocked in the current basic generation path."
+    ]
+  },
   "sqxConfigDesc": {
     "A": {
       "label": "Both + Entry Sym",
-      "desc": "<strong>Forex simétrico</strong>Reglas L/S espejadas en la entrada. SQX optimiza un lado y replica al otro."
+      "desc": "<strong>Both + Entry Symmetry</strong>Hipótesis L/S espejada. En Forex puede seleccionarse si la lógica de mercado admite simetría."
     },
     "B": {
       "label": "Both sin Symmetry",
-      "desc": "<strong>Long ≠ Short</strong>Índices y oro — SQX optimiza Long y Short por separado (reglas distintas)."
+      "desc": "<strong>Both sin Symmetry</strong>SQX optimiza Long y Short por separado. Útil cuando las reglas o el comportamiento L/S no deben espejarse."
     },
     "C": {
       "label": "Only Long",
-      "desc": "<strong>Ideas Long puras</strong>Filtra activos con ≥1 categoría sólo-Long (índices/oro). Para correr SQX en modo Only Long."
+      "desc": "<strong>Only Long</strong>Búsqueda Long explícita. La tarjeta sigue siendo una hipótesis previa, no una prueba final."
     },
     "D": {
-      "label": "Only Short",
-      "desc": "<strong>Ideas Short puras</strong>Filtra activos con ≥1 categoría sólo-Short (índices/oro). Para correr SQX en modo Only Short."
+      "label": "Only Short Forex",
+      "desc": "<strong>Only Short</strong>Permitido para Forex. Índices y oro quedan bloqueados para generación Short en esta metodología."
     }
   },
   "macroEvents": [

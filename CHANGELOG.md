@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-05-30 - SQX142 Activos Basic/Advanced Workflow Alignment
+
+- Adds `sqxSelectionPolicy` so Activos separates recommended SQX config, selected config and generation permission: Forex can be selected in A/B/C/D, while index/gold `Only Short` generation is blocked.
+- Updates Activos cards so basic mode hides Plan Mining technical buttons and uses direct Project Generator prefill; advanced mode keeps `+ Plan`, `Gen Project` and Mining Control handoffs.
+- Adds global `Anterior` / `Siguiente` navigation and an Edge Factory methodology panel with a simplified basic view and an advanced pipeline consultation surface.
+- Rewords asset score copy as a pre-mining hypothesis, not final proof, preserving academic anti-overfit/data-snooping discipline.
+- Preserves boundaries: no SQX local launch, no `data.db` writes, no `user/projects` mutation, no jars/internal plugins/license changes, no databank deletion, no `run_project`, no Migration Tool and no profitability/risk-zero claim.
+
 ## 2026-05-30 - SQX142-CAPA1/CAPA2 Correlation Methodology Reclassification
 
 - Reclassifies the real AUDCAD H1 Capa1 CORR1 result as `capa1_c2_template_selection`, not final portfolio selection; the mining/databank evidence remains valid and registered.

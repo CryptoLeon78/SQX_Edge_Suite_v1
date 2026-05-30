@@ -2,6 +2,28 @@
   'use strict';
 
   var SQX = global.SQX = global.SQX || {};
+  var DEFAULT_SQX_SELECTION_POLICY = {
+    forexSelectableConfigs: ['A', 'B', 'C', 'D'],
+    shortBlockedTypes: ['index', 'oro'],
+    scoreRole: 'hypothesis_prior_not_final_selector'
+  };
+
+  function sqxSelectionPolicy() {
+    var manifestPolicy = global.SQX_MANIFEST && global.SQX_MANIFEST.ui && global.SQX_MANIFEST.ui.sqxSelectionPolicy;
+    var policy = Object.assign({}, DEFAULT_SQX_SELECTION_POLICY, manifestPolicy || {});
+    policy.forexSelectableConfigs = Array.isArray(policy.forexSelectableConfigs) ? policy.forexSelectableConfigs : DEFAULT_SQX_SELECTION_POLICY.forexSelectableConfigs;
+    policy.shortBlockedTypes = Array.isArray(policy.shortBlockedTypes) ? policy.shortBlockedTypes : DEFAULT_SQX_SELECTION_POLICY.shortBlockedTypes;
+    return policy;
+  }
+
+  function assetType(asset) {
+    return String(asset && asset.type || '').trim().toLowerCase();
+  }
+
+  function isShortBlockedAsset(asset) {
+    var blocked = sqxSelectionPolicy().shortBlockedTypes.map(function(item) { return String(item).toLowerCase(); });
+    return blocked.indexOf(assetType(asset)) !== -1;
+  }
 
   function calcScore(asset, dirFilter, ratingOrder) {
     var total = 0;
@@ -34,10 +56,10 @@
     });
 
     if (hasLS && !hasPair && !hasL && !hasS) {
-      return { code:'A', label:'Both + Entry Sym', desc:'Both (Long & Short) con Entry Symmetry ON. Reglas espejadas L/S — ideal para forex simétrico.' };
+      return { code:'A', label:'Both + Entry Sym', desc:'Both (Long & Short) con Entry Symmetry ON. Hipótesis L/S espejada.' };
     }
     if (hasPair) {
-      return { code:'B', label:'Both sin Symmetry', desc:'Both (Long & Short) con Symmetry OFF. SQX optimiza L y S por separado — necesario cuando las reglas Long ≠ Short (índices, oro).' };
+      return { code:'B', label:'Both sin Symmetry', desc:'Both (Long & Short) con Symmetry OFF. SQX optimiza L y S por separado.' };
     }
     if (hasL && !hasS) {
       return { code:'C', label:'Only Long', desc:'Only Long. Solo se buscan estrategias en lado Long.' };
@@ -46,6 +68,27 @@
       return { code:'D', label:'Only Short', desc:'Only Short. Solo se buscan estrategias en lado Short.' };
     }
     return { code:'B', label:'Both sin Symmetry', desc:'Both (Long & Short) con Symmetry OFF. SQX optimiza L y S por separado.' };
+  }
+
+  function assetCanUseSqxConfig(asset, code) {
+    var cfg = String(code || 'all').toUpperCase();
+    if (cfg === 'ALL') return true;
+    if (assetType(asset) === 'forex') {
+      return sqxSelectionPolicy().forexSelectableConfigs.indexOf(cfg) !== -1;
+    }
+    if (cfg === 'D' && isShortBlockedAsset(asset)) return false;
+    if (cfg === 'A' || cfg === 'B') return getSqxConfig(asset).code === cfg;
+    if (cfg === 'C') return Object.values(asset && asset.cats || {}).some(function(value) { return value.dir === 'L' || value.dir === 'L/S'; });
+    if (cfg === 'D') return Object.values(asset && asset.cats || {}).some(function(value) { return value.dir === 'S' || value.dir === 'L/S'; });
+    return true;
+  }
+
+  function resolveSqxDirection(selectedConfig, entryDirection) {
+    var cfg = String(selectedConfig || '').toUpperCase();
+    if (cfg === 'C') return 'L';
+    if (cfg === 'D') return 'S';
+    if (cfg === 'A' || cfg === 'B') return 'L/S';
+    return entryDirection || 'L/S';
   }
 
   function scoreFromScores(scores, assetId, catKey) {
@@ -82,10 +125,7 @@
 
   function assetMatchesSqxFilter(asset, code) {
     if (code === 'all') return true;
-    if (code === 'A' || code === 'B') return getSqxConfig(asset).code === code;
-    if (code === 'C') return Object.values(asset.cats).some(function(value) { return value.dir === 'L'; });
-    if (code === 'D') return Object.values(asset.cats).some(function(value) { return value.dir === 'S'; });
-    return true;
+    return assetCanUseSqxConfig(asset, code);
   }
 
   function sortRows(rows, col, dir, ratingOrder) {
@@ -112,8 +152,12 @@
   SQX.domain = SQX.domain || {
     applyObjectiveRatings: applyObjectiveRatings,
     assetMatchesSqxFilter: assetMatchesSqxFilter,
+    assetCanUseSqxConfig: assetCanUseSqxConfig,
     calcScore: calcScore,
     getSqxConfig: getSqxConfig,
+    isShortBlockedAsset: isShortBlockedAsset,
+    resolveSqxDirection: resolveSqxDirection,
+    sqxSelectionPolicy: sqxSelectionPolicy,
     scoreFromScores: scoreFromScores,
     sortRows: sortRows,
     tfMatch: tfMatch

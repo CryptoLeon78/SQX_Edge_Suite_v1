@@ -118,6 +118,11 @@
 <div class="tabs" id="main-tabs" data-config-render="tabs"></div>
 
 <div class="container">
+  <nav class="global-step-nav global-step-nav-top" aria-label="Navegacion de pasos">
+    <button class="filter-btn" type="button" data-global-step-nav="prev">Anterior · <span data-step-nav-label>Control Panel</span></button>
+    <strong data-global-step-current>Edge Factory</strong>
+    <button class="filter-btn active" type="button" data-global-step-nav="next">Siguiente · <span data-step-nav-label>Activos</span></button>
+  </nav>
 
   <!-- TAB: INICIO -->
   <div id="tab-inicio" class="tab-content" style="display:none">
@@ -2145,6 +2150,12 @@
     </div>
   </div>
 
+  <nav class="global-step-nav global-step-nav-bottom" aria-label="Navegacion de pasos inferior">
+    <button class="filter-btn" type="button" data-global-step-nav="prev">Anterior · <span data-step-nav-label>Control Panel</span></button>
+    <strong data-global-step-current>Edge Factory</strong>
+    <button class="filter-btn active" type="button" data-global-step-nav="next">Siguiente · <span data-step-nav-label>Activos</span></button>
+  </nav>
+
   <!-- MODAL: backups de estado -->
   <div class="strat-modal-backdrop" id="state-restore-backdrop" style="display:none;">
     <div class="strat-modal" style="max-width:720px;">
@@ -2266,6 +2277,43 @@
         <article data-edge-signal="template"><span>Template C2</span><strong>Pendiente</strong><small>Indicador · cluster · exit policy</small></article>
         <article data-edge-signal="portfolio"><span>Portfolio</span><strong>Pendiente</strong><small>Shortlist diversa Capa 2</small></article>
       </div>
+
+      <section class="edge-methodology-panel" id="edge-methodology-panel" aria-label="Pipeline metodologico Edge Factory">
+        <div class="edge-methodology-head">
+          <div>
+            <span class="badge info">Pipeline metodologico</span>
+            <h3>Cómo se construyen Capa 1, Template C2, Capa 2 y Portfolio</h3>
+          </div>
+          <span class="edge-methodology-state">Consulta visible</span>
+        </div>
+        <div class="edge-methodology-grid">
+          <article><strong>Capa 1</strong><span>Hipótesis de mercado -> custom Capa 1 -> databanks reales -> candidatos descorrelacionados para Template C2.</span></article>
+          <article><strong>Template C2</strong><span>Un ganador diverso aporta indicador, cluster, dirección, timeframe y política de salida trazable.</span></article>
+          <article><strong>Capa 2</strong><span>El template se especializa con filtros y robustez para producir candidatos operativos.</span></article>
+          <article><strong>Portfolio</strong><span>Candidatos Capa 2 pasan a comparación, diversidad y decisión gradual sin promesas de rentabilidad.</span></article>
+        </div>
+        <details class="edge-methodology-advanced" data-edge-advanced-only>
+          <summary>Ver pipeline avanzado completo</summary>
+          <div class="edge-methodology-flow">
+            <span>Activos</span>
+            <span>Project Generator C1</span>
+            <span>SQX Capa1 completo</span>
+            <span>Template Maker + CORR C1</span>
+            <span>Template C2</span>
+            <span>Project Generator C2</span>
+            <span>SQX Capa2 completo</span>
+            <span>Portfolio / CVC</span>
+          </div>
+          <div class="edge-methodology-actions">
+            <button class="filter-btn" type="button" data-edge-tool="activos">Activos</button>
+            <button class="filter-btn" type="button" data-edge-tool="pipeline">Mining Control</button>
+            <button class="filter-btn" type="button" data-edge-tool="views">SQX Views</button>
+            <button class="filter-btn" type="button" data-edge-tool="projectgen">Project Generator</button>
+            <button class="filter-btn" type="button" data-edge-tool="templatemaker">Template Maker</button>
+            <button class="filter-btn" type="button" data-edge-tool="cvc">CVC</button>
+          </div>
+        </details>
+      </section>
 
       <section class="edge-mining-registry-panel" id="edge-mining-registry-panel" aria-label="Embudo real SQX142 registrado">
         <div class="edge-registry-head">
@@ -4704,8 +4752,8 @@ Bloquear Capa 2 si la curva no conserva sentido</pre>
     <div class="rule dont">
       <div class="rule-icon">✗</div>
       <div class="rule-text">
-        <strong>NO HACER: Operar Long+Short en oro/índices</strong>
-        Oro/índices tienen sesgo macro alcista estructural. Short funciona en raros eventos pero pasa años perdiendo.
+        <strong>NO HACER: Minar índices/oro en Only Short</strong>
+        Índices/oro pueden consultarse como referencia y usarse en hipótesis Long cuando aplique, pero la generación Short queda bloqueada en esta metodología.
       </div>
     </div>
 

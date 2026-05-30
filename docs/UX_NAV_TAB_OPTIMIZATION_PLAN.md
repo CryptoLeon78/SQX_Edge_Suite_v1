@@ -40,6 +40,10 @@ Visual correction: duplicate showcase/preload panels are removed so the tab stay
 
 Navigation correction: the sidebar labels/icons are standardized for the current methodology: `Activos`, `Mining Control`, `Project Generator`, `Template Maker`, `Strategy Control`, `Champion vs Challenger`, `BlockSettings Info` and `Control Panel`. The navigation rail can be collapsed to icon-only mode to recover workspace width.
 
+Activos basic/advanced correction: `sqxSelectionPolicy` separates recommended SQX config, selected SQX config and generation permission. Forex is selectable in A/B/C/D; index/gold `Only Short` generation is blocked. In basic mode asset cards use direct Project Generator prefill and hide Plan Mining technical buttons; in advanced mode `+ Plan`, `Gen Project` and Mining Control handoffs remain visible.
+
+Navigation step correction: both basic and advanced users have top and bottom `Anterior` / `Siguiente` controls. Basic navigation follows the methodological route from Edge Factory through Activos, Project Generator, Template Maker, CVC/Portfolio and Control Panel; advanced navigation follows the technical manifest order.
+
 BlockSettings Info pass: `Help/Filtros Fase 2` is repurposed as a methodological BlockSettings showcase. It keeps internal tab id `filtros`, but now explains Capa 1 edge-search BlockSettings from real `_v6`/intraday v6 `.sqb` files, including `BS_Volatilidad_v6` as the general Volatilidad source and `BS_Volatilidad_v6_intraday_v6` for M5/M15/M30/H1, Capa 2 `BS_Filtros_v6`/`BS_Filtros_v6_D1` recommendations, calibrated market logic and the connection with Activos, Plan Mining and Project Generator.
 
 ## Tab Pass Order

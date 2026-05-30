@@ -271,6 +271,9 @@ const appConfig = fs.readFileSync(path.join(repoRoot, 'app/js/app-config.js'), '
 const indexJs = fs.readFileSync(path.join(repoRoot, 'app/js/modules/index.js'), 'utf8');
 
 assert.equal(html.includes('id="edge-factory-shell"'), true);
+assert.equal(html.includes('global-step-nav-top'), true);
+assert.equal(html.includes('id="edge-methodology-panel"'), true);
+assert.equal(html.includes('Ver pipeline avanzado completo'), true);
 assert.equal(html.includes('id="edge-tool-drawer"'), true);
 assert.equal(html.includes('data-edge-mode="basic"'), true);
 assert.equal(html.includes('data-edge-mode="advanced"'), true);

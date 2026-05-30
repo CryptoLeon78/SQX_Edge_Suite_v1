@@ -21,6 +21,65 @@
   ],
   "rules": [
     {
+      "id": "sqx142_activos_basic_advanced_workflow_alignment_gate",
+      "description": "Activos must separate SQX recommendation, selected A/B/C/D config and generation permission while basic mode hides Plan Mining technical controls and advanced mode keeps them.",
+      "required": {
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Current phase active: SQX142-ACTIVOS-BASIC-ADVANCED - Activos Workflow Alignment",
+          "`sqxSelectionPolicy`",
+          "Forex can be selected in A/B/C/D",
+          "Asset scores are hypotheses before mining"
+        ],
+        "docs/UX_NAV_TAB_OPTIMIZATION_PLAN.md": [
+          "Activos basic/advanced correction",
+          "Forex is selectable in A/B/C/D",
+          "index/gold `Only Short` generation is blocked",
+          "top and bottom `Anterior` / `Siguiente` controls"
+        ],
+        "docs/WFCO_EDGE_FACTORY_FACELIFT.md": [
+          "SQX142-ACTIVOS-BASIC-ADVANCED Contract",
+          "selected SQX config",
+          "`Preparar custom`",
+          "full internal pipeline handoffs"
+        ],
+        "CHANGELOG.md": [
+          "SQX142 Activos Basic/Advanced Workflow Alignment",
+          "`sqxSelectionPolicy`",
+          "Forex can be selected in A/B/C/D",
+          "global `Anterior` / `Siguiente` navigation"
+        ],
+        "backend/sqx-edge-tool/config/ui_manifest.json": [
+          "\"sqxSelectionPolicy\"",
+          "\"forexSelectableConfigs\"",
+          "\"shortBlockedTypes\"",
+          "\"hypothesis_prior_not_final_selector\""
+        ],
+        "app/js/modules/domain.js": [
+          "sqxSelectionPolicy",
+          "assetCanUseSqxConfig",
+          "isShortBlockedAsset",
+          "resolveSqxDirection"
+        ],
+        "app/js/dashboard.js": [
+          "edgeExperienceMode",
+          "assetActionButtonsHtml",
+          "Preparar custom",
+          "Short bloqueado"
+        ],
+        "app/SQX_Dashboard_v6.html": [
+          "global-step-nav-top",
+          "edge-methodology-panel",
+          "Pipeline metodologico",
+          "Ver pipeline avanzado completo"
+        ]
+      },
+      "forbidden": {
+        "app/js/dashboard.js": [
+          "Short funciona en raros eventos pero pasa años perdiendo"
+        ]
+      }
+    },
+    {
       "id": "sqx142_capa1_c2_corr2_local_project_integration_gate",
       "description": "Capa1 C2 CORR2 may add active CORR1 retest/tag tasks to the selected local SQX142 custom project with backup/rollback while preserving no-jars/no-data.db boundaries.",
       "required": {

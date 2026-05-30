@@ -107,6 +107,18 @@ The mode is persisted in `sqx_edge_factory_state_v1` as `experienceMode`. Switch
 
 The shell also makes the new delivery model explicit: Capa 1 and Capa 2 produce browser-download `.cfx` files, and Project Generator works with SQX target profiles such as `SQ default / configurable`.
 
+## SQX142-ACTIVOS-BASIC-ADVANCED Contract
+
+Activos now treats the asset score as a pre-mining hypothesis, not final evidence. The UI separates:
+
+- recommended SQX config, derived from the card evidence;
+- selected SQX config, chosen by the user with A/B/C/D filters;
+- generation permission, governed by `sqxSelectionPolicy`.
+
+Forex can be selected in A/B/C/D. Index/gold `Only Short` generation is blocked in the current methodology, while those assets remain reviewable as reference. Basic mode shows a single `Preparar custom` action that prefills Project Generator directly. Advanced mode keeps `+ Plan`, `Gen Project`, timeframe selection and Mining Control handoffs.
+
+Edge Factory also exposes a methodology panel in both modes. Basic mode shows the compact Capa1 -> Template C2 -> Capa2 -> Portfolio guide; advanced mode adds the full internal pipeline handoffs.
+
 ## Phase Status
 
 | Phase | Status | Scope |
@@ -118,6 +130,7 @@ The shell also makes the new delivery model explicit: Capa 1 and Capa 2 produce 
 | WFCO-4 | Completed | Portfolio Lab MVP beyond the shell. |
 | WFCO-5 | Completed | Desktop polish, command strip, status stack and visual QA contract. |
 | WFCO-ACCEPT1 | Completed | Basic/advanced experience mode and `.cfx` download/target-profile acceptance polish. |
+| SQX142-ACTIVOS-BASIC-ADVANCED | Completed | Asset-card SQX A/B/C/D policy, basic prefill, advanced Plan Mining controls and workflow navigation. |
 
 ## Safety Rules
 

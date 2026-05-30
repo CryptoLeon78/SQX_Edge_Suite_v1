@@ -57,7 +57,7 @@
     var pct = Math.max(0, Math.min(100, Math.round(score.composite * 100)));
     var color = pct >= 75 ? 'var(--green)' : pct >= 50 ? 'var(--accent)' : pct >= 25 ? 'var(--yellow)' : 'var(--red)';
     return '<div class="composite-bar"><div class="composite-bar-fill" style="width:' + pct + '%;background:' + color + '"></div></div>'
-      + '<div class="composite-text">Composite ' + pct + '% percentil (Dukascopy H1 2010-2026)</div>';
+      + '<div class="composite-text">Hipótesis previa ' + pct + '% percentil (no prueba final)</div>';
   }
 
   function historySection(assetId, historical, chartHtml, macroEvents) {
