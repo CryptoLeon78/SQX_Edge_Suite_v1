@@ -20,6 +20,7 @@ Endpoints:
 """
 from __future__ import annotations
 
+import argparse
 import json
 import os
 import re
@@ -120,8 +121,62 @@ from core.support_incidents import (
     support_incident_public_response,
     validate_support_incident,
 )
-from core.sqx_compatibility import build_sqx142_status
+from core.sqx_compatibility import SQX142_DEFAULT_ROOT, build_sqx142_status
 from core.sqx_performance import build_sqx142_performance_status
+from core.sqx142_mcp_like_readonly import (
+    MCP_LIKE_VERSION,
+    build_mcp_like_data_catalog,
+    build_mcp_like_databanks,
+    build_mcp_like_projects,
+    build_mcp_like_status,
+    build_mcp_like_strategies,
+    build_results_plugin_readiness,
+)
+from core.sqx142_correlation_filter_external import (
+    CORRELATION_FILTER_EXTERNAL_VERSION,
+    build_correlation_filter_report,
+    export_correlation_filter_csv,
+    export_correlation_filter_sqx_tag_csv,
+)
+from core.sqx142_portfolio_correlation_stability import (
+    PORTFOLIO_CORRELATION_STABILITY_VERSION,
+    build_portfolio_correlation_stability_report,
+    export_portfolio_correlation_stability_csv,
+)
+from core.sqx142_monte_carlo_candidate_benchmarks import (
+    MONTE_CARLO_BENCHMARKS_VERSION,
+    build_monte_carlo_benchmark_report,
+    export_monte_carlo_benchmark_csv,
+)
+from core.sqx142_mt5_data_intake_probe import (
+    MT5_DATA_INTAKE_PROBE_VERSION,
+    build_mt5_data_intake_probe_report,
+    export_mt5_data_intake_probe_csv,
+)
+from core.sqx142_copy_only_migration_checklist import (
+    COPY_ONLY_MIGRATION_CHECKLIST_VERSION,
+    build_copy_only_migration_checklist,
+    export_copy_only_migration_checklist_csv,
+)
+from tools.sqx142_mining_registry import (
+    DEFAULT_DB as SQX142_MINING_REGISTRY_DEFAULT_DB,
+    VERSION as SQX142_MINING_REGISTRY_VERSION,
+    build_funnel_payload as build_sqx142_mining_registry_funnel,
+    scan_project_databanks as scan_sqx142_mining_registry_project,
+)
+from tools.sqx142_portfolio_corr2_local_project_integration import (
+    VERSION as SQX142_PORTFOLIO_CORR2_VERSION,
+    apply_integration as apply_sqx142_portfolio_corr2_integration,
+    build_plan as build_sqx142_portfolio_corr2_plan,
+    build_status as build_sqx142_portfolio_corr2_status,
+    record_manual_status as record_sqx142_portfolio_corr2_status,
+    rollback_integration as rollback_sqx142_portfolio_corr2_integration,
+)
+from tools.sqx142_portfolio_corr1_registered_decision import (
+    VERSION as SQX142_PORTFOLIO_CORR1_REGISTERED_DECISION_VERSION,
+    analyze as analyze_sqx142_portfolio_corr1_registered_decision,
+    status_for as build_sqx142_portfolio_corr1_registered_decision_status,
+)
 from core.fulfillment_queue import (
     load_request as load_fulfillment_request,
     process_request as process_fulfillment_request,
@@ -1862,6 +1917,388 @@ def api_sqx142_performance_status():
             "privacy": {"local_paths_returned": False},
         }), 403
     return jsonify(build_sqx142_performance_status(PROJECT_ROOT, include_paths=False))
+
+
+def _sqx142_local_operator_error(version: str = MCP_LIKE_VERSION):
+    return jsonify({
+        "ok": False,
+        "version": version,
+        "error": "local_operator_required",
+        "privacy": {
+            "local_paths_returned": False,
+            "raw_project_names_returned": False,
+            "license_material_returned": False,
+            "tokens_returned": False,
+        },
+    }), 403
+
+
+def _require_sqx142_local_operator(version: str = MCP_LIKE_VERSION):
+    local_operator = _is_local_remote(request.remote_addr) and _is_local_host(request.host) and not trusted_email_from_headers(request.headers)
+    if not local_operator:
+        return _sqx142_local_operator_error(version)
+    return None
+
+
+@app.get("/api/sqx142/mcp-like/status")
+def api_sqx142_mcp_like_status():
+    error = _require_sqx142_local_operator()
+    if error:
+        return error
+    return jsonify(build_mcp_like_status(PROJECT_ROOT))
+
+
+@app.get("/api/sqx142/mcp-like/projects")
+def api_sqx142_mcp_like_projects():
+    error = _require_sqx142_local_operator()
+    if error:
+        return error
+    include_raw = str(request.args.get("includeRawNames", "")).casefold() == "true"
+    return jsonify(build_mcp_like_projects(
+        limit=request.args.get("limit"),
+        offset=request.args.get("offset"),
+        include_raw_names=include_raw,
+    ))
+
+
+@app.get("/api/sqx142/mcp-like/data-catalog")
+def api_sqx142_mcp_like_data_catalog():
+    error = _require_sqx142_local_operator()
+    if error:
+        return error
+    return jsonify(build_mcp_like_data_catalog(limit=request.args.get("limit")))
+
+
+@app.get("/api/sqx142/mcp-like/databanks")
+def api_sqx142_mcp_like_databanks():
+    error = _require_sqx142_local_operator()
+    if error:
+        return error
+    return jsonify(build_mcp_like_databanks(
+        project_id=str(request.args.get("projectId") or ""),
+        limit=request.args.get("limit"),
+    ))
+
+
+@app.get("/api/sqx142/mcp-like/strategies")
+def api_sqx142_mcp_like_strategies():
+    error = _require_sqx142_local_operator()
+    if error:
+        return error
+    return jsonify(build_mcp_like_strategies(
+        project_id=str(request.args.get("projectId") or ""),
+        limit=request.args.get("limit"),
+    ))
+
+
+@app.get("/api/sqx142/mcp-like/results-plugin-readiness")
+def api_sqx142_mcp_like_results_plugin_readiness():
+    error = _require_sqx142_local_operator()
+    if error:
+        return error
+    return jsonify(build_results_plugin_readiness(PROJECT_ROOT))
+
+
+@app.post("/api/sqx142/correlation-filter/external")
+def api_sqx142_correlation_filter_external():
+    error = _require_sqx142_local_operator(CORRELATION_FILTER_EXTERNAL_VERSION)
+    if error:
+        return error
+    payload = request.get_json(silent=True) or {}
+    source_payload = (
+        payload.get("rows") or payload.get("portfolioLab") or payload.get("csv") or payload
+        if isinstance(payload, dict)
+        else payload
+    )
+    report = build_correlation_filter_report(
+        source_payload,
+        settings=payload.get("settings") if isinstance(payload, dict) else None,
+    )
+    if isinstance(payload, dict) and payload.get("includeCsvExport"):
+        report["csvExport"] = export_correlation_filter_csv(report)
+    if isinstance(payload, dict) and payload.get("includeSqxTagCsv"):
+        report["sqxTagCsv"] = export_correlation_filter_sqx_tag_csv(report)
+    return jsonify(report)
+
+
+@app.post("/api/sqx142/portfolio-correlation/stability-audit")
+def api_sqx142_portfolio_correlation_stability_audit():
+    error = _require_sqx142_local_operator(PORTFOLIO_CORRELATION_STABILITY_VERSION)
+    if error:
+        return error
+    payload = request.get_json(silent=True) or {}
+    if not isinstance(payload, dict):
+        payload = {"csv": payload}
+    report = build_portfolio_correlation_stability_report(payload, payload.get("settings") if isinstance(payload.get("settings"), dict) else None)
+    if payload.get("includeCsvExport"):
+        report["csvExport"] = export_portfolio_correlation_stability_csv(report)
+    return jsonify(report)
+
+
+@app.post("/api/sqx142/portfolio-corr1/registered-decision")
+def api_sqx142_portfolio_corr1_registered_decision():
+    error = _require_sqx142_local_operator(SQX142_PORTFOLIO_CORR1_REGISTERED_DECISION_VERSION)
+    if error:
+        return error
+    payload = request.get_json(silent=True) or {}
+    if not isinstance(payload, dict):
+        payload = {}
+    action = str(payload.get("action") or "status").strip().lower()
+    if action not in {"status", "analyze"}:
+        return jsonify({
+            "ok": False,
+            "version": SQX142_PORTFOLIO_CORR1_REGISTERED_DECISION_VERSION,
+            "error": "invalid_action",
+            "privacy": {"local_paths_returned": False},
+        }), 400
+    project_key = str(payload.get("projectKey") or payload.get("projectName") or "").strip()
+    if not project_key or any(part in project_key for part in ("..", "/", "\\")):
+        return jsonify({
+            "ok": False,
+            "version": SQX142_PORTFOLIO_CORR1_REGISTERED_DECISION_VERSION,
+            "error": "project_key_required",
+            "privacy": {"local_paths_returned": False},
+        }), 400
+    user_projects = (SQX142_DEFAULT_ROOT / "user" / "projects").resolve()
+    sqx_project_dir = (user_projects / project_key).resolve()
+    try:
+        sqx_project_dir.relative_to(user_projects)
+    except ValueError:
+        return jsonify({
+            "ok": False,
+            "version": SQX142_PORTFOLIO_CORR1_REGISTERED_DECISION_VERSION,
+            "error": "project_dir_outside_sqx142_user_projects",
+            "privacy": {"local_paths_returned": False},
+        }), 400
+    settings = payload.get("settings") if isinstance(payload.get("settings"), dict) else {}
+    def setting_number(key: str, fallback: float) -> float:
+        try:
+            return float(settings.get(key, fallback))
+        except (TypeError, ValueError):
+            return fallback
+    args = argparse.Namespace(
+        action=action,
+        sqx_root=str(SQX142_DEFAULT_ROOT),
+        project_key=project_key,
+        databank=str(payload.get("databank") or "SQX EDGE CORR1 TAGGED"),
+        db=str(PROJECT_ROOT / SQX142_MINING_REGISTRY_DEFAULT_DB),
+        max_is_correlation=setting_number("maxIsCorrelation", 0.50),
+        max_oos3_correlation=setting_number("maxOos3Correlation", 0.60),
+        warn_oos3_correlation=setting_number("warnOos3Correlation", 0.45),
+        max_correlation_drift=setting_number("maxCorrelationDrift", 0.25),
+        min_comparable_points=int(setting_number("minComparablePoints", 12)),
+        max_winners=int(setting_number("maxWinners", 12)),
+        skip_process_guard=False,
+    )
+    try:
+        if action == "analyze":
+            report = analyze_sqx142_portfolio_corr1_registered_decision(args)
+        else:
+            report = build_sqx142_portfolio_corr1_registered_decision_status(
+                sqx_project_dir,
+                args.databank,
+                PROJECT_ROOT / SQX142_MINING_REGISTRY_DEFAULT_DB,
+                project_key,
+                SQX142_DEFAULT_ROOT,
+            )
+    except Exception as exc:
+        return jsonify({
+            "ok": False,
+            "version": SQX142_PORTFOLIO_CORR1_REGISTERED_DECISION_VERSION,
+            "action": action,
+            "error": type(exc).__name__,
+            "message": str(exc)[:240],
+            "privacy": {"local_paths_returned": False},
+        }), 400
+    return jsonify(report)
+
+
+@app.post("/api/sqx142/monte-carlo/benchmarks")
+def api_sqx142_monte_carlo_benchmarks():
+    error = _require_sqx142_local_operator(MONTE_CARLO_BENCHMARKS_VERSION)
+    if error:
+        return error
+    payload = request.get_json(silent=True) or {}
+    report = build_monte_carlo_benchmark_report(
+        payload.get("rows") or payload.get("portfolioLab") or payload.get("csv") or payload,
+        settings=payload.get("settings") if isinstance(payload, dict) else None,
+    )
+    if isinstance(payload, dict) and payload.get("includeCsvExport"):
+        report["csvExport"] = export_monte_carlo_benchmark_csv(report)
+    return jsonify(report)
+
+
+@app.post("/api/sqx142/mt5-data-intake/probe")
+def api_sqx142_mt5_data_intake_probe():
+    error = _require_sqx142_local_operator(MT5_DATA_INTAKE_PROBE_VERSION)
+    if error:
+        return error
+    payload = request.get_json(silent=True) or {}
+    report = build_mt5_data_intake_probe_report(
+        payload,
+        settings=payload.get("settings") if isinstance(payload, dict) else None,
+    )
+    if isinstance(payload, dict) and payload.get("includeCsvExport"):
+        report["csvExport"] = export_mt5_data_intake_probe_csv(report)
+    return jsonify(report)
+
+
+@app.post("/api/sqx142/migration/copy-only-checklist")
+def api_sqx142_copy_only_migration_checklist():
+    error = _require_sqx142_local_operator(COPY_ONLY_MIGRATION_CHECKLIST_VERSION)
+    if error:
+        return error
+    payload = request.get_json(silent=True) or {}
+    report = build_copy_only_migration_checklist(payload)
+    if isinstance(payload, dict) and payload.get("includeCsvExport"):
+        report["csvExport"] = export_copy_only_migration_checklist_csv(report)
+    return jsonify(report)
+
+
+@app.get("/api/sqx142/mining-registry/funnel")
+def api_sqx142_mining_registry_funnel():
+    error = _require_sqx142_local_operator(SQX142_MINING_REGISTRY_VERSION)
+    if error:
+        return error
+    db_path = PROJECT_ROOT / SQX142_MINING_REGISTRY_DEFAULT_DB
+    project_key = str(request.args.get("projectKey") or "").strip()
+    run_key = str(request.args.get("runKey") or "").strip()
+    return jsonify(build_sqx142_mining_registry_funnel(db_path, project_key=project_key, run_key=run_key))
+
+
+@app.post("/api/sqx142/mining-registry/scan-project")
+def api_sqx142_mining_registry_scan_project():
+    error = _require_sqx142_local_operator(SQX142_MINING_REGISTRY_VERSION)
+    if error:
+        return error
+    payload = request.get_json(silent=True) or {}
+    if not isinstance(payload, dict):
+        payload = {}
+    project_key = str(payload.get("projectKey") or payload.get("projectName") or "").strip()
+    if not project_key or any(part in project_key for part in ("..", "/", "\\")):
+        return jsonify({
+            "ok": False,
+            "version": SQX142_MINING_REGISTRY_VERSION,
+            "error": "project_key_required",
+            "privacy": {"local_paths_returned": False},
+        }), 400
+    user_projects = (SQX142_DEFAULT_ROOT / "user" / "projects").resolve()
+    project_dir = (user_projects / project_key).resolve()
+    try:
+        project_dir.relative_to(user_projects)
+    except ValueError:
+        return jsonify({
+            "ok": False,
+            "version": SQX142_MINING_REGISTRY_VERSION,
+            "error": "project_dir_outside_sqx142_user_projects",
+            "privacy": {"local_paths_returned": False},
+        }), 400
+    db_path = PROJECT_ROOT / SQX142_MINING_REGISTRY_DEFAULT_DB
+    try:
+        max_sqx_parse = int(payload.get("maxSqxParse") or 300)
+    except (TypeError, ValueError):
+        max_sqx_parse = 300
+    args = argparse.Namespace(
+        action="scan-project",
+        db=str(db_path),
+        run_key=str(payload.get("runKey") or ""),
+        project_key=project_key,
+        project_dir=str(project_dir),
+        max_sqx_parse=max_sqx_parse,
+        source_type="sqx_local_project_scan",
+        project_name=str(payload.get("projectName") or project_key),
+        sqx_project_name=str(payload.get("sqxProjectName") or project_key),
+        asset=str(payload.get("asset") or "unknown"),
+        symbol=str(payload.get("symbol") or "unknown"),
+        timeframe=str(payload.get("timeframe") or "unknown"),
+        layer=str(payload.get("layer") or "unknown"),
+        blocksetting_family=str(payload.get("blocksettingFamily") or "unknown"),
+        direction=str(payload.get("direction") or "unknown"),
+        databank=str(payload.get("databank") or "Foward"),
+        sqx_profile=str(payload.get("sqxProfile") or "SQX Edge / Darwinex"),
+        operator_note=str(payload.get("operatorNote") or "ui:mining-registry-visual-funnel"),
+    )
+    try:
+        scan_report = scan_sqx142_mining_registry_project(args)
+    except SystemExit as exc:
+        error_text = str(exc).split(":", 1)[0] or "scan_project_failed"
+        return jsonify({
+            "ok": False,
+            "version": SQX142_MINING_REGISTRY_VERSION,
+            "error": error_text,
+            "privacy": {"local_paths_returned": False},
+            "guards": {
+                "read_only_sqx_project": True,
+                "sqx_data_db_written": False,
+                "sqx_jars_patched": False,
+                "sqx_runtime_started": False,
+            },
+        }), 400
+    funnel = build_sqx142_mining_registry_funnel(db_path, project_key=project_key)
+    return jsonify({
+        "ok": True,
+        "version": SQX142_MINING_REGISTRY_VERSION,
+        "action": "scan-project-and-funnel",
+        "scan": scan_report,
+        "funnel": funnel,
+        "privacy": {"local_paths_returned": False},
+        "guards": scan_report.get("guards", {}),
+    })
+
+
+@app.post("/api/sqx142/portfolio-corr2/local-project")
+def api_sqx142_portfolio_corr2_local_project():
+    error = _require_sqx142_local_operator(SQX142_PORTFOLIO_CORR2_VERSION)
+    if error:
+        return error
+    payload = request.get_json(silent=True) or {}
+    if not isinstance(payload, dict):
+        payload = {}
+    action = str(payload.get("action") or "status").strip().lower()
+    if action not in {"status", "plan", "apply", "rollback", "record"}:
+        return jsonify({
+            "ok": False,
+            "version": SQX142_PORTFOLIO_CORR2_VERSION,
+            "error": "invalid_action",
+            "privacy": {"local_paths_returned": False},
+        }), 400
+    project_key = str(payload.get("projectKey") or payload.get("projectName") or "").strip()
+    if not project_key or any(part in project_key for part in ("..", "/", "\\")):
+        return jsonify({
+            "ok": False,
+            "version": SQX142_PORTFOLIO_CORR2_VERSION,
+            "error": "project_key_required",
+            "privacy": {"local_paths_returned": False},
+        }), 400
+    args = argparse.Namespace(
+        action=action,
+        sqx_root=str(SQX142_DEFAULT_ROOT),
+        project_key=project_key,
+        db=str(PROJECT_ROOT / SQX142_MINING_REGISTRY_DEFAULT_DB),
+        backup_id=str(payload.get("backupId") or ""),
+        skip_process_guard=False,
+    )
+    try:
+        if action == "plan":
+            report = build_sqx142_portfolio_corr2_plan(args)
+        elif action == "apply":
+            report = apply_sqx142_portfolio_corr2_integration(args)
+        elif action == "rollback":
+            report = rollback_sqx142_portfolio_corr2_integration(args)
+        elif action == "record":
+            report = record_sqx142_portfolio_corr2_status(args)
+        else:
+            report = build_sqx142_portfolio_corr2_status(args)
+    except Exception as exc:
+        return jsonify({
+            "ok": False,
+            "version": SQX142_PORTFOLIO_CORR2_VERSION,
+            "action": action,
+            "error": type(exc).__name__,
+            "message": str(exc)[:240],
+            "privacy": {"local_paths_returned": False},
+        }), 400
+    return jsonify(report)
 
 
 @app.get("/api/agent/capabilities")
