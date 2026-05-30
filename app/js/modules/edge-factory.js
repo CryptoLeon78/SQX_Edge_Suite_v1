@@ -8,6 +8,7 @@
   var PORTFOLIO_MASTER_VERSION = 'portfolio-master-contract-v1';
   var PORTFOLIO_MASTER_INPUTS_VERSION = 'portfolio-master-inputs-pending-v1';
   var PORTFOLIO_CORRELATION_STABILITY_VERSION = 'sqx142-portfolio-corr1-stability-audit-v1';
+  var CAPA1_C2_CORRELATION_SELECTION_VERSION = 'sqx142-capa1-c2-corr1-template-selection-v1';
   var BACKPORT_OPERATOR_PANEL_VERSION = 'ui-integration1-backport-operator-panel-v1';
   var PORTFOLIO_TARGET_MIN = 8;
   var PORTFOLIO_TARGET_MAX = 12;
@@ -43,6 +44,7 @@
       projectPrefill: null,
       capa1Outputs: [],
       capa1Analysis: null,
+      c2TemplateSelection: null,
       c2Template: null,
       capa2Outputs: [],
       portfolioLab: null,
@@ -342,10 +344,22 @@
     report = report || {};
     var clean = sanitizePlainObject(report, 12000);
     clean.version = sanitizeText(clean.version || PORTFOLIO_CORRELATION_STABILITY_VERSION, PORTFOLIO_CORRELATION_STABILITY_VERSION, 80);
+    clean.decisionDomain = clean.decisionDomain || 'capa2_portfolio_selection';
     clean.recordedAt = new Date().toISOString();
     return saveEvent({
       portfolioCorrelationStability: clean
     }, [], 'portfolio', 'edge-factory-portfolio-corr1-stability');
+  }
+
+  function recordC2TemplateSelection(report) {
+    report = report || {};
+    var clean = sanitizePlainObject(report, 12000);
+    clean.version = sanitizeText(clean.version || CAPA1_C2_CORRELATION_SELECTION_VERSION, CAPA1_C2_CORRELATION_SELECTION_VERSION, 80);
+    clean.decisionDomain = 'capa1_c2_template_selection';
+    clean.recordedAt = new Date().toISOString();
+    return saveEvent({
+      c2TemplateSelection: clean
+    }, ['capa1-analyze'], 'c2-template', 'edge-factory-capa1-c2-corr1-selection');
   }
 
   function recordMiningRegistryFunnel(input) {
@@ -381,9 +395,13 @@
       sppCount: spp ? numeric(spp.row_count, 0) : 0,
       wfmCount: wfm ? numeric(wfm.row_count, 0) : 0
     }, patch.capa1Analysis || {});
+    var c2Selection = patch.c2TemplateSelection && patch.c2TemplateSelection.decisionDomain
+      ? patch.c2TemplateSelection
+      : null;
     return saveEvent({
       selectedCard: normalizeCard(selectedCard),
       capa1Analysis: analysis,
+      c2TemplateSelection: c2Selection,
       miningRegistryFunnel: input
     }, ['asset', 'capa1-generate', 'capa1-analyze'], 'c2-template', 'edge-factory-mining-registry-funnel');
   }
@@ -1450,10 +1468,17 @@
     },
     {
       id: 'portfolio-correlation-stability',
-      label: 'Portfolio CORR1 stability audit',
+      label: 'Capa2 Portfolio CORR1 stability audit',
       method: 'POST',
       endpoint: '/sqx142/portfolio-correlation/stability-audit',
       expectedVersion: PORTFOLIO_CORRELATION_STABILITY_VERSION
+    },
+    {
+      id: 'capa1-c2-correlation-selection',
+      label: 'Capa1 C2 template correlation selection',
+      method: 'POST',
+      endpoint: '/sqx142/capa1-c2-correlation/stability-audit',
+      expectedVersion: CAPA1_C2_CORRELATION_SELECTION_VERSION
     },
     {
       id: 'monte-carlo-benchmarks',
@@ -1553,7 +1578,7 @@
 
   function backportOperatorSample(operationId) {
     var operation = backportOperatorOperation(operationId).id;
-    if (operation === 'portfolio-correlation-stability') {
+    if (operation === 'portfolio-correlation-stability' || operation === 'capa1-c2-correlation-selection') {
       return [
         'strategy,asset,timeframe,profitFactor,retDd,maxDd,trades,blockSetting,isReturnSeries,oos3ReturnSeries',
         'AUDCAD_H1_A,AUDCAD,H1,1.55,5.4,18,160,BS_Momentum_v6,0.01|0.02|-0.01|0.03|0.02|0.01|0.00|0.02|0.01|0.01|0.02|0.00,0.006|0.004|-0.003|0.009|0.002|-0.001|0.008|0.004|-0.002|0.007|0.003|0.005',
@@ -1607,7 +1632,7 @@
         includeSqxTagCsv: true
       };
     }
-    if (operation.id === 'portfolio-correlation-stability') {
+    if (operation.id === 'portfolio-correlation-stability' || operation.id === 'capa1-c2-correlation-selection') {
       return parsed || {
         csv: String(input || ''),
         settings: {
@@ -1809,6 +1834,7 @@
     portfolioMasterVersion: PORTFOLIO_MASTER_VERSION,
     portfolioMasterInputsVersion: PORTFOLIO_MASTER_INPUTS_VERSION,
     portfolioCorrelationStabilityVersion: PORTFOLIO_CORRELATION_STABILITY_VERSION,
+    capa1C2CorrelationSelectionVersion: CAPA1_C2_CORRELATION_SELECTION_VERSION,
     backportOperatorPanelVersion: BACKPORT_OPERATOR_PANEL_VERSION,
     storageKey: storageKey,
     defaultState: defaultState,
@@ -1826,6 +1852,7 @@
     recordC2Template: recordC2Template,
     recordPortfolioLab: recordPortfolioLab,
     recordPortfolioCorrelationStability: recordPortfolioCorrelationStability,
+    recordC2TemplateSelection: recordC2TemplateSelection,
     recordPortfolioMasterContract: recordPortfolioMasterContract,
     recordMiningRegistryFunnel: recordMiningRegistryFunnel,
     recordDownloadRequest: recordDownloadRequest,

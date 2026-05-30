@@ -11,6 +11,8 @@ const sample = fs.readFileSync(sourceSamplePath, 'utf8');
 
 assert.match(py, /DATA_SMOKE_VERSION = "sqx142-own-features2-correlation-data-smoke-v1"/);
 assert.match(py, /export_correlation_filter_sqx_tag_csv/);
+assert.match(py, /"c2TemplateRank"/);
+assert.match(py, /"decisionDomain"/);
 assert.match(py, /"raw_strategy_names_returned": False/);
 assert.match(py, /"tag_csv_only": True/);
 assert.doesNotMatch(py, /data\.db|user\/projects|run_project|Stop-Process/);

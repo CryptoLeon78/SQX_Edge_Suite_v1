@@ -31,6 +31,8 @@ TAG_SCHEMA = [
     "correlationStatus",
     "nearestWinnerId",
     "portfolioRank",
+    "c2TemplateRank",
+    "decisionDomain",
     "generatedAt",
     "version",
 ]

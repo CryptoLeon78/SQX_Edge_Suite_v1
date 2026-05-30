@@ -139,7 +139,9 @@ from core.sqx142_correlation_filter_external import (
     export_correlation_filter_sqx_tag_csv,
 )
 from core.sqx142_portfolio_correlation_stability import (
+    CAPA1_C2_CORRELATION_SELECTION_VERSION,
     PORTFOLIO_CORRELATION_STABILITY_VERSION,
+    build_capa1_c2_correlation_selection_report,
     build_portfolio_correlation_stability_report,
     export_portfolio_correlation_stability_csv,
 )
@@ -165,7 +167,7 @@ from tools.sqx142_mining_registry import (
     scan_project_databanks as scan_sqx142_mining_registry_project,
 )
 from tools.sqx142_portfolio_corr2_local_project_integration import (
-    VERSION as SQX142_PORTFOLIO_CORR2_VERSION,
+    VERSION as SQX142_CAPA1_C2_CORR2_VERSION,
     apply_integration as apply_sqx142_portfolio_corr2_integration,
     build_plan as build_sqx142_portfolio_corr2_plan,
     build_status as build_sqx142_portfolio_corr2_status,
@@ -2029,12 +2031,34 @@ def api_sqx142_portfolio_correlation_stability_audit():
     payload = request.get_json(silent=True) or {}
     if not isinstance(payload, dict):
         payload = {"csv": payload}
-    report = build_portfolio_correlation_stability_report(payload, payload.get("settings") if isinstance(payload.get("settings"), dict) else None)
+    report = build_portfolio_correlation_stability_report(
+        payload,
+        payload.get("settings") if isinstance(payload.get("settings"), dict) else None,
+        decision_domain="capa2_portfolio_selection",
+    )
     if payload.get("includeCsvExport"):
         report["csvExport"] = export_portfolio_correlation_stability_csv(report)
     return jsonify(report)
 
 
+@app.post("/api/sqx142/capa1-c2-correlation/stability-audit")
+def api_sqx142_capa1_c2_correlation_stability_audit():
+    error = _require_sqx142_local_operator(CAPA1_C2_CORRELATION_SELECTION_VERSION)
+    if error:
+        return error
+    payload = request.get_json(silent=True) or {}
+    if not isinstance(payload, dict):
+        payload = {"csv": payload}
+    report = build_capa1_c2_correlation_selection_report(
+        payload,
+        payload.get("settings") if isinstance(payload.get("settings"), dict) else None,
+    )
+    if payload.get("includeCsvExport"):
+        report["csvExport"] = export_portfolio_correlation_stability_csv(report)
+    return jsonify(report)
+
+
+@app.post("/api/sqx142/capa1-c2-corr1/registered-decision")
 @app.post("/api/sqx142/portfolio-corr1/registered-decision")
 def api_sqx142_portfolio_corr1_registered_decision():
     error = _require_sqx142_local_operator(SQX142_PORTFOLIO_CORR1_REGISTERED_DECISION_VERSION)
@@ -2246,9 +2270,10 @@ def api_sqx142_mining_registry_scan_project():
     })
 
 
+@app.post("/api/sqx142/capa1-c2-corr2/local-project")
 @app.post("/api/sqx142/portfolio-corr2/local-project")
 def api_sqx142_portfolio_corr2_local_project():
-    error = _require_sqx142_local_operator(SQX142_PORTFOLIO_CORR2_VERSION)
+    error = _require_sqx142_local_operator(SQX142_CAPA1_C2_CORR2_VERSION)
     if error:
         return error
     payload = request.get_json(silent=True) or {}
@@ -2258,7 +2283,7 @@ def api_sqx142_portfolio_corr2_local_project():
     if action not in {"status", "plan", "apply", "rollback", "record"}:
         return jsonify({
             "ok": False,
-            "version": SQX142_PORTFOLIO_CORR2_VERSION,
+            "version": SQX142_CAPA1_C2_CORR2_VERSION,
             "error": "invalid_action",
             "privacy": {"local_paths_returned": False},
         }), 400
@@ -2266,7 +2291,7 @@ def api_sqx142_portfolio_corr2_local_project():
     if not project_key or any(part in project_key for part in ("..", "/", "\\")):
         return jsonify({
             "ok": False,
-            "version": SQX142_PORTFOLIO_CORR2_VERSION,
+            "version": SQX142_CAPA1_C2_CORR2_VERSION,
             "error": "project_key_required",
             "privacy": {"local_paths_returned": False},
         }), 400
@@ -2292,7 +2317,7 @@ def api_sqx142_portfolio_corr2_local_project():
     except Exception as exc:
         return jsonify({
             "ok": False,
-            "version": SQX142_PORTFOLIO_CORR2_VERSION,
+            "version": SQX142_CAPA1_C2_CORR2_VERSION,
             "action": action,
             "error": type(exc).__name__,
             "message": str(exc)[:240],

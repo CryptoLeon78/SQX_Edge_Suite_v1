@@ -280,18 +280,23 @@
     }
     var summary = report.summary || {};
     var methodology = report.methodology || {};
+    var labels = report.decisionLabels || {};
+    var isCapa1C2 = report.decisionDomain === 'capa1_c2_template_selection';
+    var primaryLabel = labels.selected || (isCapa1C2 ? 'C2 template' : 'Portfolio');
+    var similarLabel = labels.similar || (isCapa1C2 ? 'Template similar' : 'Similar');
+    var heading = isCapa1C2 ? 'Seleccion Capa1 -> Template C2' : 'Portfolio Capa2';
     var pairs = Array.isArray(report.selectedPairAudit) ? report.selectedPairAudit : [];
     output.innerHTML =
       '<div class="edge-portfolio-summary edge-corr-summary">' +
         '<div class="edge-portfolio-stat ' + escapeHtml(summary.status && summary.status.indexOf('blocked') === 0 ? 'review' : 'portfolio') + '"><span>Estado</span><strong>' + escapeHtml(summary.status || 'n/a') + '</strong></div>' +
         '<div class="edge-portfolio-stat"><span>Input</span><strong>' + escapeHtml(summary.inputRows || 0) + '</strong></div>' +
-        '<div class="edge-portfolio-stat portfolio"><span>IS select</span><strong>' + escapeHtml(summary.selectedByIs || 0) + '</strong></div>' +
-        '<div class="edge-portfolio-stat similar"><span>IS similar</span><strong>' + escapeHtml(summary.similarByIs || 0) + '</strong></div>' +
+        '<div class="edge-portfolio-stat portfolio"><span>' + escapeHtml(primaryLabel) + '</span><strong>' + escapeHtml(summary.selectedByIs || 0) + '</strong></div>' +
+        '<div class="edge-portfolio-stat similar"><span>' + escapeHtml(similarLabel) + '</span><strong>' + escapeHtml(summary.similarByIs || 0) + '</strong></div>' +
         '<div class="edge-portfolio-stat review"><span>OOS3 break</span><strong>' + escapeHtml(summary.oos3CorrelationBreaks || 0) + '</strong></div>' +
         '<div class="edge-portfolio-stat review"><span>Warnings</span><strong>' + escapeHtml(summary.oos3Warnings || 0) + '</strong></div>' +
       '</div>' +
       '<div class="edge-portfolio-empty">' +
-        '<strong>Regla de seleccion</strong>' +
+        '<strong>' + escapeHtml(heading) + '</strong>' +
         '<span>' + escapeHtml(methodology.selectionBasis || 'IS_CORR only') + ' · ' + escapeHtml(methodology.auditBasis || 'OOS3_CORR stability confirmation only') + ' · OOS3 elige sustitutos=' + escapeHtml(methodology.oos3MaySelectAlternates === true ? 'true' : 'false') + '.</span>' +
       '</div>' +
       '<table><thead><tr><th>Par</th><th>Corr IS</th><th>Corr OOS3</th><th>Drift</th><th>Estado IS</th><th>Estado OOS3</th><th>Flags</th></tr></thead><tbody>' +
@@ -563,12 +568,12 @@
     var key = String(registryProjectKey() || '').trim();
     var output = byId('edge-corr-results');
     syncRegistryInputs(key);
-    if (output) output.innerHTML = '<div class="edge-portfolio-empty"><strong>Auditando CORR1 registrado.</strong><span>Leyendo SQX local cerrado y series dailyEquity de SQX EDGE CORR1 TAGGED.</span></div>';
+    if (output) output.innerHTML = '<div class="edge-portfolio-empty"><strong>Analizando Capa1 C2 CORR1 registrado.</strong><span>Leyendo SQX local cerrado y series dailyEquity de SQX EDGE CORR1 TAGGED para seleccionar Template C2.</span></div>';
     if (!key || !global.fetch) {
       renderCorrelationStability({ ok: false, summary: { status: key ? 'fetch_unavailable' : 'project_key_missing' }, selectedPairAudit: [] });
       return Promise.resolve(null);
     }
-    return global.fetch(apiBase() + '/sqx142/portfolio-corr1/registered-decision', {
+    return global.fetch(apiBase() + '/sqx142/capa1-c2-corr1/registered-decision', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -580,7 +585,7 @@
     })
       .then(function(response) {
         return response.json().catch(function() {
-          return { ok: false, version: 'sqx142-portfolio-corr1-registered-decision-v1', report: { summary: { status: 'invalid_json_response' }, selectedPairAudit: [] } };
+          return { ok: false, version: 'sqx142-capa1-c2-corr1-registered-decision-v1', report: { summary: { status: 'invalid_json_response' }, selectedPairAudit: [] } };
         }).then(function(json) {
           if (!response.ok && !json.error) json.error = 'http_' + response.status;
           return json;
@@ -588,17 +593,17 @@
       })
       .then(function(json) {
         var report = json && json.report ? json.report : { ok: false, summary: { status: json && json.error ? json.error : 'missing_report' }, selectedPairAudit: [] };
-        if (SQX.edgeFactory && SQX.edgeFactory.recordPortfolioCorrelationStability) {
-          SQX.edgeFactory.recordPortfolioCorrelationStability(report);
+        if (SQX.edgeFactory && SQX.edgeFactory.recordC2TemplateSelection) {
+          SQX.edgeFactory.recordC2TemplateSelection(report);
         } else if (SQX.edgeFactory) {
-          SQX.edgeFactory.savePatch({ portfolioCorrelationStability: report }, 'portfolio-corr1-registered-decision');
+          SQX.edgeFactory.savePatch({ c2TemplateSelection: report }, 'capa1-c2-corr1-registered-decision');
         }
         renderCorrelationStability(report);
         renderState();
         return fetchRegistryFunnel(key).then(function() { return json; });
       })
       .catch(function(err) {
-        var report = { ok: false, version: 'sqx142-portfolio-corr1-registered-decision-v1', summary: { status: err && err.name ? err.name : 'network_error' }, selectedPairAudit: [] };
+        var report = { ok: false, version: 'sqx142-capa1-c2-corr1-registered-decision-v1', decisionDomain: 'capa1_c2_template_selection', summary: { status: err && err.name ? err.name : 'network_error' }, selectedPairAudit: [] };
         renderCorrelationStability(report);
         return report;
       });
@@ -993,12 +998,12 @@
     var state = report && report.ok === false ? (report.error || 'Error') : (message || (integrated ? 'Integrado' : 'Pendiente'));
     var summary = report
       ? [
-          'CORR2 ' + (integrated ? 'integrado' : 'no integrado'),
+          'Capa1 C2 CORR2 ' + (integrated ? 'integrado' : 'no integrado'),
           ((report.actual || {}).sourceDatabank || expected.sourceDatabank) ? ('Input ' + ((report.actual || {}).sourceDatabank || expected.sourceDatabank)) : 'Input Forward',
           expected.stabilityDatabank ? ('Output ' + expected.stabilityDatabank) : 'Output stability',
           backup ? ('Backup ' + backup) : ''
         ].filter(Boolean).join(' · ')
-      : 'CORR2 pendiente de preflight.';
+      : 'Capa1 C2 CORR2 pendiente de preflight.';
     ['edge-corr2-status', 'ps-corr2-status'].forEach(function(id) { setText(id, state); });
     ['edge-corr2-summary', 'ps-corr2-summary'].forEach(function(id) { setText(id, summary); });
   }
@@ -1043,7 +1048,7 @@
     var payload = { action: action || 'status', projectKey: key };
     if (payload.action === 'rollback') payload.backupId = corr2BackupId();
     renderCorr2Status(null, payload.action === 'apply' ? 'Parcheando' : 'Consultando');
-    return global.fetch(apiBase() + '/sqx142/portfolio-corr2/local-project', {
+    return global.fetch(apiBase() + '/sqx142/capa1-c2-corr2/local-project', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
@@ -1160,7 +1165,7 @@
     var state = SQX.edgeFactory && SQX.edgeFactory.getState ? SQX.edgeFactory.getState() : {};
     registryReadback = state && state.miningRegistryFunnel ? { ok: true, projects: [state.miningRegistryFunnel] } : registryReadback;
     renderRegistryPanel(registryReadback, registryReadback ? 'Registrado' : 'Sin lectura');
-    renderCorr2Status(null, 'Sin preflight');
+    renderCorr2Status(null, 'Sin preflight C2 CORR1');
   }
 
   function renderBackportOperationMode() {

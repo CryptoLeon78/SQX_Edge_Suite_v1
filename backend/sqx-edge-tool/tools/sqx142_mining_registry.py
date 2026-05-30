@@ -1072,6 +1072,23 @@ def build_funnel_payload(db_path: Path, project_key: str = "", run_key: str = ""
             projects = con.execute("SELECT * FROM custom_projects ORDER BY updated_at DESC LIMIT 20").fetchall()
         output_projects = []
         for project in projects:
+            is_capa1 = str(project["layer"]).casefold() == "capa1"
+            c2_corr_step_keys = {
+                "capa1_c2_corr2_project_patch",
+                "capa1_c2_corr1_stability_retest",
+                "capa1_c2_corr1_tagger_review",
+                "capa1_c2_corr1_registered_selection_decision",
+                "corr2_project_patch",
+                "corr2_stability_retest",
+                "corr2_tagger_review",
+                "corr1_registered_stability_decision",
+            }
+            c2_corr_databanks = {
+                "SQX EDGE CORR1 STABILITY",
+                "SQX EDGE CORR1 TAGGED",
+                "c2_template_selection_decision",
+                "portfolio_decision",
+            }
             project_id = int(project["id"])
             steps = [dict(row) for row in con.execute(
                 """
@@ -1103,11 +1120,49 @@ def build_funnel_payload(db_path: Path, project_key: str = "", run_key: str = ""
             ).fetchall()]
             for row in steps:
                 row["details"] = json.loads(row.pop("details_json"))
+                if is_capa1 and (
+                    row.get("output_databank") == "portfolio_decision"
+                    or row.get("step_key") in c2_corr_step_keys
+                    or row.get("output_databank") in c2_corr_databanks
+                ):
+                    row["decisionDomain"] = "capa1_c2_template_selection"
+                    row["canonicalOutputDatabank"] = (
+                        "c2_template_selection_decision"
+                        if row.get("step_key") in {"capa1_c2_corr1_registered_selection_decision", "corr1_registered_stability_decision"}
+                        else row.get("output_databank")
+                    )
+                    row["reclassifiedFrom"] = {
+                        "decisionDomain": "portfolio",
+                        "outputDatabank": row.get("output_databank"),
+                    }
             for row in databanks:
                 row["metrics"] = json.loads(row.pop("metrics_json"))
+                if is_capa1 and row.get("stage_key") in {
+                    "corr1_registered_decision",
+                    "capa1_c2_corr1_registered_decision",
+                }:
+                    row["decisionDomain"] = "capa1_c2_template_selection"
+                    row["c2TemplateCount"] = row.get("portfolio_count", 0)
+                    row["metrics"]["decisionDomain"] = "capa1_c2_template_selection"
+                    row["metrics"]["c2TemplateCount"] = row.get("portfolio_count", 0)
+                if is_capa1 and row.get("databank") in c2_corr_databanks:
+                    row["decisionDomain"] = "capa1_c2_template_selection"
+                    row["metrics"]["decisionDomain"] = "capa1_c2_template_selection"
+                    row["metrics"]["methodologyRole"] = "Capa1 correlation evidence for Template C2 selection."
             for row in tests:
                 row["metrics"] = json.loads(row.pop("metrics_json"))
+                if is_capa1 and row.get("test_key") in {
+                    "corr1_registered_decision",
+                    "capa1_c2_corr1_registered_decision",
+                }:
+                    row["decisionDomain"] = "capa1_c2_template_selection"
+                    row["canonicalOutputDatabank"] = "c2_template_selection_decision"
             trace = json.loads(str(project["trace_json"] or "{}"))
+            c2_selection_steps = [
+                row for row in steps
+                if row.get("decisionDomain") == "capa1_c2_template_selection"
+                or row.get("step_key") in c2_corr_step_keys
+            ]
             output_projects.append({
                 "projectKey": project["project_key"],
                 "projectName": project["project_name"],
@@ -1138,6 +1193,12 @@ def build_funnel_payload(db_path: Path, project_key: str = "", run_key: str = ""
                         "status": "recorded",
                         "databanks": databanks,
                         "tests": tests,
+                    },
+                    "c2TemplateSelection": {
+                        "version": VERSION,
+                        "decisionDomain": "capa1_c2_template_selection" if is_capa1 else "",
+                        "status": c2_selection_steps[-1]["status"] if c2_selection_steps else "pending",
+                        "steps": c2_selection_steps,
                     },
                 },
             })

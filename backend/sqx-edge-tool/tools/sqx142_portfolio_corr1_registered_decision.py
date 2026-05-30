@@ -23,7 +23,9 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from core.sqx142_portfolio_correlation_stability import (  # noqa: E402
+    CAPA1_C2_CORRELATION_SELECTION_VERSION,
     PORTFOLIO_CORRELATION_STABILITY_VERSION,
+    build_capa1_c2_correlation_selection_report,
     build_portfolio_correlation_stability_report,
     export_portfolio_correlation_stability_csv,
 )
@@ -45,11 +47,14 @@ from tools.sqx142_portfolio_corr2_local_project_integration import (  # noqa: E4
 )
 
 
-VERSION = "sqx142-portfolio-corr1-registered-decision-v1"
+VERSION = "sqx142-capa1-c2-corr1-registered-decision-v1"
+DEPRECATED_PORTFOLIO_ALIAS_VERSION = "sqx142-portfolio-corr1-registered-decision-v1"
 LOCAL_ROOT = Path(".local") / "sqx142_portfolio_corr1_registered_decision"
 DEFAULT_PROJECT_KEY = "SQX_EDGE_API_FRESH_AUDCAD_H1_Momentum_20260528_090029_Capa1"
 DEFAULT_DATABANK = TAGGED_DATABANK
 DAILY_EQUITY_SUFFIX = "/dailyEquity.bin"
+CAPA1_C2_DECISION_NODE = "c2_template_selection_decision"
+CAPA1_C2_DECISION_KEY = "capa1_c2_corr1_registered_selection_decision"
 
 
 def now_iso() -> str:
@@ -304,15 +309,19 @@ def status_for(project: Path, databank: str, db_path: Path, project_key: str, sq
                 SELECT s.step_key, s.step_label, s.status, s.row_count, s.passed_count, s.failed_count, s.recorded_at
                 FROM custom_project_steps s
                 JOIN custom_projects p ON p.id = s.project_id
-                WHERE p.project_key = ? AND s.step_key = 'corr1_registered_stability_decision'
+                WHERE p.project_key = ?
+                  AND s.step_key IN (?, 'corr1_registered_stability_decision')
+                ORDER BY CASE WHEN s.step_key = ? THEN 0 ELSE 1 END
                 """,
-                (project_key,),
+                (project_key, CAPA1_C2_DECISION_KEY, CAPA1_C2_DECISION_KEY),
             ).fetchone()
             latest_step = dict(row) if row else None
     return {
         "ok": True,
         "version": VERSION,
+        "deprecatedAliases": [DEPRECATED_PORTFOLIO_ALIAS_VERSION],
         "action": "status",
+        "decisionDomain": "capa1_c2_template_selection",
         "projectKey": project_key,
         "databank": databank,
         "databankRows": counts.get(databank, 0),
@@ -344,7 +353,11 @@ def register_analysis(db_path: Path, project_key: str, databank: str, report: di
         input_rows = int(summary.get("inputRows") or 0)
         details = {
             "version": VERSION,
+            "deprecatedAliases": [DEPRECATED_PORTFOLIO_ALIAS_VERSION],
             "coreVersion": PORTFOLIO_CORRELATION_STABILITY_VERSION,
+            "capa1C2Version": CAPA1_C2_CORRELATION_SELECTION_VERSION,
+            "decisionDomain": "capa1_c2_template_selection",
+            "decisionNode": CAPA1_C2_DECISION_NODE,
             "summary": summary,
             "periods": extraction.get("periods", {}),
             "parseErrors": extraction.get("parseErrors", []),
@@ -359,7 +372,7 @@ def register_analysis(db_path: Path, project_key: str, databank: str, report: di
                 input_databank, output_databank, row_count, passed_count,
                 failed_count, details_json, evidence_note, recorded_at
             )
-            VALUES(?, 93, 'corr1_registered_stability_decision', 'CORR1 registered stability decision', ?, ?, 'portfolio_decision', ?, ?, ?, ?, ?, ?)
+            VALUES(?, 93, ?, 'Capa1 C2 template selection decision', ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(project_id, step_key) DO UPDATE SET
                 step_label=excluded.step_label,
                 status=excluded.status,
@@ -374,13 +387,15 @@ def register_analysis(db_path: Path, project_key: str, databank: str, report: di
             """,
             (
                 project_id,
+                CAPA1_C2_DECISION_KEY,
                 status,
                 databank,
+                CAPA1_C2_DECISION_NODE,
                 input_rows,
                 selected,
                 similar + review,
                 safe_json(details),
-                "CORR1 decision built from registered SQX local tagged databank daily equity.",
+                "Capa1 CORR1 selection built from registered SQX local tagged databank daily equity for Template C2 selection.",
                 now,
             ),
         )
@@ -391,7 +406,7 @@ def register_analysis(db_path: Path, project_key: str, databank: str, report: di
                 output_databank, rows_in, rows_out, passed_count, failed_count,
                 metrics_json, evidence_note, recorded_at
             )
-            VALUES(?, ?, 'corr1_registered_decision', 'CORR1 registered stability decision', ?, ?, 'portfolio_decision', ?, ?, ?, ?, ?, ?, ?)
+            VALUES(?, ?, 'capa1_c2_corr1_registered_decision', 'Capa1 C2 template selection decision', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(project_id, test_key) DO UPDATE SET
                 status=excluded.status,
                 input_databank=excluded.input_databank,
@@ -408,12 +423,13 @@ def register_analysis(db_path: Path, project_key: str, databank: str, report: di
                 run_id,
                 status,
                 databank,
+                CAPA1_C2_DECISION_NODE,
                 input_rows,
                 selected,
                 selected,
                 similar + review,
                 safe_json(details),
-                "Read-only SQX local daily-equity CORR1 audit.",
+                "Read-only SQX local daily-equity CORR1 audit for Capa1 Template C2 selection.",
                 now,
             ),
         )
@@ -425,7 +441,7 @@ def register_analysis(db_path: Path, project_key: str, databank: str, report: di
                 best_strategy_name, best_profit_factor, best_ret_dd_ratio,
                 best_max_dd_pct, best_trades, metrics_json, source_kind, recorded_at
             )
-            VALUES(?, ?, ?, 'corr1_registered_decision', ?, ?, ?, ?, ?, ?, '', NULL, NULL, NULL, NULL, ?, ?, ?)
+            VALUES(?, ?, ?, 'capa1_c2_corr1_registered_decision', ?, ?, ?, ?, ?, ?, '', NULL, NULL, NULL, NULL, ?, ?, ?)
             ON CONFLICT(project_id, databank, stage_key) DO UPDATE SET
                 row_count=excluded.row_count,
                 passed_count=excluded.passed_count,
@@ -453,8 +469,11 @@ def register_analysis(db_path: Path, project_key: str, databank: str, report: di
             ),
         )
         trace = json.loads(str(project["trace_json"] or "{}"))
-        trace["corr1RegisteredDecision"] = {
+        trace["capa1C2Corr1RegisteredDecision"] = {
             "version": VERSION,
+            "deprecatedAliases": [DEPRECATED_PORTFOLIO_ALIAS_VERSION],
+            "decisionDomain": "capa1_c2_template_selection",
+            "decisionNode": CAPA1_C2_DECISION_NODE,
             "databank": databank,
             "summary": summary,
             "recordedAt": now,
@@ -471,7 +490,7 @@ def analyze(args: argparse.Namespace) -> dict[str, Any]:
     process_guard = require_sqx_closed(sqx_root, skip=bool(getattr(args, "skip_process_guard", False)))
     project = project_dir(sqx_root, args.project_key)
     extraction = build_payload_from_registered_databank(project, args.databank)
-    report = build_portfolio_correlation_stability_report({
+    report = build_capa1_c2_correlation_selection_report({
         "rows": extraction["rows"],
         "isRows": extraction["isRows"],
         "oos3Rows": extraction["oos3Rows"],
@@ -486,6 +505,9 @@ def analyze(args: argparse.Namespace) -> dict[str, Any]:
     })
     report["registeredSource"] = {
         "version": VERSION,
+        "deprecatedAliases": [DEPRECATED_PORTFOLIO_ALIAS_VERSION],
+        "decisionDomain": "capa1_c2_template_selection",
+        "decisionNode": CAPA1_C2_DECISION_NODE,
         "projectKey": args.project_key,
         "databank": args.databank,
         "rowsParsed": len(extraction["rows"]),
@@ -498,7 +520,9 @@ def analyze(args: argparse.Namespace) -> dict[str, Any]:
     result = {
         "ok": True,
         "version": VERSION,
+        "deprecatedAliases": [DEPRECATED_PORTFOLIO_ALIAS_VERSION],
         "action": "analyze",
+        "decisionDomain": "capa1_c2_template_selection",
         "projectKey": args.project_key,
         "databank": args.databank,
         "report": report,

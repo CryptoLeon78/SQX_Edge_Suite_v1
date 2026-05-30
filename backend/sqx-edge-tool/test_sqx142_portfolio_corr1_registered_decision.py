@@ -123,17 +123,23 @@ def test_analyze_registered_corr1_decision_records_registry(tmp_path, monkeypatc
     result = decision.analyze(args_for(tmp_path, sqx_root))
 
     assert result["ok"] is True
+    assert result["version"] == "sqx142-capa1-c2-corr1-registered-decision-v1"
+    assert result["decisionDomain"] == "capa1_c2_template_selection"
     assert result["report"]["summary"]["inputRows"] == 3
     assert result["report"]["summary"]["selectedByIs"] >= 1
+    assert result["report"]["decisionDomain"] == "capa1_c2_template_selection"
+    assert result["report"]["summary"]["c2TemplateSelectedByIs"] >= 1
     assert result["report"]["privacy"]["raw_strategy_names_returned"] is False
     with decision.registry_connect(tmp_path / "registry.sqlite") as con:
         step = con.execute(
-            "SELECT status, input_databank, row_count, passed_count FROM custom_project_steps WHERE step_key = 'corr1_registered_stability_decision'"
+            "SELECT status, input_databank, output_databank, row_count, passed_count FROM custom_project_steps WHERE step_key = 'capa1_c2_corr1_registered_selection_decision'"
         ).fetchone()
         snapshot = con.execute(
-            "SELECT portfolio_count, similar_count, review_count FROM databank_snapshots WHERE stage_key = 'corr1_registered_decision'"
+            "SELECT portfolio_count, similar_count, review_count, metrics_json FROM databank_snapshots WHERE stage_key = 'capa1_c2_corr1_registered_decision'"
         ).fetchone()
     assert step["input_databank"] == decision.DEFAULT_DATABANK
+    assert step["output_databank"] == "c2_template_selection_decision"
     assert step["row_count"] == 3
     assert step["passed_count"] >= 1
     assert snapshot["portfolio_count"] >= 1
+    assert json.loads(snapshot["metrics_json"])["decisionDomain"] == "capa1_c2_template_selection"

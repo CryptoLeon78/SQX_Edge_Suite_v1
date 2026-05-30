@@ -196,10 +196,11 @@ assert.equal(JSON.stringify(edgeState.portfolioMasterContract).includes('123456'
 assert.equal(edgeState.completedSteps.includes('portfolio'), true);
 
 const backportOps = SQX.edgeFactory.backportOperatorOperations();
-assert.equal(backportOps.length, 7);
+assert.equal(backportOps.length, 8);
 assert.equal(backportOps.some(op => op.id === 'mcp-status' && op.method === 'GET' && op.endpoint === '/sqx142/mcp-like/status'), true);
 assert.equal(backportOps.some(op => op.id === 'correlation-filter' && op.endpoint === '/sqx142/correlation-filter/external'), true);
 assert.equal(backportOps.some(op => op.id === 'portfolio-correlation-stability' && op.endpoint === '/sqx142/portfolio-correlation/stability-audit'), true);
+assert.equal(backportOps.some(op => op.id === 'capa1-c2-correlation-selection' && op.endpoint === '/sqx142/capa1-c2-correlation/stability-audit'), true);
 assert.equal(backportOps.some(op => op.id === 'monte-carlo-benchmarks' && op.expectedVersion === 'sqx142-monte-carlo-candidate-benchmarks-v1'), true);
 assert.equal(backportOps.some(op => op.id === 'mt5-data-probe' && op.endpoint === '/sqx142/mt5-data-intake/probe'), true);
 assert.equal(backportOps.some(op => op.id === 'migration-checklist' && op.endpoint === '/sqx142/migration/copy-only-checklist'), true);
@@ -213,6 +214,10 @@ const corrStabilityPayload = SQX.edgeFactory.buildBackportOperatorPayload('portf
 assert.equal(corrStabilityPayload.includeCsvExport, true);
 assert.equal(corrStabilityPayload.settings.maxIsCorrelation, 0.5);
 assert.match(corrStabilityPayload.csv, /oos3ReturnSeries/);
+const c2SelectionPayload = SQX.edgeFactory.buildBackportOperatorPayload('capa1-c2-correlation-selection', SQX.edgeFactory.backportOperatorSample('capa1-c2-correlation-selection'), { maxIsCorrelation: 0.5 });
+assert.equal(c2SelectionPayload.includeCsvExport, true);
+assert.equal(c2SelectionPayload.settings.maxIsCorrelation, 0.5);
+assert.match(c2SelectionPayload.csv, /oos3ReturnSeries/);
 const mt5Payload = SQX.edgeFactory.buildBackportOperatorPayload('mt5-data-probe', SQX.edgeFactory.backportOperatorSample('mt5-data-probe'), { asset: 'AUDCAD', timeframe: 'H1', minBars: 20 });
 assert.equal(mt5Payload.asset, 'AUDCAD');
 assert.equal(mt5Payload.timeframe, 'H1');
@@ -290,6 +295,7 @@ assert.equal(html.includes('UI-INTEGRATION1'), true);
 assert.equal(html.includes('ui-integration1-backport-operator-panel-v1'), true);
 assert.equal(html.includes('id="edge-backport-operation"'), true);
 assert.equal(html.includes('value="correlation-filter"'), true);
+assert.equal(html.includes('value="capa1-c2-correlation-selection"'), true);
 assert.equal(html.includes('value="monte-carlo-benchmarks"'), true);
 assert.equal(html.includes('value="mt5-data-probe"'), true);
 assert.equal(html.includes('value="migration-checklist"'), true);
@@ -318,5 +324,8 @@ assert.equal(html.includes('data-edge-tool="projectgen"'), true);
 assert.equal(appConfig.includes('hiddenInPrimary'), true);
 assert.equal(indexJs.includes('edge-factory'), true);
 assert.equal(indexJs.includes('edge-factory-ui'), true);
+assert.equal(typeof SQX.edgeFactory.recordC2TemplateSelection, 'function');
+assert.equal(SQX.edgeFactory.backportOperatorOperations().some(item => item.id === 'capa1-c2-correlation-selection'), true);
+assert.equal(SQX.edgeFactory.capa1C2CorrelationSelectionVersion, 'sqx142-capa1-c2-corr1-template-selection-v1');
 
 console.log('edge factory contracts ok');

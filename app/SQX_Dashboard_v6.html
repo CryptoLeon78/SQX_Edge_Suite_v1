@@ -808,15 +808,15 @@
         <button class="export-btn" id="ps-registry-apply" type="button">Aplicar a Edge Factory</button>
       </div>
       <div class="edge-registry-controls edge-corr2-controls">
-        <button class="filter-btn" id="ps-corr2-status-btn" type="button">Estado CORR1 local</button>
-        <button class="filter-btn" id="ps-corr2-record" type="button">Registrar CORR1</button>
-        <button class="filter-btn active" id="ps-corr1-analyze" type="button">Analizar CORR1</button>
-        <button class="filter-btn" id="ps-corr2-plan" type="button">Preflight CORR1</button>
-        <button class="export-btn" id="ps-corr2-apply" type="button">Parchear custom SQX</button>
-        <input class="edge-registry-input edge-corr2-backup-input" id="ps-corr2-backup-id" type="text" aria-label="Backup CORR1" placeholder="Backup id rollback">
-        <button class="filter-btn danger" id="ps-corr2-rollback" type="button">Rollback CORR1</button>
+        <button class="filter-btn" id="ps-corr2-status-btn" type="button">Estado C2 CORR1 local</button>
+        <button class="filter-btn" id="ps-corr2-record" type="button">Registrar C2 CORR1</button>
+        <button class="filter-btn active" id="ps-corr1-analyze" type="button">Analizar C2 CORR1</button>
+        <button class="filter-btn" id="ps-corr2-plan" type="button">Preflight C2 CORR1</button>
+        <button class="export-btn" id="ps-corr2-apply" type="button">Parchear Capa1 SQX</button>
+        <input class="edge-registry-input edge-corr2-backup-input" id="ps-corr2-backup-id" type="text" aria-label="Backup C2 CORR1" placeholder="Backup id rollback">
+        <button class="filter-btn danger" id="ps-corr2-rollback" type="button">Rollback C2 CORR1</button>
       </div>
-      <div class="edge-registry-summary edge-corr2-summary" id="ps-corr2-summary">CORR2 pendiente de preflight.</div>
+      <div class="edge-registry-summary edge-corr2-summary" id="ps-corr2-summary">Capa1 C2 CORR2 pendiente de preflight.</div>
       <span class="edge-registry-state edge-corr2-state" id="ps-corr2-status">Sin preflight</span>
       <div class="edge-registry-summary" id="ps-registry-summary">Esperando custom project registrado.</div>
       <div class="edge-registry-funnel" id="ps-registry-funnel" aria-label="Databanks registrados"></div>
@@ -2282,15 +2282,15 @@
           <button class="export-btn" id="edge-registry-apply" type="button">Aplicar a Edge Factory</button>
         </div>
         <div class="edge-registry-controls edge-corr2-controls">
-          <button class="filter-btn" id="edge-corr2-status-btn" type="button">Estado CORR1 local</button>
-          <button class="filter-btn" id="edge-corr2-record" type="button">Registrar CORR1</button>
-          <button class="filter-btn active" id="edge-corr1-analyze" type="button">Analizar CORR1</button>
-          <button class="filter-btn" id="edge-corr2-plan" type="button">Preflight CORR1</button>
-          <button class="export-btn" id="edge-corr2-apply" type="button">Parchear custom SQX</button>
-          <input class="edge-registry-input edge-corr2-backup-input" id="edge-corr2-backup-id" type="text" aria-label="Backup CORR1" placeholder="Backup id rollback">
-          <button class="filter-btn danger" id="edge-corr2-rollback" type="button">Rollback CORR1</button>
+          <button class="filter-btn" id="edge-corr2-status-btn" type="button">Estado C2 CORR1 local</button>
+          <button class="filter-btn" id="edge-corr2-record" type="button">Registrar C2 CORR1</button>
+          <button class="filter-btn active" id="edge-corr1-analyze" type="button">Analizar C2 CORR1</button>
+          <button class="filter-btn" id="edge-corr2-plan" type="button">Preflight C2 CORR1</button>
+          <button class="export-btn" id="edge-corr2-apply" type="button">Parchear Capa1 SQX</button>
+          <input class="edge-registry-input edge-corr2-backup-input" id="edge-corr2-backup-id" type="text" aria-label="Backup C2 CORR1" placeholder="Backup id rollback">
+          <button class="filter-btn danger" id="edge-corr2-rollback" type="button">Rollback C2 CORR1</button>
         </div>
-        <div class="edge-registry-summary edge-corr2-summary" id="edge-corr2-summary">CORR2 pendiente de preflight.</div>
+        <div class="edge-registry-summary edge-corr2-summary" id="edge-corr2-summary">Capa1 C2 CORR2 pendiente de preflight.</div>
         <span class="edge-registry-state edge-corr2-state" id="edge-corr2-status">Sin preflight</span>
         <div class="edge-registry-summary" id="edge-registry-summary">Esperando custom project registrado.</div>
         <div class="edge-registry-funnel" id="edge-registry-funnel" aria-label="Databanks registrados"></div>
@@ -2460,9 +2460,9 @@
         </div>
         <div class="edge-portfolio-head" id="edge-portfolio-corr-stability">
           <div>
-            <span class="badge info">SQX142-PORTFOLIO-CORR1 · sqx142-portfolio-corr1-stability-audit-v1</span>
-            <h3>Auditoria de descorrelacion IS vs OOS3</h3>
-            <p>Selecciona diversidad con IS_CORR y usa OOS3_CORR solo como confirmacion/veto de estabilidad. Si OOS3 se usa para elegir sustitutos, deja de ser holdout final y exige otro periodo posterior.</p>
+            <span class="badge info">SQX142-CAPA2-PORTFOLIO-CORR1 · sqx142-portfolio-corr1-stability-audit-v1</span>
+            <h3>Auditoria Capa2 portfolio IS vs OOS3</h3>
+            <p>Para Capa2, selecciona diversidad de portfolio con IS_CORR y usa OOS3_CORR solo como confirmacion/veto de estabilidad. La correlacion Capa1 pertenece a seleccion de Template C2, no a Portfolio Master.</p>
           </div>
           <div class="edge-portfolio-contract">
             <strong>Regla academica</strong>
@@ -2499,7 +2499,7 @@
             <label>Puntos min<input id="edge-corr-min-points" type="number" min="3" max="250" step="1" value="12"></label>
             <div class="edge-portfolio-actions">
               <button class="filter-btn" type="button" id="edge-corr-from-lab">Tomar Lab</button>
-              <button class="filter-btn" type="button" id="edge-corr-registered">Auditar registrado</button>
+              <button class="filter-btn" type="button" id="edge-corr-registered">Analizar Capa1 C2 registrado</button>
               <button class="filter-btn" type="button" id="edge-corr-sample">Ver muestra</button>
               <button class="filter-btn active" type="button" id="edge-corr-run">Auditar estabilidad</button>
               <button class="filter-btn" type="button" id="edge-corr-export">Descargar auditoria</button>
@@ -2509,7 +2509,7 @@
         <div class="edge-portfolio-results" id="edge-corr-results">
           <div class="edge-portfolio-empty">
             <strong>Sin auditoria CORR1.</strong>
-            <span>Primero calcula o pega candidatos, aporta series IS y OOS3 comparables, y ejecuta la auditoria antes de Portfolio Master.</span>
+            <span>Para Capa2 portfolio, pega candidatos y series comparables. Para el custom Capa1 registrado, usa Analizar Capa1 C2 registrado.</span>
           </div>
         </div>
         <div class="edge-portfolio-head" id="edge-portfolio-master-contract">
@@ -2587,7 +2587,8 @@
               <option value="mcp-status">MCP-like status</option>
               <option value="results-readiness">Results Plugin readiness</option>
               <option value="correlation-filter">Correlation Filter external</option>
-              <option value="portfolio-correlation-stability">Portfolio CORR1 stability audit</option>
+              <option value="portfolio-correlation-stability">Capa2 Portfolio CORR1 stability audit</option>
+              <option value="capa1-c2-correlation-selection">Capa1 C2 template correlation selection</option>
               <option value="monte-carlo-benchmarks">Monte Carlo benchmarks</option>
               <option value="mt5-data-probe">MT5 data intake probe</option>
               <option value="migration-checklist">Copy-only migration checklist</option>

@@ -1,28 +1,37 @@
 # Changelog
 
+## 2026-05-30 - SQX142-CAPA1/CAPA2 Correlation Methodology Reclassification
+
+- Reclassifies the real AUDCAD H1 Capa1 CORR1 result as `capa1_c2_template_selection`, not final portfolio selection; the mining/databank evidence remains valid and registered.
+- Adds docs for the three-part split: `docs/SQX142_CAPA1_C2_CORRELATION_TEMPLATE_SELECTION.md`, `docs/SQX142_CAPA2_PORTFOLIO_CORRELATION_ADAPTATION.md` and `docs/SQX142_CORRELATION_C1_C2_PORTFOLIO_BRIDGE.md`.
+- Adds Capa1-safe local API routes `POST /api/sqx142/capa1-c2-correlation/stability-audit`, `POST /api/sqx142/capa1-c2-corr1/registered-decision` and `POST /api/sqx142/capa1-c2-corr2/local-project`; old portfolio-named routes remain compatibility aliases.
+- Moves registered Capa1 CORR1 state into `edgeFactory.c2TemplateSelection` and keeps `edgeFactory.portfolioCorrelationStability` for Capa2 portfolio correlation.
+- Updates Edge Factory/Mining Control labels to `Analizar C2 CORR1`, `Registrar C2 CORR1`, `Preflight C2 CORR1` and `Parchear Capa1 SQX`.
+- Preserves boundaries: no SQX launch, no `data.db` writes, no uncontrolled `user/projects` mutation, no jars/internal plugins/license changes, no databank deletion, no `run_project`, no Migration Tool and no `checkResources`.
+
 ## 2026-05-30 - SQX142-PORTFOLIO-CORR1 Registered Stability Decision
 
-- Adds `sqx142-portfolio-corr1-registered-decision-v1` to read the real SQX142 custom databank `SQX EDGE CORR1 TAGGED` while SQX is closed, parse `.sqx` `dailyEquity.bin` series read-only and run the CORR1 IS/OOS3 stability audit from the registered funnel.
-- Adds `POST /api/sqx142/portfolio-corr1/registered-decision`, wrapper `tools\sqx142_portfolio_corr1_registered_decision.ps1` and Edge Factory/Mining Control buttons `Analizar CORR1` / `Auditar registrado`.
-- Registers the real AUDCAD H1 Capa1 custom decision in the SQX Edge registry as step 93 `corr1_registered_stability_decision`: `inputRows=23`, `selectedByIs=1`, `similarByIs=22`, `review=0`, `status=pass`.
-- Records the methodology result: OOS3 is audit-only and confirms the 22 non-selected candidates remain highly correlated to the selected IS winner, so they are not replacements.
+- Adds `sqx142-capa1-c2-corr1-registered-decision-v1` to read the real SQX142 custom databank `SQX EDGE CORR1 TAGGED` while SQX is closed, parse `.sqx` `dailyEquity.bin` series read-only and run the CORR1 IS/OOS3 stability audit from the registered funnel.
+- Adds `POST /api/sqx142/capa1-c2-corr1/registered-decision`, wrapper `tools\sqx142_portfolio_corr1_registered_decision.ps1` and Edge Factory/Mining Control buttons `Analizar C2 CORR1` / `Analizar Capa1 C2 registrado`.
+- Registers the real AUDCAD H1 Capa1 custom decision in the SQX Edge registry as step 93 `capa1_c2_corr1_registered_selection_decision`: `inputRows=23`, `selectedByIs=1`, `similarByIs=22`, `review=0`, `status=pass`.
+- Records the methodology result: OOS3 is audit-only and confirms the 22 non-selected candidates remain highly correlated to the selected IS winner, so they are not replacements for Template C2 selection.
 - Preserves boundaries: no SQX launch, no retest execution, no SQX `data.db` write, no `.sqx`/databank/project mutation during analysis, no jars/internal plugins/license changes, no `run_project`, no Migration Tool and no `checkResources`.
 
 ## 2026-05-29 - SQX142-PORTFOLIO-CORR2 Local Custom Project Integration
 
 - Records the 2026-05-30 operator confirmation: SQX142 opened cleanly with no red warnings, original 12 tasks remained, both CORR1 tasks appeared, `Synthetic`/`Forward` names were corrected, `CORR1 STABILITY RETEST` now reads `Forward`, and both CORR1 databanks filled with 23 strategies.
-- Adds `sqx142-portfolio-corr2-local-custom-project-integration-v1` with guarded `status/plan/apply/record/rollback` tooling for direct SQX142 custom project integration.
-- Extends the tool/API/UI with `record` / `Registrar CORR1` so manual SQX retest completion can update the custom-project funnel without patching again.
+- Adds `sqx142-capa1-c2-corr2-local-project-integration-v1` with guarded `status/plan/apply/record/rollback` tooling for direct SQX142 Capa1 custom project integration.
+- Extends the tool/API/UI with `record` / `Registrar C2 CORR1` so manual SQX retest completion can update the custom-project funnel without patching again.
 - Adds manual tasks `Retest-Task4.xml` `CORR1 STABILITY RETEST` and `Retest-Task5.xml` `CORR1 TAG REVIEW`; the active survivor source is `Forward`, with `testPrecision=4`, `DeleteFailedStrategies=false`, `FitPortfolio=false` and `CrossChecks=false`.
-- Adds local API `POST /api/sqx142/portfolio-corr2/local-project` plus Edge Factory/Mining Control buttons for status, preflight, apply and rollback.
-- Extends the mining registry funnel to show `SQX EDGE CORR1 STABILITY` and `SQX EDGE CORR1 TAGGED`, and records CORR2 patch steps against the custom project.
+- Adds local API `POST /api/sqx142/capa1-c2-corr2/local-project` plus Edge Factory/Mining Control buttons for status, preflight, apply and rollback. `POST /api/sqx142/portfolio-corr2/local-project` remains a deprecated alias.
+- Extends the mining registry funnel to show `SQX EDGE CORR1 STABILITY` and `SQX EDGE CORR1 TAGGED`, and records Capa1 C2 CORR2 patch steps against the custom project.
 - Preserves boundaries: SQX must be closed for apply/rollback, no SQX launch, no `data.db` writes, no jars/internal plugins/license changes, no databank deletion, no `run_project`, no Migration Tool and no `checkResources`.
 
 ## 2026-05-29 - SQX142-PORTFOLIO-CORR1 Correlation Stability Audit
 
 - Adds `sqx142-portfolio-corr1-stability-audit-v1` as an external/read-only audit that separates `IS_CORR` selection from `OOS3_CORR` stability confirmation.
 - Adds `POST /api/sqx142/portfolio-correlation/stability-audit`, pairwise selected-candidate audit CSV export and an Edge Factory Portfolio Lab panel for IS vs OOS3 correlation drift.
-- Updates Edge Factory state with `portfolioCorrelationStability` and exposes `Portfolio CORR1 stability audit` in the Backport Operator Panel.
+- Updates Edge Factory state with `portfolioCorrelationStability` for Capa2 and exposes `Capa2 Portfolio CORR1 stability audit` plus `Capa1 C2 template correlation selection` in the Backport Operator Panel.
 - Preserves the methodology boundary: OOS3/Forward may veto or warn but must not choose alternates; if OOS3 is used for selection, a fresh later holdout is required.
 - Preserves SQX boundaries: no SQX launch, no retest execution, no `data.db` writes, no `user/projects` mutation, no jars/internal plugins/license changes, no databank deletion, no `run_project`, no Migration Tool and no `checkResources`.
 

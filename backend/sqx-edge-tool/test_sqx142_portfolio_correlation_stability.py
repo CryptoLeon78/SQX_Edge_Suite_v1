@@ -1,5 +1,7 @@
 from core.sqx142_portfolio_correlation_stability import (
+    CAPA1_C2_CORRELATION_SELECTION_VERSION,
     PORTFOLIO_CORRELATION_STABILITY_VERSION,
+    build_capa1_c2_correlation_selection_report,
     build_portfolio_correlation_stability_report,
     export_portfolio_correlation_stability_csv,
 )
@@ -49,3 +51,19 @@ def test_portfolio_correlation_stability_selects_on_is_and_audits_oos3():
     csv_export = export_portfolio_correlation_stability_csv(report)
     assert "isCorrelation" in csv_export
     assert "oos3Correlation" in csv_export
+
+
+def test_capa1_c2_correlation_selection_uses_template_labels():
+    report = build_capa1_c2_correlation_selection_report({
+        "rows": [
+            {"strategy": "A", "asset": "AUDCAD", "timeframe": "H1", "profitFactor": 1.4, "retDd": 4.0, "trades": 100, "isReturnSeries": "0.01|0.02|-0.01|0.03", "oos3ReturnSeries": "0.01|0.00|0.02|-0.01"},
+            {"strategy": "B", "asset": "AUDCAD", "timeframe": "H1", "profitFactor": 1.3, "retDd": 3.0, "trades": 90, "isReturnSeries": "-0.01|0.01|0.00|0.02", "oos3ReturnSeries": "0.00|0.01|-0.01|0.02"},
+        ],
+        "settings": {"minComparablePoints": 3},
+    })
+
+    assert report["version"] == CAPA1_C2_CORRELATION_SELECTION_VERSION
+    assert report["legacyVersion"] == PORTFOLIO_CORRELATION_STABILITY_VERSION
+    assert report["decisionDomain"] == "capa1_c2_template_selection"
+    assert report["decisionLabels"]["selected"] == "c2_template_winner"
+    assert report["summary"]["c2TemplateSelectedByIs"] == report["summary"]["selectedByIs"]

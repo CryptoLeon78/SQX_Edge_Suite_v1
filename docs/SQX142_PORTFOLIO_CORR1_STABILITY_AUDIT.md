@@ -1,10 +1,12 @@
-# SQX142-PORTFOLIO-CORR1 Correlation Stability Audit
+# SQX142-PORTFOLIO-CORR1 Capa2 Correlation Stability Audit
 
-Status: `implemented_registered_sqx_local_decision`
+Status: `implemented_capa2_scope_with_capa1_alias_reclassified`
 
 Version: `sqx142-portfolio-corr1-stability-audit-v1`
 
-Registered SQX local reader: `sqx142-portfolio-corr1-registered-decision-v1`
+Registered SQX local reader alias: `sqx142-portfolio-corr1-registered-decision-v1`
+
+Capa1 registered reader: `sqx142-capa1-c2-corr1-registered-decision-v1`
 
 ## Decision
 
@@ -15,12 +17,16 @@ Forward/Foward-only correlation is too narrow for portfolio construction. SQX Ed
 
 OOS3 must not select alternates. If OOS3 is used to choose replacements, it becomes another validation/selection set and a later untouched holdout is required.
 
+Important 2026-05-30 correction: the first real AUDCAD H1 run is Capa1. Its registered CORR1 result is valid evidence, but its purpose is `capa1_c2_template_selection`, not final portfolio selection. The Capa2 portfolio endpoint remains valid for Portfolio Lab / Capa2 Forward finalists. The Capa1 flow is documented in `docs/SQX142_CAPA1_C2_CORRELATION_TEMPLATE_SELECTION.md`.
+
 ## Implementation
 
 Backend contract:
 
 ```text
 POST /api/sqx142/portfolio-correlation/stability-audit
+POST /api/sqx142/capa1-c2-correlation/stability-audit
+POST /api/sqx142/capa1-c2-corr1/registered-decision
 POST /api/sqx142/portfolio-corr1/registered-decision
 ```
 
@@ -34,8 +40,9 @@ tools/sqx142_portfolio_corr1_registered_decision.ps1
 
 Frontend:
 
-- Edge Factory / Portfolio Lab panel: `Auditoria de descorrelacion IS vs OOS3`.
-- Backport Operator Panel operation: `Portfolio CORR1 stability audit`.
+- Edge Factory / Portfolio Lab panel: `Auditoria Capa2 portfolio IS vs OOS3`.
+- Backport Operator Panel operation: `Capa2 Portfolio CORR1 stability audit`.
+- Capa1 registered button: `Analizar Capa1 C2 registrado`.
 
 The endpoint accepts:
 
@@ -50,7 +57,8 @@ The registered SQX local action additionally reads the already registered custom
 - private source: local SQX142 `.sqx` files, parsed read-only;
 - series source: `Results/.../dailyEquity.bin` inside each `.sqx`;
 - period split from the custom `project.cfx`: `IS_CORR=2017.10.02..2025.01.01`, `OOS3_CORR=2025.01.01..2026.04.08`;
-- registry node: step `93`, `corr1_registered_stability_decision`, output `portfolio_decision`.
+- legacy registry alias: step `93`, `corr1_registered_stability_decision`, output `portfolio_decision`.
+- canonical Capa1 registry node: `capa1_c2_corr1_registered_selection_decision`, output `c2_template_selection_decision`.
 
 The report returns:
 
@@ -67,7 +75,7 @@ Custom project: `SQX_EDGE_API_FRESH_AUDCAD_H1_Momentum_20260528_090029_Capa1`
 Databank path in the funnel:
 
 ```text
-Forward -> SQX EDGE CORR1 STABILITY -> SQX EDGE CORR1 TAGGED -> portfolio_decision
+Forward -> SQX EDGE CORR1 STABILITY -> SQX EDGE CORR1 TAGGED -> c2_template_selection_decision
 ```
 
 Result from `tools\sqx142_portfolio_corr1_registered_decision.ps1 -Action analyze`:
@@ -81,7 +89,7 @@ Result from `tools\sqx142_portfolio_corr1_registered_decision.ps1 -Action analyz
 - OOS3 nearest warnings: `22`;
 - status: `pass`.
 
-Decision: the portfolio surface has one decorrelated winner from this custom. The 22 non-selected candidates are not valid alternates; their OOS3 correlations to the selected winner remain high, so OOS3 confirms concentration rather than opening replacements.
+Decision: the Capa1 Template C2 selection surface has one decorrelated winner from this custom. The 22 non-selected candidates are not valid alternates; their OOS3 correlations to the selected winner remain high, so OOS3 confirms concentration rather than opening replacements. A final portfolio decision must be made later from Capa2 Forward finalists.
 
 ## Academic Rationale
 
@@ -102,7 +110,8 @@ Allowed:
 - Registered SQX local read-only audit while SQX is closed.
 - Sanitized hashed candidate IDs.
 - JSON/CSV export of pair audit.
-- Portfolio Lab and Portfolio Master using the audit as a prerequisite/readback.
+- Capa1 Template Maker using the registered audit as Template C2 selection evidence.
+- Capa2 Portfolio Lab using the same audit engine only on Capa2 finalists.
 
 Blocked:
 
@@ -114,3 +123,4 @@ Blocked:
 - Patching jars, internal plugins, license or activation.
 - `run_project`, Migration Tool or `/project/checkResources`.
 - Treating OOS3/Forward as an optimizer for replacement candidates.
+- Treating a Capa1 CORR1 result as final Portfolio Master evidence.

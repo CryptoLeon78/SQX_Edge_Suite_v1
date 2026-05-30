@@ -154,7 +154,7 @@ def test_correlation_filter_exports_sqx_tag_csv_with_private_strategy_refs():
 
     assert lines[0] == (
         "strategyRef,candidateId,decision,reason,score,maxObservedCorrelation,"
-        "correlationStatus,nearestWinnerId,portfolioRank,generatedAt,version"
+        "correlationStatus,nearestWinnerId,portfolioRank,c2TemplateRank,decisionDomain,generatedAt,version"
     )
     assert "strategy_" in tag_csv
     assert "MACD_A" not in tag_csv

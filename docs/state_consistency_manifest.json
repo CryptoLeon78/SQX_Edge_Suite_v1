@@ -13,29 +13,34 @@
     "docs/SQX142_OWN_FEATURES_CLEAN_MINING_PATH_VALIDATION.md",
     "docs/SQX142_OWN_FEATURES_FORWARD_TAGGER_FLOW.md",
     "docs/SQX142_MINING_RESULTS_REGISTRY.md",
+    "docs/SQX142_CAPA1_C2_CORRELATION_TEMPLATE_SELECTION.md",
+    "docs/SQX142_CAPA2_PORTFOLIO_CORRELATION_ADAPTATION.md",
+    "docs/SQX142_CORRELATION_C1_C2_PORTFOLIO_BRIDGE.md",
     "docs/SQX142_PORTFOLIO_CORR1_STABILITY_AUDIT.md",
     "docs/SQX142_PORTFOLIO_CORR2_LOCAL_CUSTOM_PROJECT_INTEGRATION.md"
   ],
   "rules": [
     {
-      "id": "sqx142_portfolio_corr2_local_project_integration_gate",
-      "description": "CORR2 may add active CORR1 retest/tag tasks to the selected local SQX142 custom project with backup/rollback while preserving no-jars/no-data.db boundaries.",
+      "id": "sqx142_capa1_c2_corr2_local_project_integration_gate",
+      "description": "Capa1 C2 CORR2 may add active CORR1 retest/tag tasks to the selected local SQX142 custom project with backup/rollback while preserving no-jars/no-data.db boundaries.",
       "required": {
         "README.md": [
-          "SQX142-PORTFOLIO-CORR2 Local Custom Project Integration esta aplicado",
+          "SQX142-CAPA1-C2-CORR2 Local Custom Project Integration esta aplicado",
           "Retest-Task4.xml",
           "tareas CORR1 activas",
           "Forward` como input",
           "testPrecision=4"
         ],
         "docs/PROJECT_GOVERNANCE.md": [
-          "Current phase active: SQX142-PORTFOLIO-CORR2 - Local Custom Project Integration",
-          "CORR2 Local Project Integration Gate",
-          "actualmente `Forward`"
+          "Current phase active: SQX142-CAPA1-C2-CORR2 - Local Custom Project Integration",
+          "sqx142-capa1-c2-corr2-local-project-integration-v1",
+          "Capa1 C2 CORR2 steps"
         ],
         "docs/SQX142_PORTFOLIO_CORR2_LOCAL_CUSTOM_PROJECT_INTEGRATION.md": [
-          "Status: `implemented_local_project_patch_ready`",
+          "Status: `implemented_capa1_c2_local_project_patch_ready`",
+          "sqx142-capa1-c2-corr2-local-project-integration-v1",
           "tools\\sqx142_portfolio_corr2_local_project_integration.ps1",
+          "POST /api/sqx142/capa1-c2-corr2/local-project",
           "POST /api/sqx142/portfolio-corr2/local-project",
           "Forward` and writes",
           "Both tasks are created active",
@@ -43,7 +48,9 @@
           "no jars"
         ],
         "backend/sqx-edge-tool/tools/sqx142_portfolio_corr2_local_project_integration.py": [
-          "sqx142-portfolio-corr2-local-custom-project-integration-v1",
+          "sqx142-capa1-c2-corr2-local-project-integration-v1",
+          "DEPRECATED_PORTFOLIO_ALIAS_VERSION",
+          "capa1_c2_template_selection",
           "STABILITY_TASK_XML = \"Retest-Task4.xml\"",
           "TAG_TASK_XML = \"Retest-Task5.xml\"",
           "SOURCE_DATABANK = \"Forward\"",
@@ -58,6 +65,7 @@
           "sqx142_portfolio_corr2_local_project_integration.py"
         ],
         "backend/sqx-edge-tool/api/server.py": [
+          "/api/sqx142/capa1-c2-corr2/local-project",
           "/api/sqx142/portfolio-corr2/local-project",
           "apply_sqx142_portfolio_corr2_integration",
           "rollback_sqx142_portfolio_corr2_integration",
@@ -67,15 +75,16 @@
           "edge-corr2-plan",
           "edge-corr2-record",
           "ps-corr2-plan",
-          "Parchear custom SQX"
+          "Parchear Capa1 SQX"
         ],
         "app/js/modules/edge-factory-ui.js": [
           "corr2LocalProject",
-          "/sqx142/portfolio-corr2/local-project",
+          "/sqx142/capa1-c2-corr2/local-project",
           "SQX EDGE CORR1 STABILITY"
         ],
         "CHANGELOG.md": [
           "2026-05-29 - SQX142-PORTFOLIO-CORR2 Local Custom Project Integration",
+          "sqx142-capa1-c2-corr2-local-project-integration-v1",
           "Retest-Task4.xml",
           "SQX EDGE CORR1 TAGGED"
         ]
@@ -102,46 +111,68 @@
       }
     },
     {
-      "id": "sqx142_portfolio_corr1_stability_audit_gate",
-      "description": "Portfolio correlation must separate IS_CORR selection from OOS3_CORR stability audit, keep OOS3/Forward out of replacement selection and register the real SQX local CORR1 decision in the custom-project funnel.",
+      "id": "sqx142_correlation_domain_split_gate",
+      "description": "Correlation must separate Capa1 Template C2 selection from Capa2 portfolio selection, keep OOS3/Forward out of replacement selection and register the real SQX local CORR1 decision in the custom-project funnel.",
       "required": {
         "README.md": [
-          "SQX142-PORTFOLIO-CORR1 Correlation Stability Audit esta implementado",
-          "sqx142-portfolio-corr1-registered-decision-v1",
-          "POST /api/sqx142/portfolio-corr1/registered-decision",
+          "SQX142-CAPA1-C2-CORR reclassification esta aplicado",
+          "sqx142-portfolio-corr1-stability-audit-v1",
+          "POST /api/sqx142/capa1-c2-correlation/stability-audit",
           "selectedByIs=1",
           "IS_CORR` selecciona/diversifica",
           "OOS3_CORR` solo audita estabilidad o veta"
         ],
         "docs/PROJECT_GOVERNANCE.md": [
-          "Current phase active: SQX142-PORTFOLIO-CORR1 - Correlation Stability Audit",
-          "sqx142-portfolio-corr1-registered-decision-v1",
-          "POST /api/sqx142/portfolio-corr1/registered-decision",
+          "Current phase active: SQX142-CAPA1/CAPA2-CORR - Methodology Reclassification",
+          "capa1_c2_template_selection",
+          "capa2_portfolio_selection",
+          "POST /api/sqx142/capa1-c2-corr1/registered-decision",
           "SQX EDGE CORR1 TAGGED=23",
-          "Correlation Stability Audit Gate",
+          "Correlation Bridge Gate",
           "OOS3 may not select alternates"
         ],
         "docs/SQX142_PORTFOLIO_CORR1_STABILITY_AUDIT.md": [
-          "Status: `implemented_registered_sqx_local_decision`",
-          "sqx142-portfolio-corr1-registered-decision-v1",
+          "Status: `implemented_capa2_scope_with_capa1_alias_reclassified`",
+          "sqx142-capa1-c2-corr1-registered-decision-v1",
           "OOS3 must not select alternates",
           "POST /api/sqx142/portfolio-correlation/stability-audit",
+          "POST /api/sqx142/capa1-c2-corr1/registered-decision",
           "POST /api/sqx142/portfolio-corr1/registered-decision",
           "SQX EDGE CORR1 TAGGED",
-          "corr1_registered_stability_decision",
+          "capa1_c2_corr1_registered_selection_decision",
           "selected by `IS_CORR`: `1`",
           "White Reality Check"
         ],
+        "docs/SQX142_CAPA1_C2_CORRELATION_TEMPLATE_SELECTION.md": [
+          "Status: `implemented_reclassified_from_portfolio`",
+          "sqx142-capa1-c2-corr1-template-selection-v1",
+          "sqx142-capa1-c2-corr1-registered-decision-v1",
+          "c2_template_selection_decision",
+          "C2 template winners from IS: `1`"
+        ],
+        "docs/SQX142_CAPA2_PORTFOLIO_CORRELATION_ADAPTATION.md": [
+          "Status: `implemented_capa2_scope_declared`",
+          "capa2_portfolio_selection",
+          "POST /api/sqx142/portfolio-correlation/stability-audit",
+          "SQX EDGE C2 CORR1 STABILITY"
+        ],
+        "docs/SQX142_CORRELATION_C1_C2_PORTFOLIO_BRIDGE.md": [
+          "Status: `implemented_bridge_contract`",
+          "edgeFactory.c2TemplateSelection",
+          "edgeFactory.portfolioCorrelationStability",
+          "Legacy portfolio-named Capa1 rows"
+        ],
         "backend/sqx-edge-tool/core/sqx142_portfolio_correlation_stability.py": [
           "PORTFOLIO_CORRELATION_STABILITY_VERSION",
+          "CAPA1_C2_CORRELATION_SELECTION_VERSION",
           "\"selectionBasis\": \"IS_CORR only\"",
           "\"oos3MaySelectAlternates\": False",
           "nearestOos3Warnings"
         ],
         "backend/sqx-edge-tool/tools/sqx142_portfolio_corr1_registered_decision.py": [
-          "sqx142-portfolio-corr1-registered-decision-v1",
+          "sqx142-capa1-c2-corr1-registered-decision-v1",
           "DAILY_EQUITY_SUFFIX = \"/dailyEquity.bin\"",
-          "corr1_registered_stability_decision"
+          "capa1_c2_corr1_registered_selection_decision"
         ],
         "tools/sqx142_portfolio_corr1_registered_decision.ps1": [
           "sqx142_portfolio_corr1_registered_decision.py",
@@ -150,27 +181,31 @@
         ],
         "backend/sqx-edge-tool/api/server.py": [
           "/api/sqx142/portfolio-correlation/stability-audit",
+          "/api/sqx142/capa1-c2-correlation/stability-audit",
+          "/api/sqx142/capa1-c2-corr1/registered-decision",
           "/api/sqx142/portfolio-corr1/registered-decision",
           "build_portfolio_correlation_stability_report"
         ],
         "app/SQX_Dashboard_v6.html": [
           "edge-portfolio-corr-stability",
-          "IS selecciona · OOS3 audita · no optimiza Forward",
+          "Auditoria Capa2 portfolio IS vs OOS3",
           "edge-corr-registered",
           "edge-corr1-analyze"
         ],
         "app/js/modules/edge-factory.js": [
           "portfolioCorrelationStabilityVersion",
-          "recordPortfolioCorrelationStability"
+          "recordPortfolioCorrelationStability",
+          "recordC2TemplateSelection"
         ],
         "app/js/modules/edge-factory-ui.js": [
           "runCorrelationStability",
           "runRegisteredCorrelationDecision",
-          "renderCorrelationStability"
+          "renderCorrelationStability",
+          "/sqx142/capa1-c2-corr1/registered-decision"
         ],
         "CHANGELOG.md": [
-          "2026-05-30 - SQX142-PORTFOLIO-CORR1 Registered Stability Decision",
-          "sqx142-portfolio-corr1-registered-decision-v1",
+          "2026-05-30 - SQX142-CAPA1/CAPA2 Correlation Methodology Reclassification",
+          "sqx142-capa1-c2-corr1-registered-decision-v1",
           "2026-05-29 - SQX142-PORTFOLIO-CORR1 Correlation Stability Audit",
           "OOS3/Forward may veto or warn but must not choose alternates"
         ]

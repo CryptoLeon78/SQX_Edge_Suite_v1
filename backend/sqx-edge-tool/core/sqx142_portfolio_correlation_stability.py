@@ -10,6 +10,29 @@ from typing import Any, Iterable, Mapping
 
 
 PORTFOLIO_CORRELATION_STABILITY_VERSION = "sqx142-portfolio-corr1-stability-audit-v1"
+CAPA1_C2_CORRELATION_SELECTION_VERSION = "sqx142-capa1-c2-corr1-template-selection-v1"
+CORRELATION_STABILITY_ENGINE_VERSION = "sqx142-correlation-stability-engine-v1"
+
+DECISION_DOMAINS = {
+    "capa1_c2_template_selection": {
+        "version": CAPA1_C2_CORRELATION_SELECTION_VERSION,
+        "source": "capa1_c2_corr1_is_selection_oos3_audit",
+        "selectedLabel": "c2_template_winner",
+        "similarLabel": "c2_template_similar",
+        "reviewLabel": "c2_template_review",
+        "selectionSurface": "Template Maker C2",
+        "downstreamSurface": "Template C2 generation",
+    },
+    "capa2_portfolio_selection": {
+        "version": PORTFOLIO_CORRELATION_STABILITY_VERSION,
+        "source": "capa2_portfolio_corr1_is_selection_oos3_audit",
+        "selectedLabel": "portfolio",
+        "similarLabel": "similar",
+        "reviewLabel": "review",
+        "selectionSurface": "Portfolio Lab",
+        "downstreamSurface": "Portfolio Master",
+    },
+}
 
 DEFAULT_SETTINGS = {
     "maxIsCorrelation": 0.50,
@@ -275,7 +298,14 @@ def _audit_selected_pairs(selected: list[Mapping[str, Any]], cfg: Mapping[str, A
     return pairs
 
 
-def build_portfolio_correlation_stability_report(payload: Mapping[str, Any] | str | list[Any], settings: Mapping[str, Any] | None = None) -> dict[str, Any]:
+def build_portfolio_correlation_stability_report(
+    payload: Mapping[str, Any] | str | list[Any],
+    settings: Mapping[str, Any] | None = None,
+    *,
+    decision_domain: str = "capa2_portfolio_selection",
+) -> dict[str, Any]:
+    domain_key = decision_domain if decision_domain in DECISION_DOMAINS else "capa2_portfolio_selection"
+    domain = DECISION_DOMAINS[domain_key]
     if isinstance(payload, Mapping):
         rows = _parse_csv_rows(payload.get("csv") or payload.get("rows") or payload.get("candidates") or "")
         if not rows and isinstance(payload.get("portfolioLab"), Mapping):
@@ -361,9 +391,19 @@ def build_portfolio_correlation_stability_report(payload: Mapping[str, Any] | st
 
     return {
         "ok": True,
-        "version": PORTFOLIO_CORRELATION_STABILITY_VERSION,
+        "version": domain["version"],
+        "engineVersion": CORRELATION_STABILITY_ENGINE_VERSION,
+        "legacyVersion": PORTFOLIO_CORRELATION_STABILITY_VERSION,
         "mode": "external_readonly",
-        "source": "portfolio_corr1_is_selection_oos3_audit",
+        "source": domain["source"],
+        "decisionDomain": domain_key,
+        "decisionLabels": {
+            "selected": domain["selectedLabel"],
+            "similar": domain["similarLabel"],
+            "review": domain["reviewLabel"],
+        },
+        "selectionSurface": domain["selectionSurface"],
+        "downstreamSurface": domain["downstreamSurface"],
         "analyzedAt": _now_iso(),
         "settings": cfg,
         "methodology": {
@@ -371,10 +411,14 @@ def build_portfolio_correlation_stability_report(payload: Mapping[str, Any] | st
             "auditBasis": "OOS3_CORR stability confirmation only",
             "oos3MaySelectAlternates": False,
             "requiresFreshHoldoutIfOos3UsedForSelection": True,
+            "capa1CorrelationPurpose": "Template C2 selection" if domain_key == "capa1_c2_template_selection" else "",
+            "capa2CorrelationPurpose": "Portfolio selection" if domain_key == "capa2_portfolio_selection" else "",
         },
         "summary": {
             "inputRows": len(rows),
             "selectedByIs": sum(1 for item in items if item["decision"] == "selected_is"),
+            "c2TemplateSelectedByIs": sum(1 for item in items if item["decision"] == "selected_is") if domain_key == "capa1_c2_template_selection" else 0,
+            "portfolioSelectedByIs": sum(1 for item in items if item["decision"] == "selected_is") if domain_key == "capa2_portfolio_selection" else 0,
             "similarByIs": sum(1 for item in items if item["decision"] == "similar_is"),
             "review": sum(1 for item in items if item["decision"] == "review"),
             "selectedPairs": len(selected_pairs),
@@ -396,6 +440,17 @@ def build_portfolio_correlation_stability_report(payload: Mapping[str, Any] | st
         "blockers": ["oos3_stability_break"] if oos3_breaks else [],
         "warnings": ["oos3_used_as_audit_not_selector"] + (["oos3_correlation_drift_review"] if oos3_warnings else []),
     }
+
+
+def build_capa1_c2_correlation_selection_report(
+    payload: Mapping[str, Any] | str | list[Any],
+    settings: Mapping[str, Any] | None = None,
+) -> dict[str, Any]:
+    return build_portfolio_correlation_stability_report(
+        payload,
+        settings,
+        decision_domain="capa1_c2_template_selection",
+    )
 
 
 def export_portfolio_correlation_stability_csv(report: Mapping[str, Any]) -> str:

@@ -79,6 +79,8 @@ def test_apply_adds_corr2_tasks_databanks_and_registry_steps(tmp_path, monkeypat
     result = corr2.apply_integration(args_for(tmp_path, sqx_root))
 
     assert result["ok"] is True
+    assert result["version"] == "sqx142-capa1-c2-corr2-local-project-integration-v1"
+    assert result["decisionDomain"] == "capa1_c2_template_selection"
     assert result["status"] == "patched"
     assert result["backupId"].startswith(corr2.VERSION)
     assert result["databanks"][corr2.STABILITY_DATABANK] == 0
@@ -112,6 +114,7 @@ def test_apply_adds_corr2_tasks_databanks_and_registry_steps(tmp_path, monkeypat
     assert tag.find(".//CustomAnalysis").attrib["method"] == corr2.CUSTOM_ANALYSIS_ID
 
     status = corr2.build_status(args_for(tmp_path, sqx_root))
+    assert status["decisionDomain"] == "capa1_c2_template_selection"
     assert status["cfx"]["corr2Integrated"] is True
     assert status["actual"]["sourceDatabank"] == "Forward"
     assert status["databanks"][corr2.STABILITY_DATABANK] == 0
@@ -128,17 +131,18 @@ def test_record_manual_status_updates_completed_corr2_registry_steps(tmp_path, m
     recorded = corr2.record_manual_status(args_for(tmp_path, sqx_root))
 
     assert recorded["ok"] is True
+    assert recorded["decisionDomain"] == "capa1_c2_template_selection"
     assert recorded["actual"]["sourceDatabank"] == "Forward"
     with corr2.registry_connect(Path(args_for(tmp_path, sqx_root).db)) as con:
         rows = con.execute(
             "SELECT step_key, status, input_databank, output_databank, passed_count FROM custom_project_steps ORDER BY step_order"
         ).fetchall()
     by_key = {row["step_key"]: dict(row) for row in rows}
-    assert by_key["corr2_stability_retest"]["status"] == "completed"
-    assert by_key["corr2_stability_retest"]["input_databank"] == "Forward"
-    assert by_key["corr2_stability_retest"]["passed_count"] == 2
-    assert by_key["corr2_tagger_review"]["status"] == "completed"
-    assert by_key["corr2_tagger_review"]["passed_count"] == 2
+    assert by_key["capa1_c2_corr1_stability_retest"]["status"] == "completed"
+    assert by_key["capa1_c2_corr1_stability_retest"]["input_databank"] == "Forward"
+    assert by_key["capa1_c2_corr1_stability_retest"]["passed_count"] == 2
+    assert by_key["capa1_c2_corr1_tagger_review"]["status"] == "completed"
+    assert by_key["capa1_c2_corr1_tagger_review"]["passed_count"] == 2
 
 
 def test_rollback_restores_backed_up_project_cfx(tmp_path, monkeypatch):

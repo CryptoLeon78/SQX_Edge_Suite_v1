@@ -48,21 +48,22 @@ The registry scanned the local SQX142 project `databanks` folder read-only and r
 
 The separate exported Forward CSV/tagger evidence remains linked as a test/export confirmation, but the funnel source of truth is the custom project and its databanks.
 
-## Registered CORR1 Decision
+## Registered Capa1 C2 CORR1 Decision
 
 The first real CORR1 decision is also stored against the custom project, not as a loose CSV comparison:
 
 - Step `91`: `Forward` -> `SQX EDGE CORR1 STABILITY`, `23` rows.
 - Step `92`: `SQX EDGE CORR1 STABILITY` -> `SQX EDGE CORR1 TAGGED`, `23` rows.
-- Step `93`: `SQX EDGE CORR1 TAGGED` -> `portfolio_decision`, `23` rows analyzed.
+- Step `93`: `SQX EDGE CORR1 TAGGED` -> `c2_template_selection_decision`, `23` rows analyzed.
 
 Registered decision summary:
 
-- portfolio winners: `1`;
-- similar candidates: `22`;
+- C2 template winners: `1`;
+- template-similar candidates: `22`;
 - review candidates: `0`;
 - status: `pass`;
-- source: `sqx142-portfolio-corr1-registered-decision-v1`.
+- source: `sqx142-capa1-c2-corr1-registered-decision-v1`.
+- decision domain: `capa1_c2_template_selection`.
 
 The decision reader parses SQX local `.sqx` `dailyEquity.bin` series read-only while SQX is closed and writes only to the SQX Edge-owned registry/evidence folder.
 
@@ -95,10 +96,10 @@ Buttons:
 - `Cargar embudo local`: reads the SQX Edge registry through `GET /api/sqx142/mining-registry/funnel`.
 - `Actualizar desde SQX local`: scans `SQX142_ROOT/user/projects/<custom>/databanks` read-only through `POST /api/sqx142/mining-registry/scan-project`, then returns sanitized funnel JSON.
 - `Aplicar a Edge Factory`: calls `recordMiningRegistryFunnel` so Edge Factory marks the Capa1 custom as recorded and shows the real `Results/Forward/SPP/WFM/CORR1` counts in its trace signals.
-- `Estado CORR1 local` / `Registrar CORR1` / `Preflight CORR1` / `Parchear custom SQX` / `Rollback CORR1`: call the CORR2 local custom project integration endpoint and then refresh the registry. These actions are governed by `docs/SQX142_PORTFOLIO_CORR2_LOCAL_CUSTOM_PROJECT_INTEGRATION.md`.
-- `Analizar CORR1`: calls the registered CORR1 decision endpoint over `SQX EDGE CORR1 TAGGED` and records the portfolio decision node back into the same custom-project funnel.
+- `Estado C2 CORR1 local` / `Registrar C2 CORR1` / `Preflight C2 CORR1` / `Parchear Capa1 SQX` / `Rollback C2 CORR1`: call the Capa1 C2 CORR2 local custom project integration endpoint and then refresh the registry. These actions are governed by `docs/SQX142_PORTFOLIO_CORR2_LOCAL_CUSTOM_PROJECT_INTEGRATION.md`.
+- `Analizar C2 CORR1`: calls the registered Capa1 C2 CORR1 decision endpoint over `SQX EDGE CORR1 TAGGED` and records the `c2_template_selection_decision` node back into the same custom-project funnel.
 
-The visual source remains the local SQX Edge registry. REGISTRY2 scanning stays read-only; CORR2 patching is a separate guarded action that requires SQX closed and creates the `SQX EDGE CORR1 STABILITY` / `SQX EDGE CORR1 TAGGED` nodes.
+The visual source remains the local SQX Edge registry. REGISTRY2 scanning stays read-only; Capa1 C2 CORR2 patching is a separate guarded action that requires SQX closed and creates the `SQX EDGE CORR1 STABILITY` / `SQX EDGE CORR1 TAGGED` nodes.
 
 ## Boundaries
 

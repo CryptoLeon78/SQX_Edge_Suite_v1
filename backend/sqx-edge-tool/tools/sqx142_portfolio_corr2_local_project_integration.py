@@ -25,7 +25,9 @@ from tools.sqx142_mining_registry import (
 )
 
 
-VERSION = "sqx142-portfolio-corr2-local-custom-project-integration-v1"
+VERSION = "sqx142-capa1-c2-corr2-local-project-integration-v1"
+DEPRECATED_PORTFOLIO_ALIAS_VERSION = "sqx142-portfolio-corr2-local-custom-project-integration-v1"
+DECISION_DOMAIN = "capa1_c2_template_selection"
 DEFAULT_SQX_ROOT = Path(os.environ.get("SQX142_ROOT", "<LOCAL_SQX142_ROOT>"))
 LOCAL_ROOT = Path(".local") / "sqx142_portfolio_corr2_local_project_integration"
 
@@ -487,6 +489,10 @@ def registry_record_corr2(db_path: Path, project_key: str, project: Path, status
     if source_databank == "Foward":
         source_databank = "Forward"
     details = dict(details)
+    details["version"] = VERSION
+    details["deprecatedAliases"] = [DEPRECATED_PORTFOLIO_ALIAS_VERSION]
+    details["decisionDomain"] = DECISION_DOMAIN
+    details["methodologyRole"] = "Capa1 correlation tasks feed Template C2 selection; Capa2 portfolio correlation remains a separate downstream phase."
     details["actualSourceDatabank"] = source_databank
     details["actualCorr2Databanks"] = {
         "stabilityInput": source_databank,
@@ -552,7 +558,7 @@ def registry_record_corr2(db_path: Path, project_key: str, project: Path, status
                 trace["blocksettingFamily"],
                 trace["direction"],
                 trace["sqxProfile"],
-                safe_json({"version": VERSION, "projectKey": project_key, "corr2": details, "source": "corr2_local_project_integration"}),
+                safe_json({"version": VERSION, "deprecatedAliases": [DEPRECATED_PORTFOLIO_ALIAS_VERSION], "projectKey": project_key, "corr2": details, "decisionDomain": DECISION_DOMAIN, "source": "capa1_c2_corr2_local_project_integration"}),
                 now,
                 now,
             ),
@@ -561,9 +567,9 @@ def registry_record_corr2(db_path: Path, project_key: str, project: Path, status
         stability_status = "completed" if stability_count > 0 else ("pending_run" if status in {"patched", "operator_confirmed"} else status)
         tag_status = "completed" if tag_count > 0 else ("pending_tagger_csv" if status in {"patched", "operator_confirmed"} else status)
         steps = [
-            (90, "corr2_project_patch", "CORR2 local project patch", status, "", STABILITY_DATABANK, None, None, None),
-            (91, "corr2_stability_retest", f"CORR1 stability retest from {source_databank}", stability_status, source_databank, stability_output, counts.get(source_databank), stability_count, 0),
-            (92, "corr2_tagger_review", "CORR1 tag review", tag_status, tag_input, tag_output, counts.get(tag_input), tag_count, 0),
+            (90, "capa1_c2_corr2_project_patch", "Capa1 C2 CORR2 local project patch", status, "", STABILITY_DATABANK, None, None, None),
+            (91, "capa1_c2_corr1_stability_retest", f"Capa1 C2 CORR1 stability retest from {source_databank}", stability_status, source_databank, stability_output, counts.get(source_databank), stability_count, 0),
+            (92, "capa1_c2_corr1_tagger_review", "Capa1 C2 CORR1 tag review", tag_status, tag_input, tag_output, counts.get(tag_input), tag_count, 0),
         ]
         for order, key, label, step_status, input_db, output_db, rows, passed, failed in steps:
             con.execute(
@@ -598,7 +604,7 @@ def registry_record_corr2(db_path: Path, project_key: str, project: Path, status
                     passed,
                     failed,
                     safe_json(details),
-                    "CORR2 local project integration; SQX execution remains manual.",
+                    "Capa1 CORR2 local project integration for Template C2 selection; SQX execution remains manual.",
                     now,
                 ),
             )
@@ -620,6 +626,9 @@ def build_status(args: argparse.Namespace) -> dict[str, Any]:
     return {
         "ok": True,
         "version": VERSION,
+        "deprecatedAliases": [DEPRECATED_PORTFOLIO_ALIAS_VERSION],
+        "decisionDomain": DECISION_DOMAIN,
+        "methodologyRole": "Capa1 correlation tasks feed Template C2 selection.",
         "action": "status",
         "projectKey": args.project_key,
         "projectExists": project.is_dir(),
@@ -670,6 +679,9 @@ def build_plan(args: argparse.Namespace) -> dict[str, Any]:
     return {
         "ok": True,
         "version": VERSION,
+        "deprecatedAliases": [DEPRECATED_PORTFOLIO_ALIAS_VERSION],
+        "decisionDomain": DECISION_DOMAIN,
+        "methodologyRole": "Capa1 correlation tasks feed Template C2 selection; this is not the Capa2 portfolio decision.",
         "action": "plan",
         "status": status,
         "operations": [
@@ -677,7 +689,7 @@ def build_plan(args: argparse.Namespace) -> dict[str, Any]:
             f"add active task {STABILITY_TASK_XML} '{STABILITY_TASK_TITLE}' input {SOURCE_DATABANK} output {STABILITY_DATABANK}",
             f"add active task {TAG_TASK_XML} '{TAG_TASK_TITLE}' input {STABILITY_DATABANK} output {TAGGED_DATABANK}",
             f"set both CORR1 tasks to testPrecision={REAL_TICK_PRECISION}, DeleteFailedStrategies=false, FitPortfolio=false and CrossChecks=false",
-            "register CORR2 patch steps in the SQX Edge mining registry",
+            "register Capa1 C2 CORR2 patch steps in the SQX Edge mining registry",
         ],
         "rollback": "restore backed-up project.cfx only; databank folders are left in place to avoid deleting evidence",
         "privacy": {"local_paths_returned": False},
@@ -709,6 +721,8 @@ def apply_integration(args: argparse.Namespace) -> dict[str, Any]:
     result = {
         "ok": True,
         "version": VERSION,
+        "deprecatedAliases": [DEPRECATED_PORTFOLIO_ALIAS_VERSION],
+        "decisionDomain": DECISION_DOMAIN,
         "action": "apply",
         "projectKey": args.project_key,
         "status": "patched",
@@ -742,6 +756,8 @@ def rollback_integration(args: argparse.Namespace) -> dict[str, Any]:
     result = {
         "ok": True,
         "version": VERSION,
+        "deprecatedAliases": [DEPRECATED_PORTFOLIO_ALIAS_VERSION],
+        "decisionDomain": DECISION_DOMAIN,
         "action": "rollback",
         "projectKey": args.project_key,
         "status": "rolled_back",
@@ -772,6 +788,8 @@ def record_manual_status(args: argparse.Namespace) -> dict[str, Any]:
     result = {
         "ok": True,
         "version": VERSION,
+        "deprecatedAliases": [DEPRECATED_PORTFOLIO_ALIAS_VERSION],
+        "decisionDomain": DECISION_DOMAIN,
         "action": "record",
         "projectKey": args.project_key,
         "status": "operator_confirmed",
