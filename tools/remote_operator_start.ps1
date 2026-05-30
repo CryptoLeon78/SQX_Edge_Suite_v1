@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
     [string]$RepoRoot = "",
-    [string]$CloudflaredPath = "C:\Tools\cloudflared\cloudflared.exe",
+    [string]$CloudflaredPath = $env:CLOUDFLARED_EXE,
     [int]$WaitSeconds = 45,
     [switch]$Json
 )
@@ -14,16 +14,15 @@ if ([string]::IsNullOrWhiteSpace($RepoRoot)) {
 
 function Resolve-Cloudflared {
     param([string]$Value)
+    if ([string]::IsNullOrWhiteSpace($Value)) {
+        $Value = "cloudflared"
+    }
     if ([System.IO.Path]::IsPathRooted($Value) -and (Test-Path -LiteralPath $Value)) {
         return [System.IO.Path]::GetFullPath($Value)
     }
     $cmd = Get-Command $Value -ErrorAction SilentlyContinue
     if ($null -ne $cmd) { return $cmd.Source }
 
-    $fallback = "C:\Tools\cloudflared\cloudflared.exe"
-    if (Test-Path -LiteralPath $fallback) {
-        return $fallback
-    }
     return $null
 }
 
@@ -111,7 +110,7 @@ if (-not (Test-Path -LiteralPath $tunnelConfig)) {
     throw "Missing local-only Cloudflare config: $tunnelConfig"
 }
 if (-not $cloudflared) {
-    throw "cloudflared is not available. Expected C:\Tools\cloudflared\cloudflared.exe or cloudflared in PATH."
+    throw "cloudflared is not available. Set CLOUDFLARED_EXE or make cloudflared available in PATH."
 }
 
 $startedBackend = $false

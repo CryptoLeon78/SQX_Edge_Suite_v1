@@ -66,7 +66,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools\remote_service_preflig
 5.1. Use the local handoff when the Cloudflare state is incomplete:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File tools\remote_tunnel_operator_handoff.ps1 -CloudflaredPath C:\Tools\cloudflared\cloudflared.exe
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\remote_tunnel_operator_handoff.ps1 -CloudflaredPath <LOCAL_CLOUDFLARED_EXE>
 ```
 
 6. Run preflight:
@@ -131,9 +131,9 @@ CANONICAL-LINK1 sets the external communication rule:
 - The only customer/tester-facing link is `https://sqxedgesuite.org/`.
 - That root domain is a public-safe Cloudflare Worker preview with social
   metadata and a CTA into the app.
-- `app.sqxedgesuite.org/dashboard` is the protected app target behind
+- `<PROTECTED_DASHBOARD_HOST>/dashboard` is the protected app target behind
   Cloudflare Access and must not be presented as a second client link.
-- `go.sqxedgesuite.org` may remain as a technical preview alias/fallback, but
+- `<PROTECTED_FALLBACK_HOST>` may remain as a technical preview alias/fallback, but
   it is not the commercial URL.
 
 ROOT-PREVIEW1 splits the public commercial surface from the protected tool:

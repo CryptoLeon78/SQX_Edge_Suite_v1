@@ -25,7 +25,7 @@ Reference sources:
 ## Applied Record
 
 - `2026-05-22 16:31` - Runtime/config hardening applied with `tools\sqx142_compatibility.ps1 apply-runtime --apply --close-processes`.
-- Backup folder: `SQX_142_Crack_local_backups\sqx142_compat_before_20260522_163115`.
+- Backup folder: `SQX142_ROOT_local_backups\sqx142_compat_before_20260522_163115`.
 - Result: SQX 142 now reports Zulu 22.32+15, config shape matches SQX 143, `-Xmx70g` is removed, `--enable-native-access=ALL-UNNAMED` is present and process preflight is clear.
 - Smoke: `StrategyQuantX_nocheck.exe` starts and writes `Starting StrategyQuant` / `Invoking main class` to the launcher log with the new runtime; controlled close leaves zero SQX 142 processes and no `hs_err_pid*.log` in the SQX root.
 
@@ -55,7 +55,7 @@ Apply runtime/config hardening with process close and backup:
 tools\sqx142_compatibility.ps1 apply-runtime --apply --close-processes
 ```
 
-Rollback is manual from the generated backup folder under `SQX_142_Crack_local_backups`.
+Rollback is manual from the generated backup folder under `SQX142_ROOT_local_backups`.
 
 ## Acceptance
 

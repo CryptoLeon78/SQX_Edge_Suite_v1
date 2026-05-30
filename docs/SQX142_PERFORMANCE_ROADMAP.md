@@ -68,7 +68,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools\sqx142_performance_gat
 powershell -NoProfile -ExecutionPolicy Bypass -File tools\sqx142_performance_gate.ps1 compare-profiles baseline_143_safe diagnostic_low_risk retest_robust mining_fast_safe --apply --wait-seconds 18 --restore-profile baseline_143_safe
 ```
 
-El comando es dry-run por defecto. Con `--apply` crea backup bajo `SQX_142_Crack_local_backups`.
+El comando es dry-run por defecto. Con `--apply` crea backup bajo `SQX142_ROOT_local_backups`.
 
 Power-loss hardening:
 
@@ -211,11 +211,11 @@ Estado 2026-05-22:
 - Auditor final Sequential: `sequential-final-review --latest --write-csv --apply` lee los 84 `.sqx` copiados como ZIP, extrae `settings.xml` y `SequentialOptimization_Results.xml`, y deja evidencia `sequential_final_review_20260523_071458.json` mas CSV local `sequential_final_review_20260523_071458.csv`. Resultado: `84/84` legibles, `84` con filtro `passed`, `84` con `sequentialPassed=true`, `0` invalidos, `569` areas estables, distribucion de parametros `26x6`, `51x7`, `7x8`. Esto audita persistencia y contenido sin modificar ningun proyecto SQX.
 - Promocion MC2 preparada: `promote-mc2-spread-to-base` no usa un rango absoluto como regla general; por defecto calcula `RandomizeSpread = spread base x2-x5` del activo/proyecto seleccionado. En USDJPY/H4 detecta spread base `1.4` y deriva `2.8-7.0`, que coincide con el clon diagnostico validado. Dry-run `mc2_spread_promotion_20260523_072103.json` confirma evidencia final Sequential valida (`84/84`), diff XML `Min 30 -> 2.8`, `Max 50 -> 7`, backup planificado y `readyToApply=true`, sin tocar el Capa1 base.
 - La promocion real queda bloqueada salvo flags explicitos: `--apply --allow-master-project --accept-methodology-change`. El rollback queda definido por evidencia mediante `rollback-mc2-spread-promotion --promotion-evidence <evidence> --apply`, restaurando el `project.cfx` desde backup y creando backup previo del estado actual.
-- Promocion MC2 aplicada al Capa1 base: `mc2_spread_promotion_20260523_072626.json` cambia solo `MC 2 / RandomizeSpread` de `30-50` a `baseSpread x2-x5` (`2.8-7.0` en USDJPY/H4), con backup en `SQX_142_Crack_local_backups` y rollback directo por evidencia.
+- Promocion MC2 aplicada al Capa1 base: `mc2_spread_promotion_20260523_072626.json` cambia solo `MC 2 / RandomizeSpread` de `30-50` a `baseSpread x2-x5` (`2.8-7.0` en USDJPY/H4), con backup en `SQX142_ROOT_local_backups` y rollback directo por evidencia.
 - Smoke post-promocion sobre copia `_PERFQ_Mining15_USDJPY_H4_BS_Volatilidad_v6_LS_Capa1_20260523_072637`: el primer intento `MC` con settle corto quedo sin progreso porque SQX aun cargaba databanks; se ajusta `queue-task-smoke` a `--start-settle-seconds 180` por defecto. Reintento `queue_task_smoke_20260523_074738.json`: `MC` 86 outputs, `81 passed / 5 failed`, `2 min. 17 s.`.
 - Smoke post-promocion MC2: `queue_task_smoke_20260523_075933.json` valida `MC 2` con regla adaptativa aplicada: `86` outputs, `84 passed / 2 failed`, `5 min. 46 s.`, metodo `Randomize spread from 2.80 to 7.00`.
 - Smoke post-promocion Sequential corto: `sequential_diag_variant_20260523_080026.json` crea `_PERFQ_SEQBATCH_POSTPROMO8_20260523_080012` con 8 candidatos MC2 passed y archiva Sequential viejo; `queue_task_smoke_20260523_081133.json` completa `Sequential` con `8/8 passed`, `4 min. 52 s.`, sin bajar filtros ni tocar el maestro.
-- Higiene de clones aplicada: `performance-clone-hygiene --keep-newest 2 --apply` deja activos solo `_PERFQ_SEQBATCH_POSTPROMO8_20260523_080012` y `_PERFQ_Mining15_USDJPY_H4_BS_Volatilidad_v6_LS_Capa1_20260523_072637`; archiva reversiblemente 8 clones antiguos en `SQX_142_Crack_local_backups/archived_perf_projects/20260523_081819`. Evidencia `performance_clone_hygiene_20260523_081821.json`. `user/projects` baja a `919.5 MB`.
+- Higiene de clones aplicada: `performance-clone-hygiene --keep-newest 2 --apply` deja activos solo `_PERFQ_SEQBATCH_POSTPROMO8_20260523_080012` y `_PERFQ_Mining15_USDJPY_H4_BS_Volatilidad_v6_LS_Capa1_20260523_072637`; archiva reversiblemente 8 clones antiguos en `SQX142_ROOT_local_backups/archived_perf_projects/20260523_081819`. Evidencia `performance_clone_hygiene_20260523_081821.json`. `user/projects` baja a `919.5 MB`.
 
 ### Phase 5 - Databanks, Views And Columns
 
@@ -233,7 +233,7 @@ Estado 2026-05-23:
 - `phase5-databank-view-guard` implementa la Fase 5 con politica estricta: views de ejecucion sin `MiniEquityChart`, `EntryIndicators`, `ExitIndicators` ni `PriceIndicators`; Monkey/Synthetic mantienen views separadas.
 - Aplicado con `--apply --archive-views`: reasigna databanks del proyecto a `MINING FAST REVIEW`, `RETEST QUICK REVIEW`, `RETEST ROBUST REVIEW`, `MC MONKEY RETEST` y `MC SYNTHETIC RETEST`.
 - Views legacy pesadas archivadas fuera de SQX activo, con backup reversible: `todas las metricas posibles`, `PROPIA`, `MONTECARLO RETEST`, `MONTECARLO TRADES`, `ROBUSTEZ`.
-- Evidencia aplicada `phase5_databank_view_guard_20260523_091310.json`; backup en `SQX_142_Crack_local_backups/sqx142_phase5_views_before_20260523_091309`.
+- Evidencia aplicada `phase5_databank_view_guard_20260523_091310.json`; backup en `SQX142_ROOT_local_backups/sqx142_phase5_views_before_20260523_091309`.
 - Verificacion posterior `phase5_databank_view_guard_20260523_091327.json`: `blocking=[]`, `projectViewActions=[]`, `executionViewIssues=[]`.
 
 ### Phase 6 - Persistence, Cleanup And Project Hygiene

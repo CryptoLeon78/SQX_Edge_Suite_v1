@@ -18,19 +18,19 @@ This phase does not create users, grants, checkout links, emails or tester expan
 Run the handoff generator:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File tools\remote_tunnel_operator_handoff.ps1 -CloudflaredPath C:\Tools\cloudflared\cloudflared.exe
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\remote_tunnel_operator_handoff.ps1 -CloudflaredPath <LOCAL_CLOUDFLARED_EXE>
 ```
 
 If the generated local handoff says the origin certificate is missing, authenticate:
 
 ```powershell
-C:\Tools\cloudflared\cloudflared.exe tunnel login
+<LOCAL_CLOUDFLARED_EXE> tunnel login
 ```
 
 Then create or reuse one tunnel, route the private hostname, create the local ignored config, configure a Cloudflare Access self-hosted application and test:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File tools\remote_tunnel_preflight.ps1 -CloudflaredPath C:\Tools\cloudflared\cloudflared.exe -RequireEvidence
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\remote_tunnel_preflight.ps1 -CloudflaredPath <LOCAL_CLOUDFLARED_EXE> -RequireEvidence
 powershell -NoProfile -ExecutionPolicy Bypass -File tools\remote_tunnel_smoke.ps1 -ProtectedUrl "https://<private protected hostname>"
 python backend\sqx-edge-tool\tools\remote_ops1_laptop_readiness.py --evidence .local\remote_service\remote_ops1_laptop_readiness.local.json --out-dir .local\remote_service\remote_ops1_laptop_readiness
 ```

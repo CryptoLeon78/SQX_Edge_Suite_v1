@@ -1,5 +1,162 @@
 # Changelog
 
+## 2026-05-30 - SQX142-PORTFOLIO-CORR1 Registered Stability Decision
+
+- Adds `sqx142-portfolio-corr1-registered-decision-v1` to read the real SQX142 custom databank `SQX EDGE CORR1 TAGGED` while SQX is closed, parse `.sqx` `dailyEquity.bin` series read-only and run the CORR1 IS/OOS3 stability audit from the registered funnel.
+- Adds `POST /api/sqx142/portfolio-corr1/registered-decision`, wrapper `tools\sqx142_portfolio_corr1_registered_decision.ps1` and Edge Factory/Mining Control buttons `Analizar CORR1` / `Auditar registrado`.
+- Registers the real AUDCAD H1 Capa1 custom decision in the SQX Edge registry as step 93 `corr1_registered_stability_decision`: `inputRows=23`, `selectedByIs=1`, `similarByIs=22`, `review=0`, `status=pass`.
+- Records the methodology result: OOS3 is audit-only and confirms the 22 non-selected candidates remain highly correlated to the selected IS winner, so they are not replacements.
+- Preserves boundaries: no SQX launch, no retest execution, no SQX `data.db` write, no `.sqx`/databank/project mutation during analysis, no jars/internal plugins/license changes, no `run_project`, no Migration Tool and no `checkResources`.
+
+## 2026-05-29 - SQX142-PORTFOLIO-CORR2 Local Custom Project Integration
+
+- Records the 2026-05-30 operator confirmation: SQX142 opened cleanly with no red warnings, original 12 tasks remained, both CORR1 tasks appeared, `Synthetic`/`Forward` names were corrected, `CORR1 STABILITY RETEST` now reads `Forward`, and both CORR1 databanks filled with 23 strategies.
+- Adds `sqx142-portfolio-corr2-local-custom-project-integration-v1` with guarded `status/plan/apply/record/rollback` tooling for direct SQX142 custom project integration.
+- Extends the tool/API/UI with `record` / `Registrar CORR1` so manual SQX retest completion can update the custom-project funnel without patching again.
+- Adds manual tasks `Retest-Task4.xml` `CORR1 STABILITY RETEST` and `Retest-Task5.xml` `CORR1 TAG REVIEW`; the active survivor source is `Forward`, with `testPrecision=4`, `DeleteFailedStrategies=false`, `FitPortfolio=false` and `CrossChecks=false`.
+- Adds local API `POST /api/sqx142/portfolio-corr2/local-project` plus Edge Factory/Mining Control buttons for status, preflight, apply and rollback.
+- Extends the mining registry funnel to show `SQX EDGE CORR1 STABILITY` and `SQX EDGE CORR1 TAGGED`, and records CORR2 patch steps against the custom project.
+- Preserves boundaries: SQX must be closed for apply/rollback, no SQX launch, no `data.db` writes, no jars/internal plugins/license changes, no databank deletion, no `run_project`, no Migration Tool and no `checkResources`.
+
+## 2026-05-29 - SQX142-PORTFOLIO-CORR1 Correlation Stability Audit
+
+- Adds `sqx142-portfolio-corr1-stability-audit-v1` as an external/read-only audit that separates `IS_CORR` selection from `OOS3_CORR` stability confirmation.
+- Adds `POST /api/sqx142/portfolio-correlation/stability-audit`, pairwise selected-candidate audit CSV export and an Edge Factory Portfolio Lab panel for IS vs OOS3 correlation drift.
+- Updates Edge Factory state with `portfolioCorrelationStability` and exposes `Portfolio CORR1 stability audit` in the Backport Operator Panel.
+- Preserves the methodology boundary: OOS3/Forward may veto or warn but must not choose alternates; if OOS3 is used for selection, a fresh later holdout is required.
+- Preserves SQX boundaries: no SQX launch, no retest execution, no `data.db` writes, no `user/projects` mutation, no jars/internal plugins/license changes, no databank deletion, no `run_project`, no Migration Tool and no `checkResources`.
+
+## 2026-05-29 - SQX142-MINING-REGISTRY2 Visual Funnel Panel
+
+- Adds the visual mining registry panel to Edge Factory and Mining Control, showing real databank funnel nodes from the SQX Edge SQLite registry.
+- Adds local-operator API `POST /api/sqx142/mining-registry/scan-project` to refresh the registry from `SQX142_ROOT/user/projects/<custom>/databanks` read-only, then return sanitized funnel JSON.
+- Adds UI buttons to `Cargar embudo local`, `Actualizar desde SQX local` and `Aplicar a Edge Factory`, projecting the custom project snapshot through `recordMiningRegistryFunnel`.
+- Preserves boundaries: no SQX runtime launch, no `checkResources`, no `data.db` writes, no arbitrary `user/projects` mutation, no jars/internal plugins/license changes, no databank deletion, no `run_project` and no Migration Tool.
+
+## 2026-05-29 - SQX142-MINING-REGISTRY1 Mining Results Registry
+
+- Adds `docs/SQX142_MINING_RESULTS_REGISTRY.md`, `backend/sqx-edge-tool/tools/sqx142_mining_registry.py` and `tools/sqx142_mining_registry.ps1` for a project-centric SQLite registry under `.local/sqx142_mining_registry/`.
+- Records the real AUDCAD H1 Momentum Capa1 custom project and scans SQX142 local databanks read-only: `Results=2000`, `RETEST 0=459`, `retest 1=108`, `TICK=92`, `MC=59`, `MC2=59`, `Sequential=59`, `Monkey Test=59`, `Syntetic=59`, `SPP=42`, `WFM=39`, `Foward=23`.
+- Exposes sanitized funnel JSON through `/api/sqx142/mining-registry/funnel` and adds Edge Factory `recordMiningRegistryFunnel` to project the registry snapshot into the suite funnel state.
+- Preserves boundaries: no SQX runtime launch, no `checkResources`, no `data.db` writes, no `user/projects` mutation, no jars/internal plugins/license changes, no databank deletion, no `run_project` and no Migration Tool.
+
+## 2026-05-29 - SQX142-OWN-FEATURES5 Forward Tagger Repeatable Flow
+
+- Closes `SQX142-OWN-FEATURES4 Clean Mining Path Validation` as `pass` after the fresh AUDCAD H1 Momentum Capa1 Forward export populated `SQX EDGE CORRELATION REVIEW` through `SQXEdgeCorrelationTagger`.
+- Adds `docs/SQX142_OWN_FEATURES_FORWARD_TAGGER_FLOW.md` and `tools/sqx142_own_features_forward_tagger_flow.ps1` with `status/checklist/validate-export/record` so the validated sequence is repeatable: export Forward before tagger, close SQX, Data Smoke build/install, reopen SQX, enable tagger with filtering disabled, export final confirmation CSV.
+- Records the first validated run: 23 Forward rows, Data Smoke decisions `portfolio=1`, `similar=22`, `review=0`, installed tag hash `3401856dc3dc4fb5d71a5d4c116f3049ba0cd372d3c1dc8559d9271d7d6c2732`, final tagger export hash `092AB2E3C97ED81DC8E2BD7FE9793B952D2E61D9B0A9F325A1520A8C78EC99C4`.
+- Preserves boundaries: no SQX runtime launch from scripts, no `checkResources`, no jars/internal plugins/license changes, no `data.db`, no `user/projects`, no databank deletion, no `run_project`, no Migration Tool and no forced pass/profitability claims.
+
+## 2026-05-27 - SQX142-OWN-FEATURES4 Clean Mining Path Validation
+
+- Adds `docs/SQX142_OWN_FEATURES_CLEAN_MINING_PATH_VALIDATION.md` with status `prepared_readonly_preflight_green_pending_operator_clean_mining`.
+- Adds `tools/sqx142_own_features_clean_mining_path_validation.ps1` with `status/checklist/record` for the clean mining validation path; it composes the stabilizer, manual confirmation, data-smoke and lab-scaffold read-only status without launching SQX.
+- Confirms the old lab `Monkey Test`/`Syntetic` carrier remains blocked by `ExitAfterDays`/`ExitAfterTradingDays`; FEATURES4 must use a fresh custom/mining export before rebuilding `correlation_decisions.csv`.
+- Preserves boundaries: no jars, engine binaries, internal plugins, license/activation, `data.db` writes, production base mutation, databank deletion, `run_project`, Migration Tool or retired-dependency placeholders.
+
+## 2026-05-27 - REMOTE-OWNER1 Owner Access Recovery
+
+- Adds `remote-owner-access-recovery-v1` so the creator/operator can recover access as `internal_operator` without weakening tester or buyer anti-sharing controls.
+- Extends `remote-access-control-v1` with `maxTrustedContextsPerInternalOperator=8` and `effectiveMaxTrustedContexts`; the normal identity limit remains `maxTrustedContextsPerIdentity=2`.
+- Adds `backend/sqx-edge-tool/core/remote_owner_access.py`, `backend/sqx-edge-tool/tools/remote_owner_access_recovery.py` and `tools/remote_owner_access_recovery.ps1` with `status/recover/rollback`, backup before write and privacy-safe output.
+- Applies local owner recovery: the creator grant is now `internal_operator`, current owner contexts are trusted, and backup `remote-owner-access-recovery-v1_20260527_153521` exists for rollback.
+- Verification: `backend/sqx-edge-tool/test_remote_access_control.py` and `backend/sqx-edge-tool/test_remote_access.py` passed together (`24 passed`).
+
+## 2026-05-27 - Correlation Lab Retest Recovery And Welcome CTA Feedback
+
+- Records the SQX142 correlation lab Retest finding: `SQX EDGE CORR TAG` loads the Custom Analysis, but the copied legacy `Monkey Test` donor rejects rows with `backtest exception` because affected strategies reference retired dependency `ExitAfterDays`.
+- Extends `backend/sqx-edge-tool/tools/sqx142_correlation_lab_project_scaffold.py` with `retiredDependencyPreflight` for `ExitAfterDays`/`ExitAfterTradingDays`; future lab installs block donors that contain those retired strategy dependencies and point the operator to fresh mining or a clean donor.
+- Updates `docs/SQX142_OWN_FEATURES_CORRELATION_LAB_PROJECT_SCAFFOLD.md`, `README.md` and `docs/PROJECT_GOVERNANCE.md` so the lab status is `installed_view_confirmed_retest_carrier_blocked_by_legacy_exit_dependency` rather than ready for repeated Retest runs.
+- Improves Welcome `Acceso DASHBOARD` feedback in `app/js/modules/home.js`: login progress, pending workspace and login failure messages are now written into the visible welcome gate instead of the hidden session panel, so the CTA no longer appears inert.
+- Verification: `node tests/js/contracts/home_workflow_granular_contracts.mjs`, `node tests/js/contracts/ui_home_workflow_contracts.mjs` and `node tests/ui_e2e/dashboard_smoke.mjs` passed.
+
+## 2026-05-27 - SQX142-OWN-FEATURES3B Correlation Lab Project Scaffold
+
+- Adds `backend/sqx-edge-tool/tools/sqx142_correlation_lab_project_scaffold.py` and `tools/sqx142_own_features_correlation_lab_project_scaffold.ps1` with guarded `status/plan/install/rollback` actions.
+- Installs local lab project `SQX_EDGE_CORR_LAB_Mining15_USDJPY_H4_20260527` from donor `Mining15_USDJPY_H4_BS_Volatilidad_v6_LS_Capa1`, copying only `Monkey Test=86` and `Syntetic=86`, creating empty output `SQX EDGE CORR TAGGED`, setting view `SQX EDGE CORRELATION REVIEW` and tag task `SQX EDGE CORR TAG`.
+- Patches only the copied lab `project.cfx`: project name, lab databank views, `Retest-Task2.xml` input `Monkey Test`, output `SQX EDGE CORR TAGGED`, Custom Analysis `SQXEdgeCorrelationTagger`, `FitPortfolio=false`, `CrossChecks=false` and task inactive by default.
+- Records backup `sqx142-own-features3b-correlation-lab-project-scaffold-v1_20260527_133250`, target `project.cfx` hash `4197bd1a3f5f57909f7bcbe56f8a3f1c8ed4cc2b46861e59401bbfa1a8d44bf7` and rollback by moving the lab project to SQXEdge quarantine.
+- Verification: `backend/sqx-edge-tool/test_sqx142_correlation_lab_project_scaffold.py` -> `3 passed`; `tests/js/contracts/sqx142_own_features3b_correlation_lab_project_scaffold_contracts.mjs` -> contract ok; post-install status shows target exists with `Monkey Test=86`, `Syntetic=86`, `SQX EDGE CORR TAGGED=0`.
+- Boundaries preserved: no SQX launch, no `data.db` writes, no jars/internal plugins/license changes, no production Capa1/Capa2 mutation, no databank deletion, no `run_project`, no Migration Tool and no forced pass.
+
+## 2026-05-27 - SQX142-OWN-FEATURES3 Correlation Pack Manual Confirmation
+
+- Adds `docs/SQX142_OWN_FEATURES_CORRELATION_MANUAL_CONFIRMATION.md` with status `preflight_ready_pending_operator_ui_confirmation` for the SQX142 lab UI confirmation.
+- Adds `tools/sqx142_own_features_correlation_manual_confirmation.ps1` with read-only `status/checklist` and local-only `record` actions; it names the exact view `SQX EDGE CORRELATION REVIEW` and exact Custom Analysis item `SQX Edge Correlation Tagger` / `SQXEdgeCorrelationTagger`.
+- Captures current preflight: pack targets installed, `correlation_decisions.csv` schema valid with 86 rows, SQX process count zero at preflight time and manual UI confirmation still pending.
+- Adds `tests/js/contracts/sqx142_own_features3_correlation_manual_confirmation_contracts.mjs` to block SQX launch, SQX file writes, `Stop-Process`, destructive deletes and unsafe claims.
+- Boundaries preserved: no SQX launch from script, no SQX file write, no jars/internal plugins/license changes, no `data.db` writes, no `user/projects` writes, no databank deletion, no `run_project`, no Migration Tool and no forced pass.
+
+## 2026-05-27 - SQX142 Project Resource Repair Runbook
+
+- Records the local SQX 142 repair of `Capa1_Long_SQX142_Base` and `Capa2_Base_SQX142_Base` in `docs/maintenance/SQX142_PROJECT_RESOURCE_REPAIR_RUNBOOK.md`.
+- Extends `tools/sqx142_project_resource_repair.ps1` / `backend/sqx-edge-tool/tools/sqx142_project_resource_repair.py` with guarded `rebuild-capa1`, `repair-capa2-config` and `rebuild-capa2` flows, all requiring SQX closed and backup/rollback.
+- Captures the final Capa2 root cause: SQX 142 kept reporting `<Resources><Symbols /><Sessions /></Resources>` until `InstrumentInfo.tickSize/tickStep` were emitted as Java-like small-double strings (`1.0E-4`, `1.0E-5`) through `_java_double_text`.
+- Registers final backup anchors `sqx142-project-resource-repair-v1_clean-donor-rebuild_20260527_062436` and `sqx142-project-resource-repair-v1_capa2-clean-donor-rebuild_20260527_071920`.
+- Verification: `backend/sqx-edge-tool/test_sqx142_project_resource_repair.py` -> `15 passed`; real SQX `project/checkResources` returned clean for Capa1 and Capa2. `Retester` remains a separate unresolved project.
+- Boundaries preserved: no `Stop-Process`, no jars/engine/license changes, no `data.db` writes, no databank deletion, no `run_project`, no Migration Tool and no forced pass.
+
+## 2026-05-26 - SQX144-COMPAT1 StrategyQuant X 144 Lab Intake Planning
+
+- Adds `docs/SQX144_LAB_INTAKE_ROADMAP.md` as the governed planning gate for Build 144 local evaluation.
+- Registers the three integration priorities: MCP/Results Plugins, Correlation Filter/new Monte Carlo methods, and MT5 direct import/Migration Tool.
+- Keeps SQX 144 as a candidate only: no SQX 142 replacement, no active-data migration, no SQX execution, no proprietary internals copied to the repo and no methodology quality reduction.
+- Completes the first static snapshot with local ignored evidence `sqx144_lab_intake_20260526_143542.json`; decision is `partial_adopt`, with `SQX144-COMPAT2 Static Feature Surface` as the next recommended block.
+- Completes `SQX144-COMPAT2 Static Feature Surface` with local ignored evidence `sqx144_compat2_static_feature_surface_20260526_144600.json`: MCP exposes four read-only tools plus `run_project`/`stop_project` blocked for first probe, Results Plugins exposes PostMessage stats/orders/settings/source/symbol requests, and the new Monte Carlo methods remain benchmark-only candidates. Next recommended block: `SQX144-COMPAT3 Results Plugin Prototype Design`.
+- Completes `SQX144-COMPAT3 Results Plugin Prototype Design` with `docs/SQX144_RESULTS_PLUGIN_PROTOTYPE_DESIGN.md` and local ignored evidence `sqx144_compat3_results_plugin_design_20260526_145500.json`; the proposed `SQX Edge Readiness Panel` stays read-only/offline-first and blocks source-code, orders, plugin-management and SQX installation/runtime in v0.
+- Completes `SQX144-COMPAT4 Results Plugin Prototype Build` with local ignored evidence `sqx144_compat4_results_plugin_prototype_build_20260526_150500.json`: the offline `SQX Edge Readiness Panel` now has `index.html`, mock fixtures `ready/review/blocked`, `offline_smoke.ps1` and Playwright render evidence, while SQX installation, runtime, MCP calls, source-code, orders, plugin-management, persistence and databank mutation remain blocked. Next recommended block: `SQX144-COMPAT5 Results Plugin Install Gate`.
+- Completes `SQX144-COMPAT5 Results Plugin Install Gate` with `docs/SQX144_RESULTS_PLUGIN_INSTALL_GATE.md` and local ignored evidence `sqx144_compat5_results_plugin_install_gate_20260526_151000.json`; decision is `ready_for_manual_install_in_sqx144_lab_only`, `installExecuted=false`, with SQX 142 untouched, no SQX runtime, no file copy and `SQX144-COMPAT6 Results Plugin Lab Smoke` as the next recommended block.
+- Completes `SQX144-COMPAT6 Results Plugin Lab Smoke` with `docs/SQX144_RESULTS_PLUGIN_LAB_SMOKE.md` and local ignored evidence `sqx144_compat6_results_plugin_lab_smoke_20260526_151800.json`; the minimal payload was copied to SQX 144 lab, installed hashes match COMPAT4, render from installed folder passed, SQX 144 launched and was closed with zero remaining processes, while manual Results tab confirmation remains pending for `SQX144-COMPAT7 Results Plugin Manual Visual Confirmation`.
+- Records `SQX144-COMPAT7 Results Plugin Manual Visual Confirmation` as blocked with `docs/SQX144_RESULTS_PLUGIN_MANUAL_VISUAL_CONFIRMATION.md` and local ignored evidence `sqx144_compat7_results_plugin_manual_visual_confirmation_20260526_152500.json`: SQX 144 opens to the license screen before Results, so `resultsTabObserved=false` and `pluginVisibleInResults=false`; no license, bypass, project, MCP, MT5 import, Migration Tool or databank mutation was attempted.
+- Completes `SQX142-144-BACKPORT1 Results Plugin Readiness Panel` with `docs/SQX142_144_BACKPORT_ROADMAP.md` and local ignored evidence `sqx142_144_backport1_results_plugin_readiness_panel_20260526_153500.json`: the 144 Results Plugin idea is implemented as a SQX Edge-owned SQX 142 Results Plugin, installed beside `Source Code Translator`, with hashes/render verified and no license/bypass, engine replacement, 144 internals, projects, MCP writes, MT5 import, Migration Tool or databank mutation.
+- Completes `SQX142-144-BACKPORT2 MCP-Like Read-Only API Design` with `docs/SQX142_144_MCP_LIKE_READ_ONLY_API_DESIGN.md` and local ignored evidence `sqx142_144_backport2_mcp_like_read_only_api_design_20260526_160500.json`: the 144 MCP idea is adapted as a SQX Edge-owned Flask contract under `/api/sqx142/mcp-like/*`, local-operator-only, path-safe and read-only, using `data.db mode=ro`, `user/projects` scans and existing SQX142 status/performance builders while blocking `POST`, `PUT`, `PATCH`, `DELETE`, `run_project`, `stop_project`, `taskmanager/activateTask`, source code, orders, MT5 import, Migration Tool, license/bypass, engine/binarios and 144 internals. Next recommended block: `SQX142-144-BACKPORT3 MCP-Like Read-Only API Build`.
+- Completes `SQX142-144-BACKPORT3 MCP-Like Read-Only API Build` with `docs/SQX142_144_MCP_LIKE_READ_ONLY_API_BUILD.md` and local ignored evidence `sqx142_144_backport3_mcp_like_read_only_api_build_20260526_164500.json`: adds `backend/sqx-edge-tool/core/sqx142_mcp_like_readonly.py`, Flask routes under `/api/sqx142/mcp-like/*` and `backend/sqx-edge-tool/test_sqx142_mcp_like_readonly.py`; responses use `sqx142-mcp-like-readonly-v1`, local-only gate, opaque IDs, `data.db mode=ro`, path-safe project/data/databank/strategy summaries and `results-plugin-readiness`, while blocking raw names, mutating verbs, project start/stop, source code, orders, MT5 import, Migration Tool, license/bypass, engine/binarios and 144 internals. Verification: `5 passed` for the new suite and `24 passed` for `test_local_ai_agent.py`. Next recommended block: `SQX142-144-BACKPORT4 Correlation Filter External Design`.
+- Completes `SQX142-144-BACKPORT4 Correlation Filter External Design` with `docs/SQX142_144_CORRELATION_FILTER_EXTERNAL_DESIGN.md` and local ignored evidence `sqx142_144_backport4_correlation_filter_external_design_20260526_171500.json`: the 144 `DatabankFilterByCorrelation` idea is adapted as an external Portfolio Lab/CSV/equity-series contract with `maxCorrelation=0.50`, Pearson over comparable return series, decisions `portfolio/similar/review`, and fallback to operational similarity when series are missing, while blocking `filterByCorrelation/filter`, copied 144 plugins, SQX databank deletion, `data.db` writes, `user/projects` writes, SQX runtime, `CustomAnalysis=true`, `FitPortfolio=true`, retest reruns, forced pass, sample-as-real, profit guarantees and risk-zero claims. Next recommended block: `SQX142-144-BACKPORT5 Correlation Filter External Build`.
+- Completes `SQX142-144-BACKPORT5 Correlation Filter External Build` with `docs/SQX142_144_CORRELATION_FILTER_EXTERNAL_BUILD.md` and local ignored evidence `sqx142_144_backport5_correlation_filter_external_build_20260526_181500.json`: adds `backend/sqx-edge-tool/core/sqx142_correlation_filter_external.py`, local-only Flask route `POST /api/sqx142/correlation-filter/external` and `backend/sqx-edge-tool/test_sqx142_correlation_filter_external.py`; responses use `sqx142-correlation-filter-external-v1`, `external_readonly`, opaque candidate IDs, Pearson on comparable series, `portfolio/similar/review`, `available/similarity_only/not_comparable`, CSV export, path/token/private marker redaction and `403 local_operator_required` for remote/tester, while blocking `filterByCorrelation/filter`, copied `DatabankFilterByCorrelation`, SQX databank deletion, `data.db` writes, `user/projects` writes, SQX runtime, `CustomAnalysis=true`, `FitPortfolio=true`, retest reruns, forced pass, sample-as-real, profit guarantees and risk-zero claims. Verification: `6 passed`. Next recommended block: `SQX142-144-BACKPORT6 Monte Carlo Candidate Benchmarks`.
+- Completes `SQX142-144-BACKPORT6 Monte Carlo Candidate Benchmarks` with `docs/SQX142_144_MONTE_CARLO_CANDIDATE_BENCHMARKS.md` and local ignored evidence `sqx142_144_backport6_monte_carlo_candidate_benchmarks_20260526_183500.json`: adds `backend/sqx-edge-tool/core/sqx142_monte_carlo_candidate_benchmarks.py`, local-only Flask route `POST /api/sqx142/monte-carlo/benchmarks` and `backend/sqx-edge-tool/test_sqx142_monte_carlo_candidate_benchmarks.py`; responses use `sqx142-monte-carlo-candidate-benchmarks-v1`, `external_readonly`, opaque candidate IDs, external deterministic `MACHRBlockRandomization`, `SimulateParameterJitter` and `RandomlyDegradeExecution`, decisions `benchmark_pass/benchmark_review/benchmark_fail`, CSV export, path/token/private marker redaction and `403 local_operator_required` for remote/tester, while blocking copied 144 internals, MC runtime SQX, SQX internal API, `data.db` writes, `user/projects` writes, SQX runtime, `CustomAnalysis=true`, `FitPortfolio=true`, retest reruns, forced pass, sample-as-real, profit guarantees and risk-zero claims. Verification: `6 passed`. Next recommended block: `SQX142-144-BACKPORT7 MT5 Data Intake Probe`.
+- Completes `SQX142-144-BACKPORT7 MT5 Data Intake Probe` with `docs/SQX142_144_MT5_DATA_INTAKE_PROBE.md` and local ignored evidence `sqx142_144_backport7_mt5_data_intake_probe_20260526_190500.json`: adds `backend/sqx-edge-tool/core/sqx142_mt5_data_intake_probe.py`, local-only Flask route `POST /api/sqx142/mt5-data-intake/probe` and `backend/sqx-edge-tool/test_sqx142_mt5_data_intake_probe.py`; responses use `sqx142-mt5-data-intake-probe-v1`, `external_readonly`, copied MT5 OHLC CSV/rows, `data.db mode=ro` catalog comparison or payload fixtures, opaque asset/series IDs, decisions `intake_probe_pass/intake_probe_review/intake_probe_fail`, CSV export, path/token/private marker redaction and `403 local_operator_required` for remote/tester, while blocking MT5 terminal start, MT5 IPC, direct SQX import, Project Generator feed, Template Maker feed, Capa1/Capa2 feed, Portfolio Master feed, `data.db` writes, `user/projects` writes, SQX runtime, `run_project`, Migration Tool, copied 144 internals, forced pass, sample-as-real, profit guarantees and risk-zero claims. Verification: `6 passed`. Next recommended block: `SQX142-144-BACKPORT8 Copy-Only Migration Checklist`.
+- Completes `SQX142-144-BACKPORT8 Copy-Only Migration Checklist` with `docs/SQX142_144_COPY_ONLY_MIGRATION_CHECKLIST.md` and local ignored evidence `sqx142_144_backport8_copy_only_migration_checklist_20260526_193000.json`: adds `backend/sqx-edge-tool/core/sqx142_copy_only_migration_checklist.py`, local-only Flask route `POST /api/sqx142/migration/copy-only-checklist` and `backend/sqx-edge-tool/test_sqx142_copy_only_migration_checklist.py`; responses use `sqx142-copy-only-migration-checklist-v1`, `checklist_only_no_copy`, opaque item/path IDs, decisions `allow_copy/review_copy/block_copy`, manual steps, CSV export, path/token/private marker redaction and `403 local_operator_required` for remote/tester, while blocking copy execution, Migration Tool, license/activation material, cracks, bypass, tokens, engine binaries, internals, `data.db` writes, `user/projects` writes, SQX runtime, `run_project`, retests, `CustomAnalysis=true`, `FitPortfolio=true`, forced pass, sample-as-real, profit guarantees and risk-zero claims. Verification: `5 passed`.
+- Completes `SQX142-144-BACKPORT9 Closeout & Operator Handoff` with `docs/SQX142_144_BACKPORT_CLOSEOUT_OPERATOR_HANDOFF.md` and local ignored evidence `sqx142_144_backport9_closeout_operator_handoff_20260526_200000.json`: closes the SQX142/144 backport track as `completed_closeout_handoff`, preserves BACKPORT1..8 as local-only SQX Edge-owned deliverables, keeps all APIs read-only/external/operator-gated, and sets the next decision to `UI-INTEGRATION1 Backport Operator Panel` or `phase30_capa2_portfolio_master_inputs_pending`, while blocking SQX runtime, `data.db` writes, `user/projects` writes, MT5 direct import, Migration Tool, 144 internals, license/activation/bypass, forced pass, sample-as-real, profit guarantees and risk-zero claims.
+- Completes `UI-INTEGRATION1 Backport Operator Panel` with `docs/UI_INTEGRATION1_BACKPORT_OPERATOR_PANEL.md` and local ignored evidence `ui_integration1_backport_operator_panel_20260526_203000.json`: adds the Edge Factory panel `ui-integration1-backport-operator-panel-v1` over the existing SQX142/144 endpoints, payload builders for CSV/JSON, samples, JSON/CSV readback export, and visible guards for runtime/privacy, while blocking SQX runtime, Java/MT5 start, `data.db` writes, `user/projects` writes, direct MT5 import, Migration Tool, remote/tester unlock and forced pass. Verification: `node tests/js/contracts/edge_factory_contracts.mjs` -> `edge factory contracts ok`; Playwright local file smoke -> `visible=true`, `selectVisible=true`, `runVisible=true`.
+- Completes `SQX142-OWN-FEATURES1 Correlation Pack Hibrido` with `docs/SQX142_OWN_FEATURES_CORRELATION_PACK.md`: extends `sqx142-correlation-filter-external-v1` with private `strategyRef`, `portfolioRank` and optional `sqxTagCsv`; adds Edge Factory `Descargar SQX Tag CSV`; creates supported SQX142 lab package `integrations/sqx142/own_features/correlation_pack/` with CustomAnalysis tagger, databank columns, review view and sample CSV; and adds `tools/sqx142_own_features_correlation_pack.ps1` guarded `status/install/rollback`. Lab install is blocked while SQX is open and the boundary excludes jars, internal plugins, license/activation, `data.db`, `user/projects`, databank deletion, `run_project` and Migration Tool.
+- Completes `SQX142-OWN-FEATURES2 Correlation Pack Data Smoke` with `docs/SQX142_OWN_FEATURES_CORRELATION_DATA_SMOKE.md`: adds `backend/sqx-edge-tool/tools/sqx142_correlation_data_smoke.py`, `tools/sqx142_own_features_correlation_data_smoke.ps1`, source-row sample CSV and tests for private `correlation_decisions.csv` generation. The wrapper supports `status/build/install/rollback`, installs only `user/extend/SQXEdge/Correlation/correlation_decisions.csv` with backup/hash when SQX is closed, and blocks SQX runtime, jars, internal plugins, license/activation, `data.db`, `user/projects`, databank deletion, `run_project` and Migration Tool.
+- Completes `SQX142-INTERNAL-SAFE1 Supported Internal Extension Audit` with `docs/SQX142_INTERNAL_SAFE_EXTENSION_AUDIT.md` and local ignored evidence `sqx142_internal_safe1_supported_internal_extension_audit_20260526_210000.json`: registers `completed_readonly_extension_audit`, confirms `user/extend/ResultsPlugins`, `SQX Edge Readiness Panel` and `Source Code Translator` as the only immediate internal extension surfaces, and sets `SQX142-INTERNAL-SAFE2 Results Plugin Internal Patch Build` as the next recommended block, while blocking engine/binarios/jars, license/activation/bypass, `internal`, `data.db` writes, live databanks, `user/projects` writes, SQX runtime, MT5 direct import and Migration Tool.
+- Completes `SQX142-INTERNAL-SAFE2 Results Plugin Internal Patch Build` with `docs/SQX142_INTERNAL_SAFE_RESULTS_PLUGIN_PATCH.md`, source `integrations/sqx142/results_plugins/SQX Edge Readiness Panel`, script `tools/sqx142_internal_safe2_results_plugin_patch.ps1` and local ignored evidence `sqx142_internal_safe2_results_plugin_install_20260526_213000.json`: status `installed_with_backup_hash_rollback_ready`, installs `sqx142-internal-safe2-readiness-panel-v1` into `SQX Edge Readiness Panel`, creates backup `sqx142_internal_safe2_readiness_panel_20260526_192515`, records matching source/installed hashes and rollback command, while blocking SQX runtime, `data.db` writes, `user/projects` writes, live databanks, engine/binarios/jars, license/activation, MT5 direct import and Migration Tool. Verification: `node tests/js/contracts/sqx142_internal_safe2_results_plugin_contracts.mjs` -> `sqx142 internal safe2 results plugin contracts ok`; Playwright offline visual smoke -> `offline_visual_smoke_passed`.
+- Blocks `SQX142-INTERNAL-SAFE3 Results Plugin Manual Visual Smoke` with `docs/SQX142_INTERNAL_SAFE_RESULTS_PLUGIN_VISUAL_SMOKE.md` and local ignored evidence `sqx142_internal_safe3_results_plugin_manual_visual_smoke_20260526_214000.json`: operator observation `No se ve: no aparece en Results`; installed hashes still match SAFE2 source, localhost shell reports `142.2336`, and the likely cause is that SQX 142 does not visibly auto-list every `user/extend/ResultsPlugins` folder while `Source Code Translator` is statically wired through templates. Next recommended block: `SQX142-INTERNAL-SAFE4 Static UI Registration Spike`.
+- Blocks `SQX142-INTERNAL-SAFE4 Static UI Registration Spike` with `docs/SQX142_INTERNAL_SAFE_STATIC_UI_REGISTRATION_SPIKE.md`, script `tools/sqx142_internal_safe4_static_ui_registration.ps1`, contract `tests/js/contracts/sqx142_internal_safe4_static_ui_registration_contracts.mjs` and local ignored evidence `sqx142_internal_safe4_static_ui_registration_20260526_195520.json` / `sqx142_internal_safe4_runtime_rewrite_20260526_200100.json`: status `blocked_static_registration_rewritten_on_startup`, proves `sqx142-internal-safe4-static-ui-registration-v1` can be inserted in the native `ResultsSourceCode` template with backup/hash/rollback, but SQX 142 rewrites `templates.html` on startup and removes the marker. Startup smoke still passed with build `142.2336`. No active UI patch remains; SQX runtime tasks, `data.db` writes, `user/projects` writes, live databanks, engine/binarios/jars, license/activation/bypass, MT5 direct import and Migration Tool remain blocked. Recommendation: do not advance to jars/plugins internal patching; keep the panel in Edge Factory unless a new read-only origin audit is approved.
+
+## 2026-05-26 - C1-CONFIG1 All Retests Delete Failed Strategies Policy
+
+- Promotes the operator decision that every retest/robustness gate must keep `DeleteFailedStrategies=true`, including MC, MC2, Sequential, Monkey, Synthetic, SPP and WFM.
+- Updates Capa1 and Capa2 base `.cfx` templates plus the active E2E project config with backup; databanks/results are preserved and no SQX execution is launched.
+- Keeps the methodology distinction intact: source evidence and logs preserve natural pass/fail history, but failed rows must not remain alive in downstream output databanks.
+
+## 2026-05-26 - C1-CONFIG1 E2E Survivor Databank Hygiene Finding
+
+- Records the real Capa1 E2E post-TICK audit: final `TICK REAL` with `testPrecision=4` was valid, but `TICK` ended with zero natural survivors and MC remains blocked.
+- Identifies the operational cause: rerun `retest 1` held a mixed databank (`81` failed rows and `4` passed rows, two unique strategies duplicated); failed rows mostly violated `RExpectancy >= 0.05`.
+- Clarifies survivor-chain hygiene: `DeleteFailedStrategies=true` is necessary but not sufficient on reruns if the output databank already contains stale failed rows; reruns must start from a clean output/passed-only source or a fresh reversible databank before downstream gates.
+- Confirms the four passed `retest 1` rows were already below TICK hard filters (`NumberOfTrades >= 200`, `ProfitFactor >= 1.3`, `ReturnDDRatio >= 4`) before real-tick continuation, so the correct action is not to soften TICK precision or release MC.
+
+## 2026-05-25 - C1-CONFIG1 Survivor Chain And Real Tick Precision Correction
+
+- Promotes the real E2E finding that SQX 142 maps `testPrecision=2` to `1 minute data tick simulation`, not real tick; canonical TICK REAL and Forward/Foward real-tick gates now use `testPrecision=4` (`Real Tick - real spread`).
+- Switches operational survivor-chain filters to `DeleteFailedStrategies=true` for Retest 1, TICK REAL and Forward/Foward so failed rows remain evidence in source/logs but no longer continue as downstream candidates.
+- Updates Project Generator precision mapping, Capa1/Capa2 base templates, task-config guards and tests; prior references to "`testPrecision=2 tick`" are historical and superseded by this correction.
+
+## 2026-05-25 - C1-CONFIG1 Capa1 Retest 1 Canonical Filter Promotion
+
+- Promotes the real E2E operator-validated Retest 1 filter semantics into the Capa1 canon: `RExpectancy >= 0.05` instead of strict `> 0.05`.
+- Keeps `NumberOfTrades >= 100` as the explicit trade-count gate and disables SQX automatic dismissal problem `2` (`too little trades`) so the hidden automatic check cannot double-filter survivors.
+- Updates the task-config gate, Capa1 template contract tests and documentation while preserving natural passed/failed behavior and no forced `Results=passed`.
+
+## 2026-05-25 - C1-CONFIG1 Real E2E Capa1 Retest 1 Hybrid Preflight
+
+- Adds the governed SQX 142 hybrid OOS2 convention for Retest 1: Dukascopy candles/source `2` can inherit Darwinex execution config from local `DATA.INSTRUMENT`.
+- Keeps the methodology honest: this is data-vendor/OOS candle validation under Darwinex execution assumptions, not a broker-robustness claim.
+- Updates Project Generator and `SqxDb` so `XAUUSD_dukascopy` with `INSTRUMENT=XAUUSD_darwinex` generates symbol/source Dukascopy and `InstrumentInfo`/broker/costs Darwinex.
+- Regenerates the real Capa1 full-chain preflight CFX locally with `sqxedge_darwinex`; `checkResources` is green and Retest 0 was not launched.
+
 ## 2026-05-25 - C1-CONFIG1 Capa2 Portfolio Master Operator Inputs Intake
 
 - Adds `phase30_capa2_portfolio_master_operator_inputs_intake` as the governed operator evidence intake gate after `phase30_capa2_portfolio_master_inputs_pending`.
@@ -36,7 +193,7 @@
 
 - Adds `capa2-forward-target` as the Phase 28 final Capa2 Forward holdout guard before portfolio construction.
 - Records evidence `phase28_capa2_forward_target_20260525_140929.json` and closes `Retest-Task2.xml` as `Input=WFM` / `Output=Foward` with the `RETEST QUICK REVIEW` databank view.
-- Pins Forward to Darwinex `FOWARD 2025.01.01-2026.04.30`, `Data` carrier, `testPrecision=2 tick`, `No Session`, explicit `SizeBased=0.0` commissions and two internal OOS review ranges: `2025.01.01-2026.01.01` and `2026.01.01-2026.04.30`.
+- Pins Forward to Darwinex `FOWARD 2025.01.01-2026.04.30`, `Data` carrier, `testPrecision=4 real tick`, `No Session`, explicit `SizeBased=0.0` commissions and two internal OOS review ranges: `2025.01.01-2026.01.01` and `2026.01.01-2026.04.30`; this supersedes the original `testPrecision=2` tick wording.
 - Keeps Forward as pure validation, not selection/tuning: `StrategyType` reads WFM passively, `CrossChecks use=false`, `FitPortfolio=false`, `CustomAnalysis=false`, no nested robustness, no SQX launch, no smoke, no optimization and no forced `Results=passed`.
 - Uses only broad predeclared final sanity filters: `NumberOfTrades >= 30`, `RExpectancy > 0` and `NetProfit >= 0`.
 - Preserves Capa2 exits with `ExitAfterBars=false` and SL/PT/trailing active; maps generator layer 2 `Retest-Task2.xml` to `FOWARD`, keeps it in `CAPA2_TICK_PRECISION_TASKS` and adds it to `CAPA2_NO_EXIT_AFTER_BARS_TASKS`.
@@ -49,7 +206,7 @@
 - Pins WFM to Darwinex `ROBUSTNESS_C2 2017.10.02-2023.12.31`, dual `Data+CustomData`, `testPrecision=1 fastest`, `No Session`, explicit `SizeBased=0.0` commissions and no internal OOS ranges.
 - Keeps WFM passive and anti-overfit: only `WalkForwardMatrix` is active, `MaxTests=3000`, WFM `10/15`, distributions `20/20`, `maxSteps=8`, dedicated acceptance rows stay predeclared (`NetProfit > 0`, `NetProfit > 60`, `WFPctOfProfitableRuns > 70`, `WFMaxProfitByRunInPct < 50`, `WFMinTradesInRun > 20`, `WFMaxPctDDbyRun <= 25`), no ranking filters, `FitPortfolio=false`, `CustomAnalysis=false`, no SQX launch, no smoke, no optimization and no forced `Results=passed`.
 - Preserves Capa2 exits with `ExitAfterBars=false` and SL/PT/trailing active; maps generator layer 2 `Optimize-Task1.xml` to `ROBUSTNESS_C2`, disables trading-window injection for WFM and adds it to `CAPA2_NO_EXIT_AFTER_BARS_TASKS` / `CAPA2_FASTEST_PRECISION_TASKS`.
-- Keeps the precision policy explicit: WFM remains `testPrecision=1 fastest`, while Forward returns to tick precision.
+- Keeps the precision policy explicit: WFM remains `testPrecision=1 fastest`, while Forward returns to real tick precision.
 - Sets the next exact block to `phase28_capa2_forward`.
 
 ## 2026-05-25 - C1-CONFIG1 Capa2 SPP
@@ -59,14 +216,14 @@
 - Pins SPP to Darwinex `ROBUSTNESS_C2 2017.10.02-2023.12.31`, dual `Data+CustomData`, `testPrecision=1 fastest`, `No Session` and no internal OOS ranges.
 - Keeps SPP passive and anti-overfit: only `OptProfileSysParamPermutation` is active, `MaxTests=3000`, `DistributionUp=20`, `DistributionDown=20`, `Steps=25`, SPP acceptance rows stay broad (`NetProfit >= 50%` and `DrawdownPct <= 200%` versus main), no active methods, no ranking filters, `FitPortfolio=false`, `CustomAnalysis=false`, no SQX launch, no smoke, no optimization and no forced `Results=passed`.
 - Preserves Capa2 exits with `ExitAfterBars=false` and SL/PT/trailing active; maps generator layer 2 `AutomaticRetest-Task4.xml` to `ROBUSTNESS_C2` and adds Task4 to `CAPA2_NO_EXIT_AFTER_BARS_TASKS`.
-- Keeps the precision policy explicit: SPP and WFM remain `testPrecision=1 fastest`, while Forward returns to tick precision.
+- Keeps the precision policy explicit: SPP and WFM remain `testPrecision=1 fastest`, while Forward returns to real tick precision.
 - Sets the next exact block to `phase27_capa2_wfm`.
 
 ## 2026-05-25 - C1-CONFIG1 Capa1 Fastest Precision Correction Before Capa2 SPP
 
 - Corrects the live Capa1 robustness precision policy after Phase 25 `phase25_capa2_synthetic` and before starting `phase26_capa2_spp`.
 - Sets Capa1 MC through WFM to `testPrecision=1 fastest`: MC, MC2, Sequential, Monkey, Synthetic, SPP and WFM now share the same fastest precision policy that Capa2 inherited from MC onward.
-- Keeps Forward/Foward as tick precision with `testPrecision=2`; Build, Retest validation and TICK REAL stay on tick/simulated precision, including inactive TICK REAL audit setups normalized back to `testPrecision=2`.
+- Keeps Forward/Foward and TICK REAL real-tick gates on `testPrecision=4 real tick`; Build and Retest validation keep their non-final validation precision, and this supersedes the earlier wording that treated `testPrecision=2` as tick.
 - Supersedes older Capa1 closeout text that recorded MC through WFM as `testPrecision=2`; the historical notes stay as history, while this marker is the active policy.
 - Normalizes the MC2 nested additional-market setup and updates Capa1 template/tests/guards without starting Capa2 SPP, launching SQX, running smoke, optimizing or forcing `Results=passed`.
 
@@ -78,7 +235,7 @@
 - Keeps Synthetic passive and anti-overfit: only `MonteCarloRetest` is active with `SyntheticBootstrapV3`, `NumberOfSimulations=100`, `MCUseFullSample=true`, `MCBacktestPrecision=-1`, `BlockSize=20`, `WarmupBars=200`, `PreservePct=85`, no ranking filters, `FitPortfolio=false`, `CustomAnalysis=false`, no SQX launch, no smoke, no optimization and no forced `Results=passed`.
 - Keeps `SyntheticBootstrapV2` and `RealMonkeyTest` disabled inside Synthetic, and preserves the dedicated Synthetic net-profit confidence acceptance row instead of copying Monkey filters.
 - Preserves Capa2 exits with `ExitAfterBars=false` and SL/PT/trailing active; maps generator layer 2 `AutomaticRetest-Task5.xml` to `ROBUSTNESS_C2` and adds Task5 to `CAPA2_NO_EXIT_AFTER_BARS_TASKS`.
-- Keeps the precision policy explicit: pending Capa2 robustness retests inherit fastest data precision, while Forward returns to tick precision.
+- Keeps the precision policy explicit: pending Capa2 robustness retests inherit fastest data precision, while Forward returns to real tick precision.
 - Sets the next exact block to `phase26_capa2_spp`.
 
 ## 2026-05-25 - C1-CONFIG1 Capa2 Monkey
@@ -88,7 +245,7 @@
 - Pins Monkey to Darwinex `ROBUSTNESS_C2 2017.10.02-2023.12.31`, dual `Data+CustomData`, `testPrecision=1 fastest`, `No Session` and no internal OOS ranges.
 - Keeps Monkey passive and anti-overfit: only `MonteCarloRetest` is active with `RealMonkeyTest`, `NumberOfSimulations=200`, `MCUseFullSample=true`, `MCBacktestPrecision=-1`, `MaxChange=90`, no ranking filters, `FitPortfolio=false`, `CustomAnalysis=false`, no SQX launch, no smoke, no optimization and no forced `Results=passed`.
 - Preserves Capa2 exits with `ExitAfterBars=false` and SL/PT/trailing active; maps generator layer 2 `AutomaticRetest-Task6.xml` to `ROBUSTNESS_C2` and adds Task6 to `CAPA2_NO_EXIT_AFTER_BARS_TASKS`.
-- Keeps the precision policy explicit: pending Capa2 robustness retests inherit fastest data precision, while Forward returns to tick precision.
+- Keeps the precision policy explicit: pending Capa2 robustness retests inherit fastest data precision, while Forward returns to real tick precision.
 - Sets the next exact block to `phase25_capa2_synthetic`.
 
 ## 2026-05-25 - C1-CONFIG1 Capa2 Sequential
@@ -98,7 +255,7 @@
 - Pins Sequential to Darwinex `ROBUSTNESS_C2 2017.10.02-2023.12.31`, dual `Data+CustomData`, `testPrecision=1 fastest`, `No Session` and no internal OOS ranges.
 - Keeps Sequential passive and anti-overfit: only `SequentialOptimization` is active, `ApplyToStrategy=false`, `DistributionUp=130`, `DistributionDown=70`, `Steps=12`, acceptance `80/5/25`, no acceptance/ranking conditions, `FitPortfolio=false`, `CustomAnalysis=false`, no SQX launch, no smoke, no optimization and no forced `Results=passed`.
 - Preserves Capa2 exits with `ExitAfterBars=false` and SL/PT/trailing active; maps generator layer 2 `AutomaticRetest-Task3.xml` to `ROBUSTNESS_C2` and adds Task3 to `CAPA2_NO_EXIT_AFTER_BARS_TASKS`.
-- Keeps the precision policy explicit: pending Capa2 robustness retests inherit fastest data precision, while Forward returns to tick precision.
+- Keeps the precision policy explicit: pending Capa2 robustness retests inherit fastest data precision, while Forward returns to real tick precision.
 - Sets the next exact block to `phase24_capa2_monkey`.
 
 ## 2026-05-25 - C1-CONFIG1 Capa2 MC2
@@ -109,7 +266,7 @@
 - Keeps MC2 passive and anti-overfit: only `MonteCarloRetest` is active, `NumberOfSimulations=100`, `MCUseFullSample=true`, active methods are exactly `RandomizeHistoryData` and adaptive `RandomizeSpread`, no ranking filters, `FitPortfolio=false`, `CustomAnalysis=false`, no SQX launch, no smoke, no optimization and no forced `Results=passed`.
 - Applies adaptive spread stress as base spread x2-x5 (`2.0` -> `4-10` in the base; generated AUDCAD/H4 `10` -> `20-50`) and switches `RandomizeSlippage=false`.
 - Preserves Capa2 exits with `ExitAfterBars=false` and SL/PT/trailing active; maps generator layer 2 `AutomaticRetest-Task8.xml` to `ROBUSTNESS_C2`, adds `adaptiveSpreadStress.2`, and adds Task8 to `CAPA2_NO_EXIT_AFTER_BARS_TASKS`.
-- Keeps the precision policy explicit: pending Capa2 robustness retests inherit fastest data precision, while Forward returns to tick precision.
+- Keeps the precision policy explicit: pending Capa2 robustness retests inherit fastest data precision, while Forward returns to real tick precision.
 - Sets the next exact block to `phase23_capa2_sequential`.
 
 ## 2026-05-25 - C1-CONFIG1 Capa2 MC
@@ -119,14 +276,14 @@
 - Pins MC to Darwinex `ROBUSTNESS_C2 2017.10.02-2023.12.31`, `testPrecision=1 fastest`, `No Session`, no internal OOS ranges and data `AUDCAD_darwinex` source `4`, broker `4`.
 - Keeps MC passive and anti-overfit: only `MonteCarloManipulation` is active, `NumberOfSimulations=200`, `MCUseFullSample=true`, `RandomizeTradesOrder=resampling`, `RandomlySkipTrades=false`, `MonteCarloRetest=false`, no ranking filters, `FitPortfolio=false`, `CustomAnalysis=false`, no SQX launch, no smoke, no optimization and no forced `Results=passed`.
 - Preserves Capa2 exits with `ExitAfterBars=false` and SL/PT/trailing active; maps generator layer 2 `AutomaticRetest-Task1.xml` to `ROBUSTNESS_C2` and adds it to `CAPA2_NO_EXIT_AFTER_BARS_TASKS`.
-- Records the precision policy from this block onward: MC and pending Capa2 robustness retests inherit fastest data precision, while Forward returns to tick precision.
+- Records the precision policy from this block onward: MC and pending Capa2 robustness retests inherit fastest data precision, while Forward returns to real tick precision.
 - Sets the next exact block to `phase22_capa2_mc2`.
 
 ## 2026-05-25 - C1-CONFIG1 Capa2 TICK REAL
 
 - Adds `capa2-tick-real-target` as the Phase 20 precision-data validation guard for Capa2.
 - Records evidence `phase20_capa2_tick_real_target_20260525_013436.json` and closes `AutomaticRetest-Task2.xml` with legacy HBP normalized to `TICK REAL` / `TICK`.
-- Pins TICK REAL to `Input=retest 1`, `Output=TICK`, `ROBUSTNESS_C2 2017.10.02-2023.12.31`, `testPrecision=2`, `No Session`, no internal OOS ranges and Darwinex data (`AUDCAD_darwinex`, source `4`, broker `4`).
+- Pins TICK REAL to `Input=retest 1`, `Output=TICK`, `ROBUSTNESS_C2 2017.10.02-2023.12.31`, `testPrecision=4 real tick`, `No Session`, no internal OOS ranges and Darwinex data (`AUDCAD_darwinex`, source `4`, broker `4`).
 - Keeps TICK REAL passive and anti-overfit: `StrategyType` reads `retest 1`, `CrossChecks use=false/evaluateAll=false`, `FitPortfolio=false`, `CustomAnalysis=false`, `ExitAfterBars=false`, SL/PT/trailing stay active, and filters are predeclared: `NumberOfTrades >= 200`, `ProfitFactor >= 1.3`, `WinningPct >= 50`, `ReturnDDRatio >= 4`.
 - Maps generator layer 2 `AutomaticRetest-Task2.xml` to `ROBUSTNESS_C2`, keeps generated user downloads on their selected target profile, and prevents Dukascopy contamination outside Capa2 Retest 1.
 - Reports idempotent post-apply guards with `changedActionCount=0`, `guardOk=true`, no SQX process, no SQX launch, no smoke, no optimization and no forced `Results=passed`.
@@ -245,8 +402,8 @@
 
 - Records `phase13_foward_closeout_20260524_182647.json` and `foward-closeout-report --target both --write` as the green Phase 13 closeout evidence.
 - Documents FOWARD open/data/crosschecks/static/closeout, consolidating `foward-data-databanks-resources-options-target`, `foward-crosschecks-target` and `foward-static-tabs-target`.
-- Pins the forward chain and data contract: `Input=Syntetic / Output=Foward`, period `FOWARD_C1`, OOS `2025.01.01-2026.01.01` and `2026.01.01-2026.04.08`, `testPrecision=2`, `No Session` and resources `TICK/EETUS`.
-- Pins Options and static surfaces: `RealisticGapsHandling=true`, `StoreChartData=false`, forward filters `NumberOfTrades>=30`, `RExpectancy>0`, `NetProfit>=0`, `DeleteFailedStrategies=false`, `ForceRunCrossChecks=false`, `FitPortfolio=false`, `FixedSize` and passive pure `EnterAtMarket + ExitAfterBars`.
+- Pins the forward chain and data contract: `Input=Syntetic / Output=Foward`, period `FOWARD_C1`, OOS `2025.01.01-2026.01.01` and `2026.01.01-2026.04.08`, `testPrecision=4 real tick`, `No Session` and resources `TICK/EETUS`.
+- Pins Options and static surfaces: `RealisticGapsHandling=true`, `StoreChartData=false`, forward filters `NumberOfTrades>=30`, `RExpectancy>0`, `NetProfit>=0`, `DeleteFailedStrategies=true`, `ForceRunCrossChecks=false`, `FitPortfolio=false`, `FixedSize` and passive pure `EnterAtMarket + ExitAfterBars`.
 - Keeps FOWARD as configuration review, not a live execution: no SQX run, no smoke, no optimization, no live FOWARD execution and no forced `Results=passed`; next exact block is `phase14_capa1_closeout`.
 
 ## 2026-05-24 - C1-CONFIG1 WFM Closeout
@@ -544,14 +701,14 @@
 
 - Adds `tick-real-options-rankings-target` to close the Phase 5 `TICK REAL` Options/Rankings block with dry-run-first backup/diff/apply and anti-coladero guards.
 - Keeps TICK REAL as a precision-data robustness retest without adding an internal IS/OOS1 split; `RETEST 0` remains the owner of IS/OOS1 validation to reduce repeated-OOS selection pressure.
-- Applies realistic passive settings: `RealisticGapsHandling=true`, generator-owned time window, `DeleteFailedStrategies=false`, `ConditionsType=1`, `FitPortfolio=false`, `ForceRunCrossChecks=false` and `CustomAnalysis.filter=false`.
-- Keeps active total-tick filters strict enough for this near-realism gate: `NumberOfTrades >= 200`, `ProfitFactor >= 1.3`, `WinningPct >= 50` and `ReturnDDRatio >= 4`, while preserving natural failed rows.
+- Applies realistic passive settings: `RealisticGapsHandling=true`, generator-owned time window, `DeleteFailedStrategies=true`, `ConditionsType=1`, `FitPortfolio=false`, `ForceRunCrossChecks=false` and `CustomAnalysis.filter=false`.
+- Keeps active total-tick filters strict enough for this real-tick gate: `NumberOfTrades >= 200`, `ProfitFactor >= 1.3`, `WinningPct >= 50` and `ReturnDDRatio >= 4`, while preserving natural failed rows in source evidence and only propagating survivors downstream.
 - Records local ledger answers for `TICK REAL > Options` (`34/34`) and `TICK REAL > Rankings` (`46/46`), with post-apply dry-run idempotent and `guardOk=true`.
 
 ## 2026-05-23 - C1-CONFIG1 TICK REAL Data/Databanks/Resources
 
 - Adds `tick-real-data-databanks-resources-target` to close the first Phase 5 `TICK REAL` block with dry-run-first backup/diff/apply and a resource guard.
-- Applies the precision-data chain to local Capa1 base and `backend/sqx-edge-tool/templates/Capa1_Long.cfx`: `Input=retest 1`, `Output=TICK`, `ROBUSTNESS_C1` (`2017.10.02-2023.12.31`), `testPrecision=2`, `No Session` and no nested OOS ranges.
+- Applies the precision-data chain to local Capa1 base and `backend/sqx-edge-tool/templates/Capa1_Long.cfx`: `Input=retest 1`, `Output=TICK`, `ROBUSTNESS_C1` (`2017.10.02-2023.12.31`), `testPrecision=4 real tick`, `No Session` and no nested OOS ranges.
 - Keeps Capa1 base generic: Darwinex placeholder resources stay bounded and SQX-compatible, sessions stay empty, `CustomBlocks` are preserved and no Mining15 `USDJPY/H4` donor resources are copied.
 - Records local ledger answers for `TICK REAL > Data` (`7/7`), `TICK REAL > Databanks` (`3/3`) and `TICK REAL > Resources` (`1,899/1,899`), with the post-apply dry-run idempotent and `guardOk=true`.
 
@@ -579,7 +736,7 @@
 ## 2026-05-23 - C1-CONFIG1 RETEST 1 Options/Databanks/Rankings
 
 - Adds `retest1-options-databanks-rankings-target` to close the next Phase 4 block with dry-run-first backup/diff/apply.
-- Keeps `RETEST 1` advisory without becoming a pass-through: `DeleteFailedStrategies=false` preserves failed rows for analysis, while active filters remain `NumberOfTrades >= 100`, `RExpectancy > 0.05` and `NetProfit >= 0`.
+- Keeps `RETEST 1` as a survivor-chain validation gate: `DeleteFailedStrategies=true` preserves failed rows in source evidence while active filters propagate only survivors downstream: `NumberOfTrades >= 100`, `RExpectancy >= 0.05` and `NetProfit >= 0`.
 - Sets `RealisticGapsHandling=true` so protected OOS2/cross-broker validation is not softer than `RETEST 0`, while keeping the time window generator-owned by timeframe.
 - Keeps the passive databank chain `Input=RETEST 0` and `Output=retest 1`, and disables `FitPortfolio` because Capa1 RETEST 1 is validation, not portfolio selection.
 - Records local ledger answers for `Options` (`34/34`), `Databanks` (`3/3`) and `Rankings` (`40/40`).
@@ -693,7 +850,7 @@
 - Adds `sequential-final-review` to audit copied Sequential `.sqx` files as ZIPs; `sequential_final_review_20260523_071458.json` confirms 84/84 readable outputs, 84 `SequentialOptimization_Results.xml` passed, zero invalid files, 569 stable areas and writes a local CSV for parameter-level inspection under `.local/sqx142_performance/sequential_final_reviews/`.
 - Adds guarded MC2 spread promotion tooling: `promote-mc2-spread-to-base` derives the range from the selected asset spread using the adaptive default `baseSpread x2-x5`, validates the final Sequential evidence, shows the XML diff, requires explicit methodology/apply flags, records a backup and pairs with `rollback-mc2-spread-promotion`. Dry-run `mc2_spread_promotion_20260523_072103.json` resolves USDJPY base spread `1.4` into `2.8-7.0` and plans `Min 30 -> 2.8`, `Max 50 -> 7`.
 - Promotes MC2 on the Capa1 base with backup evidence `mc2_spread_promotion_20260523_072626.json`, changing only `RandomizeSpread` from `30-50` to adaptive `baseSpread x2-x5` (`2.8-7.0` for USDJPY/H4). Post-promotion clone smokes validate `MC` 81/5 in `2 min. 17 s.`, `MC 2` 84/2 in `5 min. 46 s.` and Sequential 8/8 in `4 min. 52 s.`; `queue-task-smoke` now defaults to 180 s start settle to avoid starting SQX before large databanks finish loading.
-- Adds `performance-clone-hygiene` and archives eight old `_PERFQ_*` projects reversibly to `SQX_142_Crack_local_backups/archived_perf_projects`; only the two post-promotion smoke clones remain active in SQX `user/projects`, reducing active project footprint from about 3.1 GB to 919.5 MB without deleting evidence or backups.
+- Adds `performance-clone-hygiene` and archives eight old `_PERFQ_*` projects reversibly to the `SQX142_ROOT` sibling backup folder; only the two post-promotion smoke clones remain active in SQX `user/projects`, reducing active project footprint from about 3.1 GB to 919.5 MB without deleting evidence or backups.
 - Adds `restore-performance-clone` for selective, dry-run-first recovery of one archived `_PERFQ_*` clone back to SQX `user/projects`, with SQX-process blocking, duplicate-name protection and optional active-clone archiving before restore.
 - Adds `performance-closeout-report`, a local evidence report that summarizes performance status, active/archive clones, key smokes and the deferred operator question required before configuring individual Capa1/Capa2 custom task values.
 - Adds `performance-next-action`, a dry recommendation gate that reads status plus key evidence and returns the next PERF1 command instead of relying on memory after long smoke cycles.
@@ -1800,13 +1957,13 @@
 ## 2026-05-07 - Public commercial redaction
 
 - Redacta roadmap comercial, runbooks de venta y packs Pro buyer/template en el repo publico como punteros de trazabilidad.
-- Mantiene la copia completa en `CryptoLeon78/sqx-edge-commercial-private` con commit base `ed79719 Initial private commercial export`.
+- Mantiene la copia completa en `<PRIVATE_COMMERCIAL_REPO>` con commit base `ed79719 Initial private commercial export`.
 - Anade `docs/PUBLIC_COMMERCIAL_POINTERS.md` y actualiza gobernanza/manifiesto/tests para la frontera publico/privado.
 
 ## 2026-05-07 - Private commercial repository published
 
 - Instala GitHub CLI en modo portable local bajo `private-commercial/tools/gh`.
-- Crea el repo privado `CryptoLeon78/sqx-edge-commercial-private`.
+- Crea el repo privado `<PRIVATE_COMMERCIAL_REPO>`.
 - Sube el export comercial privado con commit `ed79719 Initial private commercial export`.
 - Verifica con GitHub CLI que el repositorio remoto es privado.
 

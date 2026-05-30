@@ -8,9 +8,9 @@ This phase is local operational evidence only. SQX installation folders, `data.d
 
 ## Local Alignment
 
-- Active SQX host source: `C:/BOTS/Versiones/SQX_142_Crack`.
-- Active `data.db`: `C:/BOTS/Versiones/SQX_142_Crack/user/data/data.db`.
-- Active projects directory: `C:/BOTS/Versiones/SQX_142_Crack/user/projects`.
+- Active SQX host source: `SQX142_ROOT`.
+- Active `data.db`: `SQX142_ROOT/user/data/data.db`.
+- Active projects directory: `SQX142_ROOT/user/projects`.
 - Active Darwinex index aliases: `USTEC -> NDX_darwinex` and `GER40 -> GDAXI_darwinex`.
 - Previous ignored config was backed up under `.local/remote_service/sqx142_alignment/`.
 

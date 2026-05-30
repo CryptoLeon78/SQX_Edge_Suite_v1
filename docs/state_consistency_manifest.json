@@ -1,14 +1,322 @@
 {
   "version": 1,
-  "updated": "2026-05-25",
+  "updated": "2026-05-30",
   "purpose": "Canonical public-safe state markers used by automated docs consistency tests.",
   "coreFiles": [
     "README.md",
     "docs/PUBLIC_ROADMAP.md",
     "docs/PROJECT_GOVERNANCE.md",
-    "docs/UX_NAV_TAB_OPTIMIZATION_PLAN.md"
+    "docs/UX_NAV_TAB_OPTIMIZATION_PLAN.md",
+    "docs/maintenance/SQX142_PROJECT_RESOURCE_REPAIR_RUNBOOK.md",
+    "docs/SQX142_OWN_FEATURES_CORRELATION_MANUAL_CONFIRMATION.md",
+    "docs/SQX142_OWN_FEATURES_CORRELATION_LAB_PROJECT_SCAFFOLD.md",
+    "docs/SQX142_OWN_FEATURES_CLEAN_MINING_PATH_VALIDATION.md",
+    "docs/SQX142_OWN_FEATURES_FORWARD_TAGGER_FLOW.md",
+    "docs/SQX142_MINING_RESULTS_REGISTRY.md",
+    "docs/SQX142_PORTFOLIO_CORR1_STABILITY_AUDIT.md",
+    "docs/SQX142_PORTFOLIO_CORR2_LOCAL_CUSTOM_PROJECT_INTEGRATION.md"
   ],
   "rules": [
+    {
+      "id": "sqx142_portfolio_corr2_local_project_integration_gate",
+      "description": "CORR2 may add active CORR1 retest/tag tasks to the selected local SQX142 custom project with backup/rollback while preserving no-jars/no-data.db boundaries.",
+      "required": {
+        "README.md": [
+          "SQX142-PORTFOLIO-CORR2 Local Custom Project Integration esta aplicado",
+          "Retest-Task4.xml",
+          "tareas CORR1 activas",
+          "Forward` como input",
+          "testPrecision=4"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Current phase active: SQX142-PORTFOLIO-CORR2 - Local Custom Project Integration",
+          "CORR2 Local Project Integration Gate",
+          "actualmente `Forward`"
+        ],
+        "docs/SQX142_PORTFOLIO_CORR2_LOCAL_CUSTOM_PROJECT_INTEGRATION.md": [
+          "Status: `implemented_local_project_patch_ready`",
+          "tools\\sqx142_portfolio_corr2_local_project_integration.ps1",
+          "POST /api/sqx142/portfolio-corr2/local-project",
+          "Forward` and writes",
+          "Both tasks are created active",
+          "testPrecision=4",
+          "no jars"
+        ],
+        "backend/sqx-edge-tool/tools/sqx142_portfolio_corr2_local_project_integration.py": [
+          "sqx142-portfolio-corr2-local-custom-project-integration-v1",
+          "STABILITY_TASK_XML = \"Retest-Task4.xml\"",
+          "TAG_TASK_XML = \"Retest-Task5.xml\"",
+          "SOURCE_DATABANK = \"Forward\"",
+          "REAL_TICK_PRECISION = \"4\"",
+          "\"active\": \"true\"",
+          "registry_record_corr2",
+          "record_manual_status"
+        ],
+        "tools/sqx142_portfolio_corr2_local_project_integration.ps1": [
+          "[ValidateSet(\"status\", \"plan\", \"apply\", \"rollback\", \"record\")]",
+          "Assert-NoSqxProcess",
+          "sqx142_portfolio_corr2_local_project_integration.py"
+        ],
+        "backend/sqx-edge-tool/api/server.py": [
+          "/api/sqx142/portfolio-corr2/local-project",
+          "apply_sqx142_portfolio_corr2_integration",
+          "rollback_sqx142_portfolio_corr2_integration",
+          "record_sqx142_portfolio_corr2_status"
+        ],
+        "app/SQX_Dashboard_v6.html": [
+          "edge-corr2-plan",
+          "edge-corr2-record",
+          "ps-corr2-plan",
+          "Parchear custom SQX"
+        ],
+        "app/js/modules/edge-factory-ui.js": [
+          "corr2LocalProject",
+          "/sqx142/portfolio-corr2/local-project",
+          "SQX EDGE CORR1 STABILITY"
+        ],
+        "CHANGELOG.md": [
+          "2026-05-29 - SQX142-PORTFOLIO-CORR2 Local Custom Project Integration",
+          "Retest-Task4.xml",
+          "SQX EDGE CORR1 TAGGED"
+        ]
+      },
+      "forbidden": {
+        "docs/SQX142_PORTFOLIO_CORR2_LOCAL_CUSTOM_PROJECT_INTEGRATION.md": [
+          "guaranteed profitability",
+          "risk zero",
+          "jars permitido",
+          "run_project permitido"
+        ],
+        "backend/sqx-edge-tool/tools/sqx142_portfolio_corr2_local_project_integration.py": [
+          "Start-Process",
+          "Stop-Process",
+          "Remove-Item",
+          "run_project",
+          "checkResources"
+        ],
+        "tools/sqx142_portfolio_corr2_local_project_integration.ps1": [
+          "Start-Process",
+          "Stop-Process",
+          "Remove-Item"
+        ]
+      }
+    },
+    {
+      "id": "sqx142_portfolio_corr1_stability_audit_gate",
+      "description": "Portfolio correlation must separate IS_CORR selection from OOS3_CORR stability audit, keep OOS3/Forward out of replacement selection and register the real SQX local CORR1 decision in the custom-project funnel.",
+      "required": {
+        "README.md": [
+          "SQX142-PORTFOLIO-CORR1 Correlation Stability Audit esta implementado",
+          "sqx142-portfolio-corr1-registered-decision-v1",
+          "POST /api/sqx142/portfolio-corr1/registered-decision",
+          "selectedByIs=1",
+          "IS_CORR` selecciona/diversifica",
+          "OOS3_CORR` solo audita estabilidad o veta"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Current phase active: SQX142-PORTFOLIO-CORR1 - Correlation Stability Audit",
+          "sqx142-portfolio-corr1-registered-decision-v1",
+          "POST /api/sqx142/portfolio-corr1/registered-decision",
+          "SQX EDGE CORR1 TAGGED=23",
+          "Correlation Stability Audit Gate",
+          "OOS3 may not select alternates"
+        ],
+        "docs/SQX142_PORTFOLIO_CORR1_STABILITY_AUDIT.md": [
+          "Status: `implemented_registered_sqx_local_decision`",
+          "sqx142-portfolio-corr1-registered-decision-v1",
+          "OOS3 must not select alternates",
+          "POST /api/sqx142/portfolio-correlation/stability-audit",
+          "POST /api/sqx142/portfolio-corr1/registered-decision",
+          "SQX EDGE CORR1 TAGGED",
+          "corr1_registered_stability_decision",
+          "selected by `IS_CORR`: `1`",
+          "White Reality Check"
+        ],
+        "backend/sqx-edge-tool/core/sqx142_portfolio_correlation_stability.py": [
+          "PORTFOLIO_CORRELATION_STABILITY_VERSION",
+          "\"selectionBasis\": \"IS_CORR only\"",
+          "\"oos3MaySelectAlternates\": False",
+          "nearestOos3Warnings"
+        ],
+        "backend/sqx-edge-tool/tools/sqx142_portfolio_corr1_registered_decision.py": [
+          "sqx142-portfolio-corr1-registered-decision-v1",
+          "DAILY_EQUITY_SUFFIX = \"/dailyEquity.bin\"",
+          "corr1_registered_stability_decision"
+        ],
+        "tools/sqx142_portfolio_corr1_registered_decision.ps1": [
+          "sqx142_portfolio_corr1_registered_decision.py",
+          "Assert-NoSqxProcess",
+          "ValidateSet(\"status\", \"analyze\")"
+        ],
+        "backend/sqx-edge-tool/api/server.py": [
+          "/api/sqx142/portfolio-correlation/stability-audit",
+          "/api/sqx142/portfolio-corr1/registered-decision",
+          "build_portfolio_correlation_stability_report"
+        ],
+        "app/SQX_Dashboard_v6.html": [
+          "edge-portfolio-corr-stability",
+          "IS selecciona · OOS3 audita · no optimiza Forward",
+          "edge-corr-registered",
+          "edge-corr1-analyze"
+        ],
+        "app/js/modules/edge-factory.js": [
+          "portfolioCorrelationStabilityVersion",
+          "recordPortfolioCorrelationStability"
+        ],
+        "app/js/modules/edge-factory-ui.js": [
+          "runCorrelationStability",
+          "runRegisteredCorrelationDecision",
+          "renderCorrelationStability"
+        ],
+        "CHANGELOG.md": [
+          "2026-05-30 - SQX142-PORTFOLIO-CORR1 Registered Stability Decision",
+          "sqx142-portfolio-corr1-registered-decision-v1",
+          "2026-05-29 - SQX142-PORTFOLIO-CORR1 Correlation Stability Audit",
+          "OOS3/Forward may veto or warn but must not choose alternates"
+        ]
+      },
+      "forbidden": {
+        "docs/SQX142_PORTFOLIO_CORR1_STABILITY_AUDIT.md": [
+          "guaranteed profitability",
+          "risk zero",
+          "OOS3 selects replacements"
+        ],
+        "backend/sqx-edge-tool/core/sqx142_portfolio_correlation_stability.py": [
+          "Start-Process",
+          "Stop-Process",
+          "Remove-Item",
+          "run_project",
+          "checkResources"
+        ],
+        "backend/sqx-edge-tool/tools/sqx142_portfolio_corr1_registered_decision.py": [
+          "Start-Process",
+          "Stop-Process",
+          "Remove-Item",
+          "run_project",
+          "checkResources"
+        ],
+        "tools/sqx142_portfolio_corr1_registered_decision.ps1": [
+          "Start-Process",
+          "Stop-Process",
+          "Remove-Item",
+          "run_project",
+          "checkResources"
+        ]
+      }
+    },
+    {
+      "id": "sqx142_mining_results_registry_gate",
+      "description": "SQX142 mining results registry must remain project-centric, read local SQX databanks read-only and expose sanitized visual funnel snapshots in Edge Factory and Mining Control.",
+      "required": {
+        "README.md": [
+          "SQX142-MINING-REGISTRY1 Mining Results Registry esta activo",
+          "SQX142-MINING-REGISTRY2 Visual Funnel Panel esta aplicado",
+          "Results=2000",
+          "SPP=42",
+          "WFM=39"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Current phase active: SQX142-MINING-REGISTRY2 - Visual Funnel Panel",
+          "Mining Results Registry Gate",
+          "Mining Registry Visual Funnel Gate",
+          "recordMiningRegistryFunnel"
+        ],
+        "docs/SQX142_MINING_RESULTS_REGISTRY.md": [
+          "Status: `active_visual_funnel_panel`",
+          "Traceability belongs to the custom project first",
+          "`SPP`: 42 `.sqx`",
+          "`WFM`: 39 `.sqx`",
+          "GET /api/sqx142/mining-registry/funnel",
+          "POST /api/sqx142/mining-registry/scan-project",
+          "REGISTRY2 Visual Panel"
+        ],
+        "backend/sqx-edge-tool/tools/sqx142_mining_registry.py": [
+          "CREATE TABLE IF NOT EXISTS custom_projects",
+          "CREATE TABLE IF NOT EXISTS databank_snapshots",
+          "scan-project",
+          "sqx_user_projects_databank_folder"
+        ],
+        "backend/sqx-edge-tool/api/server.py": [
+          "/api/sqx142/mining-registry/funnel",
+          "/api/sqx142/mining-registry/scan-project",
+          "scan_sqx142_mining_registry_project"
+        ],
+        "app/SQX_Dashboard_v6.html": [
+          "edge-mining-registry-panel",
+          "ps-registry-card",
+          "Actualizar desde SQX local"
+        ],
+        "app/js/modules/edge-factory.js": [
+          "recordMiningRegistryFunnel",
+          "edge-factory-mining-registry-funnel"
+        ],
+        "app/js/modules/edge-factory-ui.js": [
+          "fetchRegistryFunnel",
+          "scanRegistryProject",
+          "applyRegistryProject"
+        ],
+        "CHANGELOG.md": [
+          "2026-05-29 - SQX142-MINING-REGISTRY2 Visual Funnel Panel",
+          "2026-05-29 - SQX142-MINING-REGISTRY1 Mining Results Registry",
+          "SPP=42",
+          "WFM=39"
+        ]
+      },
+      "forbidden": {
+        "docs/SQX142_MINING_RESULTS_REGISTRY.md": [
+          "guaranteed profitability",
+          "risk zero",
+          "run_project permitido",
+          "Migration Tool permitido"
+        ],
+        "backend/sqx-edge-tool/tools/sqx142_mining_registry.py": [
+          "Start-Process",
+          "Stop-Process",
+          "Remove-Item",
+          "checkResources"
+        ]
+      }
+    },
+    {
+      "id": "sqx142_forward_tagger_flow_gate",
+      "description": "SQX142 own-features docs must preserve the validated repeatable Forward tagger flow after FEATURES4 pass.",
+      "required": {
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Current phase completed: SQX142-OWN-FEATURES4 - Clean Mining Path Validation",
+          "Current phase completed: SQX142-OWN-FEATURES5 - Forward Tagger Repeatable Flow",
+          "Forward Tagger Repeatable Flow Gate"
+        ],
+        "docs/SQX142_OWN_FEATURES_CLEAN_MINING_PATH_VALIDATION.md": [
+          "Status: `pass`",
+          "Final visual/export confirmation",
+          "SQXEdgeCorrelationTagger",
+          "Filter by results of custom analysis"
+        ],
+        "docs/SQX142_OWN_FEATURES_FORWARD_TAGGER_FLOW.md": [
+          "Status: `built_from_features4_pass_ready_for_reuse`",
+          "Export Forward/Foward before using `SQXEdgeCorrelationTagger` as a filter",
+          "Keep `Filter by results of custom analysis` disabled",
+          "Data Smoke decisions: `portfolio=1`, `similar=22`, `review=0`"
+        ],
+        "CHANGELOG.md": [
+          "2026-05-29 - SQX142-OWN-FEATURES5 Forward Tagger Repeatable Flow",
+          "filtering disabled",
+          "final tagger export hash"
+        ]
+      },
+      "forbidden": {
+        "docs/SQX142_OWN_FEATURES_FORWARD_TAGGER_FLOW.md": [
+          "guaranteed profitability",
+          "risk zero",
+          "run_project permitido",
+          "Migration Tool permitido"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "FEATURES5 may launch SQX",
+          "FEATURES5 may delete databank rows"
+        ]
+      }
+    },
     {
       "id": "remote_current_gate",
       "description": "REMOTE docs must agree that REMOTE-RILIS-STANDBY is active after REMOTE-PG-SESSION-FIX, with REMOTE-8G deferred until the standby retest closes.",
@@ -887,7 +1195,7 @@
           "ExitAfterBars",
           "2026-05-23 - C1-CONFIG1 RETEST 1 Options/Databanks/Rankings",
           "retest1-options-databanks-rankings-target",
-          "DeleteFailedStrategies=false",
+          "DeleteFailedStrategies=true",
           "FitPortfolio",
           "2026-05-23 - C1-CONFIG1 RETEST 1 Data/Resources",
           "retest1-data-resources-target",
@@ -4007,7 +4315,7 @@
           "FOWARD_TASK_TITLE = \"FOWARD\"",
           "FOWARD_TASK_XML = \"Retest-Task2.xml\"",
           "FOWARD_PERIOD_KEY = \"FOWARD_C1\"",
-          "FOWARD_DATA_TEST_PRECISION = \"2\"",
+          "FOWARD_DATA_TEST_PRECISION = \"4\"",
           "FOWARD_CLOSEOUT_NEXT = \"phase14_capa1_closeout\"",
           "foward-closeout-report"
         ],
@@ -4016,8 +4324,9 @@
           "phase14_capa1_closeout"
         ],
         "backend/sqx-edge-tool/test_cfx_template_compatibility.py": [
-          "assert databanks == {\"Output\": \"Foward\", \"Input\": \"Syntetic\"}",
-          "Foward"
+          "expected_output_databank: str = \"Forward\"",
+          "expected_input_databank: str = \"Synthetic\"",
+          "legacy_databank_names"
         ]
       },
       "forbidden": {
@@ -5180,7 +5489,7 @@
           "`RandomlySkipTrades=false`",
           "`MonteCarloRetest=false`",
           "`ExitAfterBars=false` con SL/PT/trailing activos",
-          "Forward vuelve a precision tick",
+          "Forward vuelve a precision real tick",
           "phase22_capa2_mc2"
         ],
         "docs/PROJECT_GOVERNANCE.md": [
@@ -5193,7 +5502,7 @@
           "`testPrecision=1 fastest`",
           "only `MonteCarloManipulation` active",
           "`MonteCarloRetest=false`",
-          "Forward returns to tick precision",
+          "Forward returns to real tick precision",
           "phase22_capa2_mc2"
         ],
         "docs/ARCHITECTURE.md": [
@@ -5206,7 +5515,7 @@
           "`RandomizeTradesOrder=resampling`",
           "`RandomlySkipTrades=false`",
           "`MonteCarloRetest=false`",
-          "Forward returns to tick precision"
+          "Forward returns to real tick precision"
         ],
         "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
           "Estado Fase 21 - Capa2 MC",
@@ -5230,7 +5539,7 @@
           "`Input=TICK` / `Output=MC`",
           "`testPrecision=1 fastest`",
           "`MonteCarloRetest=false`",
-          "Forward returns to tick precision",
+          "Forward returns to real tick precision",
           "phase22_capa2_mc2"
         ],
         "backend/sqx-edge-tool/config/generator_profiles.json": [
@@ -5308,7 +5617,7 @@
           "`RandomizeSpread` adaptativo base spread x2-x5",
           "`RandomizeSlippage=false`",
           "`ExitAfterBars=false` con SL/PT/trailing activos",
-          "Forward vuelve a precision tick",
+          "Forward vuelve a precision real tick",
           "phase23_capa2_sequential"
         ],
         "docs/PROJECT_GOVERNANCE.md": [
@@ -5324,7 +5633,7 @@
           "`RandomizeHistoryData=true`",
           "adaptive `RandomizeSpread` base spread x2-x5",
           "`RandomizeSlippage=false`",
-          "Forward returns to tick precision",
+          "Forward returns to real tick precision",
           "phase23_capa2_sequential"
         ],
         "docs/ARCHITECTURE.md": [
@@ -5338,7 +5647,7 @@
           "`RandomizeHistoryData=true`",
           "adaptive `RandomizeSpread` base spread x2-x5",
           "`RandomizeSlippage=false`",
-          "Forward returns to tick precision"
+          "Forward returns to real tick precision"
         ],
         "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
           "Estado Fase 22 - Capa2 MC2",
@@ -5363,7 +5672,7 @@
           "`Input=MC` / `Output=MC2`",
           "`testPrecision=1 fastest`",
           "`RandomizeSlippage=false`",
-          "Forward returns to tick precision",
+          "Forward returns to real tick precision",
           "phase23_capa2_sequential"
         ],
         "backend/sqx-edge-tool/config/generator_profiles.json": [
@@ -5444,7 +5753,7 @@
           "`ApplyToStrategy=false`",
           "aceptacion `80/5/25`",
           "`ExitAfterBars=false` con SL/PT/trailing activos",
-          "Forward vuelve a precision tick",
+          "Forward vuelve a precision real tick",
           "phase24_capa2_monkey"
         ],
         "docs/PROJECT_GOVERNANCE.md": [
@@ -5459,7 +5768,7 @@
           "only `SequentialOptimization` active",
           "`ApplyToStrategy=false`",
           "acceptance `80/5/25`",
-          "Forward returns to tick precision",
+          "Forward returns to real tick precision",
           "phase24_capa2_monkey"
         ],
         "docs/ARCHITECTURE.md": [
@@ -5472,7 +5781,7 @@
           "only `SequentialOptimization` active",
           "`ApplyToStrategy=false`",
           "acceptance `80/5/25`",
-          "Forward returns to tick precision"
+          "Forward returns to real tick precision"
         ],
         "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
           "Estado Fase 23 - Capa2 Sequential",
@@ -5496,7 +5805,7 @@
           "`Input=MC2` / `Output=Sequential`",
           "`testPrecision=1 fastest`",
           "`ApplyToStrategy=false`",
-          "Forward returns to tick precision",
+          "Forward returns to real tick precision",
           "phase24_capa2_monkey"
         ],
         "backend/sqx-edge-tool/config/generator_profiles.json": [
@@ -5572,7 +5881,7 @@
           "`NumberOfSimulations=200`",
           "`MCBacktestPrecision=-1`",
           "`ExitAfterBars=false` con SL/PT/trailing activos",
-          "Forward vuelve a precision tick",
+          "Forward vuelve a precision real tick",
           "phase25_capa2_synthetic"
         ],
         "docs/PROJECT_GOVERNANCE.md": [
@@ -5588,7 +5897,7 @@
           "only `MonteCarloRetest` active",
           "`RealMonkeyTest`",
           "`MCBacktestPrecision=-1`",
-          "Forward returns to tick precision",
+          "Forward returns to real tick precision",
           "phase25_capa2_synthetic"
         ],
         "docs/ARCHITECTURE.md": [
@@ -5601,7 +5910,7 @@
           "only `MonteCarloRetest` active",
           "`RealMonkeyTest`",
           "`MCBacktestPrecision=-1`",
-          "Forward returns to tick precision"
+          "Forward returns to real tick precision"
         ],
         "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
           "Estado Fase 24 - Capa2 Monkey",
@@ -5626,7 +5935,7 @@
           "MC MONKEY RETEST",
           "`testPrecision=1 fastest`",
           "`RealMonkeyTest`",
-          "Forward returns to tick precision",
+          "Forward returns to real tick precision",
           "phase25_capa2_synthetic"
         ],
         "backend/sqx-edge-tool/config/generator_profiles.json": [
@@ -5705,7 +6014,7 @@
           "`WarmupBars=200`",
           "`PreservePct=85`",
           "`ExitAfterBars=false` con SL/PT/trailing activos",
-          "Forward vuelve a precision tick",
+          "Forward vuelve a precision real tick",
           "phase26_capa2_spp"
         ],
         "docs/PROJECT_GOVERNANCE.md": [
@@ -5721,7 +6030,7 @@
           "only `MonteCarloRetest` active",
           "`SyntheticBootstrapV3`",
           "`MCBacktestPrecision=-1`",
-          "Forward returns to tick precision",
+          "Forward returns to real tick precision",
           "phase26_capa2_spp"
         ],
         "docs/ARCHITECTURE.md": [
@@ -5735,7 +6044,7 @@
           "only `MonteCarloRetest` active",
           "`SyntheticBootstrapV3`",
           "`MCBacktestPrecision=-1`",
-          "Forward returns to tick precision"
+          "Forward returns to real tick precision"
         ],
         "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
           "Estado Fase 25 - Capa2 Synthetic",
@@ -5760,7 +6069,7 @@
           "MC SYNTHETIC RETEST",
           "`testPrecision=1 fastest`",
           "`SyntheticBootstrapV3`",
-          "Forward returns to tick precision",
+          "Forward returns to real tick precision",
           "phase26_capa2_spp"
         ],
         "backend/sqx-edge-tool/config/generator_profiles.json": [
@@ -5838,7 +6147,7 @@
           "`DistributionDown=20`",
           "`Steps=25`",
           "`ExitAfterBars=false` con SL/PT/trailing activos",
-          "Forward vuelve a precision tick",
+          "Forward vuelve a precision real tick",
           "phase27_capa2_wfm"
         ],
         "docs/PROJECT_GOVERNANCE.md": [
@@ -5853,7 +6162,7 @@
           "`testPrecision=1 fastest`",
           "only `OptProfileSysParamPermutation` active",
           "`MaxTests=3000`",
-          "Forward returns to tick precision",
+          "Forward returns to real tick precision",
           "phase27_capa2_wfm"
         ],
         "docs/ARCHITECTURE.md": [
@@ -5866,7 +6175,7 @@
           "`testPrecision=1 fastest`",
           "only `OptProfileSysParamPermutation` active",
           "`MaxTests=3000`",
-          "Forward returns to tick precision"
+          "Forward returns to real tick precision"
         ],
         "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
           "Estado Fase 26 - Capa2 SPP",
@@ -5891,7 +6200,7 @@
           "RETEST ROBUST REVIEW",
           "`testPrecision=1 fastest`",
           "`OptProfileSysParamPermutation`",
-          "Forward returns to tick precision",
+          "Forward returns to real tick precision",
           "phase27_capa2_wfm"
         ],
         "backend/sqx-edge-tool/config/generator_profiles.json": [
@@ -5950,7 +6259,7 @@
     },
     {
       "id": "sqx142_c2_phase27_wfm_validation",
-      "description": "C1-CONFIG1 Phase 27 Capa2 WFM must stay closed as a fastest Darwinex WalkForwardMatrix validation-only gate, using Optimize-Task1.xml and leaving Forward on tick precision.",
+      "description": "C1-CONFIG1 Phase 27 Capa2 WFM must stay closed as a fastest Darwinex WalkForwardMatrix validation-only gate, using Optimize-Task1.xml and leaving Forward as the later real-tick holdout boundary.",
       "required": {
         "README.md": [
           "phase27_capa2_wfm",
@@ -5966,7 +6275,7 @@
           "`WalkForwardMatrix`",
           "`MaxTests=3000`",
           "`WFMaxPctDDbyRun <= 25`",
-          "Forward vuelve a precision tick",
+          "Forward vuelve a precision real tick",
           "phase28_capa2_forward"
         ],
         "docs/PROJECT_GOVERNANCE.md": [
@@ -5981,7 +6290,7 @@
           "`testPrecision=1 fastest`",
           "only `WalkForwardMatrix` active",
           "`MaxTests=3000`",
-          "Forward returns to tick precision",
+          "Forward returns to real tick precision",
           "phase28_capa2_forward"
         ],
         "docs/ARCHITECTURE.md": [
@@ -5994,7 +6303,7 @@
           "`testPrecision=1 fastest`",
           "only `WalkForwardMatrix` active",
           "`MaxTests=3000`",
-          "Forward returns to tick precision"
+          "Forward returns to real tick precision"
         ],
         "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
           "Estado Fase 27 - Capa2 WFM",
@@ -6020,7 +6329,7 @@
           "RETEST ROBUST REVIEW",
           "`testPrecision=1 fastest`",
           "`WalkForwardMatrix`",
-          "Forward returns to tick precision",
+          "Forward returns to real tick precision",
           "phase28_capa2_forward"
         ],
         "backend/sqx-edge-tool/config/generator_profiles.json": [
@@ -6089,7 +6398,7 @@
           "`Output=Foward`",
           "RETEST QUICK REVIEW",
           "`FOWARD 2025.01.01-2026.04.30`",
-          "`testPrecision=2 tick`",
+          "`testPrecision=4 real tick`",
           "`NumberOfTrades >= 30`",
           "`RExpectancy > 0`",
           "`NetProfit >= 0`",
@@ -6105,7 +6414,7 @@
           "`Output=Foward`",
           "RETEST QUICK REVIEW",
           "`FOWARD 2025.01.01-2026.04.30`",
-          "`testPrecision=2 tick`",
+          "`testPrecision=4 real tick`",
           "`NumberOfTrades >= 30`",
           "`RExpectancy > 0`",
           "`NetProfit >= 0`",
@@ -6117,7 +6426,7 @@
           "`Output=Foward`",
           "RETEST QUICK REVIEW",
           "`FOWARD 2025.01.01-2026.04.30`",
-          "`testPrecision=2 tick`",
+          "`testPrecision=4 real tick`",
           "`NumberOfTrades >= 30`",
           "`RExpectancy > 0`",
           "`NetProfit >= 0`",
@@ -6132,7 +6441,7 @@
           "`Output=Foward`",
           "RETEST QUICK REVIEW",
           "`FOWARD 2025.01.01-2026.04.30`",
-          "`testPrecision=2 tick`",
+          "`testPrecision=4 real tick`",
           "`NumberOfTrades >= 30`",
           "`RExpectancy > 0`",
           "`NetProfit >= 0`",
@@ -6146,7 +6455,7 @@
           "`Retest-Task2.xml`",
           "`Input=WFM` / `Output=Foward`",
           "RETEST QUICK REVIEW",
-          "`testPrecision=2 tick`",
+          "`testPrecision=4 real tick`",
           "`NumberOfTrades >= 30`",
           "`RExpectancy > 0`",
           "`NetProfit >= 0`",
@@ -6632,14 +6941,14 @@
     },
     {
       "id": "sqx142_c1_fastest_precision_correction_before_c2_spp",
-      "description": "C1-CONFIG1 must record the important Capa1 precision correction after Capa2 Synthetic and before Capa2 SPP: MC through WFM use fastest/testPrecision=1, while Foward remains tick/testPrecision=2.",
+      "description": "C1-CONFIG1 must record the important Capa1 precision correction after Capa2 Synthetic and before Capa2 SPP: MC through WFM use fastest/testPrecision=1, while Forward and TICK REAL use testPrecision=4 real tick.",
       "required": {
         "README.md": [
           "Capa1 Fastest Precision Correction Before Capa2 SPP",
           "Capa1 MC, MC2, Sequential, Monkey, Synthetic, SPP and WFM",
           "`testPrecision=1 fastest`",
-          "Forward/Foward remains tick precision with `testPrecision=2`",
-          "TICK REAL mantiene sus setups auditados/inactivos en `testPrecision=2`",
+          "Forward/Foward and TICK REAL real-tick gates use `testPrecision=4 real tick`",
+          "Esta correccion supersedes older Capa1 closeout text",
           "no Capa2 SPP apply/run was performed"
         ],
         "docs/PROJECT_GOVERNANCE.md": [
@@ -6647,30 +6956,30 @@
           "after Phase 25 `phase25_capa2_synthetic`",
           "before starting `phase26_capa2_spp`",
           "`testPrecision=1 fastest`",
-          "Foward remains tick precision with `testPrecision=2`",
-          "TICK REAL audited/inactive setups are normalized to `testPrecision=2`"
+          "Foward and TICK REAL real-tick gates use `testPrecision=4 real tick`",
+          "older TICK/Forward wording that used `testPrecision=2` as tick"
         ],
         "docs/ARCHITECTURE.md": [
           "Capa1 Fastest Precision Correction Before Capa2 SPP",
           "Capa1 robustness retests MC through WFM use `testPrecision=1 fastest`",
-          "Capa1 Foward remains `testPrecision=2`",
-          "TICK REAL audited/inactive setups stay `testPrecision=2`"
+          "Capa1 Foward and TICK REAL real-tick gates use `testPrecision=4 real tick`",
+          "did not start Capa2 SPP"
         ],
         "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
           "Capa1 Fastest Precision Correction Before Capa2 SPP",
           "supersedes older Capa1 closeout text",
-          "TICK REAL mantiene sus setups auditados e inactivos en `testPrecision=2`",
+          "real-tick gates use `testPrecision=4 real tick`",
           "`phase26_capa2_spp` not started by this correction"
         ],
         "CHANGELOG.md": [
           "2026-05-25 - C1-CONFIG1 Capa1 Fastest Precision Correction Before Capa2 SPP",
           "MC through WFM to `testPrecision=1 fastest`",
-          "Forward/Foward as tick precision with `testPrecision=2`",
-          "inactive TICK REAL audit setups normalized back to `testPrecision=2`"
+          "Forward/Foward and TICK REAL real-tick gates on `testPrecision=4 real tick`",
+          "supersedes the earlier wording that treated `testPrecision=2` as tick"
         ],
         "backend/sqx-edge-tool/tools/sqx142_task_config_gate.py": [
           "MC_DATA_TEST_PRECISION = \"1\"",
-          "FOWARD_DATA_TEST_PRECISION = \"2\"",
+          "FOWARD_DATA_TEST_PRECISION = \"4\"",
           "normalize_mc_crosscheck_setups("
         ],
         "backend/sqx-edge-tool/core/project_generator.py": [
@@ -6680,7 +6989,7 @@
         ],
         "backend/sqx-edge-tool/test_cfx_template_compatibility.py": [
           "C1_FASTEST_ROBUSTNESS_TEST_PRECISION = \"1\"",
-          "C1_TICK_TEST_PRECISION = \"2\"",
+          "C1_TICK_TEST_PRECISION = \"4\"",
           "for setup in tick_real.findall(\".//CrossChecks/*/Settings/Setups/Setup\")"
         ]
       },
@@ -6897,6 +7206,2204 @@
           "engine version changed to Codex",
           "license patch",
           "About modal exposes private license identity"
+        ]
+      }
+    },
+    {
+      "id": "sqx144_lab_intake_gate",
+      "description": "SQX144-COMPAT7 keeps Build 144 as an isolated lab candidate and records that manual Results Plugin visual confirmation is blocked by the license screen before Results.",
+      "required": {
+        "README.md": [
+          "SQX144-COMPAT7 Results Plugin Manual Visual Confirmation esta bloqueado",
+          "docs/SQX144_LAB_INTAKE_ROADMAP.md",
+          "docs/SQX144_RESULTS_PLUGIN_MANUAL_VISUAL_CONFIRMATION.md",
+          "partial_adopt",
+          "license gate",
+          "resultsTabObserved=false",
+          "pluginVisibleInResults=false",
+          "sin licencia introducida",
+          "sin bypass",
+          "procesos finales a cero",
+          "SQX144-COMPAT6",
+          "`SQX144-COMPAT7` quedo bloqueado por licencia",
+          "no copia internals propietarios",
+          "SQX144-COMPAT7B Results Plugin Visual Confirmation After Operator License"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Current phase blocked: SQX144-COMPAT7 - Results Plugin Manual Visual Confirmation",
+          "docs/SQX144_LAB_INTAKE_ROADMAP.md",
+          "docs/SQX144_RESULTS_PLUGIN_MANUAL_VISUAL_CONFIRMATION.md",
+          "blocked_pending_operator_license_or_valid_lab_session",
+          "sqx144_compat7_results_plugin_manual_visual_confirmation_20260526_152500.json",
+          "resultsTabObserved=false",
+          "pluginVisibleInResults=false",
+          "No license was entered",
+          "no bypass was attempted",
+          "SQX 142 remains untouched",
+          "final relevant process count returned to zero",
+          "GET_SOURCE_CODE",
+          "GET_ORDERS",
+          "plugin management endpoints",
+          "MCP calls",
+          "browser persistence",
+          "Migration Tool",
+          "databank mutation remain blocked",
+          "SQX144-COMPAT7B Results Plugin Visual Confirmation After Operator License"
+        ],
+        "docs/SQX144_LAB_INTAKE_ROADMAP.md": [
+          "SQX144-COMPAT1 - StrategyQuant X 144 Lab Intake",
+          "completed_snapshot_no_execution",
+          "sqx144_lab_intake_20260526_143542.json",
+          "SQX144-COMPAT2 - Static Feature Surface",
+          "completed_static_no_runtime",
+          "sqx144_compat2_static_feature_surface_20260526_144600.json",
+          "partial_adopt",
+          "SQX144-COMPAT3 - Results Plugin Prototype Design",
+          "completed_design_no_runtime",
+          "sqx144_compat3_results_plugin_design_20260526_145500.json",
+          "SQX144-COMPAT4 - Results Plugin Prototype Build",
+          "completed_offline_prototype_no_install",
+          "sqx144_compat4_results_plugin_prototype_build_20260526_150500.json",
+          "SQX144-COMPAT5 - Results Plugin Install Gate",
+          "completed_ready_for_manual_install_no_copy",
+          "sqx144_compat5_results_plugin_install_gate_20260526_151000.json",
+          "ready_for_manual_install_in_sqx144_lab_only",
+          "installExecuted=false",
+          "SQX144-COMPAT6 - Results Plugin Lab Smoke",
+          "completed_lab_install_runtime_smoke_partial_visual",
+          "sqx144_compat6_results_plugin_lab_smoke_20260526_151800.json",
+          "lab_smoke_passed_with_manual_results_tab_pending",
+          "installExecuted=true",
+          "remainingRelevantProcesses=0",
+          "visualResultsTabObserved=false",
+          "user/extend/ResultsPlugins/SQX Edge Readiness Panel",
+          "fixtures/fixtures.js",
+          "offline_smoke.ps1",
+          "compat4_panel_desktop.png",
+          "SQX Edge Readiness Panel",
+          "list_projects",
+          "GET_STATS",
+          "GET_LAST_SETTINGS_XML",
+          "GET_SYMBOL_INFO",
+          "GET_SOURCE_CODE",
+          "GET_ORDERS",
+          "resultsPlugins/create",
+          "resultsPlugins/rename",
+          "resultsPlugins/delete",
+          "MCP calls",
+          "browser persistence",
+          "MT5 import",
+          "Migration Tool",
+          "MACHRBlockRandomization",
+          "MCP y Results Plugins",
+          "Custom Analysis Databank Correlation Filter",
+          "MT5 Direct Import",
+          "SQX144-COMPAT7 Results Plugin Manual Visual Confirmation",
+          "No ejecutar SQX 144 ni lanzar proyectos",
+          "No copiar engine, binarios, licencia",
+          "observe",
+          "partial_adopt",
+          "promote_candidate",
+          "blocked"
+        ],
+        "CHANGELOG.md": [
+          "2026-05-26 - SQX144-COMPAT1 StrategyQuant X 144 Lab Intake Planning",
+          "MCP/Results Plugins",
+          "Correlation Filter/new Monte Carlo methods",
+          "MT5 direct import/Migration Tool",
+          "no SQX 142 replacement",
+          "sqx144_lab_intake_20260526_143542.json",
+          "sqx144_compat2_static_feature_surface_20260526_144600.json",
+          "SQX144-COMPAT3 Results Plugin Prototype Design",
+          "docs/SQX144_RESULTS_PLUGIN_PROTOTYPE_DESIGN.md",
+          "sqx144_compat3_results_plugin_design_20260526_145500.json",
+          "SQX144-COMPAT4 Results Plugin Prototype Build",
+          "sqx144_compat4_results_plugin_prototype_build_20260526_150500.json",
+          "ready/review/blocked",
+          "offline_smoke.ps1",
+          "Playwright render evidence",
+          "SQX144-COMPAT5 Results Plugin Install Gate",
+          "docs/SQX144_RESULTS_PLUGIN_INSTALL_GATE.md",
+          "sqx144_compat5_results_plugin_install_gate_20260526_151000.json",
+          "ready_for_manual_install_in_sqx144_lab_only",
+          "installExecuted=false",
+          "SQX144-COMPAT6 Results Plugin Lab Smoke",
+          "docs/SQX144_RESULTS_PLUGIN_LAB_SMOKE.md",
+          "sqx144_compat6_results_plugin_lab_smoke_20260526_151800.json",
+          "minimal payload was copied to SQX 144 lab",
+          "installed hashes match COMPAT4",
+          "SQX 144 launched",
+          "zero remaining processes",
+          "manual Results tab confirmation remains pending",
+          "SQX Edge Readiness Panel",
+          "source-code, orders, plugin-management and SQX installation/runtime",
+          "SQX144-COMPAT7 Results Plugin Manual Visual Confirmation"
+        ],
+        "docs/SQX144_RESULTS_PLUGIN_PROTOTYPE_DESIGN.md": [
+          "SQX144-COMPAT3 Results Plugin Prototype Design",
+          "SQX Edge Readiness Panel",
+          "SQX144-COMPAT4 Results Plugin Prototype Build",
+          "sqx144_compat4_results_plugin_prototype_build_20260526_150500.json",
+          "ready",
+          "review",
+          "blocked",
+          "offline_smoke.ps1",
+          "Render Playwright",
+          "GET_STATS",
+          "GET_LAST_SETTINGS_XML",
+          "GET_SYMBOL_INFO",
+          "GET_SOURCE_CODE",
+          "GET_ORDERS",
+          "resultsPlugins/create",
+          "resultsPlugins/rename",
+          "resultsPlugins/delete",
+          "SQX144-COMPAT5 Results Plugin Install Gate",
+          "NumberOfTrades >= 30",
+          "RExpectancy > 0",
+          "ProfitFactor >= 1.05",
+          "ReturnDDRatio >= 1"
+        ],
+        "docs/SQX144_RESULTS_PLUGIN_INSTALL_GATE.md": [
+          "SQX144-COMPAT5 Results Plugin Install Gate",
+          "ready_for_manual_install_in_sqx144_lab_only",
+          "SQX Edge Readiness Panel",
+          "sqx144_compat5_results_plugin_install_gate_20260526_151000.json",
+          "sin instalacion ejecutada",
+          "No copia archivos a StrategyQuant",
+          "no lanza SQX 144",
+          "no toca SQX 142",
+          "CustomPlugin",
+          "Prop analytics",
+          "Prop Monte Carlo",
+          "index.html",
+          "fixtures/fixtures.js",
+          "GET_SOURCE_CODE",
+          "GET_ORDERS",
+          "resultsPlugins/create",
+          "resultsPlugins/rename",
+          "resultsPlugins/delete",
+          "run_project",
+          "stop_project",
+          "Migration Tool",
+          "SQX144-COMPAT6 Results Plugin Lab Smoke"
+        ],
+        "docs/SQX144_RESULTS_PLUGIN_LAB_SMOKE.md": [
+          "SQX144-COMPAT6 Results Plugin Lab Smoke",
+          "lab_smoke_passed_with_manual_results_tab_pending",
+          "SQX Edge Readiness Panel",
+          "sqx144_compat6_results_plugin_lab_smoke_20260526_151800.json",
+          "index.html",
+          "fixtures/fixtures.js",
+          "Sobrescritura: `false`",
+          "Privacy/static scan: `passed`",
+          "Render desde carpeta instalada: `passed`",
+          "ready",
+          "review",
+          "blocked",
+          "SQX 144 lab launch: `passed_process_start`",
+          "remainingRelevantProcesses=0",
+          "visualResultsTabObserved=false",
+          "SQX 142 install/runtime",
+          "GET_SOURCE_CODE",
+          "GET_ORDERS",
+          "resultsPlugins/create",
+          "resultsPlugins/rename",
+          "resultsPlugins/delete",
+          "MT5 import",
+          "Migration Tool",
+          "SQX144-COMPAT7 Results Plugin Manual Visual Confirmation"
+        ]
+      },
+      "forbidden": {
+        "docs/SQX144_LAB_INTAKE_ROADMAP.md": [
+          "SQX 144 sustituye a SQX 142",
+          "copy internal/plugins",
+          "copy StrategyQuantX.exe",
+          "license patch",
+          "reducir precision para adoptar 144"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "SQX 144 is the active engine",
+          "migrate active data into 144 automatically",
+          "bulk copy Build 144 internals"
+        ],
+        "README.md": [
+          "SQX 144 sustituye SQX 142"
+        ],
+        "docs/SQX144_RESULTS_PLUGIN_PROTOTYPE_DESIGN.md": [
+          "GET_SOURCE_CODE permitido en v0",
+          "GET_ORDERS permitido por defecto",
+          "instalar automaticamente en SQX 142",
+          "profit guarantee",
+          "risk zero",
+          "Results=passed"
+        ],
+        "docs/SQX144_RESULTS_PLUGIN_INSTALL_GATE.md": [
+          "installExecuted=true",
+          "copiado automaticamente",
+          "instalar en SQX 142",
+          "launch SQX 144 now",
+          "profit guarantee",
+          "risk zero",
+          "Results=passed"
+        ],
+        "docs/SQX144_RESULTS_PLUGIN_LAB_SMOKE.md": [
+          "SQX 144 is the active engine",
+          "SQX 142 instalado",
+          "GET_SOURCE_CODE permitido",
+          "GET_ORDERS permitido",
+          "profit guarantee",
+          "risk zero",
+          "Results=passed"
+        ]
+      }
+    },
+    {
+      "id": "sqx142_144_backport_gate",
+      "required": {
+        "README.md": [
+          "SQX142-144-BACKPORT8 esta aplicado",
+          "docs/SQX142_144_BACKPORT_ROADMAP.md",
+          "docs/SQX142_144_CORRELATION_FILTER_EXTERNAL_DESIGN.md",
+          "docs/SQX142_144_CORRELATION_FILTER_EXTERNAL_BUILD.md",
+          "docs/SQX142_144_MONTE_CARLO_CANDIDATE_BENCHMARKS.md",
+          "docs/SQX142_144_MT5_DATA_INTAKE_PROBE.md",
+          "docs/SQX142_144_COPY_ONLY_MIGRATION_CHECKLIST.md",
+          "SQX Edge Readiness Panel",
+          "Source Code Translator",
+          "/api/sqx142/mcp-like",
+          "backend/sqx-edge-tool/core/sqx142_correlation_filter_external.py",
+          "POST /api/sqx142/correlation-filter/external",
+          "sqx142-correlation-filter-external-v1",
+          "backend/sqx-edge-tool/core/sqx142_monte_carlo_candidate_benchmarks.py",
+          "POST /api/sqx142/monte-carlo/benchmarks",
+          "sqx142-monte-carlo-candidate-benchmarks-v1",
+          "MACHRBlockRandomization",
+          "SimulateParameterJitter",
+          "RandomlyDegradeExecution",
+          "benchmark_pass/benchmark_review/benchmark_fail",
+          "backend/sqx-edge-tool/core/sqx142_mt5_data_intake_probe.py",
+          "POST /api/sqx142/mt5-data-intake/probe",
+          "sqx142-mt5-data-intake-probe-v1",
+          "CSV OHLC",
+          "data.db mode=ro",
+          "intake_probe_pass/intake_probe_review/intake_probe_fail",
+          "sin MT5 IPC",
+          "sin import directo SQX",
+          "sin alimentar generacion real",
+          "backend/sqx-edge-tool/core/sqx142_copy_only_migration_checklist.py",
+          "POST /api/sqx142/migration/copy-only-checklist",
+          "sqx142-copy-only-migration-checklist-v1",
+          "allow_copy/review_copy/block_copy",
+          "sin ejecutar copia",
+          "sin Migration Tool",
+          "sin licencias/activacion/cracks/bypass/tokens",
+          "sin engine/binarios/internals",
+          "maxCorrelation=0.50",
+          "Pearson",
+          "portfolio/similar/review",
+          "export CSV",
+          "redaccion de rutas/tokens/privados",
+          "sin llamar `filterByCorrelation/filter`",
+          "sin copiar `DatabankFilterByCorrelation`",
+          "sin borrar databanks SQX",
+          "sin `data.db`/`user/projects` writes",
+          "sin runtime SQX",
+          "Forward/Foward CSV",
+          "decision de nuevo frente por operador"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Current phase completed: SQX142-144-BACKPORT8 - Copy-Only Migration Checklist",
+          "docs/SQX142_144_BACKPORT_ROADMAP.md",
+          "docs/SQX142_144_MCP_LIKE_READ_ONLY_API_DESIGN.md",
+          "docs/SQX142_144_MCP_LIKE_READ_ONLY_API_BUILD.md",
+          "docs/SQX142_144_CORRELATION_FILTER_EXTERNAL_DESIGN.md",
+          "docs/SQX142_144_CORRELATION_FILTER_EXTERNAL_BUILD.md",
+          "docs/SQX142_144_MONTE_CARLO_CANDIDATE_BENCHMARKS.md",
+          "docs/SQX142_144_MT5_DATA_INTAKE_PROBE.md",
+          "docs/SQX142_144_COPY_ONLY_MIGRATION_CHECKLIST.md",
+          "SQX Edge-owned backports",
+          "backend/sqx-edge-tool/core/sqx142_mcp_like_readonly.py",
+          "backend/sqx-edge-tool/api/server.py",
+          "backend/sqx-edge-tool/test_sqx142_mcp_like_readonly.py",
+          "backend/sqx-edge-tool/core/sqx142_correlation_filter_external.py",
+          "POST /api/sqx142/correlation-filter/external",
+          "backend/sqx-edge-tool/test_sqx142_correlation_filter_external.py",
+          "backend/sqx-edge-tool/core/sqx142_monte_carlo_candidate_benchmarks.py",
+          "POST /api/sqx142/monte-carlo/benchmarks",
+          "backend/sqx-edge-tool/test_sqx142_monte_carlo_candidate_benchmarks.py",
+          "backend/sqx-edge-tool/core/sqx142_mt5_data_intake_probe.py",
+          "POST /api/sqx142/mt5-data-intake/probe",
+          "backend/sqx-edge-tool/test_sqx142_mt5_data_intake_probe.py",
+          "backend/sqx-edge-tool/core/sqx142_copy_only_migration_checklist.py",
+          "POST /api/sqx142/migration/copy-only-checklist",
+          "backend/sqx-edge-tool/test_sqx142_copy_only_migration_checklist.py",
+          "sqx142-mcp-like-readonly-v1",
+          "sqx142-correlation-filter-external-v1",
+          "sqx142-monte-carlo-candidate-benchmarks-v1",
+          "sqx142-mt5-data-intake-probe-v1",
+          "sqx142-copy-only-migration-checklist-v1",
+          "/api/sqx142/mcp-like/*",
+          "status",
+          "projects",
+          "data-catalog",
+          "databanks",
+          "strategies",
+          "results-plugin-readiness",
+          "data.db mode=ro",
+          "`user/projects` read-only scans",
+          "DatabankFilterByCorrelation",
+          "Filter by correlation",
+          "filterByCorrelation/filter",
+          "maxCorrelation=0.5",
+          "Forward/Foward CSV",
+          "Portfolio Lab JSON",
+          "returnSeries",
+          "equitySeries",
+          "Pearson",
+          "maxCorrelation=0.50",
+          "opaque candidate IDs",
+          "optional CSV export",
+          "path/token/private marker redaction",
+          "403 local_operator_required",
+          "available",
+          "similarity_only",
+          "not_comparable",
+          "portfolio",
+          "similar",
+          "review",
+          "MACHRBlockRandomization",
+          "SimulateParameterJitter",
+          "RandomlyDegradeExecution",
+          "simulations=64",
+          "blockSize=4",
+          "parameterJitterPct=0.15",
+          "executionDegradeBps=2.0",
+          "benchmark_pass",
+          "benchmark_review",
+          "benchmark_fail",
+          "medianReturnPct",
+          "p05ReturnPct",
+          "medianDrawdownPct",
+          "maxDrawdownPct",
+          "survivalRate",
+          "mt5_csv_copy",
+          "sqxDataRows",
+          "dataDbRows",
+          "catalogRows",
+          "data.db mode=ro",
+          "intake_probe_pass",
+          "intake_probe_review",
+          "intake_probe_fail",
+          "validBars",
+          "invalidRows",
+          "duplicateTimes",
+          "timeGaps",
+          "catalogMatches",
+          "bestOverlapDays",
+          "assetRef",
+          "seriesId",
+          "symbolRef",
+          "barsHash",
+          "MT5 terminal start",
+          "MT5 IPC",
+          "direct SQX import",
+          "Project Generator feed",
+          "Template Maker feed",
+          "Portfolio Master feed",
+          "checklist_only_no_copy",
+          "operator_copy_plan",
+          "allow_copy",
+          "review_copy",
+          "block_copy",
+          "preflight_process_sweep",
+          "backup_destination",
+          "copy_only_after_operator_confirmation",
+          "hash_verify",
+          "manual_open_check",
+          "itemId",
+          "labelRef",
+          "pathRef",
+          "copy execution",
+          "license material",
+          "activation material",
+          "engine binaries",
+          "internal",
+          "jre",
+          "runtime",
+          "jars",
+          "executables",
+          "copying `DatabankFilterByCorrelation`",
+          "copying `MACHRBlockRandomization`/`SimulateParameterJitter`/`RandomlyDegradeExecution` internals from 144",
+          "deleting SQX databank rows",
+          "CustomAnalysis=true",
+          "FitPortfolio=true",
+          "forced pass",
+          "profit guarantee",
+          "risk zero",
+          "test_sqx142_correlation_filter_external.py` -> `6 passed",
+          "sqx142_144_backport5_correlation_filter_external_build_20260526_181500.json",
+          "test_sqx142_monte_carlo_candidate_benchmarks.py` -> `6 passed",
+          "sqx142_144_backport6_monte_carlo_candidate_benchmarks_20260526_183500.json",
+          "test_sqx142_mt5_data_intake_probe.py` -> `6 passed",
+          "sqx142_144_backport7_mt5_data_intake_probe_20260526_190500.json",
+          "test_sqx142_copy_only_migration_checklist.py` -> `5 passed",
+          "sqx142_144_backport8_copy_only_migration_checklist_20260526_193000.json",
+          "operator choose a new front"
+        ],
+        "docs/SQX142_144_BACKPORT_ROADMAP.md": [
+          "SQX142-144-BACKPORT5 Correlation Filter External Build",
+          "SQX142-144-BACKPORT4 Correlation Filter External Design",
+          "SQX142-144-BACKPORT3 MCP-Like Read-Only API Build",
+          "SQX142-144-BACKPORT2 MCP-Like Read-Only API Design",
+          "SQX142-144-BACKPORT1 - Results Plugin Readiness Panel",
+          "completado",
+          "modificar archivos de usuario/extensiones/configuracion de SQX 142",
+          "licencia, activacion, engine ni binarios propietarios",
+          "completed_external_build",
+          "completed_external_benchmark",
+          "completed_probe_no_import",
+          "completed_checklist_no_copy",
+          "SQX Edge Readiness Panel",
+          "Source Code Translator",
+          "sqx142_144_backport1_results_plugin_readiness_panel_20260526_153500.json",
+          "completed_installed_in_sqx142_local",
+          "user/extend/ResultsPlugins/SQX Edge Readiness Panel",
+          "fixtures/fixtures.js",
+          "ready",
+          "review",
+          "blocked",
+          "docs/SQX142_144_MCP_LIKE_READ_ONLY_API_DESIGN.md",
+          "sqx142_144_backport2_mcp_like_read_only_api_design_20260526_160500.json",
+          "/api/sqx142/mcp-like/status",
+          "/api/sqx142/mcp-like/projects",
+          "/api/sqx142/mcp-like/data-catalog",
+          "/api/sqx142/mcp-like/databanks",
+          "/api/sqx142/mcp-like/strategies",
+          "/api/sqx142/mcp-like/results-plugin-readiness",
+          "data.db mode=ro",
+          "user/projects` scan read-only",
+          "projectDirCount=29",
+          "resultsPluginCount=2",
+          "BROKER=12",
+          "DATA=34",
+          "INSTRUMENTS=989",
+          "SESSIONS=1081",
+          "procesos SQX/Java `0`",
+          "POST",
+          "PUT",
+          "PATCH",
+          "DELETE",
+          "run_project",
+          "stop_project",
+          "project/start",
+          "project/stop",
+          "taskmanager/activateTask",
+          "GET_SOURCE_CODE",
+          "GET_ORDERS",
+          "MT5 import",
+          "Migration Tool",
+          "docs/SQX142_144_MCP_LIKE_READ_ONLY_API_BUILD.md",
+          "backend/sqx-edge-tool/core/sqx142_mcp_like_readonly.py",
+          "backend/sqx-edge-tool/api/server.py",
+          "backend/sqx-edge-tool/test_sqx142_mcp_like_readonly.py",
+          "sqx142-mcp-like-readonly-v1",
+          "403 local_operator_required",
+          "privacy.local_paths_returned=false",
+          "privacy.raw_project_names_returned=false",
+          "includeRawNames=true` bloqueado",
+          "sqx142_144_backport3_mcp_like_read_only_api_build_20260526_164500.json",
+          "test_sqx142_mcp_like_readonly.py` -> `5 passed",
+          "test_local_ai_agent.py` -> `24 passed",
+          "SQX142-144-BACKPORT3 MCP-Like Read-Only API Build",
+          "SQX142-144-BACKPORT4 Correlation Filter External Design",
+          "docs/SQX142_144_CORRELATION_FILTER_EXTERNAL_DESIGN.md",
+          "DatabankFilterByCorrelation",
+          "Filter by correlation",
+          "filterByCorrelation/filter",
+          "maxCorrelation=0.5",
+          "benchmark externo Portfolio Lab/CSV/equity series",
+          "Forward/Foward CSV natural",
+          "Portfolio Lab JSON",
+          "returnSeries",
+          "equitySeries",
+          "maxCorrelation=0.50",
+          "portfolio",
+          "similar",
+          "review",
+          "app/js/modules/edge-factory.js",
+          "portfolioReturnSeries",
+          "pearsonCorrelation",
+          "bestCorrelation",
+          "correlationThreshold=0.50",
+          "sqx142_144_backport4_correlation_filter_external_design_20260526_171500.json",
+          "CustomAnalysis=true",
+          "FitPortfolio=true",
+          "forced pass",
+          "SQX142-144-BACKPORT5 Correlation Filter External Build",
+          "docs/SQX142_144_CORRELATION_FILTER_EXTERNAL_BUILD.md",
+          "backend/sqx-edge-tool/core/sqx142_correlation_filter_external.py",
+          "POST /api/sqx142/correlation-filter/external",
+          "sqx142-correlation-filter-external-v1",
+          "external_readonly",
+          "available/similarity_only/not_comparable",
+          "privacy.local_paths_returned=false",
+          "privacy.raw_strategy_names_returned=false",
+          "privacy.private_fields_returned=false",
+          "privacy.tokens_returned=false",
+          "backend/sqx-edge-tool/test_sqx142_correlation_filter_external.py` -> `6 passed",
+          "sqx142_144_backport5_correlation_filter_external_build_20260526_181500.json",
+          "SQX142-144-BACKPORT6 Monte Carlo Candidate Benchmarks",
+          "docs/SQX142_144_MONTE_CARLO_CANDIDATE_BENCHMARKS.md",
+          "backend/sqx-edge-tool/core/sqx142_monte_carlo_candidate_benchmarks.py",
+          "POST /api/sqx142/monte-carlo/benchmarks",
+          "sqx142-monte-carlo-candidate-benchmarks-v1",
+          "MACHRBlockRandomization",
+          "SimulateParameterJitter",
+          "RandomlyDegradeExecution",
+          "simulations=64",
+          "blockSize=4",
+          "parameterJitterPct=0.15",
+          "executionDegradeBps=2.0",
+          "benchmark_pass/benchmark_review/benchmark_fail",
+          "medianReturnPct",
+          "p05ReturnPct",
+          "medianDrawdownPct",
+          "maxDrawdownPct",
+          "survivalRate",
+          "backend/sqx-edge-tool/test_sqx142_monte_carlo_candidate_benchmarks.py` -> `6 passed",
+          "sqx142_144_backport6_monte_carlo_candidate_benchmarks_20260526_183500.json",
+          "SQX142-144-BACKPORT7 MT5 Data Intake Probe",
+          "docs/SQX142_144_MT5_DATA_INTAKE_PROBE.md",
+          "backend/sqx-edge-tool/core/sqx142_mt5_data_intake_probe.py",
+          "POST /api/sqx142/mt5-data-intake/probe",
+          "sqx142-mt5-data-intake-probe-v1",
+          "CSV OHLC",
+          "data.db mode=ro",
+          "intake_probe_pass/intake_probe_review/intake_probe_fail",
+          "assetRef",
+          "barsHash",
+          "catalogMatches",
+          "bestOverlapDays",
+          "backend/sqx-edge-tool/test_sqx142_mt5_data_intake_probe.py` -> `6 passed",
+          "sqx142_144_backport7_mt5_data_intake_probe_20260526_190500.json",
+          "SQX142-144-BACKPORT8 Copy-Only Migration Checklist",
+          "docs/SQX142_144_COPY_ONLY_MIGRATION_CHECKLIST.md",
+          "backend/sqx-edge-tool/core/sqx142_copy_only_migration_checklist.py",
+          "POST /api/sqx142/migration/copy-only-checklist",
+          "sqx142-copy-only-migration-checklist-v1",
+          "checklist_only_no_copy",
+          "allow_copy/review_copy/block_copy",
+          "preflight_process_sweep",
+          "backup_destination",
+          "copy_only_after_operator_confirmation",
+          "hash_verify",
+          "manual_open_check",
+          "backend/sqx-edge-tool/test_sqx142_copy_only_migration_checklist.py` -> `5 passed",
+          "sqx142_144_backport8_copy_only_migration_checklist_20260526_193000.json",
+          "MCP-Like Read-Only API",
+          "Correlation Filter External",
+          "Monte Carlo Candidate Benchmarks",
+          "MT5 Data Intake Probe",
+          "Copy-Only Migration Checklist"
+        ],
+        "docs/SQX142_144_MCP_LIKE_READ_ONLY_API_DESIGN.md": [
+          "SQX142-144-BACKPORT2 MCP-Like Read-Only API Design",
+          "completed_design_no_runtime",
+          "MCP-like",
+          "No copia `ServletMCP`",
+          "local_operator_required",
+          "privacy.local_paths_returned=false",
+          "projectDirCount",
+          "BROKER=12",
+          "DATA=34",
+          "INSTRUMENTS=989",
+          "SESSIONS=1081",
+          "sqx142_144_backport2_mcp_like_read_only_api_design_20260526_160500.json",
+          "/api/sqx142/mcp-like/status",
+          "/api/sqx142/mcp-like/projects",
+          "/api/sqx142/mcp-like/data-catalog",
+          "/api/sqx142/mcp-like/databanks",
+          "/api/sqx142/mcp-like/strategies",
+          "/api/sqx142/mcp-like/results-plugin-readiness",
+          "sqx142-mcp-like-readonly-v1",
+          "data.db` con SQLite URI `mode=ro`",
+          "includeRawNames=true` queda bloqueado",
+          "POST",
+          "PUT",
+          "PATCH",
+          "DELETE",
+          "run_project",
+          "stop_project",
+          "taskmanager/activateTask",
+          "GET_SOURCE_CODE",
+          "GET_ORDERS",
+          "MT5 import",
+          "Migration Tool",
+          "SQX142-144-BACKPORT3 MCP-Like Read-Only API Build"
+        ],
+        "docs/SQX142_144_MCP_LIKE_READ_ONLY_API_BUILD.md": [
+          "SQX142-144-BACKPORT3 MCP-Like Read-Only API Build",
+          "completed_build_no_sqx_runtime",
+          "docs/SQX142_144_MCP_LIKE_READ_ONLY_API_DESIGN.md",
+          "No copia `ServletMCP`",
+          "no arranca SQX",
+          "no llama a la API local interna de StrategyQuant",
+          "no escribe en SQX 142",
+          "backend/sqx-edge-tool/core/sqx142_mcp_like_readonly.py",
+          "GET /api/sqx142/mcp-like/status",
+          "GET /api/sqx142/mcp-like/projects",
+          "GET /api/sqx142/mcp-like/data-catalog",
+          "GET /api/sqx142/mcp-like/databanks",
+          "GET /api/sqx142/mcp-like/strategies",
+          "GET /api/sqx142/mcp-like/results-plugin-readiness",
+          "backend/sqx-edge-tool/test_sqx142_mcp_like_readonly.py",
+          "sqx142-mcp-like-readonly-v1",
+          "403 local_operator_required",
+          "privacy.local_paths_returned=false",
+          "privacy.raw_project_names_returned=false",
+          "data.db` via SQLite URI `mode=ro`",
+          "includeRawNames=true",
+          "sourceCodeIncluded=false",
+          "ordersIncluded=false",
+          "sqx142_144_backport3_mcp_like_read_only_api_build_20260526_164500.json",
+          "5 passed",
+          "24 passed",
+          "SQX142-144-BACKPORT4 Correlation Filter External Design"
+        ],
+        "docs/SQX142_144_CORRELATION_FILTER_EXTERNAL_DESIGN.md": [
+          "SQX142-144-BACKPORT4 Correlation Filter External Design",
+          "completed_design_no_sqx_mutation",
+          "DatabankFilterByCorrelation",
+          "Filter by correlation",
+          "filterByCorrelation/filter",
+          "periodo por defecto `Day`",
+          "maxCorrelation=0.5",
+          "benchmark externo",
+          "CSV/equity series",
+          "Forward/Foward natural",
+          "Portfolio Lab JSON",
+          "returnSeries",
+          "equitySeries",
+          "Example Only",
+          "Results=passed` fabricado",
+          "sqx142-correlation-filter-external-design-v1",
+          "minComparablePoints=12",
+          "Pearson",
+          "maxCorrelation=0.50",
+          "warnCorrelation=0.35",
+          "similarityThreshold=0.78",
+          "portfolio",
+          "similar",
+          "review",
+          "sqx142-correlation-filter-external-v1",
+          "portfolioReturnSeries",
+          "pearsonCorrelation",
+          "bestCorrelation",
+          "correlationThreshold=0.50",
+          "Llamar `filterByCorrelation/filter`",
+          "Copiar `DatabankFilterByCorrelation` de 144",
+          "Borrar filas de databank SQX",
+          "CustomAnalysis=true",
+          "FitPortfolio=true",
+          "Relanzar retests",
+          "Forzar `Results=passed`",
+          "sqx142_144_backport4_correlation_filter_external_design_20260526_171500.json",
+          "SQX142-144-BACKPORT5 Correlation Filter External Build"
+        ],
+        "docs/SQX142_144_CORRELATION_FILTER_EXTERNAL_BUILD.md": [
+          "SQX142-144-BACKPORT5 Correlation Filter External Build",
+          "completed_build_no_sqx_runtime",
+          "backend/sqx-edge-tool/core/sqx142_correlation_filter_external.py",
+          "POST /api/sqx142/correlation-filter/external",
+          "backend/sqx-edge-tool/test_sqx142_correlation_filter_external.py",
+          "sqx142-correlation-filter-external-v1",
+          "external_readonly",
+          "CSV Forward/Foward natural",
+          "Portfolio Lab` JSON",
+          "returnSeries",
+          "equitySeries",
+          "sourcePhase` debe ser `phase28_capa2_forward",
+          "status` debe ser PASSED natural",
+          "Example Only",
+          "Sample Only",
+          "forced/manual/synthetic/fabricated pass",
+          "rutas locales, emails, tokens, secretos",
+          "maxCorrelation",
+          "warnCorrelation",
+          "minComparablePoints",
+          "similarityThreshold",
+          "maxWinners",
+          "Pearson",
+          "portfolio",
+          "similar",
+          "review",
+          "available",
+          "similarity_only",
+          "not_comparable",
+          "candidateId` opaco",
+          "nearestWinnerId",
+          "CSV export",
+          "filterByCorrelation/filter",
+          "DatabankFilterByCorrelation` copiado",
+          "SQX databank deletion",
+          "data.db` writes",
+          "user/projects` writes",
+          "SQX runtime",
+          "CustomAnalysis=true",
+          "FitPortfolio=true",
+          "Remote/tester access",
+          "6 passed",
+          "sqx142_144_backport5_correlation_filter_external_build_20260526_181500.json",
+          "SQX142-144-BACKPORT6 Monte Carlo Candidate Benchmarks"
+        ],
+        "docs/SQX142_144_MONTE_CARLO_CANDIDATE_BENCHMARKS.md": [
+          "SQX142-144-BACKPORT6 Monte Carlo Candidate Benchmarks",
+          "completed_build_no_sqx_runtime",
+          "MACHRBlockRandomization",
+          "SimulateParameterJitter",
+          "RandomlyDegradeExecution",
+          "backend/sqx-edge-tool/core/sqx142_monte_carlo_candidate_benchmarks.py",
+          "POST /api/sqx142/monte-carlo/benchmarks",
+          "backend/sqx-edge-tool/test_sqx142_monte_carlo_candidate_benchmarks.py",
+          "sqx142-monte-carlo-candidate-benchmarks-v1",
+          "external_readonly",
+          "portfolio_lab_phase29",
+          "returnSeries",
+          "equitySeries",
+          "minComparablePoints=12",
+          "simulations=64",
+          "blockSize=4",
+          "parameterJitterPct=0.15",
+          "executionDegradeBps=2.0",
+          "minSurvivalRate=0.70",
+          "maxMedianDrawdownPct=35.0",
+          "benchmark_pass",
+          "benchmark_review",
+          "benchmark_fail",
+          "medianReturnPct",
+          "p05ReturnPct",
+          "medianDrawdownPct",
+          "maxDrawdownPct",
+          "survivalRate",
+          "CSV export",
+          "privacy.local_paths_returned=false",
+          "privacy.raw_strategy_names_returned=false",
+          "privacy.private_fields_returned=false",
+          "privacy.tokens_returned=false",
+          "403 local_operator_required",
+          "sample/demo/example",
+          "forced/manual/synthetic/fabricated pass",
+          "data.db",
+          "user/projects",
+          "CustomAnalysis=true",
+          "FitPortfolio=true",
+          "test_sqx142_monte_carlo_candidate_benchmarks.py` -> `6 passed",
+          "sqx142_144_backport6_monte_carlo_candidate_benchmarks_20260526_183500.json",
+          "SQX142-144-BACKPORT7 MT5 Data Intake Probe"
+        ],
+        "docs/SQX142_144_MT5_DATA_INTAKE_PROBE.md": [
+          "SQX142-144-BACKPORT7 MT5 Data Intake Probe",
+          "completed_probe_no_import",
+          "backend/sqx-edge-tool/core/sqx142_mt5_data_intake_probe.py",
+          "POST /api/sqx142/mt5-data-intake/probe",
+          "backend/sqx-edge-tool/test_sqx142_mt5_data_intake_probe.py",
+          "sqx142-mt5-data-intake-probe-v1",
+          "external_readonly",
+          "mt5_csv_copy",
+          "CSV OHLC",
+          "sqxDataRows",
+          "dataDbRows",
+          "catalogRows",
+          "data.db` en SQLite URI `mode=ro`",
+          "minBars=20",
+          "maxBars=2000",
+          "minOverlapDays=1",
+          "intake_probe_pass",
+          "intake_probe_review",
+          "intake_probe_fail",
+          "validBars",
+          "invalidRows",
+          "duplicateTimes",
+          "timeGaps",
+          "catalogMatches",
+          "bestOverlapDays",
+          "assetRef",
+          "seriesId",
+          "symbolRef",
+          "barsHash",
+          "CSV export",
+          "privacy.local_paths_returned=false",
+          "privacy.raw_mt5_symbol_returned=false",
+          "privacy.raw_sqx_symbol_returned=false",
+          "privacy.private_fields_returned=false",
+          "privacy.tokens_returned=false",
+          "403 local_operator_required",
+          "mt5_terminal_started=false",
+          "mt5_ipc_called=false",
+          "sqx_runtime_started=false",
+          "sqx_data_imported=false",
+          "generation_enabled=false",
+          "test_sqx142_mt5_data_intake_probe.py` -> `6 passed",
+          "sqx142_144_backport7_mt5_data_intake_probe_20260526_190500.json",
+          "SQX142-144-BACKPORT8 Copy-Only Migration Checklist"
+        ],
+        "docs/SQX142_144_COPY_ONLY_MIGRATION_CHECKLIST.md": [
+          "SQX142-144-BACKPORT8 Copy-Only Migration Checklist",
+          "completed_checklist_no_copy",
+          "backend/sqx-edge-tool/core/sqx142_copy_only_migration_checklist.py",
+          "POST /api/sqx142/migration/copy-only-checklist",
+          "backend/sqx-edge-tool/test_sqx142_copy_only_migration_checklist.py",
+          "sqx142-copy-only-migration-checklist-v1",
+          "checklist_only_no_copy",
+          "operator_copy_plan",
+          "allow_copy",
+          "review_copy",
+          "block_copy",
+          "preflight_process_sweep",
+          "backup_destination",
+          "copy_only_after_operator_confirmation",
+          "hash_verify",
+          "manual_open_check",
+          "privacy.local_paths_returned=false",
+          "privacy.raw_item_names_returned=false",
+          "privacy.private_fields_returned=false",
+          "privacy.tokens_returned=false",
+          "403 local_operator_required",
+          "copy_executed=false",
+          "migration_tool_used=false",
+          "license_material_allowed=false",
+          "activation_material_allowed=false",
+          "engine_binary_allowed=false",
+          "data_db_write_allowed=false",
+          "user_projects_write_allowed=false",
+          "sqx_runtime_started=false",
+          "remote_tester_access=false",
+          "test_sqx142_copy_only_migration_checklist.py` -> `5 passed",
+          "sqx142_144_backport8_copy_only_migration_checklist_20260526_193000.json"
+        ],
+        "CHANGELOG.md": [
+          "SQX142-144-BACKPORT1 Results Plugin Readiness Panel",
+          "docs/SQX142_144_BACKPORT_ROADMAP.md",
+          "sqx142_144_backport1_results_plugin_readiness_panel_20260526_153500.json",
+          "Source Code Translator",
+          "hashes/render verified",
+          "SQX142-144-BACKPORT2 MCP-Like Read-Only API Design",
+          "docs/SQX142_144_MCP_LIKE_READ_ONLY_API_DESIGN.md",
+          "sqx142_144_backport2_mcp_like_read_only_api_design_20260526_160500.json",
+          "/api/sqx142/mcp-like/*",
+          "local-operator-only",
+          "path-safe",
+          "read-only",
+          "data.db mode=ro",
+          "POST",
+          "PUT",
+          "PATCH",
+          "DELETE",
+          "run_project",
+          "stop_project",
+          "taskmanager/activateTask",
+          "license/bypass",
+          "engine/binarios",
+          "144 internals",
+          "Migration Tool",
+          "SQX142-144-BACKPORT3 MCP-Like Read-Only API Build",
+          "docs/SQX142_144_MCP_LIKE_READ_ONLY_API_BUILD.md",
+          "sqx142_144_backport3_mcp_like_read_only_api_build_20260526_164500.json",
+          "backend/sqx-edge-tool/core/sqx142_mcp_like_readonly.py",
+          "backend/sqx-edge-tool/test_sqx142_mcp_like_readonly.py",
+          "sqx142-mcp-like-readonly-v1",
+          "opaque IDs",
+          "results-plugin-readiness",
+          "5 passed",
+          "24 passed",
+          "SQX142-144-BACKPORT4 Correlation Filter External Design",
+          "docs/SQX142_144_CORRELATION_FILTER_EXTERNAL_DESIGN.md",
+          "sqx142_144_backport4_correlation_filter_external_design_20260526_171500.json",
+          "DatabankFilterByCorrelation",
+          "Portfolio Lab/CSV/equity-series",
+          "maxCorrelation=0.50",
+          "Pearson",
+          "portfolio/similar/review",
+          "filterByCorrelation/filter",
+          "SQX databank deletion",
+          "CustomAnalysis=true",
+          "FitPortfolio=true",
+          "sample-as-real",
+          "profit guarantees",
+          "risk-zero claims",
+          "SQX142-144-BACKPORT5 Correlation Filter External Build",
+          "docs/SQX142_144_CORRELATION_FILTER_EXTERNAL_BUILD.md",
+          "sqx142_144_backport5_correlation_filter_external_build_20260526_181500.json",
+          "backend/sqx-edge-tool/core/sqx142_correlation_filter_external.py",
+          "POST /api/sqx142/correlation-filter/external",
+          "backend/sqx-edge-tool/test_sqx142_correlation_filter_external.py",
+          "sqx142-correlation-filter-external-v1",
+          "external_readonly",
+          "opaque candidate IDs",
+          "available/similarity_only/not_comparable",
+          "CSV export",
+          "403 local_operator_required",
+          "6 passed",
+          "SQX142-144-BACKPORT6 Monte Carlo Candidate Benchmarks",
+          "docs/SQX142_144_MONTE_CARLO_CANDIDATE_BENCHMARKS.md",
+          "sqx142_144_backport6_monte_carlo_candidate_benchmarks_20260526_183500.json",
+          "backend/sqx-edge-tool/core/sqx142_monte_carlo_candidate_benchmarks.py",
+          "POST /api/sqx142/monte-carlo/benchmarks",
+          "backend/sqx-edge-tool/test_sqx142_monte_carlo_candidate_benchmarks.py",
+          "sqx142-monte-carlo-candidate-benchmarks-v1",
+          "MACHRBlockRandomization",
+          "SimulateParameterJitter",
+          "RandomlyDegradeExecution",
+          "benchmark_pass/benchmark_review/benchmark_fail",
+          "MC runtime SQX",
+          "SQX internal API",
+          "403 local_operator_required",
+          "6 passed",
+          "SQX142-144-BACKPORT7 MT5 Data Intake Probe",
+          "docs/SQX142_144_MT5_DATA_INTAKE_PROBE.md",
+          "sqx142_144_backport7_mt5_data_intake_probe_20260526_190500.json",
+          "backend/sqx-edge-tool/core/sqx142_mt5_data_intake_probe.py",
+          "POST /api/sqx142/mt5-data-intake/probe",
+          "backend/sqx-edge-tool/test_sqx142_mt5_data_intake_probe.py",
+          "sqx142-mt5-data-intake-probe-v1",
+          "MT5 terminal start",
+          "MT5 IPC",
+          "direct SQX import",
+          "Project Generator feed",
+          "Template Maker feed",
+          "Portfolio Master feed",
+          "intake_probe_pass/intake_probe_review/intake_probe_fail",
+          "403 local_operator_required",
+          "6 passed",
+          "SQX142-144-BACKPORT8 Copy-Only Migration Checklist",
+          "docs/SQX142_144_COPY_ONLY_MIGRATION_CHECKLIST.md",
+          "sqx142_144_backport8_copy_only_migration_checklist_20260526_193000.json",
+          "backend/sqx-edge-tool/core/sqx142_copy_only_migration_checklist.py",
+          "POST /api/sqx142/migration/copy-only-checklist",
+          "backend/sqx-edge-tool/test_sqx142_copy_only_migration_checklist.py",
+          "sqx142-copy-only-migration-checklist-v1",
+          "checklist_only_no_copy",
+          "allow_copy/review_copy/block_copy",
+          "copy execution",
+          "license/activation material",
+          "engine binaries",
+          "403 local_operator_required",
+          "5 passed"
+        ]
+      },
+      "forbidden": {
+        "docs/SQX142_144_BACKPORT_ROADMAP.md": [
+          "copiar internals de 144",
+          "portar licencia",
+          "license patch",
+          "Results=passed",
+          "risk zero permitido",
+          "SQX 144 sustituye a SQX 142",
+          "run_project permitido",
+          "GET_SOURCE_CODE permitido",
+          "ServletMCP copiado",
+          "DatabankFilterByCorrelation copiado",
+          "MACHRBlockRandomization copiado",
+          "SimulateParameterJitter copiado",
+          "RandomlyDegradeExecution copiado",
+          "MT5 import directo permitido",
+          "Migration Tool permitido",
+          "copy execution permitido",
+          "filterByCorrelation/filter ejecutado",
+          "borrar databank activo permitido"
+        ],
+        "docs/SQX142_144_MCP_LIKE_READ_ONLY_API_DESIGN.md": [
+          "run_project permitido",
+          "stop_project permitido",
+          "GET_SOURCE_CODE permitido",
+          "GET_ORDERS permitido",
+          "includeRawNames=true permitido",
+          "ServletMCP copiado",
+          "license patch",
+          "risk zero",
+          "Results=passed"
+        ],
+        "docs/SQX142_144_MCP_LIKE_READ_ONLY_API_BUILD.md": [
+          "run_project permitido",
+          "stop_project permitido",
+          "GET_SOURCE_CODE permitido",
+          "GET_ORDERS permitido",
+          "includeRawNames=true permitido",
+          "ServletMCP copiado",
+          "license patch",
+          "risk zero",
+          "Results=passed"
+        ],
+        "docs/SQX142_144_CORRELATION_FILTER_EXTERNAL_DESIGN.md": [
+          "DatabankFilterByCorrelation copiado",
+          "filterByCorrelation/filter ejecutado",
+          "borrar databank activo permitido",
+          "CustomAnalysis=true permitido",
+          "FitPortfolio=true permitido",
+          "profit guarantee",
+          "risk zero",
+          "SQX runtime requerido"
+        ],
+        "docs/SQX142_144_CORRELATION_FILTER_EXTERNAL_BUILD.md": [
+          "DatabankFilterByCorrelation copiado permitido",
+          "filterByCorrelation/filter ejecutado",
+          "borrar databank activo permitido",
+          "SQX runtime requerido",
+          "CustomAnalysis=true permitido",
+          "FitPortfolio=true permitido",
+          "remote/tester access permitido"
+        ],
+        "docs/SQX142_144_MONTE_CARLO_CANDIDATE_BENCHMARKS.md": [
+          "MACHRBlockRandomization copiado",
+          "SimulateParameterJitter copiado",
+          "RandomlyDegradeExecution copiado",
+          "SQX runtime requerido",
+          "run_project permitido",
+          "data.db write permitido",
+          "user/projects write permitido",
+          "CustomAnalysis=true permitido",
+          "FitPortfolio=true permitido",
+          "forced pass permitido"
+        ],
+        "docs/SQX142_144_MT5_DATA_INTAKE_PROBE.md": [
+          "MT5 import directo permitido",
+          "MT5 IPC permitido",
+          "terminal MT5 start permitido",
+          "data.db write permitido",
+          "user/projects write permitido",
+          "Project Generator feed permitido",
+          "Template Maker feed permitido",
+          "Portfolio Master feed permitido",
+          "run_project permitido",
+          "Migration Tool permitido",
+          "SQX runtime requerido",
+          "forced pass permitido"
+        ],
+        "docs/SQX142_144_COPY_ONLY_MIGRATION_CHECKLIST.md": [
+          "Migration Tool permitido",
+          "copy execution permitido",
+          "licencia permitida",
+          "activacion permitida",
+          "crack permitido",
+          "bypass permitido",
+          "token permitido",
+          "engine permitido",
+          "binarios permitidos",
+          "data.db write permitido",
+          "user/projects write permitido",
+          "run_project permitido",
+          "SQX runtime requerido",
+          "CustomAnalysis=true permitido",
+          "FitPortfolio=true permitido",
+          "forced pass permitido"
+        ],
+        "README.md": [
+          "SQX 144 sustituye SQX 142"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "bulk copy Build 144 internals",
+          "SQX 144 is the active engine",
+          "remote testers may access /api/sqx142/mcp-like"
+        ]
+      }
+    },
+    {
+      "id": "sqx142_144_backport_closeout_gate",
+      "description": "SQX142/144 backport docs must agree that BACKPORT9 closes the local-only handoff after BACKPORT1..8.",
+      "required": {
+        "README.md": [
+          "SQX142-144-BACKPORT9 esta aplicado",
+          "docs/SQX142_144_BACKPORT_CLOSEOUT_OPERATOR_HANDOFF.md",
+          "completed_closeout_handoff",
+          "SQX142/144 backport track closed",
+          "UI-INTEGRATION1 Backport Operator Panel",
+          "phase30_capa2_portfolio_master_inputs_pending"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Current phase completed: SQX142-144-BACKPORT9 - Closeout & Operator Handoff",
+          "docs/SQX142_144_BACKPORT_CLOSEOUT_OPERATOR_HANDOFF.md",
+          "completed_closeout_handoff",
+          "SQX142/144 backport track closed",
+          "sqx142_144_backport9_closeout_operator_handoff_20260526_200000.json",
+          "UI-INTEGRATION1 Backport Operator Panel"
+        ],
+        "docs/SQX142_144_BACKPORT_ROADMAP.md": [
+          "SQX142-144-BACKPORT9 Closeout & Operator Handoff",
+          "docs/SQX142_144_BACKPORT_CLOSEOUT_OPERATOR_HANDOFF.md",
+          "completed_closeout_handoff",
+          "Track closeout",
+          "sqx142_144_backport9_closeout_operator_handoff_20260526_200000.json",
+          "SQX142/144 backport track closed",
+          "UI-INTEGRATION1 Backport Operator Panel"
+        ],
+        "docs/SQX142_144_BACKPORT_CLOSEOUT_OPERATOR_HANDOFF.md": [
+          "SQX142-144-BACKPORT9 Closeout & Operator Handoff",
+          "completed_closeout_handoff",
+          "SQX142/144 backport track closed",
+          "SQX Edge Readiness Panel",
+          "/api/sqx142/mcp-like/*",
+          "POST /api/sqx142/correlation-filter/external",
+          "POST /api/sqx142/monte-carlo/benchmarks",
+          "POST /api/sqx142/mt5-data-intake/probe",
+          "POST /api/sqx142/migration/copy-only-checklist",
+          "403 local_operator_required",
+          "sqx142_144_backport9_closeout_operator_handoff_20260526_200000.json",
+          "UI-INTEGRATION1 Backport Operator Panel",
+          "phase30_capa2_portfolio_master_inputs_pending"
+        ],
+        "CHANGELOG.md": [
+          "SQX142-144-BACKPORT9 Closeout & Operator Handoff",
+          "docs/SQX142_144_BACKPORT_CLOSEOUT_OPERATOR_HANDOFF.md",
+          "sqx142_144_backport9_closeout_operator_handoff_20260526_200000.json",
+          "completed_closeout_handoff",
+          "UI-INTEGRATION1 Backport Operator Panel",
+          "phase30_capa2_portfolio_master_inputs_pending"
+        ]
+      },
+      "forbidden": {
+        "docs/SQX142_144_BACKPORT_CLOSEOUT_OPERATOR_HANDOFF.md": [
+          "SQX 144 sustituye SQX 142",
+          "license patch",
+          "Migration Tool permitido",
+          "run_project permitido",
+          "GET_SOURCE_CODE permitido",
+          "GET_ORDERS permitido",
+          "data.db write permitido",
+          "user/projects write permitido",
+          "CustomAnalysis=true permitido",
+          "FitPortfolio=true permitido",
+          "forced pass permitido",
+          "profit guarantee permitido",
+          "risk zero permitido"
+        ]
+      }
+    },
+    {
+      "id": "ui_integration1_backport_operator_panel_gate",
+      "description": "UI-INTEGRATION1 must expose the closed SQX142/144 backport contracts in Edge Factory without runtime or write permissions.",
+      "required": {
+        "README.md": [
+          "UI-INTEGRATION1 Backport Operator Panel esta aplicado",
+          "docs/UI_INTEGRATION1_BACKPORT_OPERATOR_PANEL.md",
+          "ui-integration1-backport-operator-panel-v1",
+          "/api/sqx142/mcp-like/status",
+          "POST /api/sqx142/correlation-filter/external",
+          "POST /api/sqx142/monte-carlo/benchmarks",
+          "POST /api/sqx142/mt5-data-intake/probe",
+          "POST /api/sqx142/migration/copy-only-checklist",
+          "sin SQX runtime",
+          "sin `data.db` writes",
+          "sin `user/projects` writes"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Current phase completed: UI-INTEGRATION1 - Backport Operator Panel",
+          "docs/UI_INTEGRATION1_BACKPORT_OPERATOR_PANEL.md",
+          "ui-integration1-backport-operator-panel-v1",
+          "app/js/modules/edge-factory.js",
+          "app/js/modules/edge-factory-ui.js",
+          "tests/js/contracts/edge_factory_contracts.mjs",
+          "ui_integration1_backport_operator_panel_20260526_203000.json",
+          "edge factory contracts ok"
+        ],
+        "docs/UI_INTEGRATION1_BACKPORT_OPERATOR_PANEL.md": [
+          "UI-INTEGRATION1 Backport Operator Panel",
+          "completed_ui_panel_local_only",
+          "ui-integration1-backport-operator-panel-v1",
+          "app/SQX_Dashboard_v6.html",
+          "app/css/dashboard.css",
+          "app/js/modules/edge-factory.js",
+          "app/js/modules/edge-factory-ui.js",
+          "GET /api/sqx142/mcp-like/status",
+          "GET /api/sqx142/mcp-like/results-plugin-readiness",
+          "POST /api/sqx142/correlation-filter/external",
+          "POST /api/sqx142/monte-carlo/benchmarks",
+          "POST /api/sqx142/mt5-data-intake/probe",
+          "POST /api/sqx142/migration/copy-only-checklist",
+          "SQX142/144 backport track closed",
+          "UI-INTEGRATION2 Backport Panel Browser Smoke"
+        ],
+        "app/SQX_Dashboard_v6.html": [
+          "id=\"edge-backport-operator-panel\"",
+          "UI-INTEGRATION1",
+          "ui-integration1-backport-operator-panel-v1",
+          "id=\"edge-backport-operation\"",
+          "value=\"correlation-filter\"",
+          "value=\"monte-carlo-benchmarks\"",
+          "value=\"mt5-data-probe\"",
+          "value=\"migration-checklist\"",
+          "id=\"edge-backport-run\"",
+          "id=\"edge-backport-results\""
+        ],
+        "app/js/modules/edge-factory.js": [
+          "BACKPORT_OPERATOR_PANEL_VERSION",
+          "ui-integration1-backport-operator-panel-v1",
+          "backportOperatorOperations",
+          "buildBackportOperatorPayload",
+          "summarizeBackportOperatorResult",
+          "recordBackportOperatorResult",
+          "/sqx142/correlation-filter/external",
+          "/sqx142/monte-carlo/benchmarks",
+          "/sqx142/mt5-data-intake/probe",
+          "/sqx142/migration/copy-only-checklist"
+        ],
+        "app/js/modules/edge-factory-ui.js": [
+          "bindBackportOperatorPanel",
+          "runBackportOperatorPanel",
+          "renderBackportResult",
+          "SQX_CONFIG.apiBase",
+          "edge-backport-results",
+          "edge-backport-export-json",
+          "edge-backport-export-csv"
+        ],
+        "tests/js/contracts/edge_factory_contracts.mjs": [
+          "backportOperatorPanelVersion",
+          "ui-integration1-backport-operator-panel-v1",
+          "buildBackportOperatorPayload",
+          "recordBackportOperatorResult",
+          "id=\"edge-backport-operator-panel\""
+        ],
+        "CHANGELOG.md": [
+          "UI-INTEGRATION1 Backport Operator Panel",
+          "docs/UI_INTEGRATION1_BACKPORT_OPERATOR_PANEL.md",
+          "ui_integration1_backport_operator_panel_20260526_203000.json",
+          "ui-integration1-backport-operator-panel-v1",
+          "edge factory contracts ok"
+        ]
+      },
+      "forbidden": {
+        "docs/UI_INTEGRATION1_BACKPORT_OPERATOR_PANEL.md": [
+          "SQX runtime requerido",
+          "data.db write permitido",
+          "user/projects write permitido",
+          "run_project permitido",
+          "Migration Tool permitido",
+          "MT5 import directo permitido",
+          "remote/tester access permitido",
+          "forced pass permitido"
+        ],
+        "app/js/modules/edge-factory.js": [
+          "run_project permitido",
+          "Migration Tool permitido",
+          "data.db write permitido",
+          "user/projects write permitido"
+        ],
+        "app/js/modules/edge-factory-ui.js": [
+          "run_project permitido",
+          "Migration Tool permitido",
+          "data.db write permitido",
+          "user/projects write permitido"
+        ]
+      }
+    },
+    {
+      "id": "sqx142_internal_safe1_extension_audit_gate",
+      "description": "SQX142-INTERNAL-SAFE1 must define the supported internal extension boundary before any SQX142 internal patch build.",
+      "required": {
+        "README.md": [
+          "SQX142-INTERNAL-SAFE1 Supported Internal Extension Audit esta aplicado",
+          "docs/SQX142_INTERNAL_SAFE_EXTENSION_AUDIT.md",
+          "completed_readonly_extension_audit",
+          "user/extend/ResultsPlugins",
+          "SQX Edge Readiness Panel",
+          "Source Code Translator",
+          "SQX142-INTERNAL-SAFE2 Results Plugin Internal Patch Build",
+          "sin engine/binarios/jars",
+          "sin licencia/activacion/bypass"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Current phase completed: SQX142-INTERNAL-SAFE1 - Supported Internal Extension Audit",
+          "docs/SQX142_INTERNAL_SAFE_EXTENSION_AUDIT.md",
+          "completed_readonly_extension_audit",
+          "user/extend/ResultsPlugins",
+          "SQX Edge Readiness Panel",
+          "Source Code Translator",
+          "sqx142_internal_safe1_supported_internal_extension_audit_20260526_210000.json",
+          "SQX142-INTERNAL-SAFE2 Results Plugin Internal Patch Build"
+        ],
+        "docs/SQX142_INTERNAL_SAFE_EXTENSION_AUDIT.md": [
+          "SQX142-INTERNAL-SAFE1 Supported Internal Extension Audit",
+          "completed_readonly_extension_audit",
+          "user/extend/ResultsPlugins",
+          "SQX Edge Readiness Panel",
+          "Source Code Translator",
+          ".vw",
+          "user/settings",
+          "user/projects",
+          "custom_indicators",
+          "internal",
+          "data.db",
+          "SQX142-INTERNAL-SAFE2 Results Plugin Internal Patch Build"
+        ],
+        "CHANGELOG.md": [
+          "SQX142-INTERNAL-SAFE1 Supported Internal Extension Audit",
+          "docs/SQX142_INTERNAL_SAFE_EXTENSION_AUDIT.md",
+          "sqx142_internal_safe1_supported_internal_extension_audit_20260526_210000.json",
+          "completed_readonly_extension_audit",
+          "user/extend/ResultsPlugins",
+          "SQX142-INTERNAL-SAFE2 Results Plugin Internal Patch Build"
+        ]
+      },
+      "forbidden": {
+        "README.md": [
+          "engine patch permitido",
+          "jar patch permitido",
+          "license patch permitido",
+          "bypass permitido",
+          "crack permitido",
+          "data.db write permitido",
+          "user/projects write permitido",
+          "run_project permitido",
+          "Migration Tool permitido",
+          "copiar internals 144 permitido"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "engine patch permitido",
+          "jar patch permitido",
+          "license patch permitido",
+          "bypass permitido",
+          "crack permitido",
+          "data.db write permitido",
+          "user/projects write permitido",
+          "run_project permitido",
+          "Migration Tool permitido",
+          "copiar internals 144 permitido"
+        ],
+        "docs/SQX142_INTERNAL_SAFE_EXTENSION_AUDIT.md": [
+          "engine patch permitido",
+          "jar patch permitido",
+          "license patch permitido",
+          "bypass permitido",
+          "crack permitido",
+          "data.db write permitido",
+          "user/projects write permitido",
+          "run_project permitido",
+          "Migration Tool permitido",
+          "copiar internals 144 permitido"
+        ],
+        "CHANGELOG.md": [
+          "engine patch permitido",
+          "jar patch permitido",
+          "license patch permitido",
+          "bypass permitido",
+          "crack permitido",
+          "data.db write permitido",
+          "user/projects write permitido",
+          "run_project permitido",
+          "Migration Tool permitido",
+          "copiar internals 144 permitido"
+        ]
+      }
+    },
+    {
+      "id": "sqx142_internal_safe2_results_plugin_patch_gate",
+      "description": "SQX142-INTERNAL-SAFE2 must install only the SQX Edge-owned Results Plugin patch with backup, hashes and rollback.",
+      "required": {
+        "README.md": [
+          "SQX142-INTERNAL-SAFE2 Results Plugin Internal Patch Build esta aplicado",
+          "docs/SQX142_INTERNAL_SAFE_RESULTS_PLUGIN_PATCH.md",
+          "installed_with_backup_hash_rollback_ready",
+          "sqx142-internal-safe2-readiness-panel-v1",
+          "integrations/sqx142/results_plugins/SQX Edge Readiness Panel",
+          "tools/sqx142_internal_safe2_results_plugin_patch.ps1",
+          "sqx142_internal_safe2_readiness_panel_20260526_192515",
+          "SQX142-INTERNAL-SAFE3 Results Plugin Manual Visual Smoke"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Current phase completed: SQX142-INTERNAL-SAFE2 - Results Plugin Internal Patch Build",
+          "docs/SQX142_INTERNAL_SAFE_RESULTS_PLUGIN_PATCH.md",
+          "installed_with_backup_hash_rollback_ready",
+          "sqx142-internal-safe2-readiness-panel-v1",
+          "tools/sqx142_internal_safe2_results_plugin_patch.ps1",
+          "sqx142_internal_safe2_results_plugin_install_20260526_213000.json",
+          "sqx142_internal_safe2_results_plugin_contracts.mjs",
+          "SQX142-INTERNAL-SAFE3 Results Plugin Manual Visual Smoke"
+        ],
+        "docs/SQX142_INTERNAL_SAFE_RESULTS_PLUGIN_PATCH.md": [
+          "SQX142-INTERNAL-SAFE2 Results Plugin Internal Patch Build",
+          "installed_with_backup_hash_rollback_ready",
+          "SQX Edge Readiness Panel",
+          "sqx142-internal-safe2-readiness-panel-v1",
+          "integrations/sqx142/results_plugins/SQX Edge Readiness Panel",
+          "tools/sqx142_internal_safe2_results_plugin_patch.ps1",
+          "sqx142_internal_safe2_results_plugin_install_20260526_213000.json",
+          "sqx142_internal_safe2_readiness_panel_20260526_192515",
+          "DACE1D0A26A0B013C60A19668C25158FAE0D28D554325821B856073994BFB3F0",
+          "365045FA198DF8B246DE766652EACE54142772F05E522ED0877A7ADCF19A98DB",
+          "SQX142-INTERNAL-SAFE3 Results Plugin Manual Visual Smoke"
+        ],
+        "integrations/sqx142/results_plugins/SQX Edge Readiness Panel/index.html": [
+          "sqx142-internal-safe2-readiness-panel-v1",
+          "SQX_EDGE_READINESS_PANEL_VERSION",
+          "window.__SQX_EDGE_PANEL__",
+          "GET_STATS",
+          "GET_LAST_SETTINGS_XML",
+          "GET_SYMBOL_INFO",
+          "user/extend/ResultsPlugins"
+        ],
+        "tools/sqx142_internal_safe2_results_plugin_patch.ps1": [
+          "SQX142-INTERNAL-SAFE2",
+          "Assert-NoSqxProcess",
+          "New-PluginBackup",
+          "Install-Plugin",
+          "Rollback-Plugin",
+          "sqx142_internal_safe2_results_plugin_install_20260526_213000.json",
+          "filesWrittenToSqx"
+        ],
+        "tests/js/contracts/sqx142_internal_safe2_results_plugin_contracts.mjs": [
+          "sqx142 internal safe2 results plugin contracts ok",
+          "sqx142-internal-safe2-readiness-panel-v1",
+          "SQX_EDGE_READINESS_PANEL_VERSION",
+          "sqx142_internal_safe2_results_plugin_install_20260526_213000.json"
+        ],
+        "CHANGELOG.md": [
+          "SQX142-INTERNAL-SAFE2 Results Plugin Internal Patch Build",
+          "docs/SQX142_INTERNAL_SAFE_RESULTS_PLUGIN_PATCH.md",
+          "sqx142_internal_safe2_results_plugin_install_20260526_213000.json",
+          "installed_with_backup_hash_rollback_ready",
+          "sqx142-internal-safe2-readiness-panel-v1",
+          "sqx142 internal safe2 results plugin contracts ok"
+        ]
+      },
+      "forbidden": {
+        "README.md": [
+          "engine patch permitido",
+          "jar patch permitido",
+          "license patch permitido",
+          "data.db write permitido",
+          "user/projects write permitido",
+          "run_project permitido",
+          "Migration Tool permitido",
+          "MT5 import directo permitido"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "engine patch permitido",
+          "jar patch permitido",
+          "license patch permitido",
+          "data.db write permitido",
+          "user/projects write permitido",
+          "run_project permitido",
+          "Migration Tool permitido",
+          "MT5 import directo permitido"
+        ],
+        "docs/SQX142_INTERNAL_SAFE_RESULTS_PLUGIN_PATCH.md": [
+          "engine patch permitido",
+          "jar patch permitido",
+          "license patch permitido",
+          "data.db write permitido",
+          "user/projects write permitido",
+          "run_project permitido",
+          "Migration Tool permitido",
+          "MT5 import directo permitido"
+        ],
+        "tools/sqx142_internal_safe2_results_plugin_patch.ps1": [
+          "Remove-Item -LiteralPath $SQXRoot",
+          "data.db write permitido",
+          "user/projects write permitido",
+          "run_project permitido",
+          "Migration Tool permitido"
+        ],
+        "integrations/sqx142/results_plugins/SQX Edge Readiness Panel/index.html": [
+          "run_project permitido",
+          "Migration Tool permitido",
+          "data.db write permitido",
+          "user/projects write permitido"
+        ]
+      }
+    },
+    {
+      "id": "sqx142_internal_safe3_visual_smoke_gate",
+      "description": "SQX142-INTERNAL-SAFE3 must record the manual visual smoke result and blocked plugin listing diagnosis.",
+      "required": {
+        "README.md": [
+          "SQX142-INTERNAL-SAFE3 Results Plugin Manual Visual Smoke queda bloqueado",
+          "docs/SQX142_INTERNAL_SAFE_RESULTS_PLUGIN_VISUAL_SMOKE.md",
+          "blocked_plugin_not_listed_in_results",
+          "No se ve: no aparece en Results",
+          "SQX142-INTERNAL-SAFE4 Static UI Registration Spike"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Current phase blocked: SQX142-INTERNAL-SAFE3 - Results Plugin Manual Visual Smoke",
+          "docs/SQX142_INTERNAL_SAFE_RESULTS_PLUGIN_VISUAL_SMOKE.md",
+          "blocked_plugin_not_listed_in_results",
+          "sqx142_internal_safe3_results_plugin_manual_visual_smoke_20260526_214000.json",
+          "No se ve: no aparece en Results",
+          "SQX142-INTERNAL-SAFE4 Static UI Registration Spike"
+        ],
+        "docs/SQX142_INTERNAL_SAFE_RESULTS_PLUGIN_VISUAL_SMOKE.md": [
+          "SQX142-INTERNAL-SAFE3 Results Plugin Manual Visual Smoke",
+          "blocked_plugin_not_listed_in_results",
+          "No se ve: no aparece en Results",
+          "sqx142_internal_safe3_results_plugin_manual_visual_smoke_20260526_214000.json",
+          "user/extend/ResultsPlugins",
+          "SQX Edge Readiness Panel",
+          "Source Code Translator",
+          "SQX142-INTERNAL-SAFE4 Static UI Registration Spike"
+        ],
+        "CHANGELOG.md": [
+          "SQX142-INTERNAL-SAFE3 Results Plugin Manual Visual Smoke",
+          "docs/SQX142_INTERNAL_SAFE_RESULTS_PLUGIN_VISUAL_SMOKE.md",
+          "sqx142_internal_safe3_results_plugin_manual_visual_smoke_20260526_214000.json",
+          "No se ve: no aparece en Results",
+          "SQX142-INTERNAL-SAFE4 Static UI Registration Spike"
+        ]
+      },
+      "forbidden": {
+        "README.md": [
+          "SAFE3 visual smoke passed",
+          "pluginVisibleInResults=true",
+          "data.db write permitido",
+          "user/projects write permitido",
+          "run_project permitido",
+          "Migration Tool permitido"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "SAFE3 visual smoke passed",
+          "pluginVisibleInResults=true",
+          "data.db write permitido",
+          "user/projects write permitido",
+          "run_project permitido",
+          "Migration Tool permitido"
+        ],
+        "docs/SQX142_INTERNAL_SAFE_RESULTS_PLUGIN_VISUAL_SMOKE.md": [
+          "SAFE3 visual smoke passed",
+          "pluginVisibleInResults=true",
+          "data.db write permitido",
+          "user/projects write permitido",
+          "run_project permitido",
+          "Migration Tool permitido"
+        ],
+        "CHANGELOG.md": [
+          "SAFE3 visual smoke passed",
+          "pluginVisibleInResults=true",
+          "data.db write permitido",
+          "user/projects write permitido",
+          "run_project permitido",
+          "Migration Tool permitido"
+        ]
+      }
+    },
+    {
+      "id": "sqx142_internal_safe4_static_ui_registration_gate",
+      "description": "SQX142-INTERNAL-SAFE4 must record the static UI registration spike and the runtime rewrite blocker.",
+      "required": {
+        "README.md": [
+          "SQX142-INTERNAL-SAFE4 Static UI Registration Spike queda bloqueado",
+          "docs/SQX142_INTERNAL_SAFE_STATIC_UI_REGISTRATION_SPIKE.md",
+          "blocked_static_registration_rewritten_on_startup",
+          "sqx142-internal-safe4-static-ui-registration-v1",
+          "SQX 142 reescribe `templates.html` al arrancar",
+          "sqx142_internal_safe4_static_ui_registration_20260526_195520",
+          "no avanzar a jars/plugins internos"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Current phase blocked: SQX142-INTERNAL-SAFE4 - Static UI Registration Spike",
+          "docs/SQX142_INTERNAL_SAFE_STATIC_UI_REGISTRATION_SPIKE.md",
+          "blocked_static_registration_rewritten_on_startup",
+          "sqx142-internal-safe4-static-ui-registration-v1",
+          "tools/sqx142_internal_safe4_static_ui_registration.ps1",
+          "sqx142_internal_safe4_static_ui_registration_20260526_195520.json",
+          "sqx142_internal_safe4_runtime_rewrite_20260526_200100.json",
+          "sqx142_internal_safe4_static_ui_registration_contracts.mjs",
+          "No active UI patch remains"
+        ],
+        "docs/SQX142_INTERNAL_SAFE_STATIC_UI_REGISTRATION_SPIKE.md": [
+          "SQX142-INTERNAL-SAFE4 Static UI Registration Spike",
+          "blocked_static_registration_rewritten_on_startup",
+          "SQX142_ROOT/internal/web/common/templates.html",
+          "sqx142-internal-safe4-static-ui-registration-v1",
+          "sqx142_internal_safe4_static_ui_registration_20260526_195520",
+          "sqx142_internal_safe4_runtime_rewrite_20260526_200100.json",
+          "E1443D3DCEE2B36593A7C3E65753F73D56556CC0E072A1A23EF51E05439A72C9",
+          "6A056751051B966F78194B6F5D99F656249DE8D2A0E1C6F6A0EF0C51C32CBA8C",
+          "Post-start status -> `markerPresent=false`"
+        ],
+        "CHANGELOG.md": [
+          "Blocks `SQX142-INTERNAL-SAFE4 Static UI Registration Spike`",
+          "docs/SQX142_INTERNAL_SAFE_STATIC_UI_REGISTRATION_SPIKE.md",
+          "sqx142_internal_safe4_static_ui_registration_20260526_195520.json",
+          "sqx142_internal_safe4_runtime_rewrite_20260526_200100.json",
+          "blocked_static_registration_rewritten_on_startup",
+          "No active UI patch remains"
+        ],
+        "tools/sqx142_internal_safe4_static_ui_registration.ps1": [
+          "SQX142-INTERNAL-SAFE4",
+          "SQX142_ROOT/internal/web/common/templates.html",
+          "Assert-NoSqxProcess",
+          "New-TemplateBackup",
+          "sqx142-internal-safe4-static-ui-registration-v1",
+          "engineFilesWritten = $false",
+          "jarFilesWritten = $false",
+          "licenseFilesWritten = $false"
+        ],
+        "tests/js/contracts/sqx142_internal_safe4_static_ui_registration_contracts.mjs": [
+          "SQX142-INTERNAL-SAFE4",
+          "sqx142-internal-safe4-static-ui-registration-v1",
+          "Assert-NoSqxProcess",
+          "engineFilesWritten = $false"
+        ]
+      },
+      "forbidden": {
+        "README.md": [
+          "SAFE4 risk zero",
+          "SAFE4 native Results Plugin discovery confirmed",
+          "data.db write permitido",
+          "user/projects write permitido",
+          "run_project permitido",
+          "Migration Tool permitido"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "SAFE4 risk zero",
+          "SAFE4 native Results Plugin discovery confirmed",
+          "data.db write permitido",
+          "user/projects write permitido",
+          "run_project permitido",
+          "Migration Tool permitido"
+        ],
+        "docs/SQX142_INTERNAL_SAFE_STATIC_UI_REGISTRATION_SPIKE.md": [
+          "risk zero",
+          "native Results Plugin discovery confirmed",
+          "data.db write permitido",
+          "user/projects write permitido",
+          "run_project permitido",
+          "Migration Tool permitido"
+        ],
+        "CHANGELOG.md": [
+          "SAFE4 risk zero",
+          "SAFE4 native Results Plugin discovery confirmed",
+          "data.db write permitido",
+          "user/projects write permitido",
+          "run_project permitido",
+          "Migration Tool permitido"
+        ],
+        "tools/sqx142_internal_safe4_static_ui_registration.ps1": [
+          "Stop-Process",
+          "Remove-Item -Recurse",
+          "StrategyQuantX.exe",
+          "run_project permitido"
+        ]
+      }
+    },
+    {
+      "id": "sqx142_project_resource_repair_runbook_gate",
+      "description": "SQX142 project resource repairs must preserve the 2026-05-27 Capa1/Capa2 resolution and the Java-like InstrumentInfo numeric formatting lesson.",
+      "required": {
+        "README.md": [
+          "SQX142 Project Resource Repair Runbook queda registrado",
+          "docs/maintenance/SQX142_PROJECT_RESOURCE_REPAIR_RUNBOOK.md",
+          "tools\\sqx142_project_resource_repair.ps1",
+          "_java_double_text",
+          "`1.0E-4`, `1.0E-5`",
+          "`checkResources` limpio para Capa1/Capa2"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Current local maintenance completed: SQX142 Project Resource Repair Runbook",
+          "docs/maintenance/SQX142_PROJECT_RESOURCE_REPAIR_RUNBOOK.md",
+          "SQX142 Project Resource Repair Gate",
+          "<Resources><Symbols /><Sessions /></Resources>",
+          "_java_double_text",
+          "`1.0E-4`, `1.0E-5`",
+          "sqx142-project-resource-repair-v1_capa2-clean-donor-rebuild_20260527_071920"
+        ],
+        "docs/maintenance/SQX142_PROJECT_RESOURCE_REPAIR_RUNBOOK.md": [
+          "SQX142 Project Resource Repair Runbook",
+          "Capa1_Long_SQX142_Base",
+          "Capa2_Base_SQX142_Base",
+          "<Resources><Symbols /><Sessions /></Resources>",
+          "_java_double_text",
+          "`tickSize=\"1.0E-4\"` and `tickStep=\"1.0E-5\"`",
+          "tools\\sqx142_project_resource_repair.ps1 -Action rebuild-capa2",
+          "sqx142-project-resource-repair-v1_capa2-clean-donor-rebuild_20260527_071920",
+          "Retester` -> still unresolved and should be treated as a separate case"
+        ],
+        "CHANGELOG.md": [
+          "2026-05-27 - SQX142 Project Resource Repair Runbook",
+          "docs/maintenance/SQX142_PROJECT_RESOURCE_REPAIR_RUNBOOK.md",
+          "rebuild-capa1",
+          "repair-capa2-config",
+          "rebuild-capa2",
+          "_java_double_text",
+          "`15 passed`",
+          "`Retester` remains a separate unresolved project"
+        ],
+        "tools/sqx142_project_resource_repair.ps1": [
+          "rebuild-capa1",
+          "repair-capa2-config",
+          "rebuild-capa2",
+          "Assert-NoSqxProcess"
+        ],
+        "backend/sqx-edge-tool/tools/sqx142_project_resource_repair.py": [
+          "def _java_double_text",
+          "def rebuild_capa2_from_clean_donor",
+          "rebuild-capa2",
+          "SQX142_CLEAN_PROJECT_VERSION"
+        ],
+        "backend/sqx-edge-tool/test_sqx142_project_resource_repair.py": [
+          "test_formats_small_floats_like_sqx_java_double_strings",
+          "test_rebuilds_capa2_from_clean_donor_and_normalizes_symbol",
+          "1.0E-4",
+          "1.0E-5"
+        ]
+      },
+      "forbidden": {
+        "README.md": [
+          "risk zero",
+          "run_project permitido",
+          "Migration Tool permitido"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "risk zero guaranteed",
+          "run_project permitido",
+          "Migration Tool permitido"
+        ],
+        "docs/maintenance/SQX142_PROJECT_RESOURCE_REPAIR_RUNBOOK.md": [
+          "risk zero guaranteed",
+          "guaranteed profitability",
+          "use Stop-Process",
+          "run_project permitido",
+          "Migration Tool permitido"
+        ],
+        "CHANGELOG.md": [
+          "risk zero guaranteed",
+          "guaranteed profitability",
+          "run_project permitido",
+          "Migration Tool permitido"
+        ],
+        "tools/sqx142_project_resource_repair.ps1": [
+          "Stop-Process",
+          "Remove-Item -Recurse",
+          "StrategyQuantX.exe"
+        ]
+      }
+    },
+    {
+      "id": "sqx142_own_features3_correlation_manual_confirmation_gate",
+      "description": "SQX142 Correlation Pack manual confirmation must stay lab-only, operator-confirmed and non-mutating from scripts.",
+      "required": {
+        "README.md": [
+          "SQX142-OWN-FEATURES3 Correlation Pack Manual Confirmation queda preparado",
+          "preflight_ready_pending_operator_ui_confirmation",
+          "tools\\sqx142_own_features_correlation_manual_confirmation.ps1",
+          "SQX Edge Correlation Tagger",
+          "SQXEdgeCorrelationTagger",
+          "SQX EDGE CORRELATION REVIEW",
+          "correlation_decisions.csv` con 86 filas"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Current phase prepared: SQX142-OWN-FEATURES3 - Correlation Pack Manual Confirmation",
+          "Correlation Manual Confirmation Gate",
+          "preflight_ready_pending_operator_ui_confirmation",
+          "tools/sqx142_own_features_correlation_manual_confirmation.ps1",
+          "SQX Edge Correlation Tagger",
+          "SQXEdgeCorrelationTagger",
+          "SQX EDGE CORRELATION REVIEW"
+        ],
+        "docs/SQX142_OWN_FEATURES_CORRELATION_MANUAL_CONFIRMATION.md": [
+          "SQX142-OWN-FEATURES3 Correlation Pack Manual Confirmation",
+          "preflight_ready_pending_operator_ui_confirmation",
+          "sqx142-own-features3-correlation-manual-confirmation-v1",
+          "SQX Edge Correlation Tagger",
+          "SQXEdgeCorrelationTagger",
+          "SQX EDGE CORRELATION REVIEW",
+          "Tag CSV rows: `86`",
+          "Edge Factory remains the canonical correlation decision engine"
+        ],
+        "CHANGELOG.md": [
+          "2026-05-27 - SQX142-OWN-FEATURES3 Correlation Pack Manual Confirmation",
+          "docs/SQX142_OWN_FEATURES_CORRELATION_MANUAL_CONFIRMATION.md",
+          "tools/sqx142_own_features_correlation_manual_confirmation.ps1",
+          "status/checklist",
+          "local-only `record`",
+          "correlation_decisions.csv` schema valid with 86 rows",
+          "tests/js/contracts/sqx142_own_features3_correlation_manual_confirmation_contracts.mjs"
+        ],
+        "tools/sqx142_own_features_correlation_manual_confirmation.ps1": [
+          "sqx142-own-features3-correlation-manual-confirmation-v1",
+          "[ValidateSet(\"status\", \"checklist\", \"record\")]",
+          "readyForManualSmoke",
+          "manualConfirmationPending",
+          "SQX Edge Correlation Tagger",
+          "SQXEdgeCorrelationTagger",
+          "SQX EDGE CORRELATION REVIEW",
+          "latest_manual_record.json"
+        ],
+        "tests/js/contracts/sqx142_own_features3_correlation_manual_confirmation_contracts.mjs": [
+          "sqx142 own features3 correlation manual confirmation contracts ok",
+          "sqx_runtime_started_by_script = \\$false",
+          "sqx_files_written_by_script = \\$false",
+          "SQXEdgeCorrelationTagger"
+        ],
+        "docs/SQX142_OWN_FEATURES_CORRELATION_DATA_SMOKE.md": [
+          "docs/SQX142_OWN_FEATURES_CORRELATION_MANUAL_CONFIRMATION.md",
+          "tools\\sqx142_own_features_correlation_manual_confirmation.ps1"
+        ]
+      },
+      "forbidden": {
+        "README.md": [
+          "risk zero guaranteed",
+          "guaranteed profitability",
+          "run_project permitido",
+          "Migration Tool permitido"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "risk zero guaranteed",
+          "guaranteed profitability",
+          "run_project permitido",
+          "Migration Tool permitido"
+        ],
+        "docs/SQX142_OWN_FEATURES_CORRELATION_MANUAL_CONFIRMATION.md": [
+          "risk zero guaranteed",
+          "guaranteed profitability",
+          "run_project permitido",
+          "Migration Tool permitido",
+          "jars permitido"
+        ],
+        "CHANGELOG.md": [
+          "risk zero guaranteed",
+          "guaranteed profitability",
+          "run_project permitido",
+          "Migration Tool permitido"
+        ],
+        "tools/sqx142_own_features_correlation_manual_confirmation.ps1": [
+          "Stop-Process",
+          "Start-Process",
+          "Remove-Item",
+          "Copy-Item"
+        ]
+      }
+    },
+    {
+      "id": "sqx142_own_features3b_correlation_lab_project_scaffold_gate",
+      "description": "SQX142 Correlation Pack lab project scaffold must keep a single named lab project with rollback, record the legacy ExitAfterDays Retest carrier blocker, and preflight retired dependencies before future installs.",
+      "required": {
+        "README.md": [
+          "SQX142-OWN-FEATURES3B Correlation Lab Project Scaffold queda como `installed_view_confirmed_retest_carrier_blocked_by_legacy_exit_dependency`",
+          "SQX_EDGE_CORR_LAB_Mining15_USDJPY_H4_20260527",
+          "SQX EDGE CORR TAGGED",
+          "SQX EDGE CORR TAG",
+          "retiredDependencyPreflight",
+          "ExitAfterDays",
+          "minado/custom limpio"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Current phase installed with blocked Retest carrier: SQX142-OWN-FEATURES3B - Correlation Lab Project Scaffold",
+          "Correlation Lab Project Scaffold Gate",
+          "installed_view_confirmed_retest_carrier_blocked_by_legacy_exit_dependency",
+          "SQX_EDGE_CORR_LAB_Mining15_USDJPY_H4_20260527",
+          "Monkey Test=86",
+          "Syntetic=86",
+          "SQX EDGE CORR TAGGED",
+          "SQXEdgeCorrelationTagger",
+          "retiredDependencyPreflight",
+          "ExitAfterDays"
+        ],
+        "docs/SQX142_OWN_FEATURES_CORRELATION_LAB_PROJECT_SCAFFOLD.md": [
+          "SQX142-OWN-FEATURES3B Correlation Lab Project Scaffold",
+          "installed_view_confirmed_retest_carrier_blocked_by_legacy_exit_dependency",
+          "sqx142-own-features3b-correlation-lab-project-scaffold-v1",
+          "SQX_EDGE_CORR_LAB_Mining15_USDJPY_H4_20260527",
+          "Mining15_USDJPY_H4_BS_Volatilidad_v6_LS_Capa1",
+          "Monkey Test`: `86` strategies",
+          "Syntetic`: `86` strategies",
+          "SQX EDGE CORR TAGGED`: `0` strategies",
+          "SQX EDGE CORR TAG",
+          "SQXEdgeCorrelationTagger",
+          "4197bd1a3f5f57909f7bcbe56f8a3f1c8ed4cc2b46861e59401bbfa1a8d44bf7",
+          "Manual Retest Carrier Finding",
+          "ExitAfterDays",
+          "retiredDependencyPreflight",
+          "rollback by quarantine"
+        ],
+        "docs/SQX142_OWN_FEATURES_CORRELATION_MANUAL_CONFIRMATION.md": [
+          "Dedicated lab project: `SQX_EDGE_CORR_LAB_Mining15_USDJPY_H4_20260527`",
+          "Open dedicated project `SQX_EDGE_CORR_LAB_Mining15_USDJPY_H4_20260527`",
+          "SQX EDGE CORR TAG",
+          "SQX EDGE CORR TAGGED",
+          "docs/SQX142_OWN_FEATURES_CORRELATION_LAB_PROJECT_SCAFFOLD.md"
+        ],
+        "CHANGELOG.md": [
+          "2026-05-27 - Correlation Lab Retest Recovery And Welcome CTA Feedback",
+          "retiredDependencyPreflight",
+          "ExitAfterDays",
+          "2026-05-27 - SQX142-OWN-FEATURES3B Correlation Lab Project Scaffold",
+          "backend/sqx-edge-tool/tools/sqx142_correlation_lab_project_scaffold.py",
+          "tools/sqx142_own_features_correlation_lab_project_scaffold.ps1",
+          "SQX_EDGE_CORR_LAB_Mining15_USDJPY_H4_20260527",
+          "SQX EDGE CORR TAG",
+          "sqx142-own-features3b-correlation-lab-project-scaffold-v1_20260527_133250",
+          "test_sqx142_correlation_lab_project_scaffold.py"
+        ],
+        "tools/sqx142_own_features_correlation_lab_project_scaffold.ps1": [
+          "[ValidateSet(\"status\", \"plan\", \"install\", \"rollback\")]",
+          "Assert-NoSqxProcess",
+          "SQX_EDGE_CORR_LAB_Mining15_USDJPY_H4_20260527",
+          "sqx142_correlation_lab_project_scaffold.py"
+        ],
+        "backend/sqx-edge-tool/tools/sqx142_correlation_lab_project_scaffold.py": [
+          "sqx142-own-features3b-correlation-lab-project-scaffold-v1",
+          "SQX_EDGE_CORR_LAB_Mining15_USDJPY_H4_20260527",
+          "SQX EDGE CORRELATION REVIEW",
+          "SQX EDGE CORR TAG",
+          "SQX EDGE CORR TAGGED",
+          "SQXEdgeCorrelationTagger",
+          "RETIRED_STRATEGY_DEPENDENCIES",
+          "retiredDependencyPreflight",
+          "shutil.move"
+        ],
+        "backend/sqx-edge-tool/test_sqx142_correlation_lab_project_scaffold.py": [
+          "test_installs_correlation_lab_project_and_patches_tag_task",
+          "test_blocks_install_when_donor_databank_uses_retired_exit_snippet",
+          "test_rolls_back_lab_project_by_moving_to_quarantine",
+          "SQX EDGE CORR TAGGED",
+          "SQXEdgeCorrelationTagger"
+        ],
+        "tests/js/contracts/sqx142_own_features3b_correlation_lab_project_scaffold_contracts.mjs": [
+          "sqx142 own features3b correlation lab project scaffold contracts ok",
+          "SQX_EDGE_CORR_LAB_Mining15_USDJPY_H4_20260527",
+          "projects_quarantine"
+        ]
+      },
+      "forbidden": {
+        "README.md": [
+          "risk zero guaranteed",
+          "guaranteed profitability",
+          "run_project permitido",
+          "Migration Tool permitido"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "risk zero guaranteed",
+          "guaranteed profitability",
+          "run_project permitido",
+          "Migration Tool permitido"
+        ],
+        "docs/SQX142_OWN_FEATURES_CORRELATION_LAB_PROJECT_SCAFFOLD.md": [
+          "risk zero guaranteed",
+          "guaranteed profitability",
+          "run_project permitido",
+          "Migration Tool permitido",
+          "delete production"
+        ],
+        "CHANGELOG.md": [
+          "risk zero guaranteed",
+          "guaranteed profitability",
+          "run_project permitido",
+          "Migration Tool permitido"
+        ],
+        "tools/sqx142_own_features_correlation_lab_project_scaffold.ps1": [
+          "Stop-Process",
+          "Start-Process",
+          "Remove-Item",
+          "Copy-Item"
+        ],
+        "backend/sqx-edge-tool/tools/sqx142_correlation_lab_project_scaffold.py": [
+          "rmtree",
+          "unlink(",
+          "os.remove",
+          "run_project permitido",
+          "Migration Tool permitido"
+        ]
+      }
+    },
+    {
+      "id": "sqx142_own_features4_clean_mining_path_validation_gate",
+      "description": "SQX142 Clean Mining Path Validation must keep the legacy correlation lab carrier blocked and require fresh mining/export evidence before Correlation Pack confirmation.",
+      "required": {
+        "README.md": [
+          "SQX142-OWN-FEATURES4 Clean Mining Path Validation queda cerrado como `pass`",
+          "SQX142-OWN-FEATURES5 Forward Tagger Repeatable Flow queda construido",
+          "tools\\sqx142_own_features_clean_mining_path_validation.ps1",
+          "SQX Edge / Darwinex",
+          "correlation_decisions.csv",
+          "ExitAfterDays"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Current phase completed: SQX142-OWN-FEATURES4 - Clean Mining Path Validation",
+          "Clean Mining Path Validation Gate",
+          "Current phase completed: SQX142-OWN-FEATURES5 - Forward Tagger Repeatable Flow",
+          "fresh Forward CSV with 23 rows",
+          "SQXEdgeCorrelationTagger",
+          "placeholder retired-dependency snippets"
+        ],
+        "docs/SQX142_OWN_FEATURES_CLEAN_MINING_PATH_VALIDATION.md": [
+          "SQX142-OWN-FEATURES4 Clean Mining Path Validation",
+          "Status: `pass`",
+          "sqx142-own-features4-clean-mining-path-validation-v1",
+          "SQX Edge / Darwinex",
+          "correlation_decisions.csv",
+          "Final visual/export confirmation",
+          "SQXEdgeCorrelationTagger",
+          "Filter by results of custom analysis",
+          "SQX EDGE CORRELATION REVIEW"
+        ],
+        "CHANGELOG.md": [
+          "2026-05-29 - SQX142-OWN-FEATURES5 Forward Tagger Repeatable Flow",
+          "docs/SQX142_OWN_FEATURES_CLEAN_MINING_PATH_VALIDATION.md",
+          "tools/sqx142_own_features_clean_mining_path_validation.ps1",
+          "Closes `SQX142-OWN-FEATURES4 Clean Mining Path Validation` as `pass`",
+          "filtering disabled",
+          "final tagger export hash"
+        ],
+        "tools/sqx142_own_features_clean_mining_path_validation.ps1": [
+          "[ValidateSet(\"status\", \"checklist\", \"record\")]",
+          "sqx142-own-features4-clean-mining-path-validation-v1",
+          "latest_manual_record",
+          "sqx142_project_load_stabilizer.ps1",
+          "sqx142_own_features_correlation_data_smoke.ps1",
+          "retired_dependency_placeholder_allowed = $false"
+        ],
+        "tests/js/contracts/sqx142_own_features4_clean_mining_path_validation_contracts.mjs": [
+          "sqx142 own features4 clean mining path validation contracts ok",
+          "SQX EDGE CORRELATION REVIEW",
+          "ExitAfterDays",
+          "retired_dependency_placeholder_allowed"
+        ]
+      },
+      "forbidden": {
+        "README.md": [
+          "risk zero guaranteed",
+          "guaranteed profitability",
+          "run_project permitido",
+          "Migration Tool permitido"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "risk zero guaranteed",
+          "guaranteed profitability",
+          "run_project permitido",
+          "Migration Tool permitido"
+        ],
+        "docs/SQX142_OWN_FEATURES_CLEAN_MINING_PATH_VALIDATION.md": [
+          "risk zero guaranteed",
+          "guaranteed profitability",
+          "run_project permitido",
+          "Migration Tool permitido",
+          "patch jars"
+        ],
+        "CHANGELOG.md": [
+          "risk zero guaranteed",
+          "guaranteed profitability",
+          "run_project permitido",
+          "Migration Tool permitido"
+        ],
+        "tools/sqx142_own_features_clean_mining_path_validation.ps1": [
+          "Stop-Process",
+          "Start-Process",
+          "Remove-Item",
+          "Copy-Item"
+        ]
+      }
+    },
+    {
+      "id": "remote_owner1_owner_access_recovery_gate",
+      "description": "REMOTE-OWNER1 must keep creator/operator recovery as internal_operator, with an owner-only context limit and no weakening of tester/buyer access controls.",
+      "required": {
+        "README.md": [
+          "REMOTE-OWNER1 esta aplicado",
+          "internal_operator",
+          "maxTrustedContextsPerInternalOperator",
+          "tools\\remote_owner_access_recovery.ps1",
+          "sin cambiar el limite de 2 contextos"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Current phase completed: REMOTE-OWNER1 - Owner Access Recovery",
+          "Owner Access Recovery Gate",
+          "completed_owner_recovery_applied",
+          "maxTrustedContextsPerInternalOperator",
+          "maxTrustedContextsPerIdentity=2"
+        ],
+        "docs/REMOTE_SERVICE_ROADMAP.md": [
+          "REMOTE-OWNER1 - Owner Access Recovery",
+          "remote-owner-access-recovery-v1",
+          "backend/sqx-edge-tool/core/remote_owner_access.py",
+          "tools/remote_owner_access_recovery.ps1",
+          "maxTrustedContextsPerInternalOperator",
+          "tester and buyer identities remain governed by `maxTrustedContextsPerIdentity=2`"
+        ],
+        "docs/REMOTE_OWNER1_OWNER_ACCESS_RECOVERY.md": [
+          "REMOTE-OWNER1 Owner Access Recovery",
+          "completed_owner_recovery_applied",
+          "remote-owner-access-recovery-v1",
+          "internal_operator",
+          "maxTrustedContextsPerInternalOperator=8",
+          "remote-owner-access-recovery-v1_20260527_153521",
+          "No global bypass of anti-sharing"
+        ],
+        "docs/ARCHITECTURE.md": [
+          "REMOTE-OWNER1 owner access recovery",
+          "backend/sqx-edge-tool/core/remote_owner_access.py",
+          "remote-owner-access-recovery-v1",
+          "maxTrustedContextsPerInternalOperator",
+          "maxTrustedContextsPerIdentity=2"
+        ],
+        "docs/REMOTE_SEC2_CREDENTIAL_SHARING_CONTROL.md": [
+          "internal_operator",
+          "REMOTE-OWNER1",
+          "normal tester/buyer default remains 2"
+        ],
+        "CHANGELOG.md": [
+          "2026-05-27 - REMOTE-OWNER1 Owner Access Recovery",
+          "remote-owner-access-recovery-v1",
+          "maxTrustedContextsPerInternalOperator=8",
+          "remote-owner-access-recovery-v1_20260527_153521",
+          "24 passed"
+        ],
+        "backend/sqx-edge-tool/core/remote_access_control.py": [
+          "maxTrustedContextsPerInternalOperator",
+          "effectiveMaxTrustedContexts",
+          "_max_trusted_contexts"
+        ],
+        "backend/sqx-edge-tool/core/remote_owner_access.py": [
+          "REMOTE_OWNER_ACCESS_VERSION = \"remote-owner-access-recovery-v1\"",
+          "recover_owner_access",
+          "owner_access_status",
+          "rollback_owner_access_recovery",
+          "TESTER_GRANT_PRIVATE_KEYS"
+        ],
+        "backend/sqx-edge-tool/tools/remote_owner_access_recovery.py": [
+          "status",
+          "recover",
+          "rollback",
+          "raw_email_false"
+        ],
+        "tools/remote_owner_access_recovery.ps1": [
+          "[ValidateSet(\"status\", \"recover\", \"rollback\")]",
+          "remote_owner_access_recovery.py"
+        ],
+        "backend/sqx-edge-tool/test_remote_access_control.py": [
+          "test_internal_operator_uses_owner_context_limit_instead_of_tester_limit",
+          "effectiveMaxTrustedContexts"
+        ],
+        "backend/sqx-edge-tool/test_remote_access.py": [
+          "test_owner_access_recovery_promotes_existing_tester_grant_and_approves_context",
+          "internal_operator",
+          "grantKeyHash"
+        ]
+      },
+      "forbidden": {
+        "README.md": [
+          "risk zero guaranteed",
+          "guaranteed profitability",
+          "bypass global permitido"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "risk zero guaranteed",
+          "guaranteed profitability",
+          "bypass global permitido"
+        ],
+        "docs/REMOTE_OWNER1_OWNER_ACCESS_RECOVERY.md": [
+          "risk zero guaranteed",
+          "guaranteed profitability",
+          "raw email:",
+          "protected URL:",
+          "bypass global permitido"
+        ],
+        "CHANGELOG.md": [
+          "risk zero guaranteed",
+          "guaranteed profitability",
+          "bypass global permitido"
+        ],
+        "tools/remote_owner_access_recovery.ps1": [
+          "Stop-Process",
+          "Start-Process"
         ]
       }
     }

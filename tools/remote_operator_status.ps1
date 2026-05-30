@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
     [string]$RepoRoot = "",
-    [string]$CloudflaredPath = "C:\Tools\cloudflared\cloudflared.exe",
+    [string]$CloudflaredPath = $env:CLOUDFLARED_EXE,
     [switch]$StartOnOpen,
     [switch]$StopOnOpen
 )
