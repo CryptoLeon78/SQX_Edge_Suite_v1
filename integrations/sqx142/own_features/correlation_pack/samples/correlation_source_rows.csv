@@ -1,0 +1,4 @@
+strategy,asset,timeframe,Source Phase,Source Databank,Forward Status,Pass Source,Profit Factor,Ret/DD Ratio,Max DD %,Number of trades,Stability,SQN,BlockSetting,indicator,cluster,returnSeries
+AUDCAD_H4_A,AUDCAD,H4,phase28_capa2_forward,Foward,PASSED,natural,1.55,4.2,18,140,0.72,2.1,BS_Custom,MACD,CL01,0.01|0.02|0.015|0.03|-0.01|0.02|0.01|0.025|0.03|-0.005|0.012|0.02
+AUDCAD_H4_B,AUDCAD,H4,phase28_capa2_forward,Foward,PASSED,natural,1.25,3.0,20,120,0.62,1.7,BS_Custom,MACD,CL01,0.02|0.04|0.03|0.06|-0.02|0.04|0.02|0.05|0.06|-0.01|0.024|0.04
+EURJPY_H1_C,EURJPY,H1,phase28_capa2_forward,Foward,PASSED,natural,1.48,4.0,22,160,0.68,1.9,BS_Alt,RSI,CL02,0.03|-0.02|0.01|-0.01|0.02|-0.015|0.018|-0.02|0.014|-0.01|0.016|-0.018

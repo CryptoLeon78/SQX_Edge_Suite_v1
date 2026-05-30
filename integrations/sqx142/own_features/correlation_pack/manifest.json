@@ -1,0 +1,42 @@
+{
+  "version": "sqx142-own-features1-correlation-pack-v1",
+  "name": "SQX142 Own Features Correlation Pack",
+  "mode": "lab-only",
+  "defaultEnabled": false,
+  "sourceOfTruth": "Edge Factory Correlation Filter external",
+  "supportedTargets": [
+    "user/extend/Snippets/SQ/CustomAnalysis/SQXEdgeCorrelationTagger.java",
+    "user/extend/Snippets/SQ/Columns/Databanks/SQXEdgeCorrDecision.java",
+    "user/extend/Snippets/SQ/Columns/Databanks/SQXEdgeCorrRank.java",
+    "user/extend/Snippets/SQ/Columns/Databanks/SQXEdgeCorrScore.java",
+    "user/extend/Snippets/SQ/Columns/Databanks/SQXEdgeMaxCorr.java",
+    "user/extend/Snippets/SQ/Columns/Databanks/SQXEdgeCorrStatus.java",
+    "user/extend/Snippets/SQ/Columns/Databanks/SQXEdgeNearestWinner.java",
+    "user/settings/views/databanks/SQX EDGE CORRELATION REVIEW.vw",
+    "user/extend/SQXEdge/Correlation/correlation_decisions.csv",
+    "user/extend/SQXEdge/Correlation/correlation_decisions.sample.csv"
+  ],
+  "blockedTargets": [
+    "jars",
+    "plugins internal",
+    "license activation",
+    "data.db",
+    "user/projects",
+    "databank deletion",
+    "run_project",
+    "Migration Tool"
+  ],
+  "tagCsvSchema": [
+    "strategyRef",
+    "candidateId",
+    "decision",
+    "reason",
+    "score",
+    "maxObservedCorrelation",
+    "correlationStatus",
+    "nearestWinnerId",
+    "portfolioRank",
+    "generatedAt",
+    "version"
+  ]
+}

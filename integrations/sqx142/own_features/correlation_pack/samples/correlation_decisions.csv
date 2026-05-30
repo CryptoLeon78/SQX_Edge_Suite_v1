@@ -1,0 +1,4 @@
+strategyRef,candidateId,decision,reason,score,maxObservedCorrelation,correlationStatus,nearestWinnerId,portfolioRank,generatedAt,version
+strategy_sample00000001,candidate_sample0001,portfolio,accepted by external correlation filter,88.5,,similarity_only,,1,2026-05-26T00:00:00Z,sqx142-correlation-filter-external-v1
+strategy_sample00000002,candidate_sample0002,similar,operational similarity >= 0.78,74.2,,similarity_only,candidate_sample0001,,2026-05-26T00:00:00Z,sqx142-correlation-filter-external-v1
+strategy_sample00000003,candidate_sample0003,review,series not comparable,70.1,,not_comparable,candidate_sample0001,,2026-05-26T00:00:00Z,sqx142-correlation-filter-external-v1
