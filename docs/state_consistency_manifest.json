@@ -16,10 +16,66 @@
     "docs/SQX142_CAPA1_C2_CORRELATION_TEMPLATE_SELECTION.md",
     "docs/SQX142_CAPA2_PORTFOLIO_CORRELATION_ADAPTATION.md",
     "docs/SQX142_CORRELATION_C1_C2_PORTFOLIO_BRIDGE.md",
+    "docs/SQX142_TEMPLATE_MAKER_CORRELATION_REVIEW_CERT.md",
     "docs/SQX142_PORTFOLIO_CORR1_STABILITY_AUDIT.md",
     "docs/SQX142_PORTFOLIO_CORR2_LOCAL_CUSTOM_PROJECT_INTEGRATION.md"
   ],
   "rules": [
+    {
+      "id": "sqx142_template_maker_correlation_review_cert_gate",
+      "description": "Template Maker C2 certification must use SQX EDGE CORRELATION REVIEW as the canonical CSV contract while keeping Template Maker Cert v2 as legacy compatibility only.",
+      "required": {
+        "README.md": [
+          "SQX142-TM-CORR-CERT esta aplicado",
+          "SQX EDGE CORRELATION REVIEW",
+          "`Template Maker Cert v2` queda como compatibilidad legacy"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "SQX142-TM-CORR-CERT - Template Maker Correlation Review Cert",
+          "Template Maker Correlation Review Cert Gate",
+          "SQX EDGE CORRELATION REVIEW",
+          "Legacy `Template Maker Cert v2` CSV remains accepted"
+        ],
+        "docs/SQX142_TEMPLATE_MAKER_CORRELATION_REVIEW_CERT.md": [
+          "SQX EDGE CORRELATION REVIEW",
+          "canonical CSV contract",
+          "Legacy `Template Maker Cert v2` CSV files remain accepted",
+          "does not launch SQX"
+        ],
+        "app/js/modules/template-maker.js": [
+          "sqx-edge-correlation-review-c2-v1",
+          "SQX EDGE CORRELATION REVIEW",
+          "REQUIRED_CORRELATION_REVIEW_COLUMNS",
+          "SQXEdgeCorrDecision",
+          "SQXEdgeCorrStatus"
+        ],
+        "app/js/modules/template-maker-ui.js": [
+          "SQX EDGE CORRELATION REVIEW",
+          "sqx-edge-correlation-review-c2-v1"
+        ],
+        "app/js/modules/view-creator.js": [
+          "sqx-edge-correlation-review",
+          "SQXEdgeCorrDecision",
+          "SQX EDGE CORRELATION REVIEW"
+        ],
+        "tests/js/contracts/template_maker_contracts.mjs": [
+          "SQX Edge Correlation Review CSV should satisfy the C2 certification contract",
+          "legacy Template Maker Cert v2 contract should remain accepted"
+        ],
+        "tests/js/contracts/view_creator_contracts.mjs": [
+          "sqx-edge-correlation-review",
+          "Correlation review helper should match the active CORR1 C2 contract"
+        ]
+      },
+      "forbidden": {
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Template Maker Cert must follow the active Forward window"
+        ],
+        "app/SQX_Dashboard_v6.html": [
+          "CSV Template Maker Cert"
+        ]
+      }
+    },
     {
       "id": "sqx142_activos_basic_advanced_workflow_alignment_gate",
       "description": "Activos must separate SQX recommendation, selected A/B/C/D config and generation permission while basic mode hides Plan Mining technical controls and advanced mode keeps them.",

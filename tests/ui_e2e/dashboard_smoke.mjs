@@ -591,7 +591,7 @@ async function run() {
     const viewsTabTextUpper = viewsTabText.toUpperCase();
     const viewsTabTextLower = viewsTabText.toLowerCase();
     if (!viewsTabTextUpper.includes('ELIGE LA VIEW QUE NECESITAS')) throw new Error('SQX Views should expose guided view choice as the main entry');
-    ['EGT Core', 'Robustez', 'Template Maker Cert', 'CVC Decision Cert', 'Risk', 'Full audit', 'obligatoria', 'recomendable'].forEach(expected => {
+    ['EGT Core', 'Robustez', 'SQX EDGE CORRELATION REVIEW', 'CVC Decision Cert', 'Risk', 'Full audit', 'obligatoria', 'recomendable'].forEach(expected => {
       if (!viewsTabText.includes(expected)) throw new Error(`SQX Views required/recommended block should include ${expected}`);
     });
     ['9oos', '7oos'].forEach(expected => {
@@ -600,7 +600,7 @@ async function run() {
     const templateListText = await desktop.locator('#vc-template-list').innerText();
     const templateListTextUpper = templateListText.toUpperCase();
     const templateListTextLower = templateListText.toLowerCase();
-    ['PF', 'Trades', 'Ret/DD', 'TICK REAL', 'MC', 'VaR', 'CVaR', 'CAGR/DD', 'Forward CSV', '2 OOS', 'Arquetipo', 'Volatilidad'].forEach(expected => {
+    ['PF', 'Trades', 'Ret/DD', 'TICK REAL', 'MC', 'VaR', 'CVaR', 'CAGR/DD', 'CORR1', 'Decision', 'Arquetipo', 'Volatilidad'].forEach(expected => {
       if (!templateListTextUpper.includes(expected.toUpperCase())) throw new Error(`SQX Views template tags should include ${expected}`);
     });
     if (/\bfree\b|\bpro\b/i.test(templateListText)) {
@@ -626,12 +626,12 @@ async function run() {
     }
     const templateCount = await desktop.locator('#vc-template-list .views-template-card').count();
     if (templateCount < 5) throw new Error(`Expected buyer-ready SQX Views examples, got ${templateCount}`);
-    await desktop.locator('[data-vc-template-load="template-maker-cert"]').click();
-    await desktop.waitForFunction(() => document.getElementById('vc-view-name')?.value === 'Template Maker Cert');
+    await desktop.locator('[data-vc-template-load="sqx-edge-correlation-review"]').click();
+    await desktop.waitForFunction(() => document.getElementById('vc-view-name')?.value === 'SQX EDGE CORRELATION REVIEW');
     await desktop.waitForFunction(() => document.getElementById('vc-active-guide')?.textContent.includes('Databank CSV'));
     const certMetrics = await desktop.evaluate(() => window.SQX.viewCreator.getTemplateMakerRequiredMetrics());
-    if (!certMetrics.includes('Net profit') || !certMetrics.includes('CAGR/Max DD %') || certMetrics.includes('Ret/DD Ratio')) {
-      throw new Error('SQX Views should expose Template Maker Cert v2 metrics without Ret/DD as hard requirement');
+    if (!certMetrics.includes('Profit factor') || !certMetrics.includes('Ret/DD Ratio') || !certMetrics.includes('SQX Edge Corr Decision')) {
+      throw new Error('SQX Views should expose SQX Edge Correlation Review metrics for Template Maker C2');
     }
     await desktop.locator('[data-vc-template-load="cvc-decision-cert"]').click();
     await desktop.waitForFunction(() => document.getElementById('vc-view-name')?.value === 'CVC Decision Cert');
@@ -660,7 +660,7 @@ async function run() {
     await openTab(desktop, 'templatemaker');
     await desktop.waitForSelector('#tm-csv-input', { state: 'attached' });
     const templateMakerText = await desktop.locator('#tab-templatemaker').innerText();
-    ['Template Maker', 'Template Maker Cert', 'Genera la view obligatoria', 'Carga tus fuentes', 'Resuelve el contrato', 'Evalua Perfil Capa 1', 'Resultados y C2', 'Cargar archivos', 'Reset resultados', 'Umbrales KPI editables'].forEach(expected => {
+    ['Template Maker', 'SQX EDGE CORRELATION REVIEW', 'Genera la view obligatoria', 'Carga tus fuentes', 'Resuelve el contrato', 'Evalua Perfil Capa 1', 'Resultados y C2', 'Cargar archivos', 'Reset resultados', 'Umbrales KPI editables'].forEach(expected => {
       if (!templateMakerText.includes(expected)) throw new Error(`Template Maker tab should include ${expected}`);
     });
     if (!templateMakerText.includes('Descorrelación de templates')) {
@@ -692,7 +692,7 @@ async function run() {
     await desktop.locator('.tm-secondary-loads > summary').click();
     await desktop.locator('#tm-open-cert-view').click();
     await desktop.waitForFunction(() => getComputedStyle(document.getElementById('tab-views')).display !== 'none');
-    await desktop.waitForFunction(() => document.getElementById('vc-view-name')?.value === 'Template Maker Cert');
+    await desktop.waitForFunction(() => document.getElementById('vc-view-name')?.value === 'SQX EDGE CORRELATION REVIEW');
     await openTab(desktop, 'templatemaker');
     const csvSamplePath = path.join(repoRoot, 'resources', 'template-maker-tool', 'template_maker_cert_v2_sample.csv');
     const sqxSamplePaths = [

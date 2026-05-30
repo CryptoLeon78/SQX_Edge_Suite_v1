@@ -10,37 +10,31 @@
   var PRESET_PACKAGE_TYPE = 'sqx-edge.view-presets';
   var PRESET_PACKAGE_VERSION = 1;
   var TEMPLATE_MAKER_REQUIRED_METRICS = [
-    'Net profit',
-    '# of trades',
     'Profit factor',
+    'Ret/DD Ratio',
     'Max DD %',
-    'Sharpe Ratio',
-    'Stability',
-    'CAGR/Max DD %',
-    'Winning Percent',
-    'SQN',
-    'Recovery Factor',
-    'Calmar Ratio',
-    'Sortino Ratio',
-    '% Profitable Months'
+    '# of trades',
+    'SQX Edge Corr Decision',
+    'SQX Edge Corr Status'
   ];
-  var TEMPLATE_MAKER_CERT_CLASSES = [
+  var SQX_EDGE_CORRELATION_REVIEW_CLASSES = [
     'Symbol',
     'TimeFrame',
+    'MiniEquityChart',
     'Fitness',
-    'NetProfit',
-    'NumberOfTrades',
     'ProfitFactor',
+    'ReturnDDRatio',
     'DrawdownPct',
-    'SharpeRatio',
-    'Stability',
-    'AnnualPctReturnDDRatio',
-    'WinningPct',
-    'SQN',
-    'RecoveryFactor',
-    'CalmarRatio',
-    'SortinoRatio',
-    'ProfitableMonthsPct'
+    'NumberOfTrades',
+    'SQXEdgeCorrDecision',
+    'SQXEdgeCorrRank',
+    'SQXEdgeCorrScore',
+    'SQXEdgeMaxCorr',
+    'SQXEdgeCorrStatus',
+    'SQXEdgeNearestWinner',
+    'EntryIndicators',
+    'ExitIndicators',
+    'PriceIndicators'
   ];
   var CVC_DECISION_REQUIRED_METRICS = [
     'Net profit',
@@ -90,12 +84,20 @@
     ['Fitness', 'Fitness', false, true, 'fixed'],
     ['Entry indicators', 'EntryIndicators', false, false, 'fixed'],
     ['Exit indicators', 'ExitIndicators', false, false, 'fixed'],
+    ['Price indicators', 'PriceIndicators', false, false, 'fixed'],
+    ['SQX Edge Corr Decision', 'SQXEdgeCorrDecision', false, false, 'fixed'],
+    ['SQX Edge Corr Rank', 'SQXEdgeCorrRank', false, false, 'fixed'],
+    ['SQX Edge Corr Score', 'SQXEdgeCorrScore', false, false, 'fixed'],
+    ['SQX Edge Max Corr', 'SQXEdgeMaxCorr', false, false, 'fixed'],
+    ['SQX Edge Corr Status', 'SQXEdgeCorrStatus', false, false, 'fixed'],
+    ['SQX Edge Nearest Winner', 'SQXEdgeNearestWinner', false, false, 'fixed'],
     ['Complexity', 'Complexity', false, false, 'fixed'],
     ['Note', 'Note', false, false, 'fixed'],
     ['Parameters', 'Parameters', false, false, 'fixed'],
     ['Magic number', 'MagicNumber', false, false, 'fixed'],
     ['Template', 'TemplateColumn', false, false, 'fixed'],
     ['CAGR/Max DD %', 'AnnualPctReturnDDRatio', true, true, 'core'],
+    ['Ret/DD Ratio', 'ReturnDDRatio', true, false, 'core'],
     ['Net profit', 'NetProfit', true, true, 'core'],
     ['# of trades', 'NumberOfTrades', true, true, 'core'],
     ['Profit factor', 'ProfitFactor', true, true, 'core'],
@@ -192,8 +194,11 @@
       return metric.category === 'fixed' && metric.selectedDefault ||
         ['DrawdownPct', 'Drawdown', 'AvgDrawdown', 'AvgPctDrawdown', 'MaxNewHighDuration', 'UlcerIndex', 'UlcerPerformanceIndex', 'VaR_Hobbiecode', 'CVaR_Hobbiecode', 'StandardDev', 'ZScore', 'ZProbability'].indexOf(metric.className) >= 0;
     },
+    'sqx-edge-correlation-review': function(metric) {
+      return SQX_EDGE_CORRELATION_REVIEW_CLASSES.indexOf(metric.className) >= 0;
+    },
     'template-maker-cert': function(metric) {
-      return TEMPLATE_MAKER_CERT_CLASSES.indexOf(metric.className) >= 0;
+      return SQX_EDGE_CORRELATION_REVIEW_CLASSES.indexOf(metric.className) >= 0;
     },
     'cvc-decision-cert': function(metric) {
       return CVC_DECISION_CERT_CLASSES.indexOf(metric.className) >= 0;
@@ -234,19 +239,19 @@
       config: { viewName: 'Robustez', yearCount: 9, sampleStart: 21, includeTotal: true, groupMode: 'by_metric' }
     },
     {
-      id: 'template-maker-cert',
-      name: 'Template Maker Cert',
+      id: 'sqx-edge-correlation-review',
+      name: 'SQX EDGE CORRELATION REVIEW',
       tier: 'free',
       priority: 'obligatoria',
-      preset: 'template-maker-cert',
-      description: 'View obligatoria para exportar el Databank CSV que certifica KPIs en Template Maker.',
-      objective: 'Contrato oficial de métricas: Template Maker usa este CSV para certificar las estrategias que sobreviven al Forward 2025-Actualidad y habilitar C2. Ret/DD se deriva desde CAGR/Max DD % si SQX no lo exporta como columna propia.',
-      when: 'Al terminar Forward, guarda los .sqx supervivientes y exporta el Databank CSV con esta view. El default actual son 2 OOS: 2025 y actualidad.',
-      nextAction: 'Exporta el Databank CSV de Forward con esta view y cargalo junto a los .sqx en Template Maker.',
-      metricTags: ['Forward CSV', '2 OOS', 'KPIs C1', 'Ret/DD derivado', 'C2'],
-      oosTag: '2oos',
-      oosOptions: [1, 2],
-      config: { viewName: 'Template Maker Cert', yearCount: 2, sampleStart: 21, includeTotal: true, groupMode: 'by_metric' }
+      preset: 'sqx-edge-correlation-review',
+      description: 'View obligatoria para exportar el Databank CSV que certifica el ganador Capa1 para Template C2.',
+      objective: 'Contrato oficial C2: Template Maker usa el CSV CORR1 para leer decision, score, Ret/DD, PF, drawdown y trades sin duplicar una segunda view obsoleta.',
+      when: 'Al terminar CORR1, guarda los .sqx supervivientes y exporta el Databank CSV desde SQX EDGE CORR1 TAGGED. Si SQX no deja exportar esa view ahi, usa el mismo ganador desde Forward.',
+      nextAction: 'Exporta el Databank CSV con SQX EDGE CORRELATION REVIEW y cargalo junto a los .sqx en Template Maker.',
+      metricTags: ['CORR1', 'C2', 'Ret/DD', 'PF', 'Trades', 'Decision'],
+      oosTag: 'corr1',
+      oosOptions: [1],
+      config: { viewName: 'SQX EDGE CORRELATION REVIEW', yearCount: 1, sampleStart: 21, includeTotal: false, groupMode: 'plain' }
     },
     {
       id: 'cvc-decision-cert',
@@ -396,6 +401,11 @@
       });
     }
 
+    if (groupMode === 'plain') {
+      selected.forEach(function(metric) { add(metric, 127); });
+      return columns;
+    }
+
     if (groupMode === 'by_metric') {
       selected.forEach(function(metric) {
         if (!metric.annual) {
@@ -453,7 +463,7 @@
     var yearCount = sanitizeInt(opts.yearCount, 9, 1, 30);
     var sampleStart = sanitizeInt(opts.sampleStart, 21, 0, 126);
     var includeTotal = opts.includeTotal !== false;
-    var groupMode = opts.groupMode === 'by_metric' ? 'by_metric' : 'by_year';
+    var groupMode = opts.groupMode === 'plain' ? 'plain' : (opts.groupMode === 'by_metric' ? 'by_metric' : 'by_year');
     var columns = columnSpecs(selected, yearCount, sampleStart, includeTotal, groupMode);
     return [
       '<View name="' + escapeXml(viewName) + '" originalName="' + escapeXml(viewName) + '">',
@@ -486,7 +496,7 @@
       yearCount: sanitizeInt(opts.yearCount, 9, 1, 30),
       sampleStart: sanitizeInt(opts.sampleStart, 21, 0, 126),
       includeTotal: opts.includeTotal !== false,
-      groupMode: opts.groupMode === 'by_metric' ? 'by_metric' : 'by_year',
+      groupMode: opts.groupMode === 'plain' ? 'plain' : (opts.groupMode === 'by_metric' ? 'by_metric' : 'by_year'),
       metrics: (opts.selected || []).map(function(metric) {
         return {
           className: metric.className,
@@ -511,7 +521,7 @@
       yearCount: sanitizeInt(cfg.yearCount, 9, 1, 30),
       sampleStart: sanitizeInt(cfg.sampleStart, 21, 0, 126),
       includeTotal: cfg.includeTotal !== false,
-      groupMode: cfg.groupMode === 'by_metric' ? 'by_metric' : 'by_year',
+      groupMode: cfg.groupMode === 'plain' ? 'plain' : (cfg.groupMode === 'by_metric' ? 'by_metric' : 'by_year'),
       metrics: metrics
     };
   }
@@ -667,13 +677,13 @@
   }
 
   function buildTemplateMakerCertView() {
-    var template = findBuyerReadyTemplate('template-maker-cert');
-    return buildViewXml(template ? template.config : configFromPresetName('template-maker-cert', {
-      viewName: 'Template Maker Cert',
-      yearCount: 2,
+    var template = findBuyerReadyTemplate('sqx-edge-correlation-review');
+    return buildViewXml(template ? template.config : configFromPresetName('sqx-edge-correlation-review', {
+      viewName: 'SQX EDGE CORRELATION REVIEW',
+      yearCount: 1,
       sampleStart: 21,
-      includeTotal: true,
-      groupMode: 'by_metric'
+      includeTotal: false,
+      groupMode: 'plain'
     }));
   }
 
@@ -1022,7 +1032,7 @@
   function applyPreset(name) {
     var hasFull = hasFullAccess();
     var preset = PRESETS[name] || PRESETS['egt-core'];
-    if (!hasFull && name !== 'egt-core' && name !== 'template-maker-cert' && name !== 'clear') {
+    if (!hasFull && name !== 'egt-core' && name !== 'sqx-edge-correlation-review' && name !== 'template-maker-cert' && name !== 'clear') {
       setStatus('El catalogo completo requiere SQX Edge Pro.', 'warn');
       name = 'egt-core';
       preset = PRESETS[name];

@@ -243,7 +243,7 @@
     afterPaint().then(function() {
       return SQX.templateMaker.ingestFiles(list);
     }).then(function(rows) {
-      setStatus(rows.length + ' estrategias reconciliadas con contrato Template Maker Cert.');
+      setStatus(rows.length + ' estrategias reconciliadas con contrato SQX EDGE CORRELATION REVIEW.');
       return afterPaint().then(function() {
         renderAll();
         recordEdgeFactoryAnalysis('template-maker-unified');
@@ -389,7 +389,7 @@
       if (tab && typeof tab.click === 'function') tab.click();
     }
     if (SQX.viewCreator && SQX.viewCreator.loadBuyerReadyTemplate) {
-      SQX.viewCreator.loadBuyerReadyTemplate('template-maker-cert');
+      SQX.viewCreator.loadBuyerReadyTemplate('sqx-edge-correlation-review');
     }
   }
 
@@ -495,7 +495,7 @@
       {
         status: 'Faltan métricas',
         className: 'is-danger',
-        action: 'Exporta CSV con Template Maker Cert desde SQX.'
+        action: 'Exporta CSV con SQX EDGE CORRELATION REVIEW desde SQX.'
       },
       {
         status: 'Métricas no compatibles',
@@ -529,9 +529,9 @@
     var derived = diagnostics.derivedMetrics || [];
     var required = diagnostics.requiredColumns || [];
     mount.innerHTML = '<div class="tm-diagnostic-grid">' +
-      diagnosticCard('Contrato', diagnostics.schemaVersion || 'template-maker-cert-v2', 'Regla activa de certificacion. Si cambia, Template Maker limpia estado antiguo.') +
+      diagnosticCard('Contrato', diagnostics.schemaVersion || 'sqx-edge-correlation-review-c2-v1', 'Regla activa de certificacion. Si cambia, Template Maker limpia estado antiguo.') +
       diagnosticCard('Perfil CSV', diagnostics.detectedCsvProfile || 'Sin datos', 'Lectura inferida desde las columnas detectadas.') +
-      diagnosticCard('Columnas', recognized.length + ' / ' + required.length, 'Reconocidas frente a las obligatorias de Template Maker Cert.') +
+      diagnosticCard('Columnas', recognized.length + ' / ' + required.length, 'Reconocidas frente a las obligatorias de SQX EDGE CORRELATION REVIEW.') +
       diagnosticCard('Derivadas', derived.length ? derived.join(', ') : 'Ninguna', 'Metricas calculadas por alias controlado, no bloqueantes.') +
       '</div>' +
       '<div class="tm-diagnostic-tags">' +
@@ -661,13 +661,13 @@
     if (!panel) return;
     var total = SQX.templateMaker.getStrategies().length;
     if (!total) {
-      panel.innerHTML = '<strong>Contrato pendiente</strong><span>Carga CSV Template Maker Cert y/o archivos .sqx para iniciar la certificacion.</span>';
+      panel.innerHTML = '<strong>Contrato pendiente</strong><span>Carga CSV SQX EDGE CORRELATION REVIEW y/o archivos .sqx para iniciar la certificacion C2.</span>';
       panel.classList.remove('is-ok');
       return;
     }
     var incomplete = SQX.templateMaker.getIncompleteRecords();
     if (!incomplete.length) {
-      panel.innerHTML = '<strong>Contrato completo</strong><span>Todas las estrategias tienen CSV Template Maker Cert, .sqx y estado operativo coherente.</span>';
+      panel.innerHTML = '<strong>Contrato completo</strong><span>Todas las estrategias tienen CSV SQX EDGE CORRELATION REVIEW, .sqx y estado operativo coherente.</span>';
       panel.classList.add('is-ok');
       return;
     }
@@ -678,7 +678,7 @@
       return acc;
     }, {});
     panel.innerHTML = '<strong>Accion requerida antes de C2</strong>' +
-      '<span>Template Maker solo habilita C2 cuando existe .sqx, CSV exportado con Template Maker Cert y scoring PASSED.</span>' +
+      '<span>Template Maker solo habilita C2 cuando existe .sqx, CSV exportado con SQX EDGE CORRELATION REVIEW y scoring PASSED.</span>' +
       '<div class="tm-problem-tags">' + Object.keys(groups).map(function(status) {
         return '<span>' + esc(status) + ': ' + groups[status] + ' · ' + esc(problemHint(status)) + '</span>';
       }).join('') + '</div>';
@@ -686,8 +686,8 @@
 
   function problemHint(status) {
     if (status === 'Falta SQX') return 'añade el .sqx original';
-    if (status === 'Faltan métricas') return 'exporta CSV con Template Maker Cert';
-    if (status === 'Métricas no compatibles') return 'CSV de otra view: reexporta con Template Maker Cert';
+    if (status === 'Faltan métricas') return 'exporta CSV con SQX EDGE CORRELATION REVIEW';
+    if (status === 'Métricas no compatibles') return 'CSV de otra view: reexporta con SQX EDGE CORRELATION REVIEW';
     if (status === 'Completa') return 'necesita scoring PASSED para C2';
     if (status === 'Similar descartada') return 'usa el ganador diverso del cluster';
     return 'revisa fuentes';
@@ -738,7 +738,7 @@
     var firstProvenance = firstCsv.provenance || {};
     var firstSource = firstCsv.sources && firstCsv.sources.csv || {};
     var traceItems = [
-      'Contrato: ' + (firstProvenance.schemaVersion || firstProvenance.certVersion || 'template-maker-cert-v2'),
+      'Contrato: ' + (firstProvenance.schemaVersion || firstProvenance.certVersion || 'sqx-edge-correlation-review-c2-v1'),
       'View: ' + (firstProvenance.viewName || firstSource.viewName || 'no detectada'),
       'CSV: ' + (firstSource.filename || 'no cargado'),
       'Registros: ' + (records || []).length,

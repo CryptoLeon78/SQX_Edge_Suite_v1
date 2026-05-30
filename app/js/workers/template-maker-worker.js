@@ -216,7 +216,7 @@
 
   function computeMetricSimilarity(a, b, settings) {
     var sims = [];
-    (settings.metrics || ['CAGR/Max DD %', 'Profit factor', 'Max DD %', '# of trades', 'Winning Percent', 'Stability']).forEach(function(metric) {
+    (settings.metrics || ['Ret/DD Ratio', 'Profit factor', 'Max DD %', '# of trades', 'Winning Percent', 'Stability']).forEach(function(metric) {
       var av = getNumeric(metricValue(a, metric));
       var bv = getNumeric(metricValue(b, metric));
       if (av === null || bv === null) return;
@@ -284,7 +284,7 @@
       if (scoreDiff) return scoreDiff;
       var pfDiff = (getNumeric(metricValue(b, 'Profit factor')) || 0) - (getNumeric(metricValue(a, 'Profit factor')) || 0);
       if (pfDiff) return pfDiff;
-      var cagrDiff = (getNumeric(metricValue(b, 'CAGR/Max DD %')) || 0) - (getNumeric(metricValue(a, 'CAGR/Max DD %')) || 0);
+      var cagrDiff = (getNumeric(metricValue(b, 'Ret/DD Ratio') || metricValue(b, 'CAGR/Max DD %')) || 0) - (getNumeric(metricValue(a, 'Ret/DD Ratio') || metricValue(a, 'CAGR/Max DD %')) || 0);
       if (cagrDiff) return cagrDiff;
       var ddDiff = (getNumeric(metricValue(a, 'Max DD %')) || 0) - (getNumeric(metricValue(b, 'Max DD %')) || 0);
       if (ddDiff) return ddDiff;

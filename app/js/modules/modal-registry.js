@@ -9,7 +9,7 @@
       tab: 'Template Maker',
       owner: 'template-maker-ui',
       action: 'auditar estrategias cargadas',
-      reads: ['IndexedDB SQXTemplateMakerDB', 'CSV Template Maker Cert', '.sqx cargados'],
+      reads: ['IndexedDB SQXTemplateMakerDB', 'CSV SQX EDGE CORRELATION REVIEW', '.sqx cargados'],
       writes: ['solo lectura'],
       trace: ['view detectada', 'contrato', 'estrategias', 'clusters', 'ganadoras C2'],
       failures: ['CSV incompleto', 'SQX faltante', 'contrato antiguo', 'cluster no calculado']

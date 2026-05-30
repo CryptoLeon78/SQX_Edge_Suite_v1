@@ -44,7 +44,7 @@ def _connect(path: Path) -> sqlite3.Connection:
 def empty_template_maker_snapshot() -> dict[str, Any]:
     return {
         "schemaVersion": REMOTE_TEMPLATE_MAKER_STATE_VERSION,
-        "templateMakerSchemaVersion": "template-maker-cert-v2",
+        "templateMakerSchemaVersion": "sqx-edge-correlation-review-c2-v1",
         "strategies": [],
         "config": {
             "currentCapa": 1,
@@ -71,7 +71,7 @@ def _normalize_snapshot(snapshot: Mapping[str, Any] | None) -> dict[str, Any]:
         current_capa = 1
     normalized = {
         "schemaVersion": REMOTE_TEMPLATE_MAKER_STATE_VERSION,
-        "templateMakerSchemaVersion": str(source.get("templateMakerSchemaVersion") or "template-maker-cert-v2"),
+        "templateMakerSchemaVersion": str(source.get("templateMakerSchemaVersion") or "sqx-edge-correlation-review-c2-v1"),
         "strategies": strategies,
         "config": {
             "currentCapa": 2 if current_capa == 2 else 1,

@@ -7,10 +7,12 @@
   var TM_DB_VERSION = 1;
   var TM_STORE_STRATEGIES = 'tm_strategies';
   var TM_STORE_CONFIG = 'tm_config';
-  var TM_CERT_VERSION = 'TMA2.2';
-  var TM_RULESET = 'template-maker-cert-v2';
-  var TM_SCHEMA_VERSION = 'template-maker-cert-v2';
-  var TM_CERT_VIEW_NAME = 'Template Maker Cert';
+  var TM_CERT_VERSION = 'SQX-CORR-C2.1';
+  var TM_RULESET = 'sqx-edge-correlation-review-c2-v1';
+  var TM_SCHEMA_VERSION = 'sqx-edge-correlation-review-c2-v1';
+  var TM_CERT_VIEW_NAME = 'SQX EDGE CORRELATION REVIEW';
+  var TM_LEGACY_CERT_VIEW_NAME = 'Template Maker Cert';
+  var TM_LEGACY_SCHEMA_VERSION = 'template-maker-cert-v2';
   var REQUIRED_IDENTITY_COLUMNS = [
     'Strategy Name',
     'Symbol',
@@ -31,6 +33,33 @@
     'Calmar Ratio',
     'Sortino Ratio',
     '% Profitable Months'
+  ];
+  var REQUIRED_CORRELATION_REVIEW_COLUMNS = [
+    'Strategy Name',
+    'Symbol',
+    'TimeFrame',
+    'Fitness',
+    'Profit factor',
+    'Ret/DD Ratio',
+    'Max DD %',
+    '# of trades',
+    'SQXEdgeCorrDecision',
+    'SQXEdgeCorrStatus'
+  ];
+  var CORRELATION_REVIEW_SCORE_METRICS = [
+    'Profit factor',
+    'Ret/DD Ratio',
+    'Max DD %',
+    '# of trades'
+  ];
+  var OPTIONAL_CORRELATION_REVIEW_COLUMNS = [
+    'SQXEdgeCorrRank',
+    'SQXEdgeCorrScore',
+    'SQXEdgeMaxCorr',
+    'SQXEdgeNearestWinner',
+    'EntryIndicators',
+    'ExitIndicators',
+    'PriceIndicators'
   ];
   var DERIVED_METRICS = {
     'Ret/DD Ratio': 'CAGR/Max DD %'
@@ -135,6 +164,8 @@
     'Sortino Ratio': ['Sortino Ratio', 'SortinoRatio'],
     'Profit Factor': ['Profit factor', 'Profit Factor'],
     'Profit factor': ['Profit factor', 'Profit Factor'],
+    ReturnDDRatio: ['ReturnDDRatio', 'Ret/DD Ratio', 'CAGR/Max DD %', 'AnnualPctReturnDDRatio'],
+    'Ret/DD Ratio': ['Ret/DD Ratio', 'ReturnDDRatio', 'CAGR/Max DD %', 'AnnualPctReturnDDRatio'],
     NumberOfTrades: ['# of trades', 'NumberOfTrades'],
     '# of trades': ['# of trades', 'NumberOfTrades'],
     DrawdownPct: ['Max DD %', 'DrawdownPct'],
@@ -150,9 +181,17 @@
     'Net profit': ['Net profit', 'NetProfit'],
     ProfitableMonthsPct: ['% Profitable Months', 'ProfitableMonthsPct'],
     '% Profitable Months': ['% Profitable Months', 'ProfitableMonthsPct'],
-    'CAGR/Max DD %': ['CAGR/Max DD %', 'AnnualPctReturnDDRatio', 'Ret/DD Ratio'],
-    AnnualPctReturnDDRatio: ['CAGR/Max DD %', 'AnnualPctReturnDDRatio', 'Ret/DD Ratio'],
-    'Ret/DD Ratio': ['Ret/DD Ratio', 'CAGR/Max DD %', 'AnnualPctReturnDDRatio']
+    'CAGR/Max DD %': ['CAGR/Max DD %', 'AnnualPctReturnDDRatio', 'Ret/DD Ratio', 'ReturnDDRatio'],
+    AnnualPctReturnDDRatio: ['CAGR/Max DD %', 'AnnualPctReturnDDRatio', 'Ret/DD Ratio', 'ReturnDDRatio'],
+    SQXEdgeCorrDecision: ['SQXEdgeCorrDecision', 'SQX Edge Corr Decision', 'SQX Edge Corr Deci...'],
+    SQXEdgeCorrStatus: ['SQXEdgeCorrStatus', 'SQX Edge Corr Status'],
+    SQXEdgeCorrRank: ['SQXEdgeCorrRank', 'SQX Edge Corr Rank'],
+    SQXEdgeCorrScore: ['SQXEdgeCorrScore', 'SQX Edge Corr Score'],
+    SQXEdgeMaxCorr: ['SQXEdgeMaxCorr', 'SQX Edge Max Corr'],
+    SQXEdgeNearestWinner: ['SQXEdgeNearestWinner', 'SQX Edge Nearest Winner'],
+    EntryIndicators: ['EntryIndicators', 'Entry indicators'],
+    ExitIndicators: ['ExitIndicators', 'Exit indicators'],
+    PriceIndicators: ['PriceIndicators', 'Price indicators']
   };
 
   var PRESETS = {
@@ -567,17 +606,41 @@
 
   function inferViewName(headers) {
     var names = headers || [];
-    var required = getRequiredContractColumns();
+    if (isCorrelationReviewColumns(names)) return TM_CERT_VIEW_NAME;
+    var required = getRequiredContractColumns('legacy');
     var missing = required.filter(function(column) {
       return !findMetricKeyFromList(column, names);
     });
-    if (!missing.length) return TM_CERT_VIEW_NAME;
-    if (missing.length <= 3) return 'Template Maker Cert compatible';
+    if (!missing.length) return TM_LEGACY_CERT_VIEW_NAME;
+    if (missing.length <= 3) return TM_LEGACY_CERT_VIEW_NAME + ' compatible';
     return 'CSV compatible no identificado';
   }
 
-  function getRequiredContractColumns() {
-    return REQUIRED_IDENTITY_COLUMNS.concat(REQUIRED_METRICS_ALL);
+  function getRequiredContractColumns(profile) {
+    return profile === 'legacy'
+      ? REQUIRED_IDENTITY_COLUMNS.concat(REQUIRED_METRICS_ALL)
+      : REQUIRED_CORRELATION_REVIEW_COLUMNS.slice();
+  }
+
+  function isCorrelationReviewColumns(keys) {
+    var names = keys || [];
+    return ['SQXEdgeCorrDecision', 'SQXEdgeCorrStatus'].some(function(column) {
+      return !!findMetricKeyFromList(column, names);
+    });
+  }
+
+  function csvViewName(strategy) {
+    return strategy && strategy.provenance && strategy.provenance.viewName ||
+      strategy && strategy.sources && strategy.sources.csv && strategy.sources.csv.viewName || '';
+  }
+
+  function getContractProfile(strategy) {
+    var viewName = csvViewName(strategy);
+    var keys = getContractKeys(strategy);
+    if (String(viewName).toLowerCase().indexOf('sqx edge correlation review') >= 0 || isCorrelationReviewColumns(keys)) {
+      return 'correlation-review';
+    }
+    return 'legacy-template-maker-cert';
   }
 
   function init() {
@@ -1055,8 +1118,10 @@
       CalmarRatio: 'Calmar Ratio',
       SortinoRatio: 'Sortino Ratio',
       AnnualPctReturnDDRatio: 'CAGR/Max DD %',
+      ReturnDDRatio: 'Ret/DD Ratio',
       NumberOfTrades: '# of trades',
       NetProfit: 'Net profit',
+      ProfitFactor: 'Profit factor',
       DrawdownPct: 'Max DD %',
       SharpeRatio: 'Sharpe Ratio',
       WinningPct: 'Winning Percent',
@@ -1124,7 +1189,7 @@
 
   function pickMetrics(strategy) {
     var metrics = {};
-    REQUIRED_METRICS_ALL.forEach(function(metric) {
+    unique(REQUIRED_METRICS_ALL.concat(CORRELATION_REVIEW_SCORE_METRICS).concat(OPTIONAL_CORRELATION_REVIEW_COLUMNS)).forEach(function(metric) {
       var value = metricValue(strategy, metric);
       if (value !== undefined && value !== '') metrics[metric] = value;
     });
@@ -1301,7 +1366,12 @@
     return clone(_thresholds[capa || _currentCapa] || {});
   }
 
-  function getRequiredMetricNames(capa, preset) {
+  function getRequiredMetricNames(capa, preset, options) {
+    if (!(options && options.legacy) && _strategies.length && _strategies.some(function(strategy) {
+      return getContractProfile(strategy) === 'correlation-review';
+    })) {
+      return CORRELATION_REVIEW_SCORE_METRICS.slice();
+    }
     var selectedPreset = preset || _currentPreset;
     var selectedCapa = Number(capa || _currentCapa) === 2 ? 2 : 1;
     var thresholds = PRESETS[selectedPreset] && PRESETS[selectedPreset][selectedCapa]
@@ -1315,8 +1385,11 @@
   }
 
   function validateMetricsContract(strategy, capa, preset) {
-    var required = getRequiredMetricNames(capa, preset);
-    var requiredColumns = getRequiredContractColumns();
+    var profile = getContractProfile(strategy);
+    var required = profile === 'correlation-review'
+      ? CORRELATION_REVIEW_SCORE_METRICS.slice()
+      : getRequiredMetricNames(capa, preset, { legacy: true });
+    var requiredColumns = getRequiredContractColumns(profile === 'correlation-review' ? 'correlation-review' : 'legacy');
     var keys = getContractKeys(strategy);
     var hasCsv = !!(strategy && strategy.sources && strategy.sources.csv) || String(strategy && strategy._source || '').indexOf('csv') >= 0;
     var recognizedColumns = requiredColumns.filter(function(column) {
@@ -1336,14 +1409,15 @@
       required: required,
       missing: missing,
       present: required.filter(function(metric) { return missing.indexOf(metric) < 0; }),
-      sourceView: strategy && strategy.provenance && strategy.provenance.viewName || strategy && strategy.sources && strategy.sources.csv && strategy.sources.csv.viewName || '',
-      schemaVersion: TM_SCHEMA_VERSION,
-      certVersion: TM_CERT_VERSION,
-      ruleset: TM_RULESET,
+      sourceView: csvViewName(strategy),
+      schemaVersion: profile === 'correlation-review' ? TM_SCHEMA_VERSION : TM_LEGACY_SCHEMA_VERSION,
+      certVersion: profile === 'correlation-review' ? TM_CERT_VERSION : 'TMA2.2',
+      ruleset: profile === 'correlation-review' ? TM_RULESET : TM_LEGACY_SCHEMA_VERSION,
+      contractProfile: profile,
       requiredColumns: requiredColumns,
       recognizedColumns: recognizedColumns,
       missingRequired: missingRequired,
-      detectedCsvProfile: detectCsvProfile(hasCsv, missingRequired, missing),
+      detectedCsvProfile: detectCsvProfile(hasCsv, missingRequired, missing, profile),
       derivedMetrics: getDerivedMetricNotes(strategy),
       status: !hasCsv ? 'Faltan métricas' : missing.length || missingRequired.length ? 'Métricas no compatibles' : 'Completa'
     };
@@ -1372,9 +1446,11 @@
     });
   }
 
-  function detectCsvProfile(hasCsv, missingRequired, missing) {
+  function detectCsvProfile(hasCsv, missingRequired, missing, profile) {
     if (!hasCsv) return 'Sin CSV';
-    if (!missingRequired.length && !missing.length) return TM_CERT_VIEW_NAME + ' v2';
+    if (!missingRequired.length && !missing.length) {
+      return profile === 'correlation-review' ? TM_CERT_VIEW_NAME : TM_LEGACY_CERT_VIEW_NAME + ' v2';
+    }
     if (missingRequired.length) return 'CSV incompleto o de otra view';
     return 'CSV compatible con metricas derivadas';
   }
@@ -1389,13 +1465,17 @@
   }
 
   function getContractDiagnostics() {
-    var requiredColumns = getRequiredContractColumns();
+    var hasCorrelationProfile = _strategies.some(function(strategy) {
+      return getContractProfile(strategy) === 'correlation-review';
+    });
+    var requiredColumns = getRequiredContractColumns(hasCorrelationProfile ? 'correlation-review' : 'legacy');
     if (!_strategies.length) {
       return {
         total: 0,
         schemaVersion: TM_SCHEMA_VERSION,
         certVersion: TM_CERT_VERSION,
         ruleset: TM_RULESET,
+        contractProfile: 'correlation-review',
         requiredColumns: requiredColumns,
         recognizedColumns: [],
         missingRequired: [],
@@ -1408,9 +1488,10 @@
     });
     return {
       total: _strategies.length,
-      schemaVersion: TM_SCHEMA_VERSION,
-      certVersion: TM_CERT_VERSION,
-      ruleset: TM_RULESET,
+      schemaVersion: hasCorrelationProfile ? TM_SCHEMA_VERSION : contracts[0].schemaVersion,
+      certVersion: hasCorrelationProfile ? TM_CERT_VERSION : contracts[0].certVersion,
+      ruleset: hasCorrelationProfile ? TM_RULESET : contracts[0].ruleset,
+      contractProfile: hasCorrelationProfile ? 'correlation-review' : contracts[0].contractProfile,
       requiredColumns: requiredColumns,
       recognizedColumns: unique([].concat.apply([], contracts.map(function(contract) { return contract.recognizedColumns || []; }))),
       missingRequired: unique([].concat.apply([], contracts.map(function(contract) { return contract.missingRequired || []; }))),
@@ -2115,7 +2196,7 @@
 
   function generateC2Template(strategy, options) {
     if (!strategy || !strategy._fileData) return Promise.reject(new Error('La estrategia no tiene .sqx de origen'));
-    if (!canGenerateC2(strategy)) return Promise.reject(new Error('Requiere .sqx, CSV Template Maker Cert compatible, estado PASSED y diversidad aprobada.'));
+    if (!canGenerateC2(strategy)) return Promise.reject(new Error('Requiere .sqx, CSV SQX EDGE CORRELATION REVIEW compatible, estado PASSED y diversidad aprobada.'));
     if (!global.JSZip) return Promise.reject(new Error('JSZip no esta cargado'));
     var trace = resolveC2Trace(strategy, options || {});
     return global.JSZip.loadAsync(strategy._fileData).then(function(zip) {
@@ -2397,7 +2478,12 @@
     parseSQX: parseSQX,
     detectAssetClass: detectAssetClass,
     getInfoColumns: function() { return ['Strategy Name', 'Asset', 'Symbol', 'TimeFrame', 'Fitness']; },
-    getKPIColumns: function(capa) { return Object.keys(_thresholds[capa || _currentCapa] || {}); }
+    getKPIColumns: function(capa) {
+      if (_strategies.some(function(strategy) { return getContractProfile(strategy) === 'correlation-review'; })) {
+        return CORRELATION_REVIEW_SCORE_METRICS.slice();
+      }
+      return Object.keys(_thresholds[capa || _currentCapa] || {});
+    }
   };
 
   SQX.templateMaker = SQX.templateMaker || api;

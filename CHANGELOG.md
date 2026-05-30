@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-05-30 - SQX142 Template Maker Correlation Review Cert
+
+- Makes `SQX EDGE CORRELATION REVIEW` the canonical Template Maker C2 CSV contract for Capa1 -> Template C2 certification.
+- Keeps legacy `Template Maker Cert v2` CSV compatibility, but removes it as the recommended/mandatory SQX Views handoff for the current CORR1/OOS3 methodology.
+- Updates Template Maker validation to accept CORR1 columns (`ProfitFactor`, `ReturnDDRatio`, `DrawdownPct`, `NumberOfTrades`, `SQXEdgeCorrDecision`, `SQXEdgeCorrStatus`) without fabricating old KPI columns that the new view does not export.
+- Updates SQX Views buyer-ready template and Template Maker UI copy so operators export/load `SQX EDGE CORRELATION REVIEW`.
+- Preserves boundaries: no SQX launch, no SQX local project/databank mutation, no `data.db` writes, no jars/internal plugins/license changes, no `run_project`, no Migration Tool and no invented metrics.
+
 ## 2026-05-30 - SQX142 USDJPY Capa1 CORR1 Single-Candidate Registration
 
 - Registers the real `SQX_EDGE_API_FRESH_USDJPY_H1_Volatilidad_20260530_082732_Capa1` funnel read-only after operator SQX close: `Results=2000`, `RETEST 0=682`, `retest 1=256`, `TICK=108`, `MC=97`, `MC2=70`, `Sequential=70`, `Monkey Test=1`, `Synthetic=1`, `SPP=1`, `WFM=1`, `Forward=1`, `SQX EDGE CORR1 STABILITY=1`, `SQX EDGE CORR1 TAGGED=1`.

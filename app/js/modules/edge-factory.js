@@ -292,7 +292,7 @@
     var analysis = {
       analyzedAt: payload.analyzedAt || new Date().toISOString(),
       source: safeString(payload.source || 'template-maker'),
-      contract: safeString(report.contractVersion || report.schemaVersion || payload.contractVersion || 'Template Maker Cert'),
+      contract: safeString(report.contractVersion || report.schemaVersion || payload.contractVersion || 'SQX EDGE CORRELATION REVIEW'),
       total: numeric(report.total || payload.total, 0),
       passed: numeric(report.passed || payload.passed, 0),
       review: numeric(report.review || payload.review, 0),

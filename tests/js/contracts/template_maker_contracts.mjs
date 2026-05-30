@@ -78,7 +78,7 @@ const requiredApi = [
 ];
 
 assert.ok(html.includes('id="tab-templatemaker"'), 'missing Template Maker tab panel');
-assert.ok(html.includes('Template Maker Cert'), 'Template Maker should explain the mandatory metric view');
+assert.ok(html.includes('SQX EDGE CORRELATION REVIEW'), 'Template Maker should explain the mandatory correlation-review view');
 assert.ok(html.includes('id="tm-files-input"'), 'missing unified file input');
 assert.ok(html.includes('id="tm-unified-zone"'), 'missing unified upload zone');
 assert.ok(html.includes('id="tm-open-cert-view"'), 'missing SQX Views handoff');
@@ -154,7 +154,7 @@ assert.ok(tm.getPresets().includes('Commodities'), 'Commodities preset should ex
 assert.equal(tm.getStrategies().length, 0, 'initial strategies should be empty');
 assert.ok(tm.getRequiredMetricNames(1, 'Generic').includes('Net profit'), 'required metrics should include Net profit');
 assert.ok(tm.getRequiredMetricNames(1, 'Commodities').includes('Ret/DD Ratio'), 'commodity contract should keep Ret/DD alias');
-assert.equal(tm.getContractDiagnostics().schemaVersion, 'template-maker-cert-v2', 'contract diagnostics should expose v2 schema');
+assert.equal(tm.getContractDiagnostics().schemaVersion, 'sqx-edge-correlation-review-c2-v1', 'contract diagnostics should expose correlation-review schema');
 
 const emptyScore = tm.scoreStrategy({});
 assert.equal(emptyScore.classification, 'FAILED', 'empty score should fail defensively');
@@ -167,6 +167,23 @@ assert.ok(sqxXmlFeatures.indicators.length > 0, 'tracked SQX XML fixture should 
 assert.ok(sqxXmlFeatures.indicatorLabels.length > 0, 'SQX indicator extraction should keep readable indicator labels');
 assert.equal(tm.formatLogicIndicators({ _strategyXml: '<Strategy><Item categoryType="indicator" key="HullMovingAverageATRBands"/></Strategy>' }).compact, 'hullmovingaverageatrbands', 'logic formatter should expose compact indicator token for names');
 
+const corrReviewCsv = [
+  'Strategy Name;Symbol;TimeFrame;Fitness;ProfitFactor;ReturnDDRatio;DrawdownPct;NumberOfTrades;SQXEdgeCorrDecision;SQXEdgeCorrRank;SQXEdgeCorrScore;SQXEdgeMaxCorr;SQXEdgeCorrStatus;SQXEdgeNearestWinner;EntryIndicators;ExitIndicators;PriceIndicators',
+  'Strategy CORR.01;USDJPY_darwinex;H1;0.86;1.36;7.69;4.85;1301;selected_is;1;76.33;-1;not_available;;Close_Donchian;ExitAfterXBars;'
+].join('\n');
+await tm.loadFromCSV(corrReviewCsv, { fileName: 'sqx-edge-correlation-review.csv' });
+assert.equal(tm.getStrategies().length, 1, 'SQX Edge Correlation Review CSV should load one strategy');
+const corrStrategy = tm.getStrategies()[0];
+const corrContract = tm.validateMetricsContract(corrStrategy);
+assert.equal(corrContract.valid, true, 'SQX Edge Correlation Review CSV should satisfy the C2 certification contract');
+assert.equal(corrContract.contractProfile, 'correlation-review', 'correlation review should be the canonical Template Maker profile');
+assert.equal(corrContract.schemaVersion, 'sqx-edge-correlation-review-c2-v1', 'correlation review should expose canonical schema');
+assert.equal(corrContract.detectedCsvProfile, 'SQX EDGE CORRELATION REVIEW', 'diagnostics should identify SQX Edge Correlation Review');
+assert.ok(tm.getRequiredMetricNames(1, 'Generic').includes('Ret/DD Ratio'), 'correlation review scoring should use Ret/DD Ratio');
+assert.equal(JSON.stringify(tm.getKPIColumns()), JSON.stringify(['Profit factor', 'Ret/DD Ratio', 'Max DD %', '# of trades']), 'correlation review should show only available C2 scoring metrics');
+assert.equal(tm.scoreStrategy(corrStrategy).classification, 'PASSED', 'correlation review candidate should score from available metrics only');
+await tm.clearResultStrategies();
+
 const certV2Csv = fs.readFileSync(path.join(repoRoot, 'resources/template-maker-tool/template_maker_cert_v2_sample.csv'), 'utf8');
 ['Strategy TM.01.sqx', 'Strategy TM.02.sqx', 'Strategy TM.03.sqx'].forEach(fileName => {
   assert.ok(fs.existsSync(path.join(repoRoot, 'resources/template-maker-tool', fileName)), `missing tracked diversity SQX fixture ${fileName}`);
@@ -176,17 +193,17 @@ await tm.loadFromCSV(certV2Csv, { fileName: 'template-maker-cert-v2.csv' });
 assert.equal(tm.getStrategies().length, 3, 'realistic Template Maker Cert v2 fixture should load all rows');
 const certV2Strategy = tm.getStrategies()[0];
 const certV2Contract = tm.validateMetricsContract(certV2Strategy);
-assert.equal(certV2Contract.schemaVersion, 'template-maker-cert-v2', 'v2 contract should expose schemaVersion');
+assert.equal(certV2Contract.schemaVersion, 'template-maker-cert-v2', 'legacy Template Maker Cert v2 contract should remain accepted');
 assert.equal(certV2Contract.valid, true, 'v2 CSV should satisfy metric contract without Ret/DD column');
 assert.equal(certV2Contract.missingRequired.length, 0, 'v2 CSV should not report missing required columns');
 assert.ok(certV2Contract.requiredColumns.includes('Calmar Ratio'), 'v2 required columns should include Calmar Ratio');
 assert.ok(certV2Contract.recognizedColumns.includes('Recovery Factor'), 'v2 parser should accept RecoveryFactor without space');
-assert.ok(certV2Contract.derivedMetrics.includes('Ret/DD Ratio <- CAGR/Max DD %'), 'Ret/DD should be derived from CAGR/Max DD %');
+assert.equal(certV2Strategy.metrics['Ret/DD Ratio'], certV2Strategy.metrics['CAGR/Max DD %'], 'Ret/DD should remain available for legacy scoring');
 await tm.setPreset('Commodities');
 assert.equal(tm.scoreStrategy(certV2Strategy).details['Ret/DD Ratio'].value, '0.44', 'Ret/DD scoring should use derived CAGR/Max DD % value');
 await tm.setPreset('Generic');
 const v2Diagnostics = tm.getContractDiagnostics();
-assert.equal(v2Diagnostics.detectedCsvProfile, 'Template Maker Cert v2', 'diagnostics should identify v2 CSV');
+assert.equal(v2Diagnostics.detectedCsvProfile, 'Template Maker Cert v2', 'diagnostics should identify legacy v2 CSV');
 assert.equal(v2Diagnostics.missingRequired.length, 0, 'diagnostics should not report v2 missing columns');
 await tm.clearResultStrategies();
 const [certV2Header, certV2FirstRow] = certV2Csv.trim().split(/\r?\n/);
@@ -226,7 +243,10 @@ function diversityStrategy(name, indicator, profitFactor, cagr, drawdown, trades
     CalmarRatio: 0.8,
     SortinoRatio: 1.1,
     '% Profitable Months': 62,
-    sources: { sqx: { fileName: `${name}.sqx`, hash: `hash-${name}`, importedAt: '2026-05-15T00:00:00.000Z' } },
+    sources: {
+      csv: { fileName: 'legacy-template-maker-cert.csv', viewName: 'Template Maker Cert', columns: [], importedAt: '2026-05-15T00:00:00.000Z' },
+      sqx: { fileName: `${name}.sqx`, hash: `hash-${name}`, importedAt: '2026-05-15T00:00:00.000Z' }
+    },
     logic: {
       features: {
         indicators: [indicator],
@@ -346,7 +366,7 @@ assert.equal(merged.length, 1, 'CSV and SQX for same strategy should reconcile i
 assert.ok(merged[0].sources.csv, 'reconciled record should keep CSV source');
 assert.ok(merged[0].sources.sqx, 'reconciled record should keep SQX source');
 assert.equal(tm.validateMetricsContract(merged[0]).valid, true, 'reconciled record should keep valid metrics');
-assert.equal(tm.getProvenance(merged[0]).ruleset, 'template-maker-cert-v2', 'reconciled provenance should stay on v2 ruleset');
+assert.equal(tm.getProvenance(merged[0]).ruleset, 'sqx-edge-correlation-review-c2-v1', 'reconciled provenance should migrate to canonical C2 ruleset');
 assert.equal(await tm.computeFileHash('abc').then(hash => hash.length >= 8), true, 'computeFileHash should return a stable hash');
 await tm.reset();
 await tm.loadFromCSV([{
@@ -389,7 +409,7 @@ assert.equal(tm.getStrategyStatus(tm.getStrategies()[0]), 'Métricas no compatib
 await tm.reset();
 
 tm.applyRemoteSnapshot({
-  templateMakerSchemaVersion: 'template-maker-cert-v2',
+  templateMakerSchemaVersion: 'sqx-edge-correlation-review-c2-v1',
   strategies: [{
     _id: 701,
     'Strategy Name': 'Remote TM',
@@ -416,6 +436,7 @@ assert.equal(tm.getStrategies()[0].Symbol, 'XAUUSD', 'remote snapshot should hyd
 assert.equal(tm.getCurrentPreset(), 'Commodities', 'remote snapshot should hydrate config');
 const remoteSnapshot = tm.buildRemoteSnapshot();
 assert.equal(remoteSnapshot.schemaVersion, 'remote-template-maker-state-v1', 'remote snapshot should expose schema');
+assert.equal(remoteSnapshot.templateMakerSchemaVersion, 'sqx-edge-correlation-review-c2-v1', 'remote snapshot should expose canonical Template Maker schema');
 assert.equal(remoteSnapshot.strategies.length, 1, 'remote snapshot should include strategies');
 assert.equal(remoteSnapshot.config.currentPreset, 'Commodities', 'remote snapshot should include config');
 
