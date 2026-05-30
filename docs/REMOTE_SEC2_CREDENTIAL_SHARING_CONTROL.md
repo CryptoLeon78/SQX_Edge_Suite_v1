@@ -14,6 +14,7 @@ SQX Edge Suite now treats credential sharing as a first-class remote security ri
 - A revoked or blocked context cannot create or use a remote session.
 - A session is bound to the context that created it; copied sessions or copied cookies from another context are blocked.
 - Recent simultaneous sessions from different contexts are blocked as suspicious.
+- `internal_operator` identities use a separate owner context limit through REMOTE-OWNER1; the normal tester/buyer default remains 2.
 
 ## Privacy Rules
 
@@ -39,6 +40,7 @@ SQX Edge Suite now treats credential sharing as a first-class remote security ri
 - `tools/remote_access_control_admin.ps1`
 - `.local/remote_service/remote_access_control.local.json`
 - `.local/remote_service/remote_access_events.local.jsonl`
+- `docs/REMOTE_OWNER1_OWNER_ACCESS_RECOVERY.md` for owner-only recovery on top of this control.
 
 ## Acceptance
 

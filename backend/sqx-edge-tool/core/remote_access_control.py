@@ -21,6 +21,7 @@ DEFAULT_ACCESS_CONTROL_EVENTS_PATH = PROJECT_ROOT / ".local" / "remote_service" 
 DEFAULT_POLICY = {
     "mode": "strict",
     "maxTrustedContextsPerIdentity": 2,
+    "maxTrustedContextsPerInternalOperator": 8,
     "autoTrustWithinLimit": True,
     "blockConcurrentContexts": True,
     "concurrentWindowSeconds": 30 * 60,
@@ -84,10 +85,11 @@ def load_access_control_store(path: str | Path | None = None) -> dict[str, Any]:
     policy = payload.get("policy") if isinstance(payload.get("policy"), Mapping) else {}
     merged_policy = dict(DEFAULT_POLICY)
     merged_policy.update({key: policy[key] for key in policy if key in DEFAULT_POLICY})
-    try:
-        merged_policy["maxTrustedContextsPerIdentity"] = max(1, int(merged_policy["maxTrustedContextsPerIdentity"]))
-    except (TypeError, ValueError):
-        merged_policy["maxTrustedContextsPerIdentity"] = DEFAULT_POLICY["maxTrustedContextsPerIdentity"]
+    for integer_key in ("maxTrustedContextsPerIdentity", "maxTrustedContextsPerInternalOperator"):
+        try:
+            merged_policy[integer_key] = max(1, int(merged_policy[integer_key]))
+        except (TypeError, ValueError):
+            merged_policy[integer_key] = DEFAULT_POLICY[integer_key]
     try:
         merged_policy["concurrentWindowSeconds"] = max(60, int(merged_policy["concurrentWindowSeconds"]))
     except (TypeError, ValueError):
@@ -312,6 +314,12 @@ def _active_other_context(
     return None
 
 
+def _max_trusted_contexts(policy: Mapping[str, Any], entitlement_kind: str | None) -> int:
+    if str(entitlement_kind or "").strip() == "internal_operator":
+        return int(policy.get("maxTrustedContextsPerInternalOperator") or DEFAULT_POLICY["maxTrustedContextsPerInternalOperator"])
+    return int(policy.get("maxTrustedContextsPerIdentity") or DEFAULT_POLICY["maxTrustedContextsPerIdentity"])
+
+
 def evaluate_access_context(
     identity_hash: str | None,
     context: Mapping[str, Any],
@@ -331,6 +339,7 @@ def evaluate_access_context(
     context_ref = str(context.get("contextRef") or _ref(context_hash)).strip()
     store = load_access_control_store(store_path)
     policy = store.get("policy") if isinstance(store.get("policy"), Mapping) else dict(DEFAULT_POLICY)
+    effective_max_contexts = _max_trusted_contexts(policy, entitlement_kind)
 
     def finish(allowed: bool, reason: str, status: str, item: Mapping[str, Any] | None = None) -> dict[str, Any]:
         event = {
@@ -354,6 +363,8 @@ def evaluate_access_context(
                 "mode": policy.get("mode") or "strict",
                 "contextRef": context_ref,
                 "maxTrustedContextsPerIdentity": policy.get("maxTrustedContextsPerIdentity"),
+                "maxTrustedContextsPerInternalOperator": policy.get("maxTrustedContextsPerInternalOperator"),
+                "effectiveMaxTrustedContexts": effective_max_contexts,
             },
             "context": _public_context(item or {
                 "contextRef": context_ref,
@@ -383,8 +394,7 @@ def evaluate_access_context(
     trusted_count = len([entry for entry in contexts if entry.get("status") == "trusted"])
     created = False
     if item is None:
-        max_contexts = int(policy.get("maxTrustedContextsPerIdentity") or DEFAULT_POLICY["maxTrustedContextsPerIdentity"])
-        status = "trusted" if bool(policy.get("autoTrustWithinLimit", True)) and trusted_count < max_contexts else "pending"
+        status = "trusted" if bool(policy.get("autoTrustWithinLimit", True)) and trusted_count < effective_max_contexts else "pending"
         item = {
             "contextHash": context_hash,
             "contextRef": context_ref,

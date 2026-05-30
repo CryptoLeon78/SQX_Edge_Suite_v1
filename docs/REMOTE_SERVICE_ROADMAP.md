@@ -121,8 +121,8 @@ shared with testers or buyers.
 CANONICAL-LINK1 fixes the buyer/tester-facing link policy: the only URL to
 communicate externally is `https://sqxedgesuite.org/`. That root URL is served
 by the public-safe Cloudflare Worker preview and contains the CTA into the
-protected dashboard. `app.sqxedgesuite.org/dashboard` is infrastructure behind
-Cloudflare Access, and `go.sqxedgesuite.org` is only a technical alias/fallback
+protected dashboard. `<PROTECTED_DASHBOARD_HOST>/dashboard` is infrastructure behind
+Cloudflare Access, and `<PROTECTED_FALLBACK_HOST>` is only a technical alias/fallback
 for preview diagnostics, not a second commercial link.
 
 REMOTE-ASSET1 fixes the clean-session dashboard asset boundary: the protected
@@ -503,6 +503,28 @@ Policy:
 - third or revoked contexts cannot open the dashboard until operator approval;
 - copied sessions used from another context are blocked;
 - raw emails, IPs, device IDs, cookies, tokens, protected URLs and local paths stay out of Git and public JSON.
+
+### REMOTE-OWNER1 - Owner Access Recovery
+
+Fix the creator/operator lockout path without weakening tester/buyer anti-sharing. The owner identity is recovered as `internal_operator`, and `remote-access-control-v1` uses a separate `maxTrustedContextsPerInternalOperator` from the normal 2-context identity limit.
+
+Artifacts added in REMOTE-OWNER1:
+
+- `docs/REMOTE_OWNER1_OWNER_ACCESS_RECOVERY.md`
+- `remote-owner-access-recovery-v1`
+- `backend/sqx-edge-tool/core/remote_owner_access.py`
+- `backend/sqx-edge-tool/tools/remote_owner_access_recovery.py`
+- `tools/remote_owner_access_recovery.ps1`
+- `maxTrustedContextsPerInternalOperator`
+- `effectiveMaxTrustedContexts`
+- local ignored backups under `.local/remote_service/owner_access_recovery_backups/`
+
+Policy:
+
+- owner recovery is local-only and creates backup before mutation;
+- tester and buyer identities remain governed by `maxTrustedContextsPerIdentity=2`;
+- owner recovery does not mutate Cloudflare, checkout, grants for other users, workspaces, artifacts, SQX files, `data.db`, jars, license or activation;
+- tracked docs and normal output never include raw email, IP, device cookie, grant key, session token, protected URL or local evidence contents.
 
 Next REMOTE-7 scope:
 

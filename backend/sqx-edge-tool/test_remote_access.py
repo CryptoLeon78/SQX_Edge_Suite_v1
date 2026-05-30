@@ -18,6 +18,8 @@ from core.remote_access import (
     start_remote_session_from_headers,
     verify_tester_grant_key,
 )
+from core.remote_access_control import build_access_context, evaluate_access_context
+from core.remote_owner_access import owner_access_status, recover_owner_access
 from tools.remote_tester_grant import build_tester_grant, upsert_tester_grant
 
 
@@ -269,6 +271,60 @@ def test_remote_tester_grant_tool_writes_hashes_without_raw_private_values(tmp_p
     assert updated["status"] == "updated"
     assert len(store["grants"]) == 1
     assert store["grants"][0]["grantKeyHash"] == grant_key_hash("new-key")
+
+
+def test_owner_access_recovery_promotes_existing_tester_grant_and_approves_context(tmp_path):
+    identity = email_hash("owner@example.invalid")
+    entitlement_store = tmp_path / "remote_entitlements.local.json"
+    access_store = tmp_path / "remote_access_control.local.json"
+    events = tmp_path / "remote_access_events.local.jsonl"
+    entitlement_store.write_text(json.dumps({
+        "schemaVersion": "remote-entitlements-v1",
+        "grants": [{
+            "grantId": f"tester_{identity[:12]}",
+            "emailHash": identity,
+            "entitlementKind": "tester_free",
+            "status": "active",
+            "featureScope": "full",
+            "grantKeyHash": grant_key_hash("private-owner-key"),
+            "source": "operator_grant",
+        }],
+    }), encoding="utf-8")
+
+    evaluate_access_context(identity, build_access_context({}, device_id="device-a"), store_path=access_store, events_path=events)
+    evaluate_access_context(identity, build_access_context({}, device_id="device-b"), store_path=access_store, events_path=events)
+    pending = evaluate_access_context(identity, build_access_context({}, device_id="device-c"), store_path=access_store, events_path=events)
+
+    result = recover_owner_access(
+        identity_ref=identity[:12],
+        context_ref=pending["accessControl"]["contextRef"],
+        entitlements_path=entitlement_store,
+        access_control_path=access_store,
+        backup_dir=tmp_path / "backups",
+    )
+    store = json.loads(entitlement_store.read_text(encoding="utf-8"))
+    grant = store["grants"][0]
+    status = owner_access_status(
+        identity_ref=identity[:12],
+        entitlements_path=entitlement_store,
+        access_control_path=access_store,
+    )
+    result_text = json.dumps(result)
+    store_text = json.dumps(store)
+
+    assert result["ok"] is True
+    assert result["ownerGrantActive"] is True
+    assert result["contextApproval"]["status"] == "trusted"
+    assert result["backupId"].startswith("remote-owner-access-recovery-v1_")
+    assert grant["entitlementKind"] == "internal_operator"
+    assert grant["status"] == "active"
+    assert "grantKeyHash" not in grant
+    assert status["ownerGrantActive"] is True
+    assert status["contextCounts"]["trusted"] == 3
+    assert "owner@example.invalid" not in result_text
+    assert "owner@example.invalid" not in store_text
+    assert "private-owner-key" not in result_text
+    assert "private-owner-key" not in store_text
 
 
 def test_build_tester_grant_requires_email_and_private_key():

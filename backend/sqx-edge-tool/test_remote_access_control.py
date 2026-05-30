@@ -54,6 +54,29 @@ def test_first_two_contexts_are_trusted_and_third_is_pending(tmp_path):
     assert "pytest-browser" not in stored
 
 
+def test_internal_operator_uses_owner_context_limit_instead_of_tester_limit(tmp_path):
+    store = tmp_path / "remote_access_control.local.json"
+    events = tmp_path / "events.local.jsonl"
+    identity = email_hash("owner@example.invalid")
+
+    results = [
+        evaluate_access_context(
+            identity,
+            _context(f"owner-device-{index}", ip=f"203.0.113.{20 + index}"),
+            email_ref="ow***@example.invalid",
+            entitlement_kind="internal_operator",
+            store_path=store,
+            events_path=events,
+        )
+        for index in range(3)
+    ]
+
+    assert all(item["accessControl"]["allowed"] is True for item in results)
+    assert results[-1]["accessControl"]["status"] == "trusted"
+    assert results[-1]["accessControl"]["maxTrustedContextsPerIdentity"] == 2
+    assert results[-1]["accessControl"]["effectiveMaxTrustedContexts"] == 8
+
+
 def test_revoked_context_and_session_context_mismatch_block_access(tmp_path):
     store = tmp_path / "remote_access_control.local.json"
     events = tmp_path / "events.local.jsonl"
