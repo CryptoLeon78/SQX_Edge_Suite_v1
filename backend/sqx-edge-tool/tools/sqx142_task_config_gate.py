@@ -16261,6 +16261,15 @@ CAPA2_WFM_AUTOMATIC_SETTINGS_TARGET = {
     "maxSteps": "8",
     "distribution": "20",
 }
+CAPA2_WFM_RANKING_WALK_FORWARD_TARGET = {
+    "DontSaveOriginalStr": "true",
+    "DeleteFailedStr": "true",
+}
+CAPA2_WFM_RISK_MONEY_MANAGEMENT_METHOD_TARGET = {
+    **CAPA2_RETEST1_RISK_MONEY_MANAGEMENT_METHOD_TARGET,
+    "FixedSize": "false",
+    "FixedAmount": "true",
+}
 CAPA2_WFM_STRATEGY_TYPE_TARGET = {
     "type": "simple",
     "additionalCharts": "2",
@@ -20835,6 +20844,7 @@ def capa2_retest1_rankings_summary(root: ET.Element | None) -> dict[str, Any]:
     rankings = find_section(root, "Rankings") if root is not None else None
     if rankings is None:
         return {"exists": False}
+    walk_forward = rankings.find("WalkForward")
     return {
         "exists": True,
         "type": rankings.get("type", ""),
@@ -20848,6 +20858,10 @@ def capa2_retest1_rankings_summary(root: ET.Element | None) -> dict[str, Any]:
         "CustomAnalysis": dict(rankings.find("CustomAnalysis").attrib) if rankings.find("CustomAnalysis") is not None else {},
         "FitnessCriteria": dict(rankings.find("FitnessCriteria").attrib) if rankings.find("FitnessCriteria") is not None else {},
         "conditions": summarize_conditions_detailed(rankings.find("Conditions")),
+        "WalkForward": {
+            "DontSaveOriginalStr": walk_forward.findtext("DontSaveOriginalStr") or "",
+            "DeleteFailedStr": walk_forward.findtext("DeleteFailedStr") or "",
+        } if walk_forward is not None else {},
     }
 
 
@@ -22304,12 +22318,26 @@ def apply_capa2_mc_fastest_precision_to_root(root: ET.Element, actions: list[dic
 
 
 def apply_capa2_retest_risk_money_management_to_root(root: ET.Element, actions: list[dict[str, Any]]) -> None:
+    apply_capa2_risk_money_management_to_root(
+        root,
+        actions,
+        CAPA2_RETEST1_RISK_MONEY_MANAGEMENT_METHOD_TARGET,
+        "capa2-retest",
+    )
+
+
+def apply_capa2_risk_money_management_to_root(
+    root: ET.Element,
+    actions: list[dict[str, Any]],
+    target: dict[str, str],
+    suffix: str,
+) -> None:
     rmm = find_section(root, "RiskMoneyManagement")
     if rmm is None:
         rmm = ET.SubElement(root, "RiskMoneyManagement", {"customSettings": "false"})
         actions.append({"field": "RiskMoneyManagement", "from": None, "to": dict(rmm.attrib), "changed": True})
     existing = {method.get("type", ""): method for method in rmm.findall(".//Method") if method.get("type")}
-    for method_type, wanted in CAPA2_RETEST1_RISK_MONEY_MANAGEMENT_METHOD_TARGET.items():
+    for method_type, wanted in target.items():
         method = existing.get(method_type)
         if method is None:
             parent = rmm.find("RiskManagement") if method_type == "AllowAllTrades" else rmm.find("MoneyManagement")
@@ -22321,7 +22349,7 @@ def apply_capa2_retest_risk_money_management_to_root(root: ET.Element, actions: 
             before = dict(method.attrib)
         method.set("type", method_type)
         method.set("use", wanted)
-        actions.append({"field": f"RiskMoneyManagement/Method:{method_type}:capa2-retest", "from": before, "to": dict(method.attrib), "changed": before != dict(method.attrib)})
+        actions.append({"field": f"RiskMoneyManagement/Method:{method_type}:{suffix}", "from": before, "to": dict(method.attrib), "changed": before != dict(method.attrib)})
 
 
 def set_or_create_option_param_text(root: ET.Element, key: str, value: str, actions: list[dict[str, Any]], field_prefix: str) -> None:
@@ -25179,6 +25207,29 @@ def apply_capa2_wfm_crosschecks_to_root(root: ET.Element) -> list[dict[str, Any]
     return actions
 
 
+def apply_capa2_wfm_rankings_to_root(root: ET.Element, actions: list[dict[str, Any]]) -> None:
+    apply_spp_rankings_to_root(root, actions)
+    rankings = find_section(root, "Rankings")
+    if rankings is None:
+        rankings = ET.SubElement(root, "Rankings", {"type": "never"})
+        actions.append({"field": "Rankings:capa2-wfm", "from": None, "to": dict(rankings.attrib), "changed": True})
+    walk_forward = rankings.find("WalkForward")
+    if walk_forward is None:
+        walk_forward = ET.SubElement(rankings, "WalkForward")
+        actions.append({"field": "Rankings/WalkForward:capa2-wfm", "from": None, "to": "created", "changed": True})
+    for key, value in CAPA2_WFM_RANKING_WALK_FORWARD_TARGET.items():
+        set_or_create_text_child(walk_forward, key, value, actions, f"Rankings/WalkForward/{key}:capa2-wfm")
+
+
+def apply_capa2_wfm_risk_money_management_to_root(root: ET.Element, actions: list[dict[str, Any]]) -> None:
+    apply_capa2_risk_money_management_to_root(
+        root,
+        actions,
+        CAPA2_WFM_RISK_MONEY_MANAGEMENT_METHOD_TARGET,
+        "capa2-wfm",
+    )
+
+
 def apply_capa2_wfm_optimization_to_root(root: ET.Element, actions: list[dict[str, Any]]) -> None:
     optimization = root.find("./Optimization")
     if optimization is None:
@@ -25223,8 +25274,8 @@ def apply_capa2_wfm_target_to_root(root: ET.Element) -> list[dict[str, Any]]:
     blocks = find_blocks(root)
     if blocks is not None:
         enforce_disabled_build_block_categories(blocks, actions)
-    apply_spp_rankings_to_root(root, actions)
-    apply_capa2_retest_risk_money_management_to_root(root, actions)
+    apply_capa2_wfm_rankings_to_root(root, actions)
+    apply_capa2_wfm_risk_money_management_to_root(root, actions)
     apply_mc_atms_to_root(root, actions)
     apply_mc_selected_strategies_to_root(root, actions)
     actions.append({"field": "Notes", "changed": False, "sha256": section_sha256(root, "Notes"), "note": "audited and preserved"})
@@ -25351,6 +25402,8 @@ def enforce_capa2_wfm_guard(root: ET.Element | None, target_name: str) -> list[s
         issues.append(f"{target_name}: Capa2 WFM Rankings DeleteFailedStrategies must be true")
     if ranking.get("ForceRunCrossChecks") != "false":
         issues.append(f"{target_name}: Capa2 WFM Rankings ForceRunCrossChecks must be false")
+    if (ranking.get("WalkForward") or {}) != CAPA2_WFM_RANKING_WALK_FORWARD_TARGET:
+        issues.append(f"{target_name}: Capa2 WFM Ranking WalkForward save policy drifted")
     if (ranking.get("FitPortfolio") or {}).get("active") != "false":
         issues.append(f"{target_name}: Capa2 WFM FitPortfolio must stay disabled")
     if (ranking.get("CustomAnalysis") or {}).get("filter") != "false":
@@ -25358,7 +25411,7 @@ def enforce_capa2_wfm_guard(root: ET.Element | None, target_name: str) -> list[s
     if ranking.get("conditions"):
         issues.append(f"{target_name}: Capa2 WFM Rankings must not add extra conditions")
     rmm = summary.get("riskMoneyManagement") or {}
-    for method_name, wanted in CAPA2_RETEST1_RISK_MONEY_MANAGEMENT_METHOD_TARGET.items():
+    for method_name, wanted in CAPA2_WFM_RISK_MONEY_MANAGEMENT_METHOD_TARGET.items():
         if rmm.get(method_name) != wanted:
             issues.append(f"{target_name}: Capa2 WFM RiskMoneyManagement {method_name} is {rmm.get(method_name)!r}, expected {wanted!r}")
     atms = find_section(root, "ATMs")
@@ -25445,6 +25498,8 @@ def update_capa2_wfm_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) ->
         },
         "activeCrossCheck": WFM_ACTIVE_CROSSCHECK,
         "acceptanceConditions": WFM_ACCEPTANCE_CONDITIONS_TARGET,
+        "rankingWalkForward": CAPA2_WFM_RANKING_WALK_FORWARD_TARGET,
+        "riskMoneyManagement": CAPA2_WFM_RISK_MONEY_MANAGEMENT_METHOD_TARGET,
         "strategyType": CAPA2_WFM_STRATEGY_TYPE_TARGET,
         "exitTypes": CAPA2_BUILD_BLOCKS_EXIT_TARGET,
     }

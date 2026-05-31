@@ -2854,6 +2854,12 @@ Siguiente bloque exacto: `phase27_capa2_wfm`.
 - Contrato anti-overfit: `StrategyType` pasivo desde `SPP`, sin `FitPortfolio`,
   sin `CustomAnalysis`, sin condiciones de Rankings, sin split OOS interno, sin
   ejecucion SQX y sin forzar estados de resultado.
+- Refresh operativo 2026-05-31 desde el minado real USDJPY H1 Volatilidad Capa2:
+  WFM debe guardar solo estrategias WF utiles, con `DontSaveOriginalStr=true`
+  y `DeleteFailedStr=true`, y debe usar `FixedAmount=true` /
+  `FixedSize=false` con `RiskedMoney=200`, `Decimals=2`, `LotsIfNoMM=0.1` y
+  `MaxLots=5`. Estos checks quedan promovidos a contrato de generador/gate, no
+  a ajuste manual posterior.
 - Contrato Capa2 de salidas: `ExitAfterBars=false` y SL/PT/trailing activos.
 - `generator_profiles.json` mapea layer 2 `Optimize-Task1.xml` a
   `ROBUSTNESS_C2`, `disableTradingTimeRanges.2` lo incluye, y

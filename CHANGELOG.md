@@ -5,6 +5,8 @@
 - Aligns Capa2 Project Generator with the validated Capa1 temporal contract: `BUILD_C1 2017.10.02-2023.01.01`, Retest 0 OOS1 `2023.01.01-2025.01.01`, Retest 1 `RETEST_1_C1 2010.01.01-2017.10.02`, and Forward `FOWARD_C1 2025.01.01-2026.04.08`.
 - Keeps Retest 1 as Dukascopy-bar validation (`source=2`) while preserving Darwinex execution resource compatibility (`broker=4`) observed in SQX142 local.
 - Normalizes generated Capa2 databank flow to `Synthetic -> SPP -> WFM -> Forward` and keeps the previous `Syntetic/Foward` names as legacy history only.
+- Promotes the real USDJPY H1 Volatilidad Capa2 WFM operator fix into the generator/gate/template contract: WFM now keeps `DontSaveOriginalStr=true`, `DeleteFailedStr=true`, `FixedAmount=true`, `FixedSize=false`, `RiskedMoney=200`, `Decimals=2`, `LotsIfNoMM=0.1` and `MaxLots=5`.
+- Registers the completed USDJPY H1 Volatilidad Capa2 funnel read-only after operator SQX close: `Results=2000`, `RETEST 0=863`, `retest 1=125`, `TICK=103`, `MC=43`, `MC2=43`, `Sequential=43`, `Monkey Test=43`, `Synthetic=43`, `SPP=32`, `WFM=22`, `Forward=8`.
 - Repairs the live USDJPY H1 Volatilidad Capa2 custom, refreshes the downloadable C2-ready copies, quarantines the bad legacy USDJPY Capa2 custom, and repairs the good AUDCAD customs with backups under ignored local evidence.
 - Preserves boundaries: SQX was closed for local mutations, no jars/internal plugins/license changes, no `data.db` writes, no databank deletion, no `run_project`, no Migration Tool and no forced pass/profitability claim.
 

@@ -3943,7 +3943,7 @@ def _write_minimal_capa2_retest1_cfx(path: Path, include_data: bool = True) -> N
       <WhatToBuild><StrategyType type="template" templateFile="C:\\private\\c2.sqx" improveDatabank="Strategies to improve" /><BuildMode><ShowLastGenerationDatabank>true</ShowLastGenerationDatabank><FreshBloodReplaceSimilar>true</FreshBloodReplaceSimilar><FreshBloodReplaceWeakest>true</FreshBloodReplaceWeakest><EvoRestartOnFinish status="true" /><EvoRestartOnStagnation status="true" fitnessType="10" generations="30" /></BuildMode></WhatToBuild>
       <PartsToImprove improveATM="true"><EntryRules><LongImprovement use="true" action="replace" /><ShortImprovement use="true" action="replace" /></EntryRules><ExitRules><LongImprovement use="true" action="replace" /><ShortImprovement use="true" action="replace" /></ExitRules></PartsToImprove>
       <Blocks><OrderTypes><Block key="EnterAtMarket" use="true" /><Block key="EnterReverseAtMarket" use="true" /><Block key="EnterAtStop" use="true" /><Block key="EnterAtLimit" use="true" /></OrderTypes><ExitTypes><Block key="ExitAfterBars.ExitAfterBars" use="true" probability="100" /><Block key="StopLoss.StopLoss" use="false" probability="100" /><Block key="ProfitTarget.ProfitTarget" use="false" probability="100" /><Block key="TrailingStop.TrailingStop" use="false" probability="50" /></ExitTypes><CustomData showAll="true"><Item /></CustomData></Blocks>
-      <RiskMoneyManagement><MoneyManagement><Method type="FixedSize" use="false" /><Method type="FixedAmount" use="true" /></MoneyManagement><RiskManagement><Method type="AllowAllTrades" use="false" /></RiskManagement></RiskMoneyManagement>
+      <RiskMoneyManagement><MoneyManagement><Method type="FixedSize" use="true" /><Method type="FixedAmount" use="false" /></MoneyManagement><RiskManagement><Method type="AllowAllTrades" use="false" /></RiskManagement></RiskMoneyManagement>
       <ATMs enable="true" />
       <SelectedStrategies><Strategy /></SelectedStrategies>
       <Notes />
@@ -5266,9 +5266,13 @@ def test_capa2_wfm_target_applies_and_is_idempotent(monkeypatch, tmp_path):
         assert setup.get("testPrecision") == "1"
     assert root.find(".//WhatToBuild/StrategyType").get("improveDatabank") == "SPP"
     assert root.find(".//Rankings").get("type") == "never"
+    assert root.find(".//Rankings/WalkForward/DontSaveOriginalStr").text == "true"
+    assert root.find(".//Rankings/WalkForward/DeleteFailedStr").text == "true"
     assert root.find(".//Rankings/FitPortfolio").get("active") == "false"
     assert root.find(".//Rankings/CustomAnalysis").get("filter") == "false"
     assert root.find(".//Rankings/Conditions").findall("Condition") == []
+    assert root.find(".//RiskMoneyManagement//Method[@type='FixedSize']").get("use") == "false"
+    assert root.find(".//RiskMoneyManagement//Method[@type='FixedAmount']").get("use") == "true"
     assert root.find(".//ExitTypes/Block[@key='ExitAfterBars.ExitAfterBars']").get("use") == "false"
     assert root.find(".//ExitTypes/Block[@key='StopLoss.StopLoss']").get("use") == "true"
     assert root.find(".//ExitTypes/Block[@key='ProfitTarget.ProfitTarget']").get("use") == "true"

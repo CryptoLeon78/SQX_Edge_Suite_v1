@@ -1538,6 +1538,44 @@ def _assert_wfm_crosschecks_contract(wfm: ET.Element) -> None:
 
 def _assert_wfm_static_tabs_contract(wfm: ET.Element) -> None:
     _assert_mc2_static_tabs_contract(wfm)
+    _assert_wfm_custom_data_contract(wfm)
+
+
+def _assert_capa2_wfm_static_tabs_contract(wfm: ET.Element) -> None:
+    rankings = wfm.find(".//Rankings")
+    assert rankings is not None
+    assert rankings.get("type") == "never"
+    assert rankings.findtext("DeleteFailedStrategies") == "true"
+    assert rankings.findtext("ForceRunCrossChecks") == "false"
+    assert rankings.findtext("./WalkForward/DontSaveOriginalStr") == "true"
+    assert rankings.findtext("./WalkForward/DeleteFailedStr") == "true"
+    assert rankings.find("FitPortfolio").get("active") == "false"
+    assert rankings.find("CustomAnalysis").get("filter") == "false"
+    assert rankings.findall("./Conditions/Condition") == []
+
+    rmm_methods = {
+        method.get("type"): method.get("use")
+        for method in wfm.findall(".//RiskMoneyManagement//MoneyManagement/Method")
+        if method.get("type")
+    }
+    assert rmm_methods == {
+        "FixedSize": "false",
+        "RiskFixedBalancePct": "false",
+        "RiskFixedPctOfAccount": "false",
+        "FixedAmount": "true",
+        "StocksSizeByPrice": "false",
+    }
+    atms = wfm.find(".//ATMs")
+    assert atms is not None
+    assert atms.get("enable") == "false"
+    selected = wfm.find(".//SelectedStrategies")
+    if selected is not None:
+        assert list(selected) == []
+        assert (selected.text or "").strip() == ""
+    _assert_wfm_custom_data_contract(wfm)
+
+
+def _assert_wfm_custom_data_contract(wfm: ET.Element) -> None:
     custom = wfm.find("./CustomData")
     assert custom is not None
     assert "USDJPY" not in ET.tostring(custom, encoding="unicode")
@@ -1580,7 +1618,7 @@ def _assert_capa2_wfm_contract(
         expected_broker=expected_broker,
     )
     _assert_wfm_crosschecks_contract(wfm)
-    _assert_wfm_static_tabs_contract(wfm)
+    _assert_capa2_wfm_static_tabs_contract(wfm)
     optimization = wfm.find("./Optimization")
     assert optimization is not None
     assert optimization.attrib == {"type": "3", "maxOptimizations": "3000"}
