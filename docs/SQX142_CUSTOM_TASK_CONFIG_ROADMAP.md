@@ -1,5 +1,7 @@
 # SQX142 Custom Task Config Roadmap
 
+Correccion 2026-05-31: el contrato activo de Capa2 para generator/customs hereda la particion validada de Capa1. Usar `BUILD_C1 2017.10.02-2023.01.01`, Retest 0 OOS1 `2023.01.01-2025.01.01`, Retest 1 `RETEST_1_C1 2010.01.01-2017.10.02` con barras Dukascopy source `2` y broker de ejecucion Darwinex `4`, y Forward `FOWARD_C1 2025.01.01-2026.04.08` con `Output=Forward`. Esto supersede los marcadores antiguos de Capa2 que usaban `BUILD`, OOS1 `2024.01.01-2025.01.01`, broker `3` o `FOWARD 2025.01.01-2026.04.30`.
+
 Estado: C1-CONFIG1 con Fase 30 documentada, registrada y bloqueada en inputs pending
 Correccion critica 2026-05-25: SQX 142 local define `testPrecision=2` como
 `1 minute data tick simulation`; real tick / real spread es `testPrecision=4`.

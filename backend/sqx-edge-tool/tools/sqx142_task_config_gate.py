@@ -119,9 +119,11 @@ VIEW_PROMOTION_TARGETS = {
     "MC2": "RETEST ROBUST REVIEW",
     "Sequential": "RETEST ROBUST REVIEW",
     "Monkey Test": "MC MONKEY RETEST",
+    "Synthetic": "MC SYNTHETIC RETEST",
     "Syntetic": "MC SYNTHETIC RETEST",
     "SPP": "RETEST ROBUST REVIEW",
     "WFM": "RETEST ROBUST REVIEW",
+    "Forward": "RETEST QUICK REVIEW",
     "Foward": "RETEST QUICK REVIEW",
 }
 
@@ -15928,11 +15930,11 @@ CAPA2_BUILD_TASK_XML = "Build-Task1.xml"
 CAPA2_BUILD_TASK_TITLE = "Build strategies"
 CAPA2_RETEST0_TASK_XML = "Retest-Task1.xml"
 CAPA2_RETEST0_TASK_TITLE = "RETEST 0"
-CAPA2_RETEST0_PERIOD_KEY = "RETEST_0"
+CAPA2_RETEST0_PERIOD_KEY = "RETEST_0_C1"
 CAPA2_RETEST0_OOS_RANGES = [
-    {"dateFrom": "2024.01.01", "dateTo": "2025.01.01"},
+    {"dateFrom": "2023.01.01", "dateTo": "2025.01.01"},
 ]
-CAPA2_FORWARD_RESERVED_PERIOD_KEY = "FOWARD"
+CAPA2_FORWARD_RESERVED_PERIOD_KEY = "FOWARD_C1"
 CAPA2_FORWARD_RESERVED_START = "2025.01.01"
 CAPA2_RETEST0_DATA_TEST_PRECISION = "2"
 CAPA2_RETEST0_DATA_SESSION = "No Session"
@@ -15994,16 +15996,16 @@ CAPA2_RETEST0_CROSSCHECK_PARENT_TARGET = {"use": "false", "evaluateAll": "false"
 CAPA2_RETEST0_STATIC_TABS = ("RiskMoneyManagement", "ATMs", "PartsToImprove", "SelectedStrategies", "Notes")
 CAPA2_RETEST1_TASK_XML = "AutomaticRetest-Task7.xml"
 CAPA2_RETEST1_TASK_TITLE = "RETEST 1"
-CAPA2_RETEST1_PERIOD_KEY = "RETEST_1"
+CAPA2_RETEST1_PERIOD_KEY = "RETEST_1_C1"
 CAPA2_RETEST1_DATA_TEST_PRECISION = "2"
 CAPA2_RETEST1_DATA_SESSION = "No Session"
 CAPA2_RETEST1_DATA_ENGINE = "MetaTrader4"
 CAPA2_RETEST1_RESOURCE_SYMBOL = "AUDCAD_dukascopy"
 CAPA2_RETEST1_RESOURCE_SPREAD = "1.9"
 CAPA2_RETEST1_RESOURCE_SOURCE_ID = "2"
-CAPA2_RETEST1_RESOURCE_BROKER_ID = "3"
-CAPA2_RETEST1_RESOURCE_BROKER_NAME = "[[Dukascopy]]"
-CAPA2_RETEST1_RESOURCE_BROKER_DESCRIPTION = "Dukascopy"
+CAPA2_RETEST1_RESOURCE_BROKER_ID = "4"
+CAPA2_RETEST1_RESOURCE_BROKER_NAME = "[[Darwinex]]"
+CAPA2_RETEST1_RESOURCE_BROKER_DESCRIPTION = "Darwinex CFDs"
 CAPA2_RETEST1_DATABANKS_TARGET = {"Input": "RETEST 0", "Output": "retest 1"}
 CAPA2_RETEST1_OPTIONS_PARAMS_TARGET = {
     "Session": "No Session",
@@ -16203,10 +16205,10 @@ CAPA2_MONKEY_STRATEGY_TYPE_TARGET = {
 CAPA2_MONKEY_BANNED_TOKENS = CAPA2_MC_BANNED_TOKENS
 CAPA2_SYNTHETIC_NEXT = "phase26_capa2_spp"
 CAPA2_SYNTHETIC_TASK_XML = "AutomaticRetest-Task5.xml"
-CAPA2_SYNTHETIC_TASK_TITLE = "Syntetic"
+CAPA2_SYNTHETIC_TASK_TITLE = "Synthetic"
 CAPA2_SYNTHETIC_PERIOD_KEY = "ROBUSTNESS_C2"
 CAPA2_SYNTHETIC_DATA_TEST_PRECISION = CAPA2_FASTEST_DATA_TEST_PRECISION
-CAPA2_SYNTHETIC_DATABANKS_TARGET = {"Input": "Monkey Test", "Output": "Syntetic"}
+CAPA2_SYNTHETIC_DATABANKS_TARGET = {"Input": "Monkey Test", "Output": "Synthetic"}
 CAPA2_SYNTHETIC_RESOURCE_SYMBOL = CAPA2_MC_RESOURCE_SYMBOL
 CAPA2_SYNTHETIC_RESOURCE_SPREAD = CAPA2_MC_RESOURCE_SPREAD
 CAPA2_SYNTHETIC_STRATEGY_TYPE_TARGET = {
@@ -16223,7 +16225,7 @@ CAPA2_SPP_TASK_XML = "AutomaticRetest-Task4.xml"
 CAPA2_SPP_TASK_TITLE = "SPP"
 CAPA2_SPP_PERIOD_KEY = "ROBUSTNESS_C2"
 CAPA2_SPP_DATA_TEST_PRECISION = CAPA2_FASTEST_DATA_TEST_PRECISION
-CAPA2_SPP_DATABANKS_TARGET = {"Input": "Syntetic", "Output": "SPP"}
+CAPA2_SPP_DATABANKS_TARGET = {"Input": "Synthetic", "Output": "SPP"}
 CAPA2_SPP_RESOURCE_SYMBOL = CAPA2_MC_RESOURCE_SYMBOL
 CAPA2_SPP_RESOURCE_SPREAD = CAPA2_MC_RESOURCE_SPREAD
 CAPA2_SPP_STRATEGY_TYPE_TARGET = {
@@ -16233,7 +16235,7 @@ CAPA2_SPP_STRATEGY_TYPE_TARGET = {
     "improveType": "strategy",
     "strategyFile": "",
     "architecture": "sq4",
-    "improveDatabank": "Syntetic",
+    "improveDatabank": "Synthetic",
 }
 CAPA2_SPP_BANNED_TOKENS = CAPA2_MC_BANNED_TOKENS
 CAPA2_WFM_NEXT = "phase28_capa2_forward"
@@ -16271,15 +16273,15 @@ CAPA2_WFM_STRATEGY_TYPE_TARGET = {
 CAPA2_WFM_BANNED_TOKENS = CAPA2_MC_BANNED_TOKENS
 CAPA2_FORWARD_NEXT = "phase29_capa2_portfolio"
 CAPA2_FORWARD_TASK_XML = "Retest-Task2.xml"
-CAPA2_FORWARD_TASK_TITLE = "FOWARD"
-CAPA2_FORWARD_PERIOD_KEY = "FOWARD"
+CAPA2_FORWARD_TASK_TITLE = "Forward"
+CAPA2_FORWARD_PERIOD_KEY = "FOWARD_C1"
 CAPA2_FORWARD_DATA_TEST_PRECISION = CAPA2_TICK_REAL_DATA_TEST_PRECISION
-CAPA2_FORWARD_DATABANKS_TARGET = {"Input": "WFM", "Output": "Foward"}
+CAPA2_FORWARD_DATABANKS_TARGET = {"Input": "WFM", "Output": "Forward"}
 CAPA2_FORWARD_RESOURCE_SYMBOL = CAPA2_MC_RESOURCE_SYMBOL
 CAPA2_FORWARD_RESOURCE_SPREAD = CAPA2_MC_RESOURCE_SPREAD
 CAPA2_FORWARD_OOS_RANGES = [
     {"dateFrom": "2025.01.01", "dateTo": "2026.01.01"},
-    {"dateFrom": "2026.01.01", "dateTo": "2026.04.30"},
+    {"dateFrom": "2026.01.01", "dateTo": "2026.04.08"},
 ]
 CAPA2_FORWARD_OPTIONS_PARAMS_TARGET = dict(CAPA2_RETEST1_OPTIONS_PARAMS_TARGET)
 CAPA2_FORWARD_RANKING_TARGET = dict(CAPA2_RETEST1_RANKING_TARGET)
@@ -16305,7 +16307,7 @@ CAPA2_PORTFOLIO_PHASE = "phase29_capa2_portfolio"
 CAPA2_PORTFOLIO_NEXT = "phase30_capa2_portfolio_master_contract"
 CAPA2_PORTFOLIO_VERSION = "portfolio-lab-governed-v1"
 CAPA2_PORTFOLIO_SOURCE_PHASE = "phase28_capa2_forward"
-CAPA2_PORTFOLIO_SOURCE_DATABANK = "Foward"
+CAPA2_PORTFOLIO_SOURCE_DATABANK = "Forward"
 CAPA2_PORTFOLIO_MASTER_PHASE = CAPA2_PORTFOLIO_NEXT
 CAPA2_PORTFOLIO_MASTER_VERSION = "portfolio-master-contract-v1"
 CAPA2_PORTFOLIO_MASTER_NEXT_BLOCKED = "phase30_capa2_portfolio_master_inputs_pending"
@@ -16316,7 +16318,7 @@ CAPA2_PORTFOLIO_MASTER_OPERATOR_INPUTS_PHASE = "phase30_capa2_portfolio_master_o
 CAPA2_PORTFOLIO_MASTER_OPERATOR_INPUTS_VERSION = "portfolio-master-operator-inputs-intake-v1"
 CAPA2_PORTFOLIO_MASTER_REQUIRED_INPUTS = {
     "portfolioLabOutput": "Governed Portfolio Lab output/export",
-    "forwardCsv": "Operator Forward CSV from natural Output=Foward survivors",
+    "forwardCsv": "Operator Forward CSV from natural Output=Forward survivors",
     "equitySeries": "Comparable equity or return series for candidates",
     "accountContext": "Operator account/equity/risk context",
     "brokerContext": "Operator broker/symbol execution context",
@@ -16495,7 +16497,7 @@ CAPA2_BUILD_BLOCKS_INDICATOR_TARGET = [
     "Prices.High",
     "Prices.Open",
 ]
-CAPA2_BUILD_DATA_PERIOD_KEY = "BUILD"
+CAPA2_BUILD_DATA_PERIOD_KEY = "BUILD_C1"
 CAPA2_BUILD_DATA_TEST_PRECISION = "2"
 CAPA2_BUILD_DATA_SESSION = "No Session"
 CAPA2_BUILD_SEED_SYMBOL = "AUDCAD_darwinex"
@@ -18937,7 +18939,7 @@ def promote_capa2_build_data_databanks_resources_options_target(root142: Path, p
         "processProbe": process_probe,
         "summary": {
             "decision": "Close Capa2 Build > Data / Databanks / Resources / Options with a generic generator-owned seed contract.",
-            "data": "BUILD 2017.10.02-2023.12.31, testPrecision=2 simulated, No Session, no internal OOS ranges.",
+            "data": "BUILD_C1 2017.10.02-2023.01.01, testPrecision=2 simulated, No Session, no internal OOS ranges.",
             "databanks": "Input=Results and Output=null; Ranking is the gate that saves generated strategies into Results.",
             "resources": "AUDCAD_darwinex/H1/TICK/EETUS is only the seed; Project Generator owns final asset/timeframe/spread/resources.",
             "options": "No Session, realistic gaps on, StoreChartData off, H1 seed window 02:00-22:00 and capa2 generator windows enabled for M5/M15/M30/H1/H4.",
@@ -20575,10 +20577,10 @@ def capa2_retest0_generator_period_issues() -> list[str]:
     periods = config.get("retestPeriods") or {}
     issues: list[str] = []
     if periods.get(CAPA2_RETEST0_PERIOD_KEY) != ["2017.10.02", "2025.01.01"]:
-        issues.append("generator_profiles RETEST_0 must end at 2025.01.01 so Capa2 Retest 0 does not consume reserved forward data")
+        issues.append("generator_profiles RETEST_0_C1 must end at 2025.01.01 so Capa2 Retest 0 follows the validated Capa1 window")
     forward = periods.get(CAPA2_FORWARD_RESERVED_PERIOD_KEY) or []
     if not forward or forward[0] != CAPA2_FORWARD_RESERVED_START:
-        issues.append("generator_profiles FOWARD must start at 2025.01.01 to keep post-Retest0 holdout separated")
+        issues.append("generator_profiles FOWARD_C1 must start at 2025.01.01 to keep the validated Forward holdout separated")
     return issues
 
 
@@ -20766,8 +20768,8 @@ def promote_capa2_retest0_target(root142: Path, project_root: Path, target: str,
         "summary": {
             "decision": "Close Capa2 Retest 0 as a validation gate, not an optimization/tuning block.",
             "taskXml": CAPA2_RETEST0_TASK_XML,
-            "data": "Full Retest 0 window 2017.10.02-2025.01.01 with OOS1 2024.01.01-2025.01.01.",
-            "reservedHoldout": "FOWARD is reserved from 2025.01.01 to 2026.04.30 in generator_profiles.",
+            "data": "Full Retest 0 window 2017.10.02-2025.01.01 with OOS1 2023.01.01-2025.01.01.",
+            "reservedHoldout": "FOWARD_C1 is reserved from 2025.01.01 to 2026.04.08 in generator_profiles.",
             "filters": "Only broad predeclared OOS validation filters: NumberOfTrades >= 80, ProfitFactor >= 1.05, ReturnDDRatio >= 1.",
             "passive": "StrategyType reads Results passively, PartsToImprove off, CrossChecks off, FitPortfolio/CustomAnalysis off.",
             "naturalResults": "No SQX launch, no smoke, no optimization and no forced Results=passed.",
@@ -21050,7 +21052,7 @@ def ensure_capa2_retest1_resources(root: ET.Element, setup: ET.Element, actions:
     }
     symbol = ET.SubElement(symbols_node, "Symbol", symbol_attrs)
     info_attrs = {
-        "instrument": CAPA2_RETEST1_RESOURCE_SYMBOL,
+        "instrument": CAPA2_BUILD_SEED_SYMBOL,
         "description": template_info_attrs.get("description", "Currency"),
         "tickSize": template_info_attrs.get("tickSize", "0.0001"),
         "tickStep": template_info_attrs.get("tickStep", "1e-05"),
@@ -21080,7 +21082,7 @@ def ensure_capa2_retest1_resources(root: ET.Element, setup: ET.Element, actions:
     before_brokers = [value_for_node(node) for node in brokers_node.findall("Broker")]
     for node in list(brokers_node.findall("Broker")):
         brokers_node.remove(node)
-    ET.SubElement(brokers_node, "Broker", {"id": CAPA2_RETEST1_RESOURCE_BROKER_ID, "name": CAPA2_RETEST1_RESOURCE_BROKER_NAME, "description": CAPA2_RETEST1_RESOURCE_BROKER_DESCRIPTION, "timezone": CAPA2_BUILD_RESOURCE_TIMEZONE, "postfix": "_dukascopy", "mtUse": "true", "spUse": "false"})
+    ET.SubElement(brokers_node, "Broker", {"id": CAPA2_RETEST1_RESOURCE_BROKER_ID, "name": CAPA2_RETEST1_RESOURCE_BROKER_NAME, "description": CAPA2_RETEST1_RESOURCE_BROKER_DESCRIPTION, "timezone": CAPA2_BUILD_RESOURCE_TIMEZONE, "postfix": "_darwinex", "mtUse": "true", "spUse": "false"})
     actions.append({"field": "Resources/Brokers", "from": before_brokers, "to": [value_for_node(node) for node in brokers_node.findall("Broker")], "changed": before_brokers != [value_for_node(node) for node in brokers_node.findall("Broker")]})
     before_instruments = [value_for_node(node) for node in instruments_node.findall("InstrumentInfo")]
     for node in list(instruments_node.findall("InstrumentInfo")):
@@ -21301,7 +21303,7 @@ def capa2_retest1_generator_period_issues() -> list[str]:
     cross = (((config.get("crossBrokerRetests") or {}).get("2") or {}).get(CAPA2_RETEST1_TASK_XML) or {})
     issues: list[str] = []
     if periods.get(CAPA2_RETEST1_PERIOD_KEY) != ["2010.01.01", "2017.10.02"]:
-        issues.append("generator_profiles RETEST_1 must be 2010.01.01-2017.10.02 so Capa2 Retest 1 stays historical and does not overlap Build")
+        issues.append("generator_profiles RETEST_1_C1 must be 2010.01.01-2017.10.02 so Capa2 Retest 1 stays historical and does not overlap Build")
     if maps.get(CAPA2_RETEST1_TASK_XML) != CAPA2_RETEST1_PERIOD_KEY:
         issues.append(f"generator_profiles layer 2 must map {CAPA2_RETEST1_TASK_XML} to {CAPA2_RETEST1_PERIOD_KEY}")
     if cross.get("brokerProfile") != "dukascopy_oos2" or cross.get("period") != CAPA2_RETEST1_PERIOD_KEY:
@@ -24383,18 +24385,36 @@ def update_capa2_synthetic_target_in_cfx(cfx: Path, backup_root: Path, apply: bo
     if config_root is None:
         config_issues.append("config.xml missing")
     else:
-        databank = next((node for node in config_root.findall(".//Databank") if node.get("name") == CAPA2_SYNTHETIC_DATABANKS_TARGET["Output"]), None)
+        for task in config_root.findall(".//Task"):
+            if task.get("taskXMLFile") != CAPA2_SYNTHETIC_TASK_XML:
+                continue
+            before = dict(task.attrib)
+            task.set("title", CAPA2_SYNTHETIC_TASK_TITLE)
+            config_actions.append({
+                "field": f"config.xml/Tasks/{CAPA2_SYNTHETIC_TASK_XML}:title",
+                "from": before,
+                "to": dict(task.attrib),
+                "changed": before != dict(task.attrib),
+            })
+        databank = next(
+            (
+                node for node in config_root.findall(".//Databank")
+                if node.get("name") in {CAPA2_SYNTHETIC_DATABANKS_TARGET["Output"], "Syntetic"}
+            ),
+            None,
+        )
         if databank is None:
-            config_issues.append("config.xml Syntetic databank missing")
+            config_issues.append("config.xml Synthetic databank missing")
         else:
-            before_view = databank.get("view", "")
+            before = dict(databank.attrib)
             wanted_view = VIEW_PROMOTION_TARGETS[CAPA2_SYNTHETIC_DATABANKS_TARGET["Output"]]
+            databank.set("name", CAPA2_SYNTHETIC_DATABANKS_TARGET["Output"])
             databank.set("view", wanted_view)
             config_actions.append({
-                "field": "config.xml/Databanks/Syntetic:view",
-                "from": before_view,
-                "to": wanted_view,
-                "changed": before_view != wanted_view,
+                "field": "config.xml/Databanks/Synthetic",
+                "from": before,
+                "to": dict(databank.attrib),
+                "changed": before != dict(databank.attrib),
             })
         config_after = serialize_xml(config_root)
     payload["configActions"] = config_actions
@@ -24863,14 +24883,31 @@ def update_capa2_spp_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) ->
     if config_root is None:
         config_issues.append("config.xml missing")
     else:
+        upstream = next(
+            (
+                node for node in config_root.findall(".//Databank")
+                if node.get("name") in {CAPA2_SPP_DATABANKS_TARGET["Input"], "Syntetic"}
+            ),
+            None,
+        )
+        if upstream is not None:
+            before = dict(upstream.attrib)
+            upstream.set("name", CAPA2_SPP_DATABANKS_TARGET["Input"])
+            upstream.set("view", VIEW_PROMOTION_TARGETS[CAPA2_SPP_DATABANKS_TARGET["Input"]])
+            config_actions.append({
+                "field": "config.xml/Databanks/Synthetic",
+                "from": before,
+                "to": dict(upstream.attrib),
+                "changed": before != dict(upstream.attrib),
+            })
         databank = next((node for node in config_root.findall(".//Databank") if node.get("name") == CAPA2_SPP_DATABANKS_TARGET["Output"]), None)
         if databank is None:
             config_issues.append("config.xml SPP databank missing")
         else:
-            before_view = databank.get("view", "")
+            before = dict(databank.attrib)
             wanted_view = VIEW_PROMOTION_TARGETS[CAPA2_SPP_DATABANKS_TARGET["Output"]]
             databank.set("view", wanted_view)
-            config_actions.append({"field": "config.xml/Databanks/SPP:view", "from": before_view, "to": wanted_view, "changed": before_view != wanted_view})
+            config_actions.append({"field": "config.xml/Databanks/SPP", "from": before, "to": dict(databank.attrib), "changed": before != dict(databank.attrib)})
         config_after = serialize_xml(config_root)
     payload["configActions"] = config_actions
     task_xml_name, root, title = load_capa2_spp_task_root(cfx)
@@ -25681,8 +25718,8 @@ def capa2_forward_generator_period_issues() -> list[str]:
     layer2 = (config.get("taskPeriodMaps") or {}).get("2") or {}
     disabled_ranges = set(((config.get("disableTradingTimeRanges") or {}).get("2") or []))
     issues: list[str] = []
-    if periods.get(CAPA2_FORWARD_PERIOD_KEY) != ["2025.01.01", "2026.04.30"]:
-        issues.append("generator_profiles.json retestPeriods.FOWARD must be 2025.01.01-2026.04.30")
+    if periods.get(CAPA2_FORWARD_PERIOD_KEY) != ["2025.01.01", "2026.04.08"]:
+        issues.append("generator_profiles.json retestPeriods.FOWARD_C1 must be 2025.01.01-2026.04.08")
     if layer2.get(CAPA2_FORWARD_TASK_XML) != CAPA2_FORWARD_PERIOD_KEY:
         issues.append(f"generator_profiles.json taskPeriodMaps.2.{CAPA2_FORWARD_TASK_XML} must map to {CAPA2_FORWARD_PERIOD_KEY}")
     if CAPA2_FORWARD_TASK_XML in disabled_ranges:
@@ -25802,14 +25839,32 @@ def update_capa2_forward_target_in_cfx(cfx: Path, backup_root: Path, apply: bool
     if config_root is None:
         config_issues.append("config.xml missing")
     else:
-        databank = next((node for node in config_root.findall(".//Databank") if node.get("name") == CAPA2_FORWARD_DATABANKS_TARGET["Output"]), None)
+        for task in config_root.findall(".//Task"):
+            if task.get("taskXMLFile") != CAPA2_FORWARD_TASK_XML:
+                continue
+            before = dict(task.attrib)
+            task.set("title", CAPA2_FORWARD_TASK_TITLE)
+            config_actions.append({
+                "field": f"config.xml/Tasks/{CAPA2_FORWARD_TASK_XML}:title",
+                "from": before,
+                "to": dict(task.attrib),
+                "changed": before != dict(task.attrib),
+            })
+        databank = next(
+            (
+                node for node in config_root.findall(".//Databank")
+                if node.get("name") in {CAPA2_FORWARD_DATABANKS_TARGET["Output"], "Foward", "FOWARD"}
+            ),
+            None,
+        )
         if databank is None:
-            config_issues.append("config.xml Foward databank missing")
+            config_issues.append("config.xml Forward databank missing")
         else:
-            before_view = databank.get("view", "")
+            before = dict(databank.attrib)
             wanted_view = VIEW_PROMOTION_TARGETS[CAPA2_FORWARD_DATABANKS_TARGET["Output"]]
+            databank.set("name", CAPA2_FORWARD_DATABANKS_TARGET["Output"])
             databank.set("view", wanted_view)
-            config_actions.append({"field": "config.xml/Databanks/Foward:view", "from": before_view, "to": wanted_view, "changed": before_view != wanted_view})
+            config_actions.append({"field": "config.xml/Databanks/Forward", "from": before, "to": dict(databank.attrib), "changed": before != dict(databank.attrib)})
         config_after = serialize_xml(config_root)
         config_changed = any(item.get("changed") for item in config_actions)
     payload["configActions"] = config_actions
@@ -25904,7 +25959,7 @@ def promote_capa2_forward_target(root142: Path, project_root: Path, target: str,
             "decision": "Close Capa2 Forward as the final tick-precision holdout before portfolio construction.",
             "taskXml": CAPA2_FORWARD_TASK_XML,
             "chain": "Input=WFM, Output=Foward.",
-            "data": "Darwinex FOWARD window 2025.01.01-2026.04.30, testPrecision=4 real tick / real spread, Data carrier, No Session.",
+            "data": "Darwinex FOWARD_C1 window 2025.01.01-2026.04.08, testPrecision=4 real tick / real spread, Data carrier, No Session.",
             "oosRanges": CAPA2_FORWARD_OOS_RANGES,
             "filters": "Only broad final sanity filters: NumberOfTrades >= 30, RExpectancy > 0 and NetProfit >= 0.",
             "passive": "StrategyType reads WFM passively; CrossChecks/FitPortfolio/CustomAnalysis stay off; ExitAfterBars remains false and SL/PT/trailing remain active for Capa2.",

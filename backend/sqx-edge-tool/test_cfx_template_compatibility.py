@@ -1646,7 +1646,7 @@ def _assert_capa2_forward_contract(
     setup = forward.find("./Data/Setups/Setup")
     assert setup is not None
     assert setup.get("dateFrom") == "2025.01.01"
-    assert setup.get("dateTo") == "2026.04.30"
+    assert setup.get("dateTo") == "2026.04.08"
     assert setup.get("testPrecision") == C1_TICK_TEST_PRECISION
     assert setup.get("session") == "No Session"
     assert setup.get("engine") == "MetaTrader5 (hedged)"
@@ -1657,7 +1657,7 @@ def _assert_capa2_forward_contract(
     assert setup.find("./Commissions/Method[@type='SizeBased']/Params/Param[@key='Commission']").text == "0.0"
     assert [node.attrib for node in forward.findall("./Data/OutOfSample/Range")] == [
         {"dateFrom": "2025.01.01", "dateTo": "2026.01.01"},
-        {"dateFrom": "2026.01.01", "dateTo": "2026.04.30"},
+        {"dateFrom": "2026.01.01", "dateTo": "2026.04.08"},
     ]
     assert forward.find("./CustomData").attrib == {"showAll": "false"}
     assert list(forward.find("./CustomData")) == []
@@ -3084,7 +3084,7 @@ def test_generate_capa2_project_applies_layer2_build_window_and_disables_heavy_r
     assert retest0_setup.get("dateFrom") == "2017.10.02"
     assert retest0_setup.get("dateTo") == "2025.01.01"
     assert [dict(node.attrib) for node in retest0.findall(".//Data/OutOfSample/Range")] == [
-        {"dateFrom": "2024.01.01", "dateTo": "2025.01.01"}
+        {"dateFrom": "2023.01.01", "dateTo": "2025.01.01"}
     ]
     assert retest0.find(".//CrossChecks").get("use") == "false"
     assert retest0.find(".//WhatToBuild/StrategyType").get("improveDatabank") == "Results"

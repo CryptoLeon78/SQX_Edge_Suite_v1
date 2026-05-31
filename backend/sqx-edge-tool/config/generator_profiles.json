@@ -82,8 +82,8 @@
         "executionBrokerProfileForTargets": {
           "sqxedge_darwinex": "darwinex"
         },
-        "period": "RETEST_1",
-        "label": "Capa2 Retest 1 / historical Dukascopy 2010.01.01-2017.10.02",
+        "period": "RETEST_1_C1",
+        "label": "Capa2 Retest 1 / Capa1 historical Dukascopy 2010.01.01-2017.10.02",
         "boundToAvailableData": true,
         "minCoverageDays": 730
       }
@@ -214,9 +214,9 @@
       "Retest-Task2.xml": "FOWARD_C1"
     },
     "2": {
-      "Build-Task1.xml": "BUILD",
-      "Retest-Task1.xml": "RETEST_0",
-      "AutomaticRetest-Task7.xml": "RETEST_1",
+      "Build-Task1.xml": "BUILD_C1",
+      "Retest-Task1.xml": "RETEST_0_C1",
+      "AutomaticRetest-Task7.xml": "RETEST_1_C1",
       "AutomaticRetest-Task2.xml": "ROBUSTNESS_C2",
       "AutomaticRetest-Task1.xml": "ROBUSTNESS_C2",
       "AutomaticRetest-Task8.xml": "ROBUSTNESS_C2",
@@ -224,7 +224,7 @@
       "AutomaticRetest-Task6.xml": "ROBUSTNESS_C2",
       "AutomaticRetest-Task5.xml": "ROBUSTNESS_C2",
       "AutomaticRetest-Task4.xml": "ROBUSTNESS_C2",
-      "Retest-Task2.xml": "FOWARD",
+      "Retest-Task2.xml": "FOWARD_C1",
       "Optimize-Task1.xml": "ROBUSTNESS_C2"
     }
   },

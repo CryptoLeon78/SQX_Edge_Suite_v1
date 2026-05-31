@@ -99,6 +99,10 @@ CAPA1_CORR1_TAG_TASK_XML = "Retest-Task5.xml"
 CAPA1_CORR1_STABILITY_TASK_TITLE = "CORR1 STABILITY RETEST"
 CAPA1_CORR1_TAG_TASK_TITLE = "CORR1 TAG REVIEW"
 CAPA1_CORR1_TAGGER = "SQXEdgeCorrelationTagger"
+CAPA2_SYNTHETIC_DATABANK = "Synthetic"
+CAPA2_FORWARD_DATABANK = "Forward"
+CAPA2_RETEST0_OOS_RANGES = [("2023.01.01", "2025.01.01")]
+CAPA2_FORWARD_OOS_RANGES = [("2025.01.01", "2026.01.01"), ("2026.01.01", "2026.04.08")]
 
 
 def _symbol_for_sqx(asset: str, postfix: str = DEFAULT_BROKER_POSTFIX) -> str:
@@ -258,12 +262,12 @@ def _set_custom_analysis(root, method: str, *, filter_results: str = "false") ->
     custom_analysis.set("inputArgs", custom_analysis.get("inputArgs") or "")
 
 
-def _disable_retest_cross_selection(root) -> None:
+def _disable_retest_cross_selection(root, *, delete_failed_value: str = "false") -> None:
     rankings = root.find(".//Rankings")
     if rankings is not None:
         delete_failed = rankings.find("DeleteFailedStrategies")
         if delete_failed is not None:
-            delete_failed.text = "false"
+            delete_failed.text = delete_failed_value
         force_cross = rankings.find("ForceRunCrossChecks")
         if force_cross is not None:
             force_cross.text = "false"
@@ -453,6 +457,56 @@ def _apply_capa1_registered_pipeline_contract(editor: CfxEditor) -> None:
         CAPA1_CORR1_TAG_TASK_TITLE,
         "SQX Edge CORR1 Tag Review",
     )
+    editor.update_xml("config.xml", config_tree)
+
+
+def _apply_capa2_registered_pipeline_contract(editor: CfxEditor) -> None:
+    """Apply the active Capa2 chain confirmed from the Capa1 success path.
+
+    Capa2 inherits the validated Capa1 temporal partition for Build, Retest 0,
+    Retest 1 and Forward. Robustness tasks keep the 2017.10.02-2023.12.31
+    robustness window, but the final Forward/OOS ranges must match the Capa1
+    winner that generated the Template C2.
+    """
+    task_io = {
+        "AutomaticRetest-Task5.xml": ("Monkey Test", CAPA2_SYNTHETIC_DATABANK),
+        "AutomaticRetest-Task4.xml": (CAPA2_SYNTHETIC_DATABANK, "SPP"),
+        "Optimize-Task1.xml": ("SPP", "WFM"),
+        "Retest-Task2.xml": ("WFM", CAPA2_FORWARD_DATABANK),
+    }
+    for filename, (input_databank, output_databank) in task_io.items():
+        if not editor.has(filename):
+            continue
+        tree = editor.parse_xml(filename)
+        root = tree.getroot()
+        _set_task_databank(root, "Input databank", input_databank)
+        _set_task_databank(root, "Output databank", output_databank)
+        _set_strategy_source_databank(root, input_databank)
+        if filename == "Retest-Task2.xml":
+            _set_custom_analysis(root, "none")
+            _disable_retest_cross_selection(root, delete_failed_value="true")
+            _set_oos_ranges(root, CAPA2_FORWARD_OOS_RANGES)
+        editor.update_xml(filename, tree)
+
+    if editor.has("Retest-Task1.xml"):
+        retest0_tree = editor.parse_xml("Retest-Task1.xml")
+        _set_oos_ranges(retest0_tree.getroot(), CAPA2_RETEST0_OOS_RANGES)
+        editor.update_xml("Retest-Task1.xml", retest0_tree)
+
+    if not editor.has("config.xml"):
+        return
+    config_tree = editor.parse_xml("config.xml")
+    config_root = config_tree.getroot()
+    _rename_config_databank(config_root, "Syntetic", CAPA2_SYNTHETIC_DATABANK)
+    _rename_config_databank(config_root, "Foward", CAPA2_FORWARD_DATABANK)
+    _ensure_config_databank(config_root, CAPA2_SYNTHETIC_DATABANK, "MC SYNTHETIC RETEST")
+    _ensure_config_databank(config_root, CAPA2_FORWARD_DATABANK, "RETEST QUICK REVIEW")
+    for task in config_root.findall(".//Task"):
+        task_xml = task.get("taskXMLFile")
+        if task_xml == "AutomaticRetest-Task5.xml":
+            task.set("title", "Synthetic")
+        elif task_xml == "Retest-Task2.xml":
+            task.set("title", "Forward")
     editor.update_xml("config.xml", config_tree)
 
 
@@ -1027,6 +1081,8 @@ def generate_project(
 
     if capa == 1:
         _apply_capa1_registered_pipeline_contract(editor)
+    elif capa == 2:
+        _apply_capa2_registered_pipeline_contract(editor)
 
     # Guardar el .cfx
     out_name = f"{base_project_name}_Capa{capa}{suffix}.cfx"

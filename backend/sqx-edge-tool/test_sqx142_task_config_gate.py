@@ -3336,10 +3336,10 @@ def _write_capa2_generator_profile(path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(
         json.dumps({
-            "retestPeriods": {"BUILD": ["2017.10.02", "2023.12.31"]},
+            "retestPeriods": {"BUILD_C1": ["2017.10.02", "2023.01.01"]},
             "tradingTimeRanges": {"capa2": gate.CAPA2_TRADING_TIME_RANGES_TARGET},
             "disableTradingTimeRanges": {"2": gate.CAPA2_DISABLE_TRADING_TIME_RANGES_TARGET},
-            "taskPeriodMaps": {"2": {"Build-Task1.xml": "BUILD"}},
+            "taskPeriodMaps": {"2": {"Build-Task1.xml": "BUILD_C1"}},
         }),
         encoding="utf-8",
     )
@@ -3377,7 +3377,7 @@ def test_capa2_build_data_databanks_resources_options_applies_and_is_idempotent(
     assert gate.enforce_capa2_build_data_databanks_resources_options_guard(repo_root, "repoTemplate") == []
     setup = local_root.find("./Data/Setups/Setup")
     assert setup.get("dateFrom") == "2017.10.02"
-    assert setup.get("dateTo") == "2023.12.31"
+    assert setup.get("dateTo") == "2023.01.01"
     assert setup.get("testPrecision") == "2"
     assert setup.get("session") == "No Session"
     assert setup.find("Chart").attrib == {"symbol": "AUDCAD_darwinex", "timeframe": "H1", "spread": "2.0"}
@@ -3905,19 +3905,19 @@ def _write_capa2_retest1_generator_profile(path: Path) -> None:
     path.write_text(
         json.dumps({
             "retestPeriods": {
-                "RETEST_1": ["2010.01.01", "2017.10.02"],
+                "RETEST_1_C1": ["2010.01.01", "2017.10.02"],
             },
             "crossBrokerRetests": {
                 "2": {
                     "AutomaticRetest-Task7.xml": {
                         "brokerProfile": "dukascopy_oos2",
-                        "period": "RETEST_1",
+                        "period": "RETEST_1_C1",
                     },
                 },
             },
             "taskPeriodMaps": {
                 "2": {
-                    "AutomaticRetest-Task7.xml": "RETEST_1",
+                    "AutomaticRetest-Task7.xml": "RETEST_1_C1",
                 },
             },
         }),
@@ -3990,7 +3990,7 @@ def test_capa2_retest1_target_applies_and_is_idempotent(monkeypatch, tmp_path):
     assert setup.find("Chart").attrib == {"symbol": "AUDCAD_dukascopy", "timeframe": "H1", "spread": "1.9"}
     assert {node.get("name") for node in local_root.findall(".//Resources/Symbols/Symbol")} == {"AUDCAD_dukascopy"}
     assert {node.get("source") for node in local_root.findall(".//Resources/Symbols/Symbol")} == {"2"}
-    assert {node.get("broker") for node in local_root.findall(".//Resources/Symbols/Symbol")} == {"3"}
+    assert {node.get("broker") for node in local_root.findall(".//Resources/Symbols/Symbol")} == {"4"}
     assert local_root.find(".//WhatToBuild/StrategyType").get("improveDatabank") == "RETEST 0"
     assert local_root.find(".//CrossChecks").get("use") == "false"
     assert local_root.find(".//ExitTypes/Block[@key='ExitAfterBars.ExitAfterBars']").get("use") == "false"
@@ -4911,12 +4911,12 @@ def test_capa2_synthetic_target_applies_and_is_idempotent(monkeypatch, tmp_path)
     assert payload["nextPhase"] == "phase26_capa2_spp"
     task_xml, root, title = gate.load_capa2_synthetic_task_root(local_cfx)
     assert task_xml == "AutomaticRetest-Task5.xml"
-    assert title == "Syntetic"
+    assert title == "Synthetic"
     assert gate.enforce_capa2_synthetic_guard(root, "localBase") == []
     with zipfile.ZipFile(local_cfx, "r") as archive:
         config = ET.fromstring(archive.read("config.xml"))
     views = {databank.get("name"): databank.get("view") for databank in config.findall(".//Databank")}
-    assert views["Syntetic"] == "MC SYNTHETIC RETEST"
+    assert views["Synthetic"] == "MC SYNTHETIC RETEST"
     for section in ("Data", "CustomData"):
         setup = root.find(f"./{section}/Setups/Setup")
         assert setup.get("dateFrom") == "2017.10.02"
@@ -4928,7 +4928,7 @@ def test_capa2_synthetic_target_applies_and_is_idempotent(monkeypatch, tmp_path)
     assert {
         databank.get("name"): databank.get("value")
         for databank in root.findall(".//Databanks/Databank")
-    } == {"Input": "Monkey Test", "Output": "Syntetic"}
+    } == {"Input": "Monkey Test", "Output": "Synthetic"}
     assert root.find(".//CrossChecks").attrib == {"use": "true", "evaluateAll": "true"}
     assert root.findtext(".//CrossChecks/MonteCarloRetest/Settings/NumberOfSimulations") == "100"
     assert root.findtext(".//CrossChecks/MonteCarloRetest/Settings/MCUseFullSample") == "true"
@@ -5079,6 +5079,7 @@ def test_capa2_spp_target_applies_and_is_idempotent(monkeypatch, tmp_path):
     with zipfile.ZipFile(local_cfx, "r") as archive:
         config = ET.fromstring(archive.read("config.xml"))
     views = {databank.get("name"): databank.get("view") for databank in config.findall(".//Databank")}
+    assert views["Synthetic"] == "MC SYNTHETIC RETEST"
     assert views["SPP"] == "RETEST ROBUST REVIEW"
     for section in ("Data", "CustomData"):
         setup = root.find(f"./{section}/Setups/Setup")
@@ -5091,7 +5092,7 @@ def test_capa2_spp_target_applies_and_is_idempotent(monkeypatch, tmp_path):
     assert {
         databank.get("name"): databank.get("value")
         for databank in root.findall(".//Databanks/Databank")
-    } == {"Input": "Syntetic", "Output": "SPP"}
+    } == {"Input": "Synthetic", "Output": "SPP"}
     assert root.find(".//CrossChecks").attrib == {"use": "true", "evaluateAll": "true"}
     assert gate.spp_acceptance_conditions_ok(root) is True
     active = [
@@ -5102,7 +5103,7 @@ def test_capa2_spp_target_applies_and_is_idempotent(monkeypatch, tmp_path):
     assert active == ["OptProfileSysParamPermutation"]
     for setup in root.findall(".//CrossChecks/*/Settings/Setups/Setup"):
         assert setup.get("testPrecision") == "1"
-    assert root.find(".//WhatToBuild/StrategyType").get("improveDatabank") == "Syntetic"
+    assert root.find(".//WhatToBuild/StrategyType").get("improveDatabank") == "Synthetic"
     assert root.find(".//Rankings").get("type") == "never"
     assert root.find(".//Rankings/FitPortfolio").get("active") == "false"
     assert root.find(".//Rankings/CustomAnalysis").get("filter") == "false"
@@ -5313,12 +5314,12 @@ def test_capa2_wfm_cli_is_registered():
 
 def _write_capa2_forward_generator_profile(path: Path, *, include_map: bool = True, disabled: bool = False) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    task_map = {"Retest-Task2.xml": "FOWARD"} if include_map else {}
+    task_map = {"Retest-Task2.xml": "FOWARD_C1"} if include_map else {}
     path.write_text(
         json.dumps({
             "retestPeriods": {
                 "ROBUSTNESS_C2": ["2017.10.02", "2023.12.31"],
-                "FOWARD": ["2025.01.01", "2026.04.30"],
+                "FOWARD_C1": ["2025.01.01", "2026.04.08"],
             },
             "disableTradingTimeRanges": {"2": ["Retest-Task2.xml"] if disabled else []},
             "taskPeriodMaps": {"2": task_map},
@@ -5386,24 +5387,24 @@ def test_capa2_forward_target_applies_tick_precision_and_is_idempotent(monkeypat
     assert payload["nextPhase"] == "phase29_capa2_portfolio"
     task_xml, root, title = gate.load_capa2_forward_task_root(local_cfx)
     assert task_xml == "Retest-Task2.xml"
-    assert title == "FOWARD"
+    assert title == "Forward"
     assert gate.enforce_capa2_forward_guard(root, "localBase") == []
     with zipfile.ZipFile(local_cfx, "r") as archive:
         config = ET.fromstring(archive.read("config.xml"))
     views = {databank.get("name"): databank.get("view") for databank in config.findall(".//Databank")}
-    assert views["Foward"] == "RETEST QUICK REVIEW"
+    assert views["Forward"] == "RETEST QUICK REVIEW"
     setup = root.find("./Data/Setups/Setup")
     assert setup.get("dateFrom") == "2025.01.01"
-    assert setup.get("dateTo") == "2026.04.30"
+    assert setup.get("dateTo") == "2026.04.08"
     assert setup.get("testPrecision") == "4"
     assert setup.find("Chart").attrib == {"symbol": "AUDCAD_darwinex", "timeframe": "H1", "spread": "2.0"}
     assert [node.attrib for node in root.findall("./Data/OutOfSample/Range")] == [
         {"dateFrom": "2025.01.01", "dateTo": "2026.01.01"},
-        {"dateFrom": "2026.01.01", "dateTo": "2026.04.30"},
+        {"dateFrom": "2026.01.01", "dateTo": "2026.04.08"},
     ]
     assert {node.get("name"): node.get("value") for node in root.findall(".//Databanks/Databank")} == {
         "Input": "WFM",
-        "Output": "Foward",
+        "Output": "Forward",
     }
     assert root.find(".//CrossChecks").attrib == {"use": "false", "evaluateAll": "false"}
     assert root.find(".//WhatToBuild/StrategyType").get("improveDatabank") == "WFM"
@@ -5495,7 +5496,7 @@ def test_capa2_portfolio_plan_writes_state_after_green_forward_without_mutating_
     assert payload["operation"] == "capa2_portfolio_plan"
     assert payload["previousGate"]["phase"] == "phase28_capa2_forward"
     assert payload["previousGate"]["ok"] is True
-    assert payload["plan"]["sourceDatabank"] == "Foward"
+    assert payload["plan"]["sourceDatabank"] == "Forward"
     assert "FitPortfolio" in payload["guardrails"]["noFitPortfolio"]
     assert gate.file_sha256(local_cfx) == local_sha_before
     assert gate.file_sha256(repo_cfx) == repo_sha_before

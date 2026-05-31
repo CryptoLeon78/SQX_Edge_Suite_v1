@@ -5345,8 +5345,8 @@
         "docs/ARCHITECTURE.md": [
           "phase18_capa2_retest0",
           "Capa2 Retest 0 `Retest-Task1.xml`",
-          "OOS1 `2024.01.01-2025.01.01`",
-          "FOWARD reserved from `2025.01.01`",
+          "OOS1 `2023.01.01-2025.01.01`",
+          "FOWARD_C1 reserved from `2025.01.01`",
           "passive Results validation",
           "`CrossChecks use=false`",
           "`ExitAfterBars=false`",
@@ -5443,9 +5443,9 @@
         "docs/ARCHITECTURE.md": [
           "phase19_capa2_retest1",
           "Capa2 Retest 1 `AutomaticRetest-Task7.xml`",
-          "historical `RETEST_1 2010.01.01-2017.10.02`",
+          "historical `RETEST_1_C1 2010.01.01-2017.10.02`",
           "`CustomData` canonical with no direct `Data`",
-          "Dukascopy source `2` broker `3` only for Retest 1",
+          "Dukascopy source `2` with Darwinex execution broker `4` for Retest 1",
           "later Capa2 retests returning to Darwinex",
           "Retest 0 and Retest 1 do not imply SQX execution or optimization"
         ],
@@ -6187,7 +6187,7 @@
           "phase25_capa2_synthetic",
           "Capa2 Synthetic `AutomaticRetest-Task5.xml`",
           "`Input=Monkey Test`",
-          "`Output=Syntetic`",
+          "`Output=Synthetic`",
           "MC SYNTHETIC RETEST",
           "dual `Data+CustomData`",
           "`testPrecision=1 fastest`",
@@ -6318,7 +6318,7 @@
         "docs/ARCHITECTURE.md": [
           "phase26_capa2_spp",
           "Capa2 SPP `AutomaticRetest-Task4.xml`",
-          "`Input=Syntetic`",
+          "`Input=Synthetic`",
           "`Output=SPP`",
           "RETEST ROBUST REVIEW",
           "dual `Data+CustomData`",
@@ -6573,9 +6573,9 @@
         "docs/ARCHITECTURE.md": [
           "phase28_capa2_forward",
           "`Input=WFM`",
-          "`Output=Foward`",
+          "`Output=Forward`",
           "RETEST QUICK REVIEW",
-          "`FOWARD 2025.01.01-2026.04.30`",
+          "`FOWARD_C1 2025.01.01-2026.04.08`",
           "`testPrecision=4 real tick`",
           "`NumberOfTrades >= 30`",
           "`RExpectancy > 0`",

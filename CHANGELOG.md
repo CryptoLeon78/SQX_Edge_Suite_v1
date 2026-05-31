@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-05-31 - SQX142 Capa2 Period Alignment And Custom Cleanup
+
+- Aligns Capa2 Project Generator with the validated Capa1 temporal contract: `BUILD_C1 2017.10.02-2023.01.01`, Retest 0 OOS1 `2023.01.01-2025.01.01`, Retest 1 `RETEST_1_C1 2010.01.01-2017.10.02`, and Forward `FOWARD_C1 2025.01.01-2026.04.08`.
+- Keeps Retest 1 as Dukascopy-bar validation (`source=2`) while preserving Darwinex execution resource compatibility (`broker=4`) observed in SQX142 local.
+- Normalizes generated Capa2 databank flow to `Synthetic -> SPP -> WFM -> Forward` and keeps the previous `Syntetic/Foward` names as legacy history only.
+- Repairs the live USDJPY H1 Volatilidad Capa2 custom, refreshes the downloadable C2-ready copies, quarantines the bad legacy USDJPY Capa2 custom, and repairs the good AUDCAD customs with backups under ignored local evidence.
+- Preserves boundaries: SQX was closed for local mutations, no jars/internal plugins/license changes, no `data.db` writes, no databank deletion, no `run_project`, no Migration Tool and no forced pass/profitability claim.
+
 ## 2026-05-30 - SQX142 Template Maker Correlation Review Cert
 
 - Makes `SQX EDGE CORRELATION REVIEW` the canonical Template Maker C2 CSV contract for Capa1 -> Template C2 certification.
