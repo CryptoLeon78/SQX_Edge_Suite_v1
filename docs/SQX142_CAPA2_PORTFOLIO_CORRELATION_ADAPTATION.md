@@ -2,6 +2,8 @@
 
 Status: `implemented_capa2_scope_declared`
 
+Current extension: `candidate_cohort_parked`
+
 Version: `sqx142-capa2-portfolio-corr1-scope-v1`
 
 ## Decision
@@ -32,6 +34,20 @@ edgeFactory.portfolioCorrelationStability
 - `IS_CORR` can select/diversify the Capa2 portfolio candidate shortlist.
 - `OOS3_CORR` audits or vetoes stability; if it is reused for replacement selection, a later holdout is required.
 - Labels `portfolio`, `similar` and `review` are valid only in the Capa2/Portfolio Lab context.
+- A single-asset Capa2 result can be parked as an accepted candidate cohort, but it is not Portfolio Master.
+
+## Parked Real Cohort
+
+The USDJPY H1 Volatilidad Capa2 correlation/CVC closeout is parked as accepted evidence:
+
+- Status: `accepted_as_single_asset_capa2_candidate_not_portfolio_master`.
+- Primary Champion: `WF Matrix - Strategy 0.13535`.
+- Decorrelated co-candidates: `WF Matrix - Strategy 0.6228` and `WF Matrix - Strategy 0.26354`.
+- Similar reserves: `5`.
+- OOS3 warnings remain visible; hard OOS3 breaks: `0`.
+- Portfolio Master status: `deferred_pending_multi_asset_context`.
+
+This cohort may be used later as one candidate sleeve/input when broader multi-asset or multi-cohort context exists. It must not be relabeled as a final portfolio by itself.
 
 ## Future Local SQX Integration Names
 
@@ -58,5 +74,6 @@ Allowed:
 Blocked:
 
 - Feeding Capa1 CORR1 decisions directly into Portfolio Master.
+- Promoting one single-asset Capa2 cohort into Portfolio Master without broader portfolio context.
 - Using SQX FitPortfolio as a hidden optimizer.
 - Launching SQX, writing `data.db`, mutating SQX projects/databanks, patching jars/internal plugins/license or forcing pass.

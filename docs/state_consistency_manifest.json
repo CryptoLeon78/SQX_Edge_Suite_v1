@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-05-30",
+  "updated": "2026-05-31",
   "purpose": "Canonical public-safe state markers used by automated docs consistency tests.",
   "coreFiles": [
     "README.md",
@@ -21,6 +21,50 @@
     "docs/SQX142_PORTFOLIO_CORR2_LOCAL_CUSTOM_PROJECT_INTEGRATION.md"
   ],
   "rules": [
+    {
+      "id": "sqx142_usdjpy_h1_capa2_candidate_cohort_parking_gate",
+      "description": "A real USDJPY H1 Capa2 result may be parked as an accepted single-asset candidate cohort, but Portfolio Master stays deferred until broader multi-asset or multi-cohort context exists.",
+      "required": {
+        "README.md": [
+          "SQX142 USDJPY H1 Capa2 candidate cohort esta aparcada como evidencia aceptada",
+          "WF Matrix - Strategy 0.13535",
+          "Portfolio Master queda explicitamente diferido"
+        ],
+        "CHANGELOG.md": [
+          "SQX142 USDJPY H1 Capa2 Candidate Cohort Parked",
+          "accepted single-asset candidate cohort",
+          "Portfolio Master guard"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Current phase parked: SQX142 USDJPY H1 Capa2 Candidate Cohort",
+          "Single-Asset Capa2 Cohort Parking Gate",
+          "deferred_pending_multi_asset_context"
+        ],
+        "docs/SQX142_CAPA2_PORTFOLIO_CORRELATION_ADAPTATION.md": [
+          "Parked Real Cohort",
+          "accepted_as_single_asset_capa2_candidate_not_portfolio_master",
+          "deferred_pending_multi_asset_context"
+        ],
+        "docs/SQX142_CORRELATION_C1_C2_PORTFOLIO_BRIDGE.md": [
+          "accepted single-asset Capa2 candidate cohorts",
+          "single_asset_capa2_candidate_cohort",
+          "not enough diversification evidence for Portfolio Master"
+        ],
+        "docs/SQX142_MINING_RESULTS_REGISTRY.md": [
+          "Parked USDJPY H1 Capa2 Candidate Cohort",
+          "SQX EDGE C2 CORR TAGGED",
+          "accepted_as_single_asset_capa2_candidate_not_portfolio_master"
+        ]
+      },
+      "forbidden": {
+        "docs/SQX142_CAPA2_PORTFOLIO_CORRELATION_ADAPTATION.md": [
+          "one USDJPY H1 Capa2 cohort is a final portfolio"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "single USDJPY H1 Capa2 cohort is a global portfolio"
+        ]
+      }
+    },
     {
       "id": "sqx142_template_maker_correlation_review_cert_gate",
       "description": "Template Maker C2 certification must use SQX EDGE CORRELATION REVIEW as the canonical CSV contract while keeping Template Maker Cert v2 as legacy compatibility only.",

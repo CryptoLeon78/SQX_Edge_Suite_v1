@@ -22,6 +22,7 @@ Capa1 custom databanks
   -> Capa2 custom project generation
   -> Capa2 Forward/Foward finalists
   -> Portfolio Lab / Capa2 portfolio correlation
+  -> accepted single-asset Capa2 candidate cohorts
   -> Portfolio Master contract
 ```
 
@@ -44,6 +45,7 @@ The mining registry is custom-project-centric:
 - Every correlation decision declares `decisionDomain`.
 - Capa1 CORR nodes are stored as `capa1_c2_template_selection`.
 - Capa2 portfolio nodes are stored as `capa2_portfolio_selection`.
+- Accepted one-asset Capa2 cohorts are parked as `single_asset_capa2_candidate_cohort` and do not unlock Portfolio Master alone.
 - Legacy portfolio-named Capa1 rows are read as deprecated aliases, not as final portfolio evidence.
 
 ## Academic Guard
@@ -52,6 +54,7 @@ The guard is conservative and practical:
 
 - Repeated selection on the same holdout creates data-snooping risk.
 - OOS/Forward may audit/veto but should not repeatedly select replacements without a fresh later holdout.
+- A single accepted asset/timeframe cohort is not enough diversification evidence for Portfolio Master.
 - This follows the discipline behind PBO/CSCV, Deflated Sharpe Ratio, White Reality Check and purged/embargoed validation. These sources support the validation discipline; they do not prove profitability or this exact SQX configuration.
 
 ## Operational Boundary

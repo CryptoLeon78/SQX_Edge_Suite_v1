@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-31 - SQX142 USDJPY H1 Capa2 Candidate Cohort Parked
+
+- Registers the real USDJPY H1 Volatilidad Capa2 correlation/CVC closeout as an accepted single-asset candidate cohort: 3 portfolio candidates, 5 similar reserves, OOS3 warnings preserved and 0 hard OOS3 breaks.
+- Keeps `WF Matrix - Strategy 0.13535` as the primary Champion; `WF Matrix - Strategy 0.6228` and `WF Matrix - Strategy 0.26354` remain decorrelated co-candidates, not Champion replacements.
+- Adds the explicit Portfolio Master guard: this one USDJPY H1 Capa2 cohort is parked as accepted evidence and must not be promoted into a global Portfolio Master package without broader multi-asset or multi-cohort context.
+- Preserves boundaries: no SQX launch, no new generation/mining, no `data.db` writes, no SQX project/databank mutation, no jars/internal plugins/license changes, no `run_project`, no Migration Tool and no profitability/risk-zero claim.
+
 ## 2026-05-31 - SQX142 Capa2 Period Alignment And Custom Cleanup
 
 - Aligns Capa2 Project Generator with the validated Capa1 temporal contract: `BUILD_C1 2017.10.02-2023.01.01`, Retest 0 OOS1 `2023.01.01-2025.01.01`, Retest 1 `RETEST_1_C1 2010.01.01-2017.10.02`, and Forward `FOWARD_C1 2025.01.01-2026.04.08`.

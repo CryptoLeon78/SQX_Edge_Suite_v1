@@ -67,6 +67,22 @@ Registered decision summary:
 
 The decision reader parses SQX local `.sqx` `dailyEquity.bin` series read-only while SQX is closed and writes only to the SQX Edge-owned registry/evidence folder.
 
+## Parked USDJPY H1 Capa2 Candidate Cohort
+
+The registry also records the real USDJPY H1 Volatilidad Capa2 closeout as a parked candidate cohort:
+
+- Project: `SQX_EDGE_API_FRESH_USDJPY_H1_Volatilidad_20260530_082732_Capa2`.
+- Source databank: `SQX EDGE C2 CORR TAGGED`.
+- Input rows: `8`.
+- Accepted candidate cohort: `3` strategies.
+- Similar reserves: `5`.
+- Primary Champion: `WF Matrix - Strategy 0.13535`.
+- Co-candidates: `WF Matrix - Strategy 0.6228` and `WF Matrix - Strategy 0.26354`.
+- Status: `accepted_as_single_asset_capa2_candidate_not_portfolio_master`.
+- Portfolio Master guard: `deferred_pending_multi_asset_context`.
+
+This node parks evidence for later portfolio construction. It does not mutate SQX local, generate strategies, run Portfolio Master or claim a final global portfolio.
+
 ## Commands
 
 ```powershell
