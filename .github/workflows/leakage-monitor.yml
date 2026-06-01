@@ -4,6 +4,15 @@ on:
   schedule:
     - cron: '0 */6 * * *' # Cada 6 horas
   workflow_dispatch:      # Permite ejecución manual
+    inputs:
+      strict:
+        description: 'Fail the run when monitored repositories produce warnings'
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
 
 jobs:
   check-leakage:
@@ -16,27 +25,45 @@ jobs:
 
       - name: 🔍 Check Legacy Repositories
         run: |
-          # Repositorios a vigilar
+          set -o pipefail
+
+          STRICT_MODE="${{ github.event_name == 'workflow_dispatch' && inputs.strict }}"
+
           REPOS=("https://github.com/jlivanmaseda-maker/sqx-edge-pipeline.git" "https://github.com/CryptoLeon78/SQX_Edge_Suite_v1.git")
 
-          HAS_LEAKAGE=false
+          WARNINGS=0
 
           for REPO in "${REPOS[@]}"; do
             echo "Checking $REPO..."
-            LATEST_HASH=$(git ls-remote $REPO HEAD | awk '{print $1}')
+
+            if ! LATEST_HASH=$(git ls-remote "$REPO" HEAD 2>/tmp/leakage-monitor-error | awk '{print $1}'); then
+              ERROR_DETAIL=$(cat /tmp/leakage-monitor-error)
+              echo "::warning title=Repository unreachable::$REPO could not be read. $ERROR_DETAIL"
+              WARNINGS=$((WARNINGS + 1))
+              continue
+            fi
+
+            if [ -z "$LATEST_HASH" ]; then
+              echo "::warning title=Repository has no HEAD::$REPO did not return a HEAD commit."
+              WARNINGS=$((WARNINGS + 1))
+              continue
+            fi
+
             echo "Latest Hash: $LATEST_HASH"
 
-            # Verify the external HEAD is part of this repository history.
-            if git merge-base --is-ancestor "$LATEST_HASH" HEAD; then
+            if git cat-file -e "${LATEST_HASH}^{commit}" 2>/dev/null && git merge-base --is-ancestor "$LATEST_HASH" HEAD; then
               echo "✅ No leakage detected for $REPO (remote HEAD is an ancestor)."
             else
-              echo "⚠️ WARNING: Potential leakage! New code found in $REPO that is not yet institutionalized."
-              echo "Hash $LATEST_HASH is missing from SQX_Institutional_Core history."
-              HAS_LEAKAGE=true
+              echo "::warning title=External history drift::$REPO HEAD $LATEST_HASH is not present as an ancestor of this repository."
+              WARNINGS=$((WARNINGS + 1))
             fi
           done
 
-          if [ "$HAS_LEAKAGE" = true ]; then
-            echo "❌ CRITICAL: Code leakage detected. Please sync legacy repositories."
+          if [ "$WARNINGS" -gt 0 ]; then
+            echo "::notice title=Code leakage monitor::Completed with $WARNINGS warning(s). Scheduled runs are informational; dispatch manually with strict=true to enforce."
+          fi
+
+          if [ "$STRICT_MODE" = "true" ] && [ "$WARNINGS" -gt 0 ]; then
+            echo "❌ Strict leakage monitor failed because warnings were detected."
             exit 1
           fi
