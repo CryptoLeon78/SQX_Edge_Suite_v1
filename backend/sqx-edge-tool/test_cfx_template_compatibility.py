@@ -3119,6 +3119,19 @@ def test_generate_capa2_project_applies_layer2_build_window_and_disables_heavy_r
     assert _config_absolute_path_attrs(config) == []
     assert "TICK" in config_databanks
     assert "HBP" not in config_databanks
+    task_files = [task.get("taskXMLFile") for task in config.findall(".//Task")]
+    assert len(task_files) == 14
+    assert task_files[-2:] == ["Retest-Task3.xml", "Retest-Task4.xml"]
+    tasks = {task.get("taskXMLFile"): task for task in config.findall(".//Task")}
+    assert tasks["Retest-Task3.xml"].get("title") == "C2 CORR STABILITY RETEST"
+    assert tasks["Retest-Task4.xml"].get("title") == "C2 CORR TAG REVIEW"
+    config_databank_views = {
+        databank.get("name"): databank.get("view")
+        for databank in config.findall(".//Databank")
+    }
+    assert config_databank_views["Forward"] == "SQX EDGE C2 CORRELATION REVIEW"
+    assert config_databank_views["SQX EDGE C2 CORR STABILITY"] == "SQX EDGE C2 CORRELATION REVIEW"
+    assert config_databank_views["SQX EDGE C2 CORR TAGGED"] == "SQX EDGE C2 CORRELATION REVIEW"
 
     build = roots["Build-Task1.xml"]
     build_params = {
@@ -3289,6 +3302,36 @@ def test_generate_capa2_project_applies_layer2_build_window_and_disables_heavy_r
         expected_window=("14400", "72000"),
     )
     assert "dukascopy" not in ET.tostring(forward, encoding="unicode").lower()
+
+    corr_stability = roots["Retest-Task3.xml"]
+    assert _task_databanks(corr_stability) == {
+        "Output": "SQX EDGE C2 CORR STABILITY",
+        "Input": "Forward",
+    }
+    corr_stability_setup = corr_stability.find(".//Data/Setups/Setup")
+    assert corr_stability_setup.get("dateFrom") == "2017.10.02"
+    assert corr_stability_setup.get("dateTo") == "2026.04.08"
+    assert corr_stability_setup.get("testPrecision") == C1_TICK_TEST_PRECISION
+    assert [node.attrib for node in corr_stability.findall(".//Data/OutOfSample/Range")] == [
+        {"dateFrom": "2025.01.01", "dateTo": "2026.01.01"},
+        {"dateFrom": "2026.01.01", "dateTo": "2026.04.08"},
+    ]
+    assert corr_stability.find(".//WhatToBuild/StrategyType").get("improveDatabank") == "WFM"
+    assert corr_stability.find(".//CustomAnalysis").get("method") == "none"
+    assert corr_stability.find(".//DeleteFailedStrategies").text == "false"
+    assert corr_stability.find(".//CrossChecks").get("use") == "false"
+
+    corr_tag = roots["Retest-Task4.xml"]
+    assert _task_databanks(corr_tag) == {
+        "Output": "SQX EDGE C2 CORR TAGGED",
+        "Input": "SQX EDGE C2 CORR STABILITY",
+    }
+    assert corr_tag.find(".//Data/Setups/Setup").get("testPrecision") == C1_TICK_TEST_PRECISION
+    assert corr_tag.find(".//WhatToBuild/StrategyType").get("improveDatabank") == "WFM"
+    assert corr_tag.find(".//CustomAnalysis").get("method") == "SQXEdgeCorrelationTagger"
+    assert corr_tag.find(".//CustomAnalysis").get("filter") == "false"
+    assert corr_tag.find(".//DeleteFailedStrategies").text == "false"
+    assert corr_tag.find(".//CrossChecks").get("use") == "false"
 
 
 def test_generate_project_defaults_to_sq_default_exact_symbol_for_user_downloads():

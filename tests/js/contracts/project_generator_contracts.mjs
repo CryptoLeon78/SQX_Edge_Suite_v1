@@ -20,6 +20,7 @@ assert.ok(html.includes('Custom libre avanzado'), 'Custom libre should remain an
 assert.ok(html.includes('id="edge-basic-generate-pair"'), 'Basic route should expose a single Capa1+Capa2 browser download action');
 assert.ok(edgeFactoryUi.includes("basicFetchJson('/generate-pair'"), 'Basic route should use the atomic generate-pair endpoint');
 assert.ok(edgeFactoryUi.includes("target_profile: { id: 'sqxedge_darwinex' }"), 'Basic route should always generate against the SQX Edge / Darwinex target profile');
+assert.ok(!edgeFactoryUi.includes('blocksetting_capa2: selection.bs'), 'Basic route should let Capa2 use the backend-recommended Capa2 BlockSetting');
 assert.ok(edgeFactoryUi.includes("return base + '/api';"), 'Edge Factory should normalize origin-only API bases before calling backend endpoints');
 assert.ok(edgeFactoryUi.includes('downloadBasicFiles'), 'Basic route should download the generated pair through the browser');
 assert.ok(html.includes('pg-service-readiness-grid'), 'Project Generator should show a route-free service readiness summary');

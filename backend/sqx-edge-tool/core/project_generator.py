@@ -101,6 +101,13 @@ CAPA1_CORR1_TAG_TASK_TITLE = "CORR1 TAG REVIEW"
 CAPA1_CORR1_TAGGER = "SQXEdgeCorrelationTagger"
 CAPA2_SYNTHETIC_DATABANK = "Synthetic"
 CAPA2_FORWARD_DATABANK = "Forward"
+CAPA2_CORR1_STABILITY_DATABANK = "SQX EDGE C2 CORR STABILITY"
+CAPA2_CORR1_TAGGED_DATABANK = "SQX EDGE C2 CORR TAGGED"
+CAPA2_CORR1_VIEW = "SQX EDGE C2 CORRELATION REVIEW"
+CAPA2_CORR1_STABILITY_TASK_XML = "Retest-Task3.xml"
+CAPA2_CORR1_TAG_TASK_XML = "Retest-Task4.xml"
+CAPA2_CORR1_STABILITY_TASK_TITLE = "C2 CORR STABILITY RETEST"
+CAPA2_CORR1_TAG_TASK_TITLE = "C2 CORR TAG REVIEW"
 CAPA2_RETEST0_OOS_RANGES = [("2023.01.01", "2025.01.01")]
 CAPA2_FORWARD_OOS_RANGES = [("2025.01.01", "2026.01.01"), ("2026.01.01", "2026.04.08")]
 
@@ -493,6 +500,44 @@ def _apply_capa2_registered_pipeline_contract(editor: CfxEditor) -> None:
         _set_oos_ranges(retest0_tree.getroot(), CAPA2_RETEST0_OOS_RANGES)
         editor.update_xml("Retest-Task1.xml", retest0_tree)
 
+    if editor.has("Retest-Task2.xml"):
+        forward_tree = editor.parse_xml("Retest-Task2.xml")
+        forward_summary = _setup_summary_from_task(forward_tree.getroot())
+        plan = {
+            "dateFrom": "2017.10.02",
+            "dateTo": forward_summary.get("dateTo") or "2026.04.08",
+            "oos3From": CAPA2_FORWARD_OOS_RANGES[-1][0],
+            "oos3To": CAPA2_FORWARD_OOS_RANGES[-1][1],
+        }
+        editor.update_xml(
+            CAPA2_CORR1_STABILITY_TASK_XML,
+            _build_corr1_task(
+                forward_tree,
+                input_databank=CAPA2_FORWARD_DATABANK,
+                output_databank=CAPA2_CORR1_STABILITY_DATABANK,
+                method="none",
+                plan=plan,
+            ),
+        )
+        stability_tree = editor.parse_xml(CAPA2_CORR1_STABILITY_TASK_XML)
+        _set_oos_ranges(stability_tree.getroot(), CAPA2_FORWARD_OOS_RANGES)
+        _set_strategy_source_databank(stability_tree.getroot(), "WFM")
+        editor.update_xml(CAPA2_CORR1_STABILITY_TASK_XML, stability_tree)
+        editor.update_xml(
+            CAPA2_CORR1_TAG_TASK_XML,
+            _build_corr1_task(
+                forward_tree,
+                input_databank=CAPA2_CORR1_STABILITY_DATABANK,
+                output_databank=CAPA2_CORR1_TAGGED_DATABANK,
+                method=CAPA1_CORR1_TAGGER,
+                plan=plan,
+            ),
+        )
+        tag_tree = editor.parse_xml(CAPA2_CORR1_TAG_TASK_XML)
+        _set_oos_ranges(tag_tree.getroot(), CAPA2_FORWARD_OOS_RANGES)
+        _set_strategy_source_databank(tag_tree.getroot(), "WFM")
+        editor.update_xml(CAPA2_CORR1_TAG_TASK_XML, tag_tree)
+
     if not editor.has("config.xml"):
         return
     config_tree = editor.parse_xml("config.xml")
@@ -507,6 +552,21 @@ def _apply_capa2_registered_pipeline_contract(editor: CfxEditor) -> None:
             task.set("title", "Synthetic")
         elif task_xml == "Retest-Task2.xml":
             task.set("title", "Forward")
+    _ensure_config_databank(config_root, CAPA2_FORWARD_DATABANK, CAPA2_CORR1_VIEW)
+    _ensure_config_databank(config_root, CAPA2_CORR1_STABILITY_DATABANK, CAPA2_CORR1_VIEW)
+    _ensure_config_databank(config_root, CAPA2_CORR1_TAGGED_DATABANK, CAPA2_CORR1_VIEW)
+    _ensure_config_task(
+        config_root,
+        CAPA2_CORR1_STABILITY_TASK_XML,
+        CAPA2_CORR1_STABILITY_TASK_TITLE,
+        "SQX Edge C2 Correlation Stability Retest",
+    )
+    _ensure_config_task(
+        config_root,
+        CAPA2_CORR1_TAG_TASK_XML,
+        CAPA2_CORR1_TAG_TASK_TITLE,
+        "SQX Edge C2 Correlation Tag Review",
+    )
     editor.update_xml("config.xml", config_tree)
 
 

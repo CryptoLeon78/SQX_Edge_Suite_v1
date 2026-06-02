@@ -551,7 +551,6 @@
         asset: selection.asset,
         tf: selection.tf,
         bs: selection.bs,
-        blocksetting_capa2: selection.bs,
         dir: selection.dir,
         target_profile: { id: 'sqxedge_darwinex' }
       }
