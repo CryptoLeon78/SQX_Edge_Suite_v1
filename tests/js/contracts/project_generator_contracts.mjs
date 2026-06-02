@@ -18,6 +18,8 @@ assert.ok(html.includes('Plan Mining'), 'Project Generator should clarify Plan M
 assert.ok(html.includes('Custom libre'), 'Project Generator should preserve custom generation path');
 assert.ok(html.includes('Custom libre avanzado'), 'Custom libre should remain an Advanced Edge Factory escape hatch');
 assert.ok(html.includes('id="edge-basic-generate-pair"'), 'Basic route should expose a single Capa1+Capa2 browser download action');
+assert.ok(html.includes('id="edge-basic-blocksetting-family"'), 'Basic route should let operators choose the Capa1 BlockSetting family');
+assert.ok(edgeFactoryUi.includes("'edge-basic-blocksetting-family'"), 'Basic route should resolve BlockSettings from the selected family');
 assert.ok(edgeFactoryUi.includes("basicFetchJson('/generate-pair'"), 'Basic route should use the atomic generate-pair endpoint');
 assert.ok(edgeFactoryUi.includes("target_profile: { id: 'sqxedge_darwinex' }"), 'Basic route should always generate against the SQX Edge / Darwinex target profile');
 assert.ok(!edgeFactoryUi.includes('blocksetting_capa2: selection.bs'), 'Basic route should let Capa2 use the backend-recommended Capa2 BlockSetting');

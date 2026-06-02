@@ -281,8 +281,9 @@
     return ranked[0] ? ranked[0].cat : 'tendencia';
   }
 
-  function blocksettingTraceForBasic(assetId, timeframe) {
-    var category = categoryForSelection(assetId, timeframe);
+  function blocksettingTraceForBasic(assetId, timeframe, familyOverride) {
+    var manualFamily = String(familyOverride || '').trim().toLowerCase();
+    var category = manualFamily || categoryForSelection(assetId, timeframe);
     if (typeof global.blockSettingTraceForSelection === 'function') {
       return Object.assign({ family: category }, global.blockSettingTraceForSelection(category, timeframe));
     }
@@ -328,7 +329,8 @@
   function syncBasicBlockSetting() {
     var asset = String((byId('edge-basic-asset') || {}).value || '').trim().toUpperCase();
     var tf = String((byId('edge-basic-timeframe') || {}).value || '').trim().toUpperCase();
-    var trace = blocksettingTraceForBasic(asset, tf);
+    var family = String((byId('edge-basic-blocksetting-family') || {}).value || '').trim();
+    var trace = blocksettingTraceForBasic(asset, tf, family);
     var input = byId('edge-basic-blocksetting');
     if (input) input.value = trace.blocksetting || 'BS_Tendencia_v6';
     return trace;
@@ -2053,11 +2055,13 @@
     var assetInput = byId('edge-basic-asset');
     var tfInput = byId('edge-basic-timeframe');
     var dirInput = byId('edge-basic-direction');
+    var familyInput = byId('edge-basic-blocksetting-family');
     var bsInput = byId('edge-basic-blocksetting');
     if (assetInput && !assetInput.value && card.asset) assetInput.value = card.asset;
     populateBasicTimeframeOptions(assetInput && assetInput.value, card.timeframe);
     if (tfInput && card.timeframe) tfInput.value = card.timeframe;
     if (dirInput && card.direction) dirInput.value = basicDirection(card.direction);
+    if (familyInput && card.family) familyInput.value = card.family;
     if (bsInput && !bsInput.value && card.blockSetting) bsInput.value = card.blockSetting;
     syncBasicBlockSetting();
     renderBasicFlowState(state);
@@ -2100,7 +2104,7 @@
         renderState();
       });
     }
-    ['edge-basic-asset', 'edge-basic-timeframe', 'edge-basic-direction'].forEach(function(id) {
+    ['edge-basic-asset', 'edge-basic-timeframe', 'edge-basic-direction', 'edge-basic-blocksetting-family'].forEach(function(id) {
       var input = byId(id);
       if (!input || input.__edgeBasicSelectionBound) return;
       input.__edgeBasicSelectionBound = true;
