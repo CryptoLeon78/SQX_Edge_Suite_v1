@@ -25,6 +25,7 @@ const requiredApi = [
   'clearResultStrategies',
   'deleteResultStrategies',
   'clearCSVStrategies',
+  'planIngestFiles',
   'ingestFiles',
   'setProgressHandler',
   'computeFileHash',
@@ -57,6 +58,8 @@ const requiredApi = [
   'getC2GenerationPreview',
   'getExitAuditReport',
   'reconcileStrategySources',
+  'getCandidateReadyStatus',
+  'getCandidateReadySummary',
   'getStrategyStatus',
   'canGenerateC2',
   'setThreshold',
@@ -80,8 +83,9 @@ const requiredApi = [
 assert.ok(html.includes('id="tab-templatemaker"'), 'missing Template Maker tab panel');
 assert.ok(html.includes('SQX EDGE CORRELATION REVIEW'), 'Template Maker should explain the mandatory correlation-review view');
 assert.ok(html.includes('id="tm-files-input"'), 'missing unified file input');
+assert.ok(html.includes('id="tm-files-input" accept=".csv,.sqx,.zip" multiple'), 'unified Template Maker upload should accept browser CSV/SQX/ZIP batches');
 assert.ok(html.includes('id="tm-unified-zone"'), 'missing unified upload zone');
-assert.ok(html.includes('id="tm-open-cert-view"'), 'missing SQX Views handoff');
+assert.ok(html.includes('id="tm-open-cert-view"'), 'missing View CORR1 handoff');
 assert.ok(html.includes('id="tm-contract-summary"'), 'missing contract summary cards');
 assert.ok(html.includes('id="tm-problem-panel"'), 'missing contract problem panel');
 assert.ok(html.includes('id="tm-contract-diagnostics"'), 'missing contract diagnostics panel');
@@ -124,6 +128,8 @@ assert.ok(templateMakerWorkerJs.includes("action === 'parseCSV'"), 'worker shoul
 assert.ok(templateMakerWorkerJs.includes("action === 'parseSQX'"), 'worker should support SQX parsing');
 assert.ok(templateMakerWorkerJs.includes("action === 'buildDiversityClusters'"), 'worker should support diversity clustering');
 assert.ok(templateMakerJs.includes('function yieldToBrowser()'), 'Template Maker core should yield between heavy file parsing work');
+assert.ok(templateMakerJs.includes('function planIngestFiles'), 'Template Maker should expose a browser upload ingestion plan');
+assert.ok(templateMakerJs.includes('function expandZipBundle'), 'Template Maker should expand ZIP bundles containing SQX files');
 assert.ok(templateMakerJs.includes('SQX.templateMakerWorker.parseCSV'), 'Template Maker should delegate CSV parsing to worker when available');
 assert.ok(templateMakerJs.includes('SQX.templateMakerWorker.parseSQX'), 'Template Maker should delegate SQX ZIP parsing to worker when available');
 assert.ok(templateMakerJs.includes('SQX.templateMakerWorker.buildDiversityClusters'), 'Template Maker should warm diversity report through worker when available');
@@ -133,6 +139,9 @@ assert.ok(templateMakerJs.includes('function diversityCacheSignature'), 'Templat
 assert.ok(templateMakerJs.includes('invalidateDiversityReportCache'), 'Template Maker should invalidate cached diversity after state changes');
 assert.ok(templateMakerUiJs.includes('function afterPaint()'), 'Template Maker UI should paint progress before heavy ingestion starts');
 assert.ok(templateMakerUiJs.includes('function renderWorkerProgress'), 'Template Maker UI should render worker progress');
+assert.ok(templateMakerUiJs.includes('SQX.templateMaker.planIngestFiles'), 'Template Maker Basic upload should validate the browser file list before ingest');
+assert.ok(templateMakerUiJs.includes('return SQX.templateMaker.ingestFiles(list);'), 'Template Maker Basic upload should route the multi-file browser selection into ingestFiles(files)');
+assert.ok(templateMakerUiJs.includes('advancedCapa2AnalysisActive: false'), 'Template Maker handoff/export should not activate advanced Capa2 analysis');
 assert.ok(!html.includes('id="tab-analyzer"'), 'old analyzer tab should not remain active');
 assert.ok(!html.includes('href="css/analyzer.css"'), 'old analyzer stylesheet should not be active');
 assert.ok(!mainJs.includes('window.SQX.analyzer.init()'), 'old analyzer init should be retired');
@@ -152,6 +161,17 @@ assert.equal(tm.getCapa(), 1, 'default capa should be 1');
 assert.ok(tm.getPresets().includes('Generic'), 'Generic preset should exist');
 assert.ok(tm.getPresets().includes('Commodities'), 'Commodities preset should exist');
 assert.equal(tm.getStrategies().length, 0, 'initial strategies should be empty');
+const ingestPlan = tm.planIngestFiles([
+  { name: 'DatabankExport.csv' },
+  { name: 'Winner 01.sqx' },
+  { name: 'survivors.zip' },
+  { name: 'notes.txt' },
+]);
+assert.equal(ingestPlan.accept, '.csv,.sqx,.zip', 'Template Maker browser accept contract should stay narrow');
+assert.equal(ingestPlan.csvFiles.length, 1, 'ingestFiles plan should route CSV files first');
+assert.equal(ingestPlan.sqxFiles.length, 2, 'ingestFiles plan should route SQX and ZIP files into SQX ingestion');
+assert.equal(ingestPlan.zipFiles.length, 1, 'ingestFiles plan should retain ZIP bundle trace');
+assert.equal(ingestPlan.rejected.length, 1, 'ingestFiles plan should ignore unsupported browser files');
 assert.ok(tm.getRequiredMetricNames(1, 'Generic').includes('Net profit'), 'required metrics should include Net profit');
 assert.ok(tm.getRequiredMetricNames(1, 'Commodities').includes('Ret/DD Ratio'), 'commodity contract should keep Ret/DD alias');
 assert.equal(tm.getContractDiagnostics().schemaVersion, 'sqx-edge-correlation-review-c2-v1', 'contract diagnostics should expose correlation-review schema');
@@ -286,6 +306,9 @@ const c2Trace = tm.resolveC2Trace(c2Winner, { blockSetting: 'BS_Tendencia_v6', d
 assert.equal(c2Trace.indicatorBase, 'hma_atr_bands', 'C2 trace should prefill indicator base from logic features');
 assert.equal(c2Trace.clusterId, div02.clusterId, 'C2 trace should prefill NumCluster from diversity status');
 assert.equal(c2Trace.blockSetting, 'BS_Tendencia_v6', 'C2 trace should keep real BS_* blocksetting');
+assert.equal(c2Trace.analysisLayer, 'template-maker-capa1', 'C2 trace should remain a Template Maker Capa 1 handoff');
+assert.equal(c2Trace.advancedCapa2AnalysisActive, false, 'C2 trace should not activate advanced Capa2 analysis');
+assert.equal(c2Trace.portfolioAnalysisActive, false, 'C2 trace should not activate portfolio analysis');
 assert.ok(c2Trace.name.includes('BS_Tendencia_v6'), 'C2 name should include blocksetting');
 assert.ok(c2Trace.name.includes('hma_atr_bands'), 'C2 name should include base indicator');
 assert.ok(c2Trace.name.includes(div02.clusterId), 'C2 name should include cluster id');
@@ -299,6 +322,40 @@ assert.ok(exitPreview.exitSummary.disabled.includes('Exit After TDays LaCity'), 
 assert.ok(exitPreview.exitSummary.randomized.includes('Profit Target'), 'C2 preview should randomize Profit Target');
 assert.ok(tm.detectExitComponents({ _strategyXml: lacityExitXml }).some(component => component.kind === 'exit_after_days'), 'Template Maker should expose detected ExitAfterDays');
 assert.ok(tm.getExitAuditReport({ _strategyXml: lacityExitXml }).summary.disabled.includes('Exit After Bars'), 'Template Maker exit audit should use the global policy');
+const candidateSummary = tm.getCandidateReadySummary();
+assert.equal(candidateSummary.total, 3, 'candidate-ready summary should see the loaded Capa 1 candidates');
+assert.equal(candidateSummary.candidateReady, 3, 'candidate-ready summary should count CSV+SQX+PASSED candidates');
+assert.equal(candidateSummary.readyForC2, 2, 'candidate-ready summary should count only diverse C2-ready winners');
+assert.equal(candidateSummary.advancedCapa2AnalysisActive, false, 'candidate-ready summary should not activate advanced Capa2 analysis');
+assert.equal(tm.getCandidateReadyStatus(diversityStrategies.find(strategy => strategy['Strategy Name'] === 'TM Div 01')).status, 'Candidata lista', 'similar Capa 1 candidate should stay minimally ready but not C2-ready');
+let c2PatchedXml = '';
+sandbox.JSZip = {
+  loadAsync: async payload => {
+    assert.equal(payload instanceof ArrayBuffer, true, 'C2 export should load browser File/Blob payload through arrayBuffer');
+    return {
+      file(name, value) {
+        if (value !== undefined) {
+          c2PatchedXml = String(value || '');
+          return this;
+        }
+        if (name === 'strategy_Portfolio.xml') {
+          return { async: async () => '<Strategy><options><StrategyName>Old</StrategyName></options></Strategy>' };
+        }
+        return null;
+      },
+      generateAsync: async options => ({ fakeBlob: true, options, c2PatchedXml })
+    };
+  }
+};
+const c2Blob = await tm.generateC2Template(Object.assign({}, c2Winner, {
+  _fileData: {
+    name: 'TM Div 02.sqx',
+    arrayBuffer: async () => new ArrayBuffer(8)
+  }
+}), { blockSetting: 'BS_Tendencia_v6', direction: 'LONG', advancedCapa2AnalysisActive: false });
+assert.equal(c2Blob.fakeBlob, true, 'C2 export should return the generated browser blob');
+assert.equal(c2Blob.options.type, 'blob', 'C2 export should use browser blob download semantics');
+assert.equal(tm.getCapa(), 1, 'C2 export should not switch Template Maker into Capa 2 analysis');
 await tm.setDiversitySetting('structuralThreshold', 0.99);
 assert.equal(tm.getDiversitySettings().structuralThreshold, 0.99, 'diversity setting should be editable');
 await tm.clearResultStrategies();

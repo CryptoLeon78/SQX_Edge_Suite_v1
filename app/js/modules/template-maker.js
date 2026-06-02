@@ -800,10 +800,80 @@
     return addStrategies(rows);
   }
 
+  function loadZipFromFile(file) {
+    if (!global.JSZip) return Promise.reject(new Error('JSZip no esta cargado'));
+    if (file && file._tmArrayBuffer) return global.JSZip.loadAsync(file._tmArrayBuffer);
+    if (file && typeof file.arrayBuffer === 'function') {
+      return file.arrayBuffer().then(function(buffer) {
+        return global.JSZip.loadAsync(buffer);
+      });
+    }
+    return global.JSZip.loadAsync(file);
+  }
+
+  function createNamedSQXFileFromZipEntry(name, buffer, sourceZipName) {
+    var cleanName = String(name || 'strategy.sqx').split(/[\\/]/).pop() || 'strategy.sqx';
+    var file = null;
+    if (typeof global.File === 'function') {
+      file = new global.File([buffer], cleanName, { type: 'application/octet-stream' });
+    } else if (typeof global.Blob === 'function') {
+      file = new global.Blob([buffer], { type: 'application/octet-stream' });
+      try {
+        Object.defineProperty(file, 'name', { value: cleanName });
+      } catch (_err) {
+        file.name = cleanName;
+      }
+    } else {
+      file = {
+        name: cleanName,
+        size: buffer && buffer.byteLength,
+        _tmArrayBuffer: buffer,
+        arrayBuffer: function() { return Promise.resolve(buffer); }
+      };
+    }
+    try {
+      Object.defineProperty(file, '_tmSourceZipName', { value: sourceZipName || '', configurable: true });
+    } catch (_err2) {
+      file._tmSourceZipName = sourceZipName || '';
+    }
+    return file;
+  }
+
+  function expandZipBundle(file) {
+    if (fileExtension(file) !== 'zip') return Promise.resolve([file]);
+    return loadZipFromFile(file).then(function(zip) {
+      if (zip.file('strategy_Portfolio.xml')) return [file];
+      var entries = [];
+      zip.forEach(function(relativePath, entry) {
+        if (!entry.dir && /\.sqx$/i.test(relativePath || '')) entries.push({ path: relativePath, entry: entry });
+      });
+      if (!entries.length) return [file];
+      return entries.reduce(function(chain, item) {
+        return chain.then(function(out) {
+          return item.entry.async('arraybuffer').then(function(buffer) {
+            out.push(createNamedSQXFileFromZipEntry(item.path, buffer, fileNameOf(file)));
+            return out;
+          });
+        });
+      }, Promise.resolve([]));
+    });
+  }
+
+  function expandSQXInputFiles(files) {
+    return (files || []).reduce(function(chain, file) {
+      return chain.then(function(out) {
+        return expandZipBundle(file).then(function(expanded) {
+          return out.concat(expanded);
+        });
+      });
+    }, Promise.resolve([]));
+  }
+
   function loadFromSQX(fileOrFiles) {
     var files = Array.isArray(fileOrFiles) ? fileOrFiles : Array.prototype.slice.call(fileOrFiles || []);
     if (!files.length && fileOrFiles) files = [fileOrFiles];
-    return files.reduce(function(chain, file) {
+    return expandSQXInputFiles(files).then(function(expandedFiles) {
+      return expandedFiles.reduce(function(chain, file) {
       return chain.then(function(parsed) {
         return yieldToBrowser().then(function() {
           return parseSQX(file);
@@ -812,7 +882,8 @@
           return parsed;
         });
       });
-    }, Promise.resolve([])).then(addStrategies);
+      }, Promise.resolve([]));
+    }).then(addStrategies);
   }
 
   function parseSQX(file) {
@@ -830,19 +901,19 @@
   }
 
   function parseSQXMainThread(file) {
-    if (!global.JSZip) return Promise.reject(new Error('JSZip no esta cargado'));
     return computeFileHash(file).then(function(hash) {
-      return global.JSZip.loadAsync(file).then(function(zip) {
+      return loadZipFromFile(file).then(function(zip) {
         var result = createBaseRecord({
         _id: _nextId++,
         _source: 'sqx',
-        'Strategy Name': String(file.name || 'strategy').replace(/\.sqx$/i, ''),
+        'Strategy Name': String(file.name || 'strategy').replace(/\.(sqx|zip)$/i, ''),
         _fileData: file
         });
         result.sources.sqx = {
           fileName: file.name || 'strategy.sqx',
           hash: hash,
-          importedAt: new Date().toISOString()
+          importedAt: new Date().toISOString(),
+          sourceZipFileName: file._tmSourceZipName || ''
         };
         result.provenance.sqxHash = hash;
         result.provenance.importedAt = result.sources.sqx.importedAt;
@@ -871,13 +942,14 @@
     var result = createBaseRecord({
       _id: _nextId++,
       _source: 'sqx',
-      'Strategy Name': String(data.fileName || file && file.name || 'strategy').replace(/\.sqx$/i, ''),
+      'Strategy Name': String(data.fileName || file && file.name || 'strategy').replace(/\.(sqx|zip)$/i, ''),
       _fileData: file
     });
     result.sources.sqx = {
       fileName: data.fileName || file && file.name || 'strategy.sqx',
       hash: data.hash || fallbackHash(data.fileName || ''),
-      importedAt: new Date().toISOString()
+      importedAt: new Date().toISOString(),
+      sourceZipFileName: file && file._tmSourceZipName || ''
     };
     result.provenance.sqxHash = result.sources.sqx.hash;
     result.provenance.importedAt = result.sources.sqx.importedAt;
@@ -1135,6 +1207,49 @@
 
   function cleanHeaderName(key) {
     return String(key || '').replace(/^\uFEFF/, '').trim();
+  }
+
+  function fileNameOf(file) {
+    return String(file && (file.name || file.filename || file.fileName) || '').trim();
+  }
+
+  function fileExtension(file) {
+    var match = fileNameOf(file).match(/\.([^.]+)$/);
+    return match ? match[1].toLowerCase() : '';
+  }
+
+  function planIngestFiles(files) {
+    var list = Array.prototype.slice.call(files || []);
+    var csvFiles = [];
+    var sqxFiles = [];
+    var zipFiles = [];
+    var rejected = [];
+    list.forEach(function(file) {
+      var extension = fileExtension(file);
+      if (extension === 'csv') {
+        csvFiles.push(file);
+        return;
+      }
+      if (extension === 'sqx') {
+        sqxFiles.push(file);
+        return;
+      }
+      if (extension === 'zip') {
+        sqxFiles.push(file);
+        zipFiles.push(file);
+        return;
+      }
+      rejected.push(file);
+    });
+    return {
+      total: list.length,
+      accepted: csvFiles.concat(sqxFiles),
+      csvFiles: csvFiles,
+      sqxFiles: sqxFiles,
+      zipFiles: zipFiles,
+      rejected: rejected,
+      accept: '.csv,.sqx,.zip'
+    };
   }
 
   function sampleSuffix(key) {
@@ -1805,6 +1920,59 @@
       && (diversity.status === 'Diverso' || diversity.status === 'Ganador cluster');
   }
 
+  function getCandidateReadyStatus(strategy, score) {
+    var resolved = typeof strategy === 'object' ? strategy : _strategies.find(function(item) {
+      return String(item._id) === String(strategy);
+    });
+    if (!resolved) {
+      return {
+        status: 'Sin candidato',
+        candidateReady: false,
+        c2TemplateReady: false,
+        advancedCapa2AnalysisActive: false,
+        analysisLayer: 'template-maker-capa1'
+      };
+    }
+    var contract = validateMetricsContract(resolved);
+    var resolvedScore = score || scoreStrategy(resolved);
+    var hasSqx = hasSQX(resolved);
+    var candidateReady = !!(contract.valid && hasSqx && resolvedScore.classification === 'PASSED');
+    var diversity = candidateReady ? getDiversityStatus(resolved) : null;
+    var c2Ready = !!(candidateReady && diversity && (diversity.status === 'Diverso' || diversity.status === 'Ganador cluster'));
+    return {
+      status: c2Ready ? 'Lista para C2' : (candidateReady ? 'Candidata lista' : getStrategyStatus(resolved, resolvedScore, { skipDiversity: true })),
+      candidateReady: candidateReady,
+      c2TemplateReady: c2Ready,
+      advancedCapa2AnalysisActive: false,
+      analysisLayer: 'template-maker-capa1',
+      score: resolvedScore.classification,
+      contractProfile: contract.contractProfile,
+      diversityStatus: diversity ? diversity.status : '',
+      clusterId: diversity ? diversity.clusterId : ''
+    };
+  }
+
+  function getCandidateReadySummary() {
+    var statuses = _strategies.map(function(strategy) {
+      return getCandidateReadyStatus(strategy);
+    });
+    var candidateReady = statuses.filter(function(status) { return status.candidateReady; }).length;
+    var c2Ready = statuses.filter(function(status) { return status.c2TemplateReady; }).length;
+    return {
+      total: statuses.length,
+      candidateReady: candidateReady,
+      readyForC2: c2Ready,
+      blocked: Math.max(0, statuses.length - candidateReady),
+      status: c2Ready ? 'candidate-ready' : (candidateReady ? 'candidate-review' : 'pending'),
+      label: c2Ready
+        ? c2Ready + ' candidato(s) listos para Template C2'
+        : (candidateReady ? candidateReady + ' candidato(s) con CSV, SQX y PASSED' : 'Pendiente: carga CSV + SQX compatible'),
+      advancedCapa2AnalysisActive: false,
+      analysisLayer: 'template-maker-capa1',
+      statuses: statuses
+    };
+  }
+
   function detectExitComponents(strategy) {
     if (strategy && strategy._strategyXml && SQX.exitPolicy && SQX.exitPolicy.detectExitComponentsFromXml) {
       return SQX.exitPolicy.detectExitComponentsFromXml(strategy._strategyXml);
@@ -1834,7 +2002,7 @@
   function readStrategyXml(strategy) {
     if (strategy && strategy._strategyXml) return Promise.resolve(strategy._strategyXml);
     if (!strategy || !strategy._fileData || !global.JSZip) return Promise.resolve('');
-    return global.JSZip.loadAsync(strategy._fileData).then(function(zip) {
+    return loadZipFromFile(strategy._fileData).then(function(zip) {
       var file = zip.file('strategy_Portfolio.xml');
       return file ? file.async('string') : '';
     });
@@ -1955,6 +2123,9 @@
       sourceStrategyName: traceNamePart(sourceName, 'Strategy_0'),
       sourceStrategyDisplay: sourceName,
       diversityStatus: diversity.status || 'No evaluable',
+      analysisLayer: 'template-maker-capa1',
+      advancedCapa2AnalysisActive: false,
+      portfolioAnalysisActive: false,
       missing: []
     };
     if (trace.indicatorBase === 'SIN_INDICADOR') trace.missing.push('Indicador base');
@@ -2051,11 +2222,9 @@
   }
 
   function ingestFiles(files) {
-    var list = Array.prototype.slice.call(files || []);
-    if (!list.length) return Promise.resolve(_strategies.slice());
-    var csvFiles = list.filter(function(file) { return /\.csv$/i.test(file.name || ''); });
-    var sqxFiles = list.filter(function(file) { return /\.(sqx|zip)$/i.test(file.name || ''); });
-    return csvFiles.reduce(function(chain, file) {
+    var plan = planIngestFiles(files);
+    if (!plan.accepted.length) return Promise.resolve(_strategies.slice());
+    return plan.csvFiles.reduce(function(chain, file) {
       return chain.then(function() {
         return yieldToBrowser().then(function() {
           return file.text().then(function(text) {
@@ -2064,7 +2233,7 @@
         });
       });
     }, Promise.resolve(_strategies.slice())).then(function() {
-      return sqxFiles.length ? loadFromSQX(sqxFiles) : _strategies.slice();
+      return plan.sqxFiles.length ? loadFromSQX(plan.sqxFiles) : _strategies.slice();
     }).then(function() {
       _strategies = reconcileStrategySources(_strategies);
       syncNextId();
@@ -2199,7 +2368,7 @@
     if (!canGenerateC2(strategy)) return Promise.reject(new Error('Requiere .sqx, CSV SQX EDGE CORRELATION REVIEW compatible, estado PASSED y diversidad aprobada.'));
     if (!global.JSZip) return Promise.reject(new Error('JSZip no esta cargado'));
     var trace = resolveC2Trace(strategy, options || {});
-    return global.JSZip.loadAsync(strategy._fileData).then(function(zip) {
+    return loadZipFromFile(strategy._fileData).then(function(zip) {
       var file = zip.file('strategy_Portfolio.xml');
       if (!file) throw new Error('strategy_Portfolio.xml no existe en el .sqx');
       return file.async('string').then(function(xml) {
@@ -2423,6 +2592,7 @@
     clearResultStrategies: clearResultStrategies,
     deleteResultStrategies: deleteResultStrategies,
     clearCSVStrategies: clearCSVStrategies,
+    planIngestFiles: planIngestFiles,
     ingestFiles: ingestFiles,
     setProgressHandler: setProgressHandler,
     computeFileHash: computeFileHash,
@@ -2455,6 +2625,8 @@
     getC2GenerationPreview: getC2GenerationPreview,
     getExitAuditReport: getExitAuditReport,
     reconcileStrategySources: reconcileStrategySources,
+    getCandidateReadyStatus: getCandidateReadyStatus,
+    getCandidateReadySummary: getCandidateReadySummary,
     getStrategyStatus: getStrategyStatus,
     canGenerateC2: canGenerateC2,
     setThreshold: setThreshold,

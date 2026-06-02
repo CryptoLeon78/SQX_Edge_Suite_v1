@@ -77,6 +77,61 @@ class ApiTestCase(unittest.TestCase):
         self.assertIn("entries", data["blocksettings"])
         self.assertGreaterEqual(len(data["blocksettings"]["entries"]), 17)
 
+    def test_sqx_readiness_manifest_endpoint_is_public_safe(self):
+        response = self.client.get("/api/sqx-readiness/manifest")
+        self.assertEqual(response.status_code, 200)
+        data = self.get_json(response)
+        self.assertTrue(data["ok"])
+        self.assertEqual(data["schema"], "sqx-edge.sqx-readiness-manifest-v2")
+        self.assertIn("requiredChecklist", data)
+        self.assertFalse(data["privacy"]["dataDbCopied"])
+
+    def test_sqx_readiness_report_endpoint_persists_evaluated_status(self):
+        captured = []
+
+        def capture(status, workspace_context=None, source=""):
+            captured.append((status, workspace_context, source))
+            return status
+
+        report = {
+            "summary": {
+                "sqxRootSelected": True,
+                "versionCompatible": True,
+                "dataDbFound": True,
+                "brokersValidated": True,
+                "curatedAssetsValidated": True,
+                "snippetsReady": True,
+                "viewsReady": True,
+            },
+            "checks": {
+                "portable_source_acknowledged": True,
+                "sensitive_files_excluded": True,
+            },
+        }
+        with patch.object(server, "write_readiness_status", side_effect=capture):
+            response = self.client.post("/api/sqx-readiness/report", json={"report": report})
+        self.assertEqual(response.status_code, 200)
+        data = self.get_json(response)
+        self.assertTrue(data["complete"])
+        self.assertEqual(captured[0][2], "checker_report")
+
+    def test_sqx_readiness_gate_blocks_sensitive_generation_when_remote_incomplete(self):
+        incomplete = {
+            "ok": True,
+            "complete": False,
+            "missing": ["data_db_found"],
+            "checks": {},
+            "source": "not_configured",
+        }
+        with patch.object(server, "_is_remote_app_request", return_value=True), \
+                patch.object(server, "_readiness_workspace_for_request", return_value=(None, None)), \
+                patch.object(server, "read_readiness_status", return_value=incomplete):
+            response = self.client.post("/api/generate", json={})
+        self.assertEqual(response.status_code, 428)
+        data = self.get_json(response)
+        self.assertEqual(data["error"], "sqx_readiness_required")
+        self.assertEqual(data["required_feature"], "project_generator.generate")
+
     def test_license_status_and_feature_check_endpoints(self):
         response = self.client.get("/api/license/status")
         self.assertEqual(response.status_code, 200)
@@ -599,11 +654,13 @@ class ApiTestCase(unittest.TestCase):
         with patch.object(server, "check_feature", return_value=denied):
             generate = self.client.post("/api/generate", json={"mining": 1, "capa": 1})
             generate_custom = self.client.post("/api/generate-custom", json={"asset": "EURUSD", "tf": "H1", "capa": 1})
+            generate_pair = self.client.post("/api/generate-pair", json={"asset": "EURUSD", "tf": "H1"})
             generate_all = self.client.post("/api/generate-all", json={"capa": 1})
             clean = self.client.post("/api/sqx-clean", json={"files": ["x.sqx"], "options": {}})
 
         self.assertEqual(generate.status_code, 402)
         self.assertEqual(generate_custom.status_code, 402)
+        self.assertEqual(generate_pair.status_code, 402)
         self.assertEqual(generate_all.status_code, 402)
         self.assertEqual(clean.status_code, 402)
         self.assertEqual(self.get_json(generate)["error"], "pro_required")
@@ -732,6 +789,204 @@ class ApiTestCase(unittest.TestCase):
         self.assertEqual(data["target_profile"]["brokerId"], 7)
         self.assertEqual(data["target_profile"]["sourceId"], 8)
 
+    def test_generate_pair_creates_capa1_and_capa2_together(self):
+        cfg = {
+            "template_capa1": "templates/Capa1_Long.cfx",
+            "template_capa2": "templates/Capa2_Base.cfx",
+            "output_dir": "output",
+            "sqx_data_db": "",
+            "darwinex_suffix": "_darwinex",
+            "asset_aliases": {},
+        }
+
+        def fake_generate(_mining, **kwargs):
+            return str(server.ROOT / "output" / f"{kwargs['project_name']}_Capa{kwargs['capa']}.cfx")
+
+        with patch.object(server, "load_config", return_value=cfg), \
+                patch.object(server.os.path, "isfile", return_value=True), \
+                patch.object(server, "generate_project", side_effect=fake_generate) as gen, \
+                patch.object(server, "resolve_costs", return_value={
+                    "source": "fallback",
+                    "symbol": "EURGBP_darwinex",
+                    "spread": 1,
+                    "swap_long": -1,
+                    "swap_short": 0,
+                }):
+            response = self.client.post("/api/generate-pair", json={
+                "name": "Project EURGBP H1 Basic",
+                "asset": "eurgbp",
+                "tf": "h1",
+                "bs": "BS_Estadistico_v6",
+                "dir": "both",
+            })
+
+        self.assertEqual(response.status_code, 200)
+        data = self.get_json(response)
+        self.assertTrue(data["ok"])
+        self.assertEqual(data["asset"], "EURGBP")
+        self.assertEqual(data["tf"], "H1")
+        self.assertEqual(data["dir"], "both")
+        self.assertEqual(data["project_name"], "Project_EURGBP_H1_Basic_LS")
+        self.assertEqual([item["name"] for item in data["files"]], [
+            "Project_EURGBP_H1_Basic_LS_Capa1.cfx",
+            "Project_EURGBP_H1_Basic_LS_Capa2.cfx",
+        ])
+        self.assertEqual(data["results"]["capa1"]["project_name"], "Project_EURGBP_H1_Basic_LS")
+        self.assertEqual(data["results"]["capa2"]["project_name"], "Project_EURGBP_H1_Basic_LS")
+        self.assertEqual([call.kwargs["capa"] for call in gen.call_args_list], [1, 2])
+        self.assertIsNone(gen.call_args_list[1].kwargs["blocksetting_capa2"])
+
+    def test_generate_pair_reports_partial_failure(self):
+        cfg = {
+            "template_capa1": "templates/Capa1_Long.cfx",
+            "template_capa2": "templates/Capa2_Base.cfx",
+            "output_dir": "output",
+            "sqx_data_db": "",
+            "darwinex_suffix": "_darwinex",
+            "asset_aliases": {},
+        }
+
+        def fake_generate(_mining, **kwargs):
+            if kwargs["capa"] == 2:
+                raise RuntimeError("capa2 boom")
+            return str(server.ROOT / "output" / f"{kwargs['project_name']}_Capa1.cfx")
+
+        with patch.object(server, "load_config", return_value=cfg), \
+                patch.object(server.os.path, "isfile", return_value=True), \
+                patch.object(server, "generate_project", side_effect=fake_generate), \
+                patch.object(server, "resolve_costs", return_value={
+                    "source": "fallback",
+                    "symbol": "EURGBP_darwinex",
+                    "spread": 1,
+                    "swap_long": -1,
+                    "swap_short": 0,
+                }):
+            response = self.client.post("/api/generate-pair", json={
+                "name": "Project EURGBP H1 Basic",
+                "asset": "eurgbp",
+                "tf": "h1",
+                "bs": "BS_Estadistico_v6",
+                "dir": "both",
+            })
+
+        self.assertEqual(response.status_code, 200)
+        data = self.get_json(response)
+        self.assertFalse(data["ok"])
+        self.assertEqual(data["ok_count"], 1)
+        self.assertEqual(data["fail_count"], 1)
+        self.assertTrue(data["results"]["capa1"]["ok"])
+        self.assertFalse(data["results"]["capa2"]["ok"])
+        self.assertEqual([item["name"] for item in data["files"]], ["Project_EURGBP_H1_Basic_LS_Capa1.cfx"])
+
+    def test_generate_pair_passes_target_profile_to_both_layers(self):
+        cfg = {
+            "template_capa1": "templates/Capa1_Long.cfx",
+            "template_capa2": "templates/Capa2_Base.cfx",
+            "output_dir": "output",
+            "sqx_data_db": "",
+            "darwinex_suffix": "_darwinex",
+            "asset_aliases": {},
+        }
+        custom_profile = {
+            "id": "custom_user_broker",
+            "custom": {
+                "brokerPostfix": "_user",
+                "symbol": "EURGBP_user",
+                "brokerId": "7",
+                "sourceId": "8",
+                "brokerName": "[[UserBroker]]",
+            },
+        }
+
+        def fake_generate(_mining, **kwargs):
+            return str(server.ROOT / "output" / f"{kwargs['project_name']}_Capa{kwargs['capa']}.cfx")
+
+        with patch.object(server, "load_config", return_value=cfg), \
+                patch.object(server.os.path, "isfile", return_value=True), \
+                patch.object(server, "generate_project", side_effect=fake_generate) as gen, \
+                patch.object(server, "resolve_costs", return_value={
+                    "source": "fallback",
+                    "symbol": "EURGBP_user",
+                    "spread": 1,
+                    "swap_long": -1,
+                    "swap_short": 0,
+                }):
+            response = self.client.post("/api/generate-pair", json={
+                "asset": "eurgbp",
+                "tf": "h1",
+                "bs": "BS_Estadistico_v6",
+                "dir": "long",
+                "target_profile": custom_profile,
+            })
+
+        self.assertEqual(response.status_code, 200)
+        data = self.get_json(response)
+        self.assertEqual([call.kwargs["target_profile"] for call in gen.call_args_list], [custom_profile, custom_profile])
+        self.assertEqual(data["target_profile"]["id"], "custom_user_broker")
+        self.assertEqual(data["target_profile"]["symbol"], "EURGBP_user")
+        self.assertEqual(data["results"]["capa1"]["target_profile"]["brokerId"], 7)
+        self.assertEqual(data["results"]["capa2"]["target_profile"]["sourceId"], 8)
+
+    def test_generate_pair_remote_response_uses_workspace_paths(self):
+        cfg = {
+            "template_capa1": "templates/Capa1_Long.cfx",
+            "template_capa2": "templates/Capa2_Base.cfx",
+            "output_dir": "output",
+            "sqx_data_db": "",
+            "darwinex_suffix": "_darwinex",
+            "asset_aliases": {},
+        }
+
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace_context = {
+                "ok": True,
+                "workspace": {
+                    "id": "ws_1234567890abcdef123456",
+                    "version": "remote-workspace-v1",
+                    "owner_hash": "ownerhash",
+                    "owner_ref": "operator",
+                    "entitlement_kind": "tester_free",
+                    "feature_scope": "full",
+                },
+                "_paths": {"outputs": Path(tmp), "logs": Path(tmp) / "logs"},
+            }
+
+            def fake_generate(_mining, **kwargs):
+                return str(Path(tmp) / f"{kwargs['project_name']}_Capa{kwargs['capa']}.cfx")
+
+            with patch.object(server, "load_config", return_value=cfg), \
+                    patch.object(server.os.path, "isfile", return_value=True), \
+                    patch.object(server, "_resolve_generation_output", return_value=(tmp, workspace_context, None)), \
+                    patch.object(server, "record_workspace_output_generated", return_value={}), \
+                    patch.object(server, "generate_project", side_effect=fake_generate), \
+                    patch.object(server, "resolve_costs", return_value={
+                        "source": "fallback",
+                        "symbol": "EURGBP_darwinex",
+                        "spread": 1,
+                        "swap_long": -1,
+                        "swap_short": 0,
+                    }):
+                response = self.client.post("/api/generate-pair", json={
+                    "asset": "eurgbp",
+                    "tf": "h1",
+                    "bs": "BS_Estadistico_v6",
+                    "dir": "short",
+                })
+
+        self.assertEqual(response.status_code, 200)
+        data = self.get_json(response)
+        raw = json.dumps(data)
+        self.assertFalse(data["privacy"]["local_paths_returned"])
+        self.assertEqual(data["results"]["capa1"]["output_path"], "workspace://outputs/Custom_EURGBP_H1_BS_Estadistico_v6_S_Capa1.cfx")
+        self.assertEqual(data["results"]["capa2"]["output_path"], "workspace://outputs/Custom_EURGBP_H1_BS_Estadistico_v6_S_Capa2.cfx")
+        self.assertEqual([item["path"] for item in data["files"]], [
+            "workspace://outputs/Custom_EURGBP_H1_BS_Estadistico_v6_S_Capa1.cfx",
+            "workspace://outputs/Custom_EURGBP_H1_BS_Estadistico_v6_S_Capa2.cfx",
+        ])
+        self.assertIn("workspace://outputs", raw)
+        self.assertNotIn(str(Path(tmp)), raw)
+        self.assertNotRegex(raw, r"[A-Za-z]:\\\\")
+
     def test_generate_custom_accepts_project_outside_plan(self):
         cfg = {
             "template_capa1": "templates/Capa1_Long.cfx",
@@ -740,7 +995,7 @@ class ApiTestCase(unittest.TestCase):
             "darwinex_suffix": "_darwinex",
             "asset_aliases": {},
         }
-        fake_path = str(server.ROOT / "output" / "Custom_EURUSD_H1_Capa1.cfx")
+        fake_path = str(server.ROOT / "output" / "Custom_EURUSD_H1_LS_Capa1.cfx")
         with patch.object(server, "load_config", return_value=cfg), \
                 patch.object(server.os.path, "isfile", return_value=True), \
                 patch.object(server, "generate_project", return_value=fake_path) as gen, \
@@ -766,12 +1021,165 @@ class ApiTestCase(unittest.TestCase):
         self.assertEqual(data["asset"], "EURUSD")
         self.assertEqual(data["tf"], "H1")
         self.assertEqual(data["dir"], "both")
-        self.assertEqual(data["project_name"], "Custom_EURUSD_H1")
+        self.assertEqual(data["project_name"], "Custom_EURUSD_H1_LS")
+        self.assertEqual(data["filename"], "Custom_EURUSD_H1_LS_Capa1.cfx")
         mining = gen.call_args.args[0]
         self.assertEqual(mining.asset, "EURUSD")
         self.assertEqual(mining.tf, "H1")
         self.assertEqual(mining.bs, "BS_Tendencia_v6")
-        self.assertEqual(gen.call_args.kwargs["project_name"], "Custom_EURUSD_H1")
+        self.assertEqual(gen.call_args.kwargs["project_name"], "Custom_EURUSD_H1_LS")
+
+    def test_build_custom_mining_forces_direction_suffix_on_typed_names(self):
+        base = {
+            "name": "Project_EURGBP_H1_BS_Estadistico_v6_estadistico",
+            "asset": "eurgbp",
+            "tf": "h1",
+            "bs": "BS_Estadistico_v6",
+            "capa": 2,
+        }
+
+        resolved = {
+            direction: server.build_custom_mining({**base, "dir": direction})[1]
+            for direction in ("long", "short", "both")
+        }
+
+        self.assertEqual(resolved["long"], "Project_EURGBP_H1_BS_Estadistico_v6_estadistico_L")
+        self.assertEqual(resolved["short"], "Project_EURGBP_H1_BS_Estadistico_v6_estadistico_S")
+        self.assertEqual(resolved["both"], "Project_EURGBP_H1_BS_Estadistico_v6_estadistico_LS")
+        self.assertEqual(len(set(resolved.values())), 3)
+
+    def test_build_custom_mining_replaces_stale_direction_suffix(self):
+        _mining, project_name = server.build_custom_mining({
+            "name": "Project_EURGBP_H1_BS_Estadistico_v6_estadistico_L",
+            "asset": "eurgbp",
+            "tf": "h1",
+            "bs": "BS_Estadistico_v6",
+            "dir": "short",
+            "capa": 2,
+        })
+
+        self.assertEqual(project_name, "Project_EURGBP_H1_BS_Estadistico_v6_estadistico_S")
+
+    def test_build_custom_mining_default_name_keeps_direction_suffix(self):
+        _mining, project_name = server.build_custom_mining({
+            "asset": "eurgbp",
+            "tf": "h1",
+            "bs": "BS_Custom",
+            "dir": "both",
+            "capa": 1,
+        })
+
+        self.assertEqual(project_name, "Custom_EURGBP_H1_BS_Custom_LS")
+
+    def test_generate_custom_can_request_visual_guide_pdf(self):
+        cfg = {
+            "template_capa1": "templates/Capa1_Long.cfx",
+            "output_dir": "output",
+            "sqx_data_db": "",
+            "darwinex_suffix": "_darwinex",
+            "asset_aliases": {},
+        }
+        fake_path = str(server.ROOT / "output" / "Custom_EURUSD_H1_LS_Capa1.cfx")
+        pdf_result = {
+            "ok": True,
+            "filename": "Custom_EURUSD_H1_LS_visual_check_guide.pdf",
+            "relative_path": "output/pdf/Custom_EURUSD_H1_LS_visual_check_guide.pdf",
+            "output_path": "output/pdf/Custom_EURUSD_H1_LS_visual_check_guide.pdf",
+            "strict": False,
+            "screenshots_pending": True,
+            "privacy": {"local_paths_returned": False},
+        }
+        with patch.object(server, "load_config", return_value=cfg), \
+                patch.object(server.os.path, "isfile", return_value=True), \
+                patch.object(server, "generate_project", return_value=fake_path), \
+                patch.object(server, "render_custom_project_visual_guide_pdf", return_value=pdf_result) as render_pdf, \
+                patch.object(server, "resolve_costs", return_value={
+                    "source": "fallback",
+                    "symbol": "EURUSD_darwinex",
+                    "spread": 1,
+                    "swap_long": -1,
+                    "swap_short": 0,
+                }):
+            response = self.client.post("/api/generate-custom", json={
+                "name": "Custom EURUSD H1",
+                "asset": "eurusd",
+                "tf": "h1",
+                "bs": "BS_Tendencia_v6",
+                "dir": "both",
+                "capa": 1,
+                "visual_guide_pdf": True,
+            })
+
+        self.assertEqual(response.status_code, 200)
+        data = self.get_json(response)
+        self.assertEqual(data["visual_guide_pdf"]["filename"], "Custom_EURUSD_H1_LS_visual_check_guide.pdf")
+        self.assertEqual(data["visual_guide_pdf"]["relative_path"], "output/pdf/Custom_EURUSD_H1_LS_visual_check_guide.pdf")
+        self.assertFalse(data["visual_guide_pdf"]["privacy"]["local_paths_returned"])
+        self.assertNotIn(str(server.PROJECT_ROOT), json.dumps(data["visual_guide_pdf"]))
+        render_pdf.assert_called_once_with("Custom_EURUSD_H1_LS", fake_path)
+
+    def test_generate_custom_visual_guide_pdf_error_redacts_local_paths(self):
+        class FailedRun:
+            returncode = 1
+            stderr = r"failed writing C:\Users\Operator\secret\guide.pdf"
+            stdout = ""
+
+        with patch.object(server.subprocess, "run", return_value=FailedRun()):
+            result = server.render_custom_project_visual_guide_pdf("Custom EURUSD H1", r"C:\Users\Operator\custom.cfx")
+
+        self.assertFalse(result["ok"])
+        self.assertNotIn("C:\\Users", result["error"])
+        self.assertIn("[REDACTED_PATH]", result["error"])
+
+    def test_generate_custom_visual_guide_pdf_success_returns_public_relative_path(self):
+        class SuccessfulRun:
+            returncode = 0
+            stderr = ""
+            stdout = "PDF generado"
+
+        with patch.object(server.subprocess, "run", return_value=SuccessfulRun()):
+            result = server.render_custom_project_visual_guide_pdf("Custom EURUSD H1", r"C:\Users\Operator\custom.cfx")
+
+        self.assertTrue(result["ok"])
+        self.assertEqual(result["relative_path"], "output/pdf/Custom_EURUSD_H1_visual_check_guide.pdf")
+        self.assertEqual(result["output_path"], "output/pdf/Custom_EURUSD_H1_visual_check_guide.pdf")
+        self.assertNotIn("path", result)
+        self.assertFalse(result["privacy"]["local_paths_returned"])
+
+    def test_generate_custom_visual_guide_pdf_exception_is_redacted(self):
+        cfg = {
+            "template_capa1": "templates/Capa1_Long.cfx",
+            "output_dir": "output",
+            "sqx_data_db": "",
+            "darwinex_suffix": "_darwinex",
+            "asset_aliases": {},
+        }
+        fake_path = str(server.ROOT / "output" / "Custom_EURUSD_H1_Capa1.cfx")
+        with patch.object(server, "load_config", return_value=cfg), \
+                patch.object(server.os.path, "isfile", return_value=True), \
+                patch.object(server, "generate_project", return_value=fake_path), \
+                patch.object(server, "render_custom_project_visual_guide_pdf", side_effect=RuntimeError(r"C:\Users\Operator\guide.pdf")), \
+                patch.object(server, "resolve_costs", return_value={
+                    "source": "fallback",
+                    "symbol": "EURUSD_darwinex",
+                    "spread": 1,
+                    "swap_long": -1,
+                    "swap_short": 0,
+                }):
+            response = self.client.post("/api/generate-custom", json={
+                "name": "Custom EURUSD H1",
+                "asset": "eurusd",
+                "tf": "h1",
+                "bs": "BS_Tendencia_v6",
+                "capa": 1,
+                "visual_guide_pdf": True,
+            })
+
+        data = self.get_json(response)
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(data["visual_guide_pdf"]["ok"])
+        self.assertNotIn("C:\\Users", data["visual_guide_pdf"]["error"])
+        self.assertIn("[REDACTED_PATH]", data["visual_guide_pdf"]["error"])
 
     def test_generate_custom_ignores_template_family_label(self):
         cfg = {

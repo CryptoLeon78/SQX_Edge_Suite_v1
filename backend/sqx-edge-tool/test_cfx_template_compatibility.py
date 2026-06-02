@@ -3062,6 +3062,24 @@ def test_generate_project_applies_selected_market_side_to_all_tasks():
                     assert market_sides == {direction}, name
 
 
+def test_generate_project_preserves_direction_safe_custom_project_identity():
+    mining = Mining(num=94, phase=1, asset="AUDCAD", tf="H1", bs="BS_Volatilidad", dir="both")
+    project_name = "Project_AUDCAD_H1_BS_Volatilidad_v6_LS"
+    with tempfile.TemporaryDirectory() as tmp:
+        out_path = generate_project(
+            mining,
+            str(TEMPLATE_DIR / "Capa1_Long.cfx"),
+            tmp,
+            capa=1,
+            project_name=project_name,
+            sqx_db_path=None,
+        )
+        roots = dict(_xml_roots(Path(out_path)))
+
+    assert Path(out_path).name == f"{project_name}_Capa1.cfx"
+    assert roots["config.xml"].get("name") == f"{project_name}_Capa1"
+
+
 def test_generate_project_applies_intraday_time_window():
     mining = Mining(num=92, phase=1, asset="AUDCAD", tf="H1", bs="BS_Volatilidad", dir="long")
     with tempfile.TemporaryDirectory() as tmp:

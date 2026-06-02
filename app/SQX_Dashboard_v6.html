@@ -57,7 +57,7 @@
         </div>
         <div>
           <strong>3. Genera o certifica</strong>
-          <small>Usa Project Generator, SQX Views y Template Maker segun el punto del flujo.</small>
+          <small>Usa Project Generator, View CORR1 y Template Maker segun el punto del flujo.</small>
         </div>
       </div>
       <div class="remote-welcome-status-grid">
@@ -163,8 +163,8 @@
         </button>
         <button class="home-first-step" type="button" data-home-tab="views">
           <span>Validacion</span>
-          <strong>SQX Views</strong>
-          <small>Exporta las views obligatorias para metricas y decision.</small>
+          <strong>View CORR1</strong>
+          <small>Exporta la view activa para Template Maker.</small>
         </button>
         <button class="home-first-step" type="button" data-home-tab="projectgen">
           <span>Generacion</span>
@@ -251,7 +251,7 @@
             </button>
             <button class="home-method-step" data-home-tab="views">
               <span>1</span>
-              <strong>SQX Views</strong>
+              <strong>View CORR1</strong>
               <small>Vista obligatoria</small>
             </button>
             <button class="home-method-step" data-home-tab="pipeline">
@@ -320,7 +320,7 @@
             <strong id="home-next-action">--</strong>
           </button>
           <button class="home-action" data-home-tab="views">
-            <span>SQX Views</span>
+            <span>View CORR1</span>
             <strong>Crear .vw anual</strong>
           </button>
           <button class="home-action" data-home-tab="projectgen">
@@ -720,7 +720,7 @@
       </button>
       <button class="ps-command-item" type="button" data-home-tab="views">
         <span>1</span>
-        <strong>SQX Views</strong>
+        <strong>View CORR1</strong>
         <small>Vista obligatoria</small>
       </button>
       <a class="ps-command-item is-current" href="#ps-plan-card">
@@ -810,14 +810,14 @@
         <input class="edge-registry-input" id="ps-registry-project-key" type="text" value="SQX_EDGE_API_FRESH_AUDCAD_H1_Momentum_20260528_090029_Capa1" aria-label="Custom project SQX142" placeholder="Custom project SQX142">
         <button class="filter-btn" id="ps-registry-load" type="button">Cargar embudo local</button>
         <button class="filter-btn" id="ps-registry-scan" type="button">Actualizar desde SQX local</button>
-        <button class="export-btn" id="ps-registry-apply" type="button">Aplicar a Edge Factory</button>
+        <button class="export-btn" id="ps-registry-apply" type="button" data-sqx-readiness-requires="edge_factory.apply">Aplicar a Edge Factory</button>
       </div>
       <div class="edge-registry-controls edge-corr2-controls">
         <button class="filter-btn" id="ps-corr2-status-btn" type="button">Estado C2 CORR1 local</button>
         <button class="filter-btn" id="ps-corr2-record" type="button">Registrar C2 CORR1</button>
         <button class="filter-btn active" id="ps-corr1-analyze" type="button">Analizar C2 CORR1</button>
         <button class="filter-btn" id="ps-corr2-plan" type="button">Preflight C2 CORR1</button>
-        <button class="export-btn" id="ps-corr2-apply" type="button">Parchear Capa1 SQX</button>
+        <button class="export-btn" id="ps-corr2-apply" type="button" data-sqx-readiness-requires="edge_factory.apply">Parchear Capa1 SQX</button>
         <input class="edge-registry-input edge-corr2-backup-input" id="ps-corr2-backup-id" type="text" aria-label="Backup C2 CORR1" placeholder="Backup id rollback">
         <button class="filter-btn danger" id="ps-corr2-rollback" type="button">Rollback C2 CORR1</button>
       </div>
@@ -1043,8 +1043,8 @@
                 <button class="export-btn" id="pg-clear-selected-minings">Limpiar selección</button>
                 <button class="export-btn danger" id="pg-delete-selected-minings">Borrar selección</button>
                 <span class="pg-action-spacer"></span>
-                <button class="export-btn pg-accent-soft" id="pg-generate-selected-c1">Generar selección · Capa 1</button>
-                <button class="export-btn pg-purple-soft" id="pg-generate-selected-c2">Generar selección · Capa 2</button>
+                <button class="export-btn pg-accent-soft" id="pg-generate-selected-c1" data-sqx-readiness-requires="project_generator.generate">Generar selección · Capa 1</button>
+                <button class="export-btn pg-purple-soft" id="pg-generate-selected-c2" data-sqx-readiness-requires="project_generator.generate">Generar selección · Capa 2</button>
               </div>
               <div id="pg-minings-table"></div>
             </div>
@@ -1086,6 +1086,10 @@
                 <label class="full">Template .cfx opcional
                   <input type="text" id="pg-custom-template" placeholder="Ruta .cfx opcional; deja vacio para usar el template de la capa">
                 </label>
+                <label class="full pg-custom-pdf-option">
+                  <input type="checkbox" id="pg-custom-visual-guide-pdf">
+                  Generar PDF guia visual para revisar este custom project
+                </label>
               </div>
               <div class="pg-custom-presets">
                 <div>
@@ -1108,8 +1112,8 @@
               </div>
               <div class="pg-custom-import-preview" id="pg-custom-import-preview"></div>
               <div class="pg-custom-actions">
-                <button class="export-btn" id="pg-custom-generate">Generar custom</button>
-                <small id="pg-custom-status">Crea un .cfx libre sin añadirlo a Mining Control.</small>
+                <button class="export-btn" id="pg-custom-generate" data-sqx-readiness-requires="project_generator.generate">Generar custom</button>
+                <small id="pg-custom-status">Crea un .cfx libre sin añadirlo a Mining Control. Puedes pedir tambien la guia visual PDF.</small>
               </div>
             </div>
           </div>
@@ -1188,14 +1192,14 @@
     </div>
   </div>
 
-  <!-- TAB: SQX VIEWS — genera vistas .vw para Databank y analisis anual -->
+  <!-- TAB: VIEW CORR1 — genera la view .vw activa para correlacion -->
   <div id="tab-views" class="tab-content" style="display:none">
     <div class="views-shell">
       <section class="views-hero">
         <div>
-          <span class="views-eyebrow">Asistente guiado</span>
-          <h2>SQX Views</h2>
-          <p>Crea la view correcta para cada retest sin tocar XML a mano: elige una plantilla, revisa la configuracion, comprueba columnas y descarga el archivo <code>.vw</code> para importarlo en StrategyQuant X.</p>
+          <span class="views-eyebrow">Contrato CORR1</span>
+          <h2>View CORR1</h2>
+          <p>Genera la view activa <code>SQX EDGE CORRELATION REVIEW</code> para exportar el Databank CSV que Template Maker usa en C2/CORR1.</p>
         </div>
         <div class="views-hero-stats">
           <div><span id="vc-selected-count">0</span><small>métricas</small></div>
@@ -1204,9 +1208,9 @@
         </div>
       </section>
 
-      <ol class="views-guide-flow" aria-label="Flujo SQX Views">
-        <li><span>1</span><strong>Elige view</strong><small>Obligatoria o recomendable</small></li>
-        <li><span>2</span><strong>Revisa config</strong><small>OOS, muestra y orden</small></li>
+      <ol class="views-guide-flow" aria-label="Flujo View CORR1">
+        <li><span>1</span><strong>Confirma CORR1</strong><small>View activa</small></li>
+        <li><span>2</span><strong>Revisa config</strong><small>Columnas fijas</small></li>
         <li><span>3</span><strong>Comprueba</strong><small>Columnas y validacion</small></li>
         <li><span>4</span><strong>Exporta</strong><small>.vw listo para SQX</small></li>
       </ol>
@@ -1217,11 +1221,11 @@
             <div class="views-panel-head">
               <div>
                 <span>Paso 1</span>
-                <strong>Elige la view que necesitas</strong>
+                <strong>Confirma la view CORR1</strong>
               </div>
               <small id="vc-template-count">0 views</small>
             </div>
-            <p class="views-step-copy">Estas tarjetas aplican la configuracion completa. Usa primero las obligatorias y deja Risk o Full audit para revision avanzada o entrega.</p>
+            <p class="views-step-copy">Solo esta view forma parte del contrato activo. Las views legacy ya no forman parte del readiness obligatorio.</p>
             <div id="vc-template-list" class="views-template-list"></div>
           </section>
 
@@ -1229,13 +1233,13 @@
             <div class="views-panel-head">
               <div>
                 <span>View activa</span>
-                <strong id="vc-guide-title">EGT Core</strong>
+                <strong id="vc-guide-title">SQX EDGE CORRELATION REVIEW</strong>
               </div>
-              <small id="vc-guide-source">View recomendada para empezar</small>
+              <small id="vc-guide-source">Contrato activo CORR1</small>
             </div>
             <div class="views-guide-text">
-              <p><strong>Para que sirve:</strong> <span id="vc-guide-purpose">Primera lectura obligatoria del edge.</span></p>
-              <p><strong>Cuando usarla:</strong> <span id="vc-guide-when">Antes de decidir si una tanda merece robustez.</span></p>
+              <p><strong>Para que sirve:</strong> <span id="vc-guide-purpose">Exportar decision CORR1 y metricas base para Template Maker.</span></p>
+              <p><strong>Cuando usarla:</strong> <span id="vc-guide-when">Al terminar CORR1 y antes de certificar Template C2.</span></p>
               <p><strong>Siguiente paso:</strong> <span id="vc-guide-next">Descarga la .vw e importala en SQX.</span></p>
             </div>
             <div class="views-guide-tags" id="vc-guide-tags"></div>
@@ -1250,28 +1254,28 @@
               <span>Paso 2</span>
               <strong>Revisa la configuración</strong>
             </div>
-            <small id="vc-license-note">Preset EGT Core activo.</small>
+            <small id="vc-license-note">View CORR1 activa.</small>
           </div>
 
           <div class="views-config-summary">
-            <div><span>View</span><strong id="vc-summary-view">EGT Core</strong></div>
-            <div><span>OOS</span><strong id="vc-summary-oos">9 bloques</strong></div>
-            <div><span>Muestra</span><strong id="vc-summary-sample">21..29</strong></div>
-            <div><span>Orden</span><strong id="vc-summary-order">Por año</strong></div>
-            <div><span>Total</span><strong id="vc-summary-total">Incluido</strong></div>
+            <div><span>View</span><strong id="vc-summary-view">SQX EDGE CORRELATION REVIEW</strong></div>
+            <div><span>OOS</span><strong id="vc-summary-oos">CORR1</strong></div>
+            <div><span>Muestra</span><strong id="vc-summary-sample">21</strong></div>
+            <div><span>Orden</span><strong id="vc-summary-order">Plano</strong></div>
+            <div><span>Total</span><strong id="vc-summary-total">No incluido</strong></div>
           </div>
 
           <details class="views-details views-advanced-config" id="vc-advanced-config">
             <summary>Ajustes avanzados</summary>
-            <p class="views-help">Normalmente no hace falta tocar esto. Ajustalo solo si tu retest usa otro numero de bloques OOS o un sample inicial distinto.</p>
+            <p class="views-help">Normalmente no hace falta tocar esto. Ajustalo solo si necesitas regenerar el contrato CORR1 con otra muestra.</p>
             <div class="views-form-grid">
               <label class="views-field">
                 <span>Nombre de la view</span>
-                <input id="vc-view-name" class="search-input" type="text" value="EGT - Anual">
+                <input id="vc-view-name" class="search-input" type="text" value="SQX EDGE CORRELATION REVIEW">
               </label>
               <label class="views-field">
                 <span>Bloques OOS</span>
-                <input id="vc-year-count" class="search-input" type="number" min="1" max="30" value="9">
+                <input id="vc-year-count" class="search-input" type="number" min="1" max="30" value="1">
               </label>
               <label class="views-field">
                 <span>Primer bloque OOS</span>
@@ -1280,13 +1284,14 @@
               <label class="views-field">
                 <span>Como ordenar columnas</span>
                 <select id="vc-group-mode" class="filter-select">
+                  <option value="plain">Plano CORR1</option>
                   <option value="by_year">Por año</option>
                   <option value="by_metric">Por métrica</option>
                 </select>
               </label>
             </div>
             <label class="views-check">
-              <input id="vc-include-total" type="checkbox" checked>
+              <input id="vc-include-total" type="checkbox">
               <span>Añadir Total consolidado de SQX al final de la view. Es la columna resumen global, no un año OOS.</span>
             </label>
           </details>
@@ -1297,9 +1302,9 @@
             <div>
               <span>Paso 3</span>
               <strong>Comprueba la vista</strong>
-              <small id="vc-preview-title" class="views-preview-subtitle">EGT - Anual</small>
+              <small id="vc-preview-title" class="views-preview-subtitle">SQX EDGE CORRELATION REVIEW</small>
             </div>
-            <small id="vc-mode-label">Agrupado por año</small>
+            <small id="vc-mode-label">Plano</small>
           </div>
           <p class="views-step-copy">Comprueba que el contador de columnas y el rango OOS encajan antes de descargar.</p>
           <pre id="vc-preview" class="views-preview"></pre>
@@ -1324,7 +1329,7 @@
 
       <details class="views-panel views-details views-metrics-panel" id="vc-metrics-details">
         <summary>Editar métricas avanzadas</summary>
-        <p class="views-help">Normalmente no hace falta tocar este catalogo: las views obligatorias ya cargan las metricas necesarias para los retests.</p>
+        <p class="views-help">Normalmente no hace falta tocar este catalogo: la view CORR1 ya carga las metricas necesarias para Template Maker.</p>
         <div class="views-panel-head">
           <div>
             <span>Catálogo</span>
@@ -1387,7 +1392,7 @@
             </div>
             <small>Manual y sin persistencia.</small>
           </div>
-          <p class="views-step-copy">Pega los CSV exportados desde StrategyQuant X. Usa SQX Views &gt; CVC Decision Cert para incluir duración media, frecuencia, indicadores y bloques OOS; así CVC puede detectar short-only, arquetipo y coherencia con volatilidad.</p>
+          <p class="views-step-copy">Pega los CSV exportados desde StrategyQuant X. Para CVC ya no se exige una view propia: usa el CSV disponible con métricas suficientes y conserva trazabilidad de Champion, Challengers y OOS.</p>
 
           <div class="cvc-fields">
             <label class="cvc-field">
@@ -1398,7 +1403,7 @@
             <label class="cvc-field">
               <span>Challengers CSV</span>
               <textarea id="cvc-challenger-input" class="cvc-input" spellcheck="false" placeholder="Una o mas candidatas con las mismas columnas clave"></textarea>
-              <small>Una o varias candidatas. CVC Decision Cert añade avg bars, frecuencia e indicadores.</small>
+              <small>Una o varias candidatas. Incluye duración media, frecuencia e indicadores cuando estén disponibles.</small>
             </label>
             <label class="cvc-field">
               <span>OOS blocks CSV</span>
@@ -1461,7 +1466,7 @@
           <div class="cvc-delivery-actions">
             <button class="export-btn" id="cvc-export-btn" type="button">Exportar resumen</button>
             <button class="filter-btn" type="button" data-home-tab="estrategias">Volver a Estrategias</button>
-            <button class="filter-btn" type="button" data-home-tab="views" data-vc-handoff="cvc-decision-cert">Abrir SQX Views</button>
+            <button class="filter-btn" type="button" data-home-tab="views" data-vc-handoff="sqx-edge-correlation-review">Abrir View CORR1</button>
           </div>
         </article>
       </section>
@@ -1491,15 +1496,15 @@
             <span>Paso 1</span>
             <strong>Genera la view obligatoria</strong>
           </div>
-          <small>SQX Views &gt; SQX EDGE CORRELATION REVIEW</small>
+          <small>View CORR1 &gt; SQX EDGE CORRELATION REVIEW</small>
         </div>
-        <p class="views-step-copy">Primero crea o confirma la view `SQX EDGE CORRELATION REVIEW` en SQX Views, importala en StrategyQuant X y exporta el Databank CSV desde el databank ganador/tagged de CORR1. Ese CSV, junto a los `.sqx` supervivientes, es la fuente oficial para analizar C2.</p>
+        <p class="views-step-copy">Primero crea o confirma la view `SQX EDGE CORRELATION REVIEW`, importala en StrategyQuant X y exporta el Databank CSV desde el databank ganador/tagged de CORR1. Ese CSV, junto a los `.sqx` supervivientes, es la fuente oficial para analizar C2.</p>
         <div class="tm-method-grid">
           <div><strong>CSV Forward</strong><span>DatabankExport con 2 OOS actuales y metricas oficiales.</span></div>
           <div><strong>.sqx Forward</strong><span>Logica superviviente, trazabilidad y generacion C2.</span></div>
           <div><strong>CSV + .sqx</strong><span>Estrategia completa lista para certificar y descorrelacionar.</span></div>
         </div>
-        <button class="export-btn tm-step-cta" id="tm-open-cert-view" type="button">Abrir SQX Views</button>
+        <button class="export-btn tm-step-cta" id="tm-open-cert-view" type="button">Abrir View CORR1</button>
       </section>
 
       <section class="tm-panel tm-step-panel tm-step-load">
@@ -1799,16 +1804,14 @@
           <span class="strat-step-eyebrow">Paso 5</span>
           <h3>Handoff</h3>
         </div>
-        <p>Usa SQX Views para revisar columnas en Databank y Champion vs Challenger para comparar finalistas cuando ya tengas candidatas limpias.</p>
+        <p>Usa Champion vs Challenger para comparar finalistas cuando ya tengas candidatas limpias. View CORR1 queda reservada para el contrato CSV de Template Maker.</p>
       </div>
       <div class="views-handoff strat-handoff" id="strat-views-handoff">
         <div>
-          <span>Databank y comparacion final</span>
-          <strong>Prepara vista, revisa riesgo y compara solo finalistas</strong>
+          <span>Comparacion final</span>
+          <strong>Compara solo finalistas con evidencia trazable</strong>
         </div>
         <div class="views-handoff-actions">
-          <button class="filter-btn" type="button" data-vc-handoff="risk" data-vc-name="SQX Risk Review" data-vc-years="5">Abrir Risk</button>
-          <button class="filter-btn" type="button" data-vc-handoff="full-audit" data-vc-name="SQX Full Audit" data-vc-years="9">Abrir Full audit</button>
           <button class="filter-btn strat-cvc-btn" type="button" id="strat-open-cvc-btn">Abrir Champion vs Challenger</button>
         </div>
       </div>
@@ -2238,8 +2241,8 @@
       <div class="edge-factory-hero">
         <div class="edge-factory-hero-copy">
           <span class="workflow-command-eyebrow edge-factory-eyebrow">Edge Factory</span>
-          <h2>Del asset al portfolio, sin perder el hilo</h2>
-          <p>Trabaja por decisiones: eliges la hipótesis, generas .cfx Capa 1 descargable, certificas supervivientes, creas el template C2, generas .cfx Capa 2 y cierras una shortlist diversa. El modo básico guía el flujo; el avanzado abre el taller interno cuando haga falta.</p>
+          <h2>Modo básico: del activo al template C2</h2>
+          <p>Escoge activo, timeframe y dirección; descarga Capa 1 + Capa 2, carga resultados finales de Capa 1 y exporta los templates C2 elegidos. El modo avanzado conserva el taller completo.</p>
           <div class="edge-factory-claim">
             Productividad, estructura, trazabilidad y reducción de errores operativos. No promete rentabilidad ni sustituye la validación del usuario.
           </div>
@@ -2248,7 +2251,7 @@
           <span id="edge-factory-progress-label">0 de 8 etapas</span>
           <strong id="edge-factory-next">Siguiente: Punto de partida</strong>
           <div class="workflow-command-meter edge-factory-meter"><span id="edge-factory-meter-bar"></span></div>
-          <button class="export-btn edge-factory-primary" type="button" data-edge-tool="inicio">Comprobar punto de partida</button>
+          <button class="export-btn edge-factory-primary" type="button" data-edge-tool="inicio" data-edge-advanced-only>Comprobar punto de partida</button>
           <div class="edge-factory-mode-panel" aria-label="Modo de experiencia Edge Factory">
             <div class="edge-mode-switch" role="group" aria-label="Cambiar modo Edge Factory">
               <button class="edge-mode-btn active" type="button" data-edge-mode="basic" aria-pressed="true">Modo básico</button>
@@ -2265,11 +2268,81 @@
         </div>
       </div>
 
-      <div class="edge-factory-toolbar">
+      <div class="edge-factory-toolbar" data-edge-advanced-only>
         <button class="filter-btn active" type="button" data-edge-step-open="session">Ruta principal</button>
         <button class="filter-btn" type="button" id="edge-tools-toggle" aria-expanded="false" aria-controls="edge-tool-drawer" data-edge-advanced-only>Herramientas avanzadas</button>
-        <button class="filter-btn" type="button" data-edge-tool="inicio">Control Panel</button>
+        <button class="filter-btn" type="button" data-edge-tool="inicio" data-edge-advanced-only>Control Panel</button>
       </div>
+
+      <section class="edge-basic-flow" id="edge-basic-flow" data-edge-basic-only aria-label="Modo basico cerrado">
+        <div class="edge-basic-head">
+          <div>
+            <span class="badge info">Ruta basica cerrada</span>
+            <h3>Contexto, Capa1+Capa2, finales C1 y templates</h3>
+          </div>
+          <strong id="edge-basic-status" data-state="info">Elige contexto para empezar.</strong>
+        </div>
+        <div class="edge-basic-steps" aria-label="Progreso modo basico">
+          <article data-edge-basic-step="basic-select"><span>01</span><strong>Contexto</strong></article>
+          <article data-edge-basic-step="basic-download"><span>02</span><strong>C1 + C2</strong></article>
+          <article data-edge-basic-step="basic-upload"><span>03</span><strong>Finales C1</strong></article>
+          <article data-edge-basic-step="basic-analyze"><span>04</span><strong>Analizar</strong></article>
+          <article data-edge-basic-step="basic-export"><span>05</span><strong>Templates</strong></article>
+          <article data-edge-basic-step="basic-finish"><span>06</span><strong>Finish</strong></article>
+        </div>
+        <div class="edge-basic-grid">
+          <label>Activo
+            <select id="edge-basic-asset">
+              <option value="">Seleccionar</option>
+            </select>
+          </label>
+          <label>Timeframe
+            <select id="edge-basic-timeframe">
+              <option value="">Seleccionar</option>
+              <option>M15</option>
+              <option>M30</option>
+              <option>H1</option>
+              <option>H4</option>
+              <option>D1</option>
+            </select>
+          </label>
+          <label>Dirección
+            <select id="edge-basic-direction">
+              <option value="both">L+S</option>
+              <option value="long">Long</option>
+              <option value="short">Short</option>
+            </select>
+          </label>
+          <input id="edge-basic-blocksetting" type="hidden" value="BS_Custom">
+          <button class="filter-btn edge-basic-main" id="edge-basic-save-selection" type="button">Confirmar contexto</button>
+        </div>
+        <div class="edge-basic-summary" id="edge-basic-selection-summary">Sin contexto seleccionado.</div>
+        <div class="edge-basic-actions">
+          <button class="export-btn edge-basic-main" id="edge-basic-generate-pair" type="button">Descargar Capa1 + Capa2</button>
+          <div class="edge-basic-summary" id="edge-basic-download-summary">Esperando contexto.</div>
+        </div>
+        <div class="edge-basic-results">
+          <label class="edge-basic-upload">Cargar resultados Capa 1
+            <input id="edge-basic-files" type="file" accept=".csv,.sqx,.zip,text/csv" multiple>
+          </label>
+          <div class="edge-basic-file-list" id="edge-basic-file-list">Sin archivos seleccionados.</div>
+          <button class="filter-btn active edge-basic-export" id="edge-basic-analyze-files" type="button">Analizar finales</button>
+          <div class="edge-basic-kpis" aria-label="Estado Template Maker básico">
+            <span><small>Total</small><strong id="edge-basic-total-count">0</strong></span>
+            <span><small>CSV</small><strong id="edge-basic-csv-count">0</strong></span>
+            <span><small>SQX</small><strong id="edge-basic-sqx-count">0</strong></span>
+            <span><small>Listos C2</small><strong id="edge-basic-ready-count">0</strong></span>
+          </div>
+          <label>Templates C2
+            <select id="edge-basic-winner">
+              <option value="">Carga resultados Capa 1</option>
+            </select>
+          </label>
+          <button class="filter-btn edge-basic-export" id="edge-basic-export-template" type="button" disabled>Exportar templates</button>
+          <button class="filter-btn edge-basic-export" id="edge-basic-finish" type="button">Finalizar</button>
+        </div>
+        <div class="edge-basic-summary" id="edge-basic-finish-summary">La ruta queda lista cuando los templates C2 estan exportados.</div>
+      </section>
 
       <div class="edge-factory-command-strip" aria-label="Senales de trazabilidad Edge Factory">
         <article data-edge-signal="asset"><span>Hipotesis</span><strong>Sin tarjeta</strong><small>Asset · TF · direccion · BlockSetting</small></article>
@@ -2278,7 +2351,7 @@
         <article data-edge-signal="portfolio"><span>Portfolio</span><strong>Pendiente</strong><small>Shortlist diversa Capa 2</small></article>
       </div>
 
-      <section class="edge-methodology-panel" id="edge-methodology-panel" aria-label="Pipeline metodologico Edge Factory">
+      <section class="edge-methodology-panel" id="edge-methodology-panel" aria-label="Pipeline metodologico Edge Factory" data-edge-advanced-only>
         <div class="edge-methodology-head">
           <div>
             <span class="badge info">Pipeline metodologico</span>
@@ -2307,7 +2380,7 @@
           <div class="edge-methodology-actions">
             <button class="filter-btn" type="button" data-edge-tool="activos">Activos</button>
             <button class="filter-btn" type="button" data-edge-tool="pipeline">Mining Control</button>
-            <button class="filter-btn" type="button" data-edge-tool="views">SQX Views</button>
+            <button class="filter-btn" type="button" data-edge-tool="views">View CORR1</button>
             <button class="filter-btn" type="button" data-edge-tool="projectgen">Project Generator</button>
             <button class="filter-btn" type="button" data-edge-tool="templatemaker">Template Maker</button>
             <button class="filter-btn" type="button" data-edge-tool="cvc">CVC</button>
@@ -2315,7 +2388,7 @@
         </details>
       </section>
 
-      <section class="edge-mining-registry-panel" id="edge-mining-registry-panel" aria-label="Embudo real SQX142 registrado">
+      <section class="edge-mining-registry-panel" id="edge-mining-registry-panel" aria-label="Embudo real SQX142 registrado" data-edge-advanced-only>
         <div class="edge-registry-head">
           <div>
             <span class="badge info">SQX142-MINING-REGISTRY2</span>
@@ -2327,14 +2400,14 @@
           <input class="edge-registry-input" id="edge-registry-project-key" type="text" value="SQX_EDGE_API_FRESH_AUDCAD_H1_Momentum_20260528_090029_Capa1" aria-label="Custom project SQX142" placeholder="Custom project SQX142">
           <button class="filter-btn" id="edge-registry-load" type="button">Cargar embudo local</button>
           <button class="filter-btn" id="edge-registry-scan" type="button">Actualizar desde SQX local</button>
-          <button class="export-btn" id="edge-registry-apply" type="button">Aplicar a Edge Factory</button>
+          <button class="export-btn" id="edge-registry-apply" type="button" data-sqx-readiness-requires="edge_factory.apply">Aplicar a Edge Factory</button>
         </div>
         <div class="edge-registry-controls edge-corr2-controls">
           <button class="filter-btn" id="edge-corr2-status-btn" type="button">Estado C2 CORR1 local</button>
           <button class="filter-btn" id="edge-corr2-record" type="button">Registrar C2 CORR1</button>
           <button class="filter-btn active" id="edge-corr1-analyze" type="button">Analizar C2 CORR1</button>
           <button class="filter-btn" id="edge-corr2-plan" type="button">Preflight C2 CORR1</button>
-          <button class="export-btn" id="edge-corr2-apply" type="button">Parchear Capa1 SQX</button>
+          <button class="export-btn" id="edge-corr2-apply" type="button" data-sqx-readiness-requires="edge_factory.apply">Parchear Capa1 SQX</button>
           <input class="edge-registry-input edge-corr2-backup-input" id="edge-corr2-backup-id" type="text" aria-label="Backup C2 CORR1" placeholder="Backup id rollback">
           <button class="filter-btn danger" id="edge-corr2-rollback" type="button">Rollback C2 CORR1</button>
         </div>
@@ -2344,7 +2417,7 @@
         <div class="edge-registry-funnel" id="edge-registry-funnel" aria-label="Databanks registrados"></div>
       </section>
 
-        <section class="agent-guide-dock" id="agent-guide-dock" aria-label="Agente IA SQX">
+        <section class="agent-guide-dock" id="agent-guide-dock" aria-label="Agente IA SQX" data-edge-advanced-only>
         <div class="agent-guide-head">
           <div>
             <span class="badge info">IA local operador</span>
@@ -2380,7 +2453,7 @@
         <div class="edge-tool-grid">
           <button class="edge-tool-card" type="button" data-edge-tool="activos"><strong>Activos</strong><span>Buscar hipótesis por asset, timeframe y bloque real.</span></button>
           <button class="edge-tool-card" type="button" data-edge-tool="pipeline"><strong>Mining Control</strong><span>Ver y ordenar el plan que alimenta la fábrica.</span></button>
-          <button class="edge-tool-card" type="button" data-edge-tool="views"><strong>SQX Views</strong><span>Preparar las columnas correctas para certificar.</span></button>
+          <button class="edge-tool-card" type="button" data-edge-tool="views"><strong>View CORR1</strong><span>Preparar el contrato CSV de Template Maker.</span></button>
           <button class="edge-tool-card" type="button" data-edge-tool="projectgen"><strong>Project Generator</strong><span>Crear .cfx Capa 1/Capa 2 o un custom avanzado.</span></button>
           <button class="edge-tool-card" type="button" data-edge-tool="templatemaker"><strong>Template Maker</strong><span>Certificar Capa 1 y producir Template C2.</span></button>
           <button class="edge-tool-card" type="button" data-edge-tool="estrategias"><strong>Strategy Control</strong><span>Guardar supervivientes y candidatos operativos.</span></button>
@@ -2389,7 +2462,7 @@
         </div>
       </div>
 
-      <div class="edge-stage-grid" id="edge-factory-stages">
+      <div class="edge-stage-grid" id="edge-factory-stages" data-edge-advanced-only>
         <article class="edge-stage-card" data-edge-stage="session">
           <div class="edge-stage-top"><span>01</span><small>Punto de partida</small></div>
           <h3>Confirma que puedes trabajar</h3>
@@ -2462,7 +2535,7 @@
         <button class="filter-btn" type="button" data-edge-tool="projectgen">Abrir custom libre</button>
       </details>
 
-      <section class="edge-portfolio-lab" id="edge-portfolio-lab">
+      <section class="edge-portfolio-lab" id="edge-portfolio-lab" data-edge-advanced-only>
         <div class="edge-portfolio-head">
           <div>
             <span class="badge info">Portfolio Lab Gobernado · portfolio-lab-governed-v1</span>
@@ -2698,7 +2771,7 @@
           <button class="filter-btn" type="button" data-home-tab="pipeline">Abrir control</button>
         </article>
         <article class="workflow-command-step" data-wf-step="views">
-          <label><input type="checkbox" data-check="command-center-views"> SQX Views</label>
+          <label><input type="checkbox" data-check="command-center-views"> View CORR1</label>
           <p>Prepara vistas .vw para Databank segun la fase: edge, robustez, riesgo o auditoria.</p>
           <button class="filter-btn" type="button" data-home-tab="views">Crear vistas</button>
         </article>
@@ -2775,8 +2848,8 @@
       <div class="pipeline-step val workflow-step-trigger" role="button" tabindex="0" data-wf-detail-target="wf-sqx-views-required-detail" aria-controls="wf-sqx-views-required-detail" aria-expanded="false">
         <div class="step-num">0</div>
         <div class="step-content">
-          <div class="step-title">Vista SQX obligatoria</div>
-          <div class="step-desc">Crear e importar las vistas .vw antes de lanzar minings, revisar Databank o exportar CSV.</div>
+          <div class="step-title">View CORR1 activa</div>
+          <div class="step-desc">Crear o confirmar SQX EDGE CORRELATION REVIEW antes de exportar el CSV CORR1 para Template Maker.</div>
         </div>
         <span class="step-action">Desplegar</span>
       </div>
@@ -2786,24 +2859,21 @@
             <div class="pipeline-step val compact workflow-config-node">
               <div class="step-num">0.0</div>
               <div class="step-content">
-                <div class="step-title">Preparar SQX Views antes del pipeline</div>
-                <div class="step-desc">Sin vistas operativas no hay lectura fiable de retests, robustez, WFM ni exportaciones CSV.</div>
+                <div class="step-title">Preparar View CORR1</div>
+                <div class="step-desc">Sin SQX EDGE CORRELATION REVIEW no hay contrato CSV fiable para Template Maker C2.</div>
                 <div class="views-handoff" id="workflow-views-handoff">
                   <div>
-                    <span>Vista SQX obligatoria</span>
-                    <strong>Crear las vistas .vw antes de lanzar minings o exportar CSV</strong>
+                    <span>View CORR1</span>
+                    <strong>Crear la .vw de correlacion antes de exportar CSV CORR1</strong>
                     <p class="views-handoff-copy">
-                      Abre SQX Views desde estos accesos y genera una vista por apartado operativo: EGT Core para lectura anual/base,
-                      Robustez para validacion y comparativas. Los tags de Views se usan como secciones de trabajo, no como simples etiquetas:
-                      selecciona el pack, revisa columnas, descarga el .vw e importalo en StrategyQuant X antes de analizar resultados.
+                      Abre View CORR1, revisa el contrato `SQX EDGE CORRELATION REVIEW`, descarga el .vw e importalo en StrategyQuant X antes de cargar el CSV en Template Maker.
                     </p>
                   </div>
                   <div class="views-handoff-actions">
-                    <button class="filter-btn" type="button" data-vc-handoff="egt-core" data-vc-name="EGT - Anual" data-vc-years="9">EGT Core</button>
-                    <button class="filter-btn" type="button" data-vc-handoff="robustness" data-vc-name="SQX Robustez" data-vc-years="9">Robustez</button>
+                    <button class="filter-btn" type="button" data-vc-handoff="sqx-edge-correlation-review" data-vc-name="SQX EDGE CORRELATION REVIEW" data-vc-years="1">Abrir View CORR1</button>
                   </div>
                 </div>
-                <label class="workflow-tree-check"><input type="checkbox" data-check="views-required-created"> Vistas .vw creadas e importadas en StrategyQuant X</label>
+                <label class="workflow-tree-check"><input type="checkbox" data-check="views-required-created"> View CORR1 creada e importada en StrategyQuant X</label>
               </div>
             </div>
           </div>
@@ -3022,6 +3092,7 @@ Bloquear Capa 2 si la curva no conserva sentido</pre>
                     <div class="workflow-config-card emphasis">
                       <h5>Decision</h5>
                       <p>Es validacion de supervivencia, no excelencia. Si muere en Forward, queda bloqueada antes de Capa 2.</p>
+                      <label class="workflow-tree-check"><input type="checkbox" data-check="step1-forward-export"> DatabankExport de Forward preparado</label>
                     </div>
                   </div>
                 </div>
@@ -3316,7 +3387,7 @@ Re-optimize: NO</pre>
                   </div>
                 </div>
                 <div class="views-handoff-actions">
-                  <button class="filter-btn" type="button" data-vc-handoff="risk" data-vc-name="SQX Risk Review" data-vc-years="5">Abrir SQX Views Risk</button>
+                  <button class="filter-btn" type="button" data-vc-handoff="sqx-edge-correlation-review" data-vc-name="SQX EDGE CORRELATION REVIEW" data-vc-years="1">Abrir View CORR1</button>
                   <button class="filter-btn" type="button" data-workflow-subtab-target="wf-capa2">Abrir Checklist C2</button>
                 </div>
               </div>
@@ -3351,7 +3422,7 @@ Re-optimize: NO</pre>
                   <div class="workflow-config-card emphasis"><h5>WFM</h5><p>Último filtro operativo antes de correlación y portfolio.</p><label class="workflow-tree-check"><input type="checkbox" data-check="step5-wfm"> Ejecutado</label></div>
                 </div>
                 <div class="views-handoff-actions">
-                  <button class="filter-btn" type="button" data-vc-handoff="robustness" data-vc-name="SQX Robustez" data-vc-years="9">Abrir SQX Views Robustez</button>
+                  <button class="filter-btn" type="button" data-vc-handoff="sqx-edge-correlation-review" data-vc-name="SQX EDGE CORRELATION REVIEW" data-vc-years="1">Abrir View CORR1</button>
                   <button class="filter-btn" type="button" data-workflow-subtab-target="wf-capa2">Ver detalle Capa 2</button>
                 </div>
               </div>
@@ -4800,6 +4871,39 @@ Bloquear Capa 2 si la curva no conserva sentido</pre>
 
 <div id="remote-session-watermark" class="remote-session-watermark" hidden>SQX REMOTE PRO</div>
 
+<div id="sqx-readiness-backdrop" class="sqx-readiness-backdrop" hidden>
+  <section class="sqx-readiness-card" role="dialog" aria-modal="true" aria-labelledby="sqx-readiness-title">
+    <div class="sqx-readiness-header">
+      <div>
+        <span class="sqx-readiness-eyebrow">Preparacion obligatoria</span>
+        <h2 id="sqx-readiness-title">SQX Edge Readiness</h2>
+        <p id="sqx-readiness-detail">Comprobando requisitos para usar funciones dependientes de SQX local.</p>
+      </div>
+      <strong id="sqx-readiness-count">0/9</strong>
+    </div>
+    <div class="sqx-readiness-meter" aria-hidden="true"><span id="sqx-readiness-progress"></span></div>
+    <div class="sqx-readiness-grid" aria-label="Checklist SQX Edge">
+      <label class="sqx-readiness-row"><input type="checkbox" data-sqx-readiness-check="sqx_root_selected"> <span>Ruta SQX seleccionada</span></label>
+      <label class="sqx-readiness-row"><input type="checkbox" data-sqx-readiness-check="sqx_version_compatible"> <span>Version SQX 142 compatible</span></label>
+      <label class="sqx-readiness-row"><input type="checkbox" data-sqx-readiness-check="data_db_found"> <span>data.db detectada</span></label>
+      <label class="sqx-readiness-row"><input type="checkbox" data-sqx-readiness-check="brokers_validated"> <span>Brokers Darwinex y Dukascopy validados</span></label>
+      <label class="sqx-readiness-row"><input type="checkbox" data-sqx-readiness-check="curated_assets_validated"> <span>Activos y timeframes curados validados</span></label>
+      <label class="sqx-readiness-row"><input type="checkbox" data-sqx-readiness-check="snippets_ready"> <span>Snippets SQX Edge instalados</span></label>
+      <label class="sqx-readiness-row"><input type="checkbox" data-sqx-readiness-check="correlation_view_ready"> <span>View CORR1 instalada</span></label>
+      <label class="sqx-readiness-row"><input type="checkbox" data-sqx-readiness-check="portable_source_acknowledged"> <span>Portable autorizado o pendiente reconocido</span></label>
+      <label class="sqx-readiness-row"><input type="checkbox" data-sqx-readiness-check="sensitive_files_excluded"> <span>Archivos sensibles excluidos</span></label>
+    </div>
+    <div class="sqx-readiness-actions">
+      <label class="sqx-readiness-import">
+        <input id="sqx-readiness-report-file" type="file" accept="application/json,.json">
+        Importar reporte del comprobador
+      </label>
+      <button class="filter-btn" id="sqx-readiness-refresh" type="button">Recomprobar</button>
+      <button class="filter-btn" id="sqx-readiness-dismiss" type="button">Cerrar por ahora</button>
+    </div>
+  </section>
+</div>
+
 <!-- ── Scripts: datasets → config → modules → data → logic → init (orden de carga importa) ── -->
 <script src="js/historical-data.js"></script>
 <script src="js/scores-data.js"></script>
@@ -4811,6 +4915,7 @@ Bloquear Capa 2 si la curva no conserva sentido</pre>
 <script src="js/modules/modal-registry.js"></script>
 <script src="js/modules/state-backup.js"></script>
 <script src="js/modules/remote-state.js"></script>
+<script src="js/modules/sqx-readiness.js"></script>
 <script src="js/modules/license.js"></script>
 <script src="js/modules/ui.js"></script>
 <script src="js/modules/formatters.js"></script>

@@ -12,6 +12,7 @@ Endpoints:
   GET  /api/templates         -> lista de .cfx en templates/
   POST /api/generate          -> body: {mining: int, capa: 1|2, output?: str} -> genera 1 .cfx
   POST /api/generate-custom   -> body: {asset, tf, dir, capa, name?, bs?} -> genera 1 .cfx fuera del plan
+  POST /api/generate-pair     -> body: {asset, tf, dir, name?, bs?} -> genera Capa 1 y Capa 2
   POST /api/generate-all      -> body: {capa: 1|2} -> genera los 14
   GET  /api/output            -> lista de .cfx en output_dir
   GET  /api/output/download/* -> descarga .cfx generado
@@ -114,6 +115,16 @@ from core.remote_workspace_state import (
     workspace_state_public_status,
     write_workspace_state,
 )
+from core.sqx_readiness import (
+    SQX_READINESS_VERSION,
+    evaluate_readiness_report,
+    gate_disabled_for_local_internal,
+    read_readiness_status,
+    readiness_gate_response,
+    summarize_manifest_for_public,
+    update_manual_status,
+    write_readiness_status,
+)
 from core.support_diagnostics import build_support_diagnostics
 from core.support_incidents import (
     append_support_incident,
@@ -160,6 +171,22 @@ from core.sqx142_copy_only_migration_checklist import (
     build_copy_only_migration_checklist,
     export_copy_only_migration_checklist_csv,
 )
+from core.sqx142_ai_wizard import (
+    AI_WIZARD_AI2_VERSION,
+    AI_WIZARD_VERSION,
+    add_ai_wizard_message,
+    build_ai_wizard_spec,
+    build_ai_wizard_status,
+    build_ai_wizard_capability_catalog,
+    create_ai_wizard_session,
+    create_ai_wizard_session_draft,
+    generate_draft_sqx,
+    get_ai_wizard_session,
+    list_ai_wizard_sessions,
+    patch_ai_wizard_session_spec,
+    resolve_ai_wizard_draft_download,
+    resolve_draft_download,
+)
 from tools.sqx142_mining_registry import (
     DEFAULT_DB as SQX142_MINING_REGISTRY_DEFAULT_DB,
     VERSION as SQX142_MINING_REGISTRY_VERSION,
@@ -191,7 +218,7 @@ from core.customer_cockpit import cockpit_overview as customer_cockpit_overview
 from core.agent.executor import execute_action
 from core.agent.llm_client import OllamaClient, OllamaConfig
 from core.agent.policy import consume_confirmation, create_confirmation, is_action_allowed
-from core.agent.redaction import redact_data, redacted_json
+from core.agent.redaction import redact_data, redact_text, redacted_json
 from core.agent.schemas import LOCAL_AI_AGENT_VERSION, PLAN_RESPONSE_SCHEMA, safe_plan_response
 from core.agent.tool_catalog import (
     EDGE_STAGE_LABELS,
@@ -238,6 +265,7 @@ STATE_BACKUP_ALLOWED_KEYS = frozenset({
     "sqx_pipeline_state_v1",
     "sqx_strategies_user_v1",
     "sqx_strategies_deleted_v1",
+    "sqx_readiness_status_v1",
     "sqx_workflow_checklist_v1",
     "sqx_view_creator_presets_v1",
     "sqx_pg_custom_presets_v1",
@@ -252,6 +280,10 @@ LOCAL_HTTP_ORIGIN_RE = re.compile(API_PROFILE.get("localOriginPattern", r"^https
 LOCAL_HOSTS = {"localhost", "127.0.0.1", "::1"}
 LOCAL_REMOTE_ADDRS = {"127.0.0.1", "::1"}
 SAFE_PROJECT_TOKEN_RE = re.compile(r"[^A-Za-z0-9._-]+")
+PROJECT_DIRECTION_SUFFIX_RE = re.compile(
+    r"(?:[._-](?:L|S|LS|LONG|SHORT|BOTH|LONGSHORT|LONG[._-]?SHORT|L[._-]?S))$",
+    re.IGNORECASE,
+)
 REMOTE_WRITE_PILOT_AUDIT_PATH = PROJECT_ROOT / ".local" / "remote_service" / "remote_write_pilot.local.jsonl"
 AGENT_AUDIT_PATH = PROJECT_ROOT / ".local" / "agent_inbox" / "agent_actions.local.jsonl"
 REMOTE_AI_ALLOWED_ENTITLEMENTS = {"tester_free", "paid_subscription", "internal_operator"}
@@ -309,6 +341,10 @@ def _remote_security_action(method: str, path: str) -> str | None:
     if path.startswith("/api/remote/template-maker/") and method in {"POST", "PUT", "PATCH", "DELETE"}:
         return "remote_protected_write"
     if path.startswith("/api/state/") and method == "POST" and (
+        _is_authenticated_access_tunnel_request() or bool(request.cookies.get(SESSION_COOKIE_NAME))
+    ):
+        return "remote_protected_write"
+    if path.startswith("/api/sqx-readiness/") and method == "POST" and (
         _is_authenticated_access_tunnel_request() or bool(request.cookies.get(SESSION_COOKIE_NAME))
     ):
         return "remote_protected_write"
@@ -859,10 +895,44 @@ def require_feature(feature: str):
     return jsonify(result), 402
 
 
+def _is_remote_app_request() -> bool:
+    return _is_authenticated_access_tunnel_request() or bool(request.cookies.get(SESSION_COOKIE_NAME))
+
+
+def _readiness_workspace_for_request(*, purpose: str, create: bool = True) -> tuple[dict | None, tuple | None]:
+    if not _is_remote_app_request():
+        return None, None
+    return _active_remote_workspace_for_request(purpose=purpose, create=create)
+
+
+def require_sqx_readiness(feature: str):
+    current_license = license_status()
+    is_remote = _is_remote_app_request()
+    if gate_disabled_for_local_internal(is_remote, str(current_license.get("build_channel") or "")):
+        return None
+    workspace_context, remote_error = _readiness_workspace_for_request(purpose=f"sqx_readiness_gate:{feature}", create=True)
+    if remote_error:
+        return remote_error
+    status = read_readiness_status(workspace_context)
+    if status.get("complete"):
+        return None
+    return jsonify(readiness_gate_response(feature, status)), 428
+
+
 def safe_project_token(value: str | None, fallback: str) -> str:
     cleaned = SAFE_PROJECT_TOKEN_RE.sub("_", (value or "").strip())
     cleaned = cleaned.strip("._-")
     return cleaned or fallback
+
+
+def project_direction_tag(direction: str) -> str:
+    return {"long": "L", "short": "S", "both": "LS"}[direction]
+
+
+def ensure_project_direction_suffix(project_name: str, direction: str) -> str:
+    tag = project_direction_tag(direction)
+    stem = PROJECT_DIRECTION_SUFFIX_RE.sub("", project_name or "").strip("._-")
+    return f"{stem}_{tag}" if stem else tag
 
 
 def parse_generation_capa(raw) -> int:
@@ -885,7 +955,7 @@ def build_custom_mining(data: dict) -> tuple[Mining, str]:
     blocksetting = safe_project_token(str(data.get("bs") or data.get("blocksetting") or "BS_Custom"), "BS_Custom")
     direction = normalize_direction(str(data.get("dir") or data.get("direction") or "long"))
     mining = Mining(num=0, phase=0, asset=asset, tf=tf, bs=blocksetting, dir=direction)
-    direction_tag = {"long": "L", "short": "S", "both": "LS"}[direction]
+    direction_tag = project_direction_tag(direction)
     try:
         capa = parse_generation_capa(data.get("capa", 1))
         bs_entry = resolve_blocksetting_entry(
@@ -898,8 +968,99 @@ def build_custom_mining(data: dict) -> tuple[Mining, str]:
     except Exception:
         resolved_blocksetting = blocksetting
     default_name = f"Custom_{asset}_{tf}_{resolved_blocksetting}_{direction_tag}"
-    project_name = safe_project_token(str(data.get("name") or data.get("project_name") or default_name), default_name)
+    raw_project_name = str(data.get("name") or data.get("project_name") or default_name)
+    project_name = safe_project_token(raw_project_name, default_name)
+    project_name = ensure_project_direction_suffix(project_name, direction)
     return mining, project_name
+
+
+def resolve_pair_request_template(data: dict, cfg: dict, capa: int) -> str:
+    pair_data = dict(data or {})
+    specific = (
+        pair_data.get(f"template_capa{capa}")
+        or pair_data.get(f"templateCapa{capa}")
+        or pair_data.get(f"template_c{capa}")
+    )
+    if specific:
+        pair_data["template"] = specific
+    elif not looks_like_cfx_template_path(str(pair_data.get("template") or "")):
+        pair_data.pop("template", None)
+    return resolve_request_template(pair_data, cfg, capa)
+
+
+def _truthy_request_value(value) -> bool:
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, (int, float)):
+        return bool(value)
+    if isinstance(value, str):
+        return value.strip().lower() in {"1", "true", "yes", "si", "sí", "on"}
+    return False
+
+
+def _pair_generation_input(data: dict) -> dict:
+    pair_data = dict(data or {})
+    if not pair_data.get("bs") and not pair_data.get("blocksetting"):
+        pair_data["bs"] = (
+            pair_data.get("blocksetting_capa1")
+            or pair_data.get("capa1_blocksetting")
+            or pair_data.get("capa1_bs")
+            or pair_data.get("bs_capa1")
+            or "BS_Custom"
+        )
+    pair_data["capa"] = 1
+    return pair_data
+
+
+def _generation_error_message(error: Exception, *, remote: bool) -> str:
+    message = f"{type(error).__name__}: {error}"
+    return redact_text(message) if remote else message
+
+
+def _generated_file_entry(result_item: dict) -> dict:
+    return {
+        "capa": result_item.get("capa"),
+        "name": result_item.get("filename"),
+        "path": result_item.get("output_path"),
+    }
+
+
+def render_custom_project_visual_guide_pdf(project_name: str, cfx_path: str) -> dict:
+    pdf_dir = PROJECT_ROOT / "output" / "pdf"
+    pdf_dir.mkdir(parents=True, exist_ok=True)
+    pdf_name = f"{safe_project_token(project_name, 'custom_project')}_visual_check_guide.pdf"
+    pdf_path = pdf_dir / pdf_name
+    relative_path = f"output/pdf/{pdf_name}"
+    script = ROOT / "tools" / "render_custom_project_visual_guide.py"
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(script),
+            "--output",
+            str(pdf_path),
+            "--project-name",
+            project_name,
+            "--cfx-file",
+            os.path.basename(cfx_path or ""),
+        ],
+        cwd=str(PROJECT_ROOT),
+        capture_output=True,
+        text=True,
+        timeout=180,
+        check=False,
+    )
+    if result.returncode != 0:
+        message = (result.stderr or result.stdout or "visual guide PDF generation failed").strip()
+        return {"ok": False, "error": redact_text(message)[:1200]}
+    return {
+        "ok": True,
+        "filename": pdf_name,
+        "relative_path": relative_path,
+        "output_path": relative_path,
+        "strict": False,
+        "screenshots_pending": True,
+        "privacy": {"local_paths_returned": False},
+    }
 
 
 # ── Endpoints ─────────────────────────────────────────────────────
@@ -2001,6 +2162,177 @@ def api_sqx142_mcp_like_results_plugin_readiness():
     return jsonify(build_results_plugin_readiness(PROJECT_ROOT))
 
 
+@app.get("/api/sqx142/ai-wizard/status")
+def api_sqx142_ai_wizard_status():
+    error = _require_sqx142_local_operator(AI_WIZARD_VERSION)
+    if error:
+        return error
+    return jsonify(build_ai_wizard_status(PROJECT_ROOT))
+
+
+@app.post("/api/sqx142/ai-wizard/plan")
+def api_sqx142_ai_wizard_plan():
+    error = _require_sqx142_local_operator(AI_WIZARD_VERSION)
+    if error:
+        return error
+    payload = request.get_json(silent=True) or {}
+    if not isinstance(payload, dict):
+        payload = {}
+    report = build_ai_wizard_spec(payload)
+    status_code = 200 if report.get("ok") else 400
+    return jsonify(report), status_code
+
+
+@app.post("/api/sqx142/ai-wizard/draft-sqx")
+def api_sqx142_ai_wizard_draft_sqx():
+    error = _require_sqx142_local_operator(AI_WIZARD_VERSION)
+    if error:
+        return error
+    payload = request.get_json(silent=True) or {}
+    if not isinstance(payload, dict):
+        payload = {}
+    report = generate_draft_sqx(payload, project_root=PROJECT_ROOT)
+    status_code = 200 if report.get("ok") else 400
+    return jsonify(report), status_code
+
+
+@app.get("/api/sqx142/ai-wizard/draft-sqx/download/<path:file_name>")
+def api_sqx142_ai_wizard_download(file_name: str):
+    error = _require_sqx142_local_operator(AI_WIZARD_VERSION)
+    if error:
+        return error
+    path = resolve_draft_download(PROJECT_ROOT, file_name)
+    if not path:
+        return jsonify({
+            "ok": False,
+            "version": AI_WIZARD_VERSION,
+            "error": "draft_not_found",
+            "privacy": {"local_paths_returned": False},
+        }), 404
+    return send_file(path, as_attachment=True, download_name=path.name, mimetype="application/octet-stream")
+
+
+@app.get("/api/sqx142/ai-wizard/catalog")
+def api_sqx142_ai_wizard_catalog():
+    error = _require_sqx142_local_operator(AI_WIZARD_AI2_VERSION)
+    if error:
+        return error
+    return jsonify(build_ai_wizard_capability_catalog(PROJECT_ROOT))
+
+
+@app.post("/api/sqx142/ai-wizard/catalog/refresh")
+def api_sqx142_ai_wizard_catalog_refresh():
+    error = _require_sqx142_local_operator(AI_WIZARD_AI2_VERSION)
+    if error:
+        return error
+    payload = request.get_json(silent=True) or {}
+    if isinstance(payload, dict) and any(payload.get(key) for key in ("includeRawXml", "includeRawLabels", "includeSourceCode", "includeRawPaths")):
+        return jsonify({
+            "ok": False,
+            "version": AI_WIZARD_AI2_VERSION,
+            "error": "raw_catalog_request_blocked",
+            "blockers": ["raw_catalog_request_blocked"],
+            "privacy": {
+                "local_paths_returned": False,
+                "raw_xml_returned": False,
+                "raw_template_names_returned": False,
+                "raw_capability_labels_returned": False,
+                "tokens_returned": False,
+                "license_material_returned": False,
+            },
+        }), 400
+    return jsonify(build_ai_wizard_capability_catalog(PROJECT_ROOT, persist=True))
+
+
+@app.get("/api/sqx142/ai-wizard/sessions")
+def api_sqx142_ai_wizard_sessions_list():
+    error = _require_sqx142_local_operator(AI_WIZARD_AI2_VERSION)
+    if error:
+        return error
+    return jsonify(list_ai_wizard_sessions(PROJECT_ROOT, limit=request.args.get("limit") or 20))
+
+
+@app.post("/api/sqx142/ai-wizard/sessions")
+def api_sqx142_ai_wizard_sessions_create():
+    error = _require_sqx142_local_operator(AI_WIZARD_AI2_VERSION)
+    if error:
+        return error
+    payload = request.get_json(silent=True) or {}
+    if not isinstance(payload, dict):
+        payload = {}
+    if any(key in payload for key in ("path", "output", "dbPath", "sqxRoot", "fileName")):
+        return jsonify({
+            "ok": False,
+            "version": AI_WIZARD_AI2_VERSION,
+            "error": "client_path_fields_blocked",
+            "blockers": ["client_path_fields_blocked"],
+            "privacy": {"local_paths_returned": False, "tokens_returned": False},
+        }), 400
+    report = create_ai_wizard_session(PROJECT_ROOT, payload)
+    return jsonify(report), (201 if report.get("ok") else 400)
+
+
+@app.get("/api/sqx142/ai-wizard/sessions/<session_id>")
+def api_sqx142_ai_wizard_session_get(session_id: str):
+    error = _require_sqx142_local_operator(AI_WIZARD_AI2_VERSION)
+    if error:
+        return error
+    report = get_ai_wizard_session(PROJECT_ROOT, session_id)
+    return jsonify(report), (200 if report.get("ok") else 404)
+
+
+@app.post("/api/sqx142/ai-wizard/sessions/<session_id>/messages")
+def api_sqx142_ai_wizard_session_messages(session_id: str):
+    error = _require_sqx142_local_operator(AI_WIZARD_AI2_VERSION)
+    if error:
+        return error
+    payload = request.get_json(silent=True) or {}
+    if not isinstance(payload, dict):
+        payload = {}
+    report = add_ai_wizard_message(PROJECT_ROOT, session_id, payload)
+    status_code = 200 if report.get("ok") else (404 if report.get("error") == "session_not_found" else 400)
+    return jsonify(report), status_code
+
+
+@app.patch("/api/sqx142/ai-wizard/sessions/<session_id>/spec")
+def api_sqx142_ai_wizard_session_spec(session_id: str):
+    error = _require_sqx142_local_operator(AI_WIZARD_AI2_VERSION)
+    if error:
+        return error
+    payload = request.get_json(silent=True) or {}
+    if not isinstance(payload, dict):
+        payload = {}
+    report = patch_ai_wizard_session_spec(PROJECT_ROOT, session_id, payload)
+    status_code = 200 if report.get("ok") else (404 if report.get("error") == "session_not_found" else 400)
+    return jsonify(report), status_code
+
+
+@app.post("/api/sqx142/ai-wizard/sessions/<session_id>/drafts")
+def api_sqx142_ai_wizard_session_drafts(session_id: str):
+    error = _require_sqx142_local_operator(AI_WIZARD_AI2_VERSION)
+    if error:
+        return error
+    report = create_ai_wizard_session_draft(PROJECT_ROOT, session_id)
+    status_code = 200 if report.get("ok") else (404 if report.get("error") == "session_not_found" else 400)
+    return jsonify(report), status_code
+
+
+@app.get("/api/sqx142/ai-wizard/drafts/<draft_id>/download")
+def api_sqx142_ai_wizard_draft_id_download(draft_id: str):
+    error = _require_sqx142_local_operator(AI_WIZARD_AI2_VERSION)
+    if error:
+        return error
+    path = resolve_ai_wizard_draft_download(PROJECT_ROOT, draft_id)
+    if not path:
+        return jsonify({
+            "ok": False,
+            "version": AI_WIZARD_AI2_VERSION,
+            "error": "draft_not_found",
+            "privacy": {"local_paths_returned": False, "tokens_returned": False},
+        }), 404
+    return send_file(path, as_attachment=True, download_name=path.name, mimetype="application/octet-stream")
+
+
 @app.post("/api/sqx142/correlation-filter/external")
 def api_sqx142_correlation_filter_external():
     error = _require_sqx142_local_operator(CORRELATION_FILTER_EXTERNAL_VERSION)
@@ -2683,6 +3015,46 @@ def api_remote_state_status():
     return _set_remote_device_cookie(response, device_id)
 
 
+@app.get("/api/sqx-readiness/manifest")
+def api_sqx_readiness_manifest():
+    """Return the public-safe SQX readiness contract used by the checker and dashboard."""
+    return jsonify(summarize_manifest_for_public())
+
+
+@app.get("/api/sqx-readiness/status")
+def api_sqx_readiness_status():
+    """Return local or workspace-scoped SQX readiness state without exposing local paths."""
+    workspace_context, remote_error = _readiness_workspace_for_request(purpose="sqx_readiness_status", create=True)
+    if remote_error:
+        return remote_error
+    return jsonify(read_readiness_status(workspace_context))
+
+
+@app.post("/api/sqx-readiness/report")
+def api_sqx_readiness_report():
+    """Import the JSON report generated by the portable checker."""
+    workspace_context, remote_error = _readiness_workspace_for_request(purpose="sqx_readiness_report", create=True)
+    if remote_error:
+        return remote_error
+    data = request.get_json(silent=True) or {}
+    report = data.get("report") if isinstance(data.get("report"), dict) else data
+    status = evaluate_readiness_report(report)
+    saved = write_readiness_status(status, workspace_context, source="checker_report")
+    return jsonify(saved), 200 if saved.get("ok") else 400
+
+
+@app.post("/api/sqx-readiness/status")
+def api_sqx_readiness_status_update():
+    """Persist manual checklist updates for the current operator or remote workspace."""
+    workspace_context, remote_error = _readiness_workspace_for_request(purpose="sqx_readiness_status_update", create=True)
+    if remote_error:
+        return remote_error
+    data = request.get_json(silent=True) or {}
+    checks = data.get("checks") if isinstance(data.get("checks"), dict) else data
+    status = update_manual_status(checks, workspace_context)
+    return jsonify(status), 200 if status.get("ok") else 400
+
+
 @app.get("/api/remote/template-maker/bootstrap")
 def api_remote_template_maker_bootstrap():
     """Load workspace-scoped Template Maker snapshot for the active remote session."""
@@ -3342,6 +3714,9 @@ def generate_one():
     locked = require_feature("project_generator.generate")
     if locked:
         return locked
+    readiness_locked = require_sqx_readiness("project_generator.generate")
+    if readiness_locked:
+        return readiness_locked
     data = request.get_json(silent=True) or {}
     if "mining" not in data:
         return jsonify({"ok": False, "error": "missing 'mining'"}), 400
@@ -3402,11 +3777,163 @@ def generate_one():
         return jsonify({"ok": False, "error": f"{type(e).__name__}: {e}"}), 500
 
 
+@app.post("/api/generate-pair")
+def generate_pair():
+    locked = require_feature("project_generator.generate")
+    if locked:
+        return locked
+    readiness_locked = require_sqx_readiness("project_generator.generate")
+    if readiness_locked:
+        return readiness_locked
+    data = request.get_json(silent=True) or {}
+    if not isinstance(data, dict):
+        data = {}
+    try:
+        mining, project_name = build_custom_mining(_pair_generation_input(data))
+    except ValueError as e:
+        return jsonify({"ok": False, "error": str(e)}), 400
+
+    cfg = load_config()
+    output, workspace_context, remote_error = _resolve_generation_output(
+        data,
+        cfg,
+        purpose="project_generator_generate_pair",
+    )
+    if remote_error:
+        return remote_error
+
+    db_path = cfg.get("sqx_data_db") or None
+    postfix = cfg.get("darwinex_suffix") or DEFAULT_BROKER_POSTFIX
+    aliases = cfg.get("asset_aliases") or {}
+    target_profile = _target_profile_payload(data, cfg)
+    resolved_target = normalize_target_profile(target_profile, postfix)
+    blocksetting_capa2 = (
+        data.get("blocksetting_capa2")
+        or data.get("capa2_blocksetting")
+        or data.get("capa2_bs")
+        or data.get("bs_capa2")
+    )
+
+    results: dict[str, dict] = {}
+    files: list[dict] = []
+    for capa in (1, 2):
+        key = f"capa{capa}"
+        template = resolve_pair_request_template(data, cfg, capa)
+        try:
+            if not os.path.isfile(template):
+                raise FileNotFoundError(f"template not found: {template}")
+            out_path = generate_project(
+                mining,
+                template_path=template,
+                output_dir=output,
+                capa=capa,
+                sqx_db_path=db_path,
+                broker_postfix=postfix,
+                alias_override=aliases,
+                project_name=project_name,
+                blocksetting_capa2=blocksetting_capa2,
+                target_profile=target_profile,
+            )
+            costs = resolve_costs(mining, db_path, postfix, alias_override=aliases, target_profile=resolved_target)
+            bs_entry = resolve_blocksetting_entry(
+                mining.bs,
+                timeframe=mining.tf,
+                capa=capa,
+                blocksetting_capa2=blocksetting_capa2,
+            )
+            result_item = {
+                "ok": True,
+                "custom": True,
+                "project_name": project_name,
+                "asset": mining.asset,
+                "tf": mining.tf,
+                "bs": mining.bs,
+                "dir": mining.dir,
+                "capa": capa,
+                "output_path": out_path,
+                "filename": os.path.basename(out_path),
+                "costs_source": costs["source"],
+                "symbol": costs["symbol"],
+                "spread": costs["spread"],
+                "swap_long": costs["swap_long"],
+                "swap_short": costs["swap_short"],
+                "data_available": costs.get("data_available"),
+                "data_rows": costs.get("data_rows"),
+                "blocksetting": blocksetting_trace(bs_entry),
+                "target_profile": public_target_profile(resolved_target),
+            }
+            if workspace_context:
+                record_workspace_output_generated(
+                    workspace_context,
+                    endpoint="generate-pair",
+                    filename=os.path.basename(out_path),
+                    capa=capa,
+                    mining=0,
+                )
+                result_item.update(output_response_fields(workspace_context, out_path))
+            results[key] = result_item
+            files.append(_generated_file_entry(result_item))
+        except Exception as e:
+            results[key] = {
+                "ok": False,
+                "custom": True,
+                "project_name": project_name,
+                "asset": mining.asset,
+                "tf": mining.tf,
+                "bs": mining.bs,
+                "dir": mining.dir,
+                "capa": capa,
+                "error": _generation_error_message(e, remote=bool(workspace_context)),
+                "target_profile": public_target_profile(resolved_target),
+            }
+
+    ok_count = sum(1 for item in results.values() if item.get("ok"))
+    fail_count = 2 - ok_count
+    payload = {
+        "ok": fail_count == 0,
+        "custom": True,
+        "operation": "generate_pair",
+        "project_name": project_name,
+        "asset": mining.asset,
+        "tf": mining.tf,
+        "dir": mining.dir,
+        "ok_count": ok_count,
+        "fail_count": fail_count,
+        "target_profile": public_target_profile(resolved_target),
+        "results": results,
+        "files": files,
+    }
+    if workspace_context:
+        append_workspace_audit_event(workspace_context, {
+            "type": "remote_workspace_output_pair_generated",
+            "action": "project_generator_generate_pair",
+            "asset": mining.asset,
+            "timeframe": mining.tf,
+            "direction": mining.dir,
+            "ok": fail_count == 0,
+            "okCount": ok_count,
+            "failCount": fail_count,
+            "filenames": [item.get("name") for item in files],
+            "version": "remote-workspace-output-v1",
+        })
+        payload["output"] = {
+            "version": "remote-workspace-output-v1",
+            "scope": "remote_workspace",
+            "output_dir": "workspace://outputs",
+            "workspace": public_workspace_context(workspace_context),
+        }
+        payload["privacy"] = {"local_paths_returned": False}
+    return jsonify(payload)
+
+
 @app.post("/api/generate-custom")
 def generate_custom():
     locked = require_feature("project_generator.generate")
     if locked:
         return locked
+    readiness_locked = require_sqx_readiness("project_generator.generate")
+    if readiness_locked:
+        return readiness_locked
     data = request.get_json(silent=True) or {}
     try:
         capa = parse_generation_capa(data.get("capa", 1))
@@ -3448,6 +3975,14 @@ def generate_custom():
             "blocksetting": blocksetting_trace(bs_entry),
             "target_profile": public_target_profile(resolved_target),
         }
+        if _truthy_request_value(data.get("visual_guide_pdf", data.get("visualGuidePdf"))):
+            try:
+                payload["visual_guide_pdf"] = render_custom_project_visual_guide_pdf(project_name, out_path)
+            except Exception as pdf_error:
+                payload["visual_guide_pdf"] = {
+                    "ok": False,
+                    "error": redact_text(f"{type(pdf_error).__name__}: {pdf_error}"),
+                }
         if workspace_context:
             record_workspace_output_generated(
                 workspace_context,
@@ -3467,6 +4002,9 @@ def generate_all():
     locked = require_feature("project_generator.generate")
     if locked:
         return locked
+    readiness_locked = require_sqx_readiness("project_generator.generate")
+    if readiness_locked:
+        return readiness_locked
     data = request.get_json(silent=True) or {}
     capa = int(data.get("capa", 1))
     if capa not in (1, 2):
@@ -3553,6 +4091,9 @@ def sqx_clean():
     locked = require_feature("strategy_cleaner.apply")
     if locked:
         return locked
+    readiness_locked = require_sqx_readiness("strategy_cleaner.apply")
+    if readiness_locked:
+        return readiness_locked
     data = request.get_json(silent=True) or {}
     cfg = load_config()
     files = data.get("files") or []

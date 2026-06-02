@@ -39,7 +39,23 @@ async function acceptDecision(page) {
   if (visible) await page.locator('#sqx-decision-confirm').click();
 }
 
+async function dismissReadiness(page) {
+  const visible = await page.locator('#sqx-readiness-backdrop').evaluate(node => node && !node.hidden && getComputedStyle(node).display !== 'none').catch(() => false);
+  if (!visible) return;
+  const dismiss = page.locator('#sqx-readiness-dismiss');
+  if (await dismiss.count()) {
+    await dismiss.click({ force: true });
+    await page.waitForFunction(() => document.getElementById('sqx-readiness-backdrop')?.hidden === true).catch(() => {});
+  } else {
+    await page.evaluate(() => {
+      const backdrop = document.getElementById('sqx-readiness-backdrop');
+      if (backdrop) backdrop.hidden = true;
+    });
+  }
+}
+
 async function openTab(page, tabId) {
+  await dismissReadiness(page);
   const visibleTab = page.locator(`.tab[data-tab="${tabId}"]`);
   if (await visibleTab.count()) {
     await visibleTab.click();
@@ -61,6 +77,7 @@ async function run() {
     collectBrowserErrors(desktop, desktopErrors);
     desktop.on('dialog', dialog => dialog.accept());
     await desktop.goto(dashboardUrl, { waitUntil: 'load' });
+    await dismissReadiness(desktop);
     await desktop.waitForSelector('.tab[data-tab="workflow"].active');
     await desktop.waitForSelector('#edge-factory-shell');
     await desktop.evaluate(() => {
@@ -103,6 +120,7 @@ async function run() {
       window.SQX.home.bindRemoteWelcomeGate(document);
     });
     await desktop.waitForSelector('#remote-welcome-gate:not([hidden])');
+    await dismissReadiness(desktop);
     const pendingWelcomeText = await desktop.locator('#remote-welcome-gate').innerText();
     ['Acceso DASHBOARD', 'OK identidad validada', 'workspace privado', 'Listo al entrar', 'Trust Center', 'Sin instalacion local', 'productividad', 'QXPro'].forEach(expected => {
       if (!pendingWelcomeText.includes(expected)) throw new Error(`Remote welcome gate should explain ${expected}`);
@@ -195,6 +213,8 @@ async function run() {
     await saveShot(desktop, 'e2e-navigation-collapsed-desktop.png');
     await desktop.locator('#tabs-collapse-toggle').click();
     await desktop.waitForFunction(() => !document.body.classList.contains('nav-collapsed'));
+    await desktop.locator('[data-edge-mode="advanced"]').click();
+    await desktop.waitForSelector('[data-edge-mode="advanced"].active');
     await openTab(desktop, 'filtros');
     await desktop.waitForSelector('#filtros-view .bs-card');
     const blockSettingsText = await desktop.locator('#tab-filtros').innerText();
@@ -230,7 +250,7 @@ async function run() {
     if (retiredMiningInfoCards !== 0) throw new Error('Mining Control should not render retired focus/preload info cards');
     await desktop.waitForSelector('#ps-command-strip');
     const miningControlCommandText = await desktop.locator('#ps-command-strip').innerText();
-    ['Workflow', 'SQX Views', 'Plan mining', 'Project Generator', 'Estrategias', 'Champion vs Challenger'].forEach(expected => {
+    ['Workflow', 'View CORR1', 'Plan mining', 'Project Generator', 'Estrategias', 'Champion vs Challenger'].forEach(expected => {
       if (!miningControlCommandText.includes(expected)) throw new Error(`Mining Control command strip should include ${expected}`);
     });
     if (miningControlCommandText.includes('Embudo')) throw new Error('Mining Control command strip should route to Project Generator instead of Embudo');
@@ -361,6 +381,7 @@ async function run() {
     }
     await saveShot(desktop, 'e2e-mining-control-status-desktop.png');
     await openTab(desktop, 'workflow');
+    await desktop.locator('[data-edge-mode="basic"]').click();
     await desktop.waitForSelector('[data-edge-mode="basic"].active');
     if (await desktop.locator('#edge-tools-toggle:visible').count() !== 0) {
       throw new Error('Edge Factory basic mode should hide the advanced tools toggle');
@@ -379,7 +400,7 @@ async function run() {
     const homeMethodSteps = await desktop.locator('#home-method-map .home-method-step').count();
     if (homeMethodSteps !== 6) throw new Error(`Panel methodology map should expose 6 ordered steps, got ${homeMethodSteps}`);
     const homeMethodText = await desktop.locator('#home-method-map').innerText();
-    ['Workflow', 'SQX Views', 'Mining Control', 'Project Generator', 'Estrategias', 'Champion vs Challenger'].forEach(expected => {
+    ['Workflow', 'View CORR1', 'Mining Control', 'Project Generator', 'Estrategias', 'Champion vs Challenger'].forEach(expected => {
       if (!homeMethodText.includes(expected)) throw new Error(`Panel methodology map should include ${expected}`);
     });
     const homeBuilderLinks = await desktop.locator('#tab-inicio [data-home-tab="strategybuilder"]').count();
@@ -437,9 +458,9 @@ async function run() {
     await desktop.locator('#edge-portfolio-export-csv').click();
     await saveShot(desktop, 'e2e-edge-factory-desktop.png');
     await openTab(desktop, 'views');
-    await desktop.evaluate(() => window.SQX.viewCreator.loadBuyerReadyTemplate('robustness-pack-screen'));
-    await desktop.waitForFunction(() => document.getElementById('vc-view-name')?.value === 'Robustez');
-    await desktop.waitForFunction(() => Number(document.getElementById('vc-column-count')?.textContent.trim() || 0) > 104);
+    await desktop.evaluate(() => window.SQX.viewCreator.loadBuyerReadyTemplate('sqx-edge-correlation-review'));
+    await desktop.waitForFunction(() => document.getElementById('vc-view-name')?.value === 'SQX EDGE CORRELATION REVIEW');
+    await desktop.waitForFunction(() => Number(document.getElementById('vc-column-count')?.textContent.trim() || 0) >= 17);
     await openTab(desktop, 'projectgen');
     await desktop.waitForSelector('#pg-step-api');
     const pgGuidedText = await desktop.locator('#tab-projectgen').innerText();
@@ -549,64 +570,60 @@ async function run() {
     await desktop.waitForFunction(() => document.getElementById('pg-custom-asset')?.value === 'EURUSD');
     await saveShot(desktop, 'e2e-projectgen-desktop.png');
     await openTab(desktop, 'views');
-    const guidedHeadings = ['Elige la view que necesitas', 'Revisa la configuración', 'Comprueba la vista', 'Exporta e importa en SQX'];
+    const guidedHeadings = ['Confirma CORR1', 'Revisa config', 'Comprueba', 'Exporta'];
     const guidedText = await desktop.locator('#tab-views').innerText();
     const guidedTextLower = guidedText.toLowerCase();
     guidedHeadings.forEach(expected => {
-      if (!guidedTextLower.includes(expected.toLowerCase())) throw new Error(`SQX Views guided assistant should include step: ${expected}`);
+      if (!guidedTextLower.includes(expected.toLowerCase())) throw new Error(`View CORR1 guided assistant should include step: ${expected}`);
     });
     const defaultClosedDetails = await desktop.evaluate(() => ({
       advanced: document.getElementById('vc-advanced-config')?.open === false,
       metrics: document.getElementById('vc-metrics-details')?.open === false,
     }));
     if (!defaultClosedDetails.advanced || !defaultClosedDetails.metrics) {
-      throw new Error('SQX Views advanced settings and metrics editor should start collapsed');
+      throw new Error('View CORR1 advanced settings and metrics editor should start collapsed');
     }
     await desktop.locator('#vc-metrics-details > summary').click();
     await desktop.waitForSelector('#vc-metric-list .views-metric-row');
-    await desktop.locator('[data-vc-template-load="egt-first-review"]').click();
-    await desktop.waitForFunction(() => document.getElementById('vc-column-count')?.textContent.trim() === '104');
+    await desktop.locator('[data-vc-template-load="sqx-edge-correlation-review"]').click();
+    await desktop.waitForFunction(() => document.getElementById('vc-view-name')?.value === 'SQX EDGE CORRELATION REVIEW');
+    await desktop.waitForFunction(() => Number(document.getElementById('vc-column-count')?.textContent.trim() || 0) >= 17);
     await desktop.locator('#vc-advanced-config > summary').click();
     await desktop.locator('#vc-year-count').fill('5');
-    await desktop.waitForFunction(() => document.getElementById('vc-column-count')?.textContent.trim() === '64');
-    await desktop.locator('[data-vc-template-load="robustness-pack-screen"]').click();
-    await desktop.waitForFunction(() => document.getElementById('vc-view-name')?.value === 'Robustez');
-    await desktop.waitForFunction(() => document.getElementById('vc-preview-title')?.textContent.trim() === 'Robustez');
+    await desktop.waitForFunction(() => Number(document.getElementById('vc-column-count')?.textContent.trim() || 0) > 17);
+    await desktop.waitForFunction(() => document.getElementById('vc-preview-title')?.textContent.trim() === 'SQX EDGE CORRELATION REVIEW');
     const previewHead = await desktop.locator('.views-preview-panel .views-panel-head').innerText();
     const previewHeadLower = previewHead.toLowerCase();
-    if (!previewHeadLower.includes('paso 3') || !previewHead.includes('Comprueba la vista') || !previewHead.includes('Robustez')) {
-      throw new Error('SQX Views preview step should show Paso 3, fixed title and selected view subtitle');
+    if (!previewHeadLower.includes('paso 3') || !previewHead.includes('Comprueba la vista') || !previewHead.includes('SQX EDGE CORRELATION REVIEW')) {
+      throw new Error('View CORR1 preview step should show Paso 3, fixed title and selected view subtitle');
     }
     if (previewHead.includes('Paso 3 · Comprueba la vista')) {
       throw new Error('SQX Views preview step should not merge the step label and title');
     }
-    await desktop.waitForFunction(() => document.getElementById('vc-active-guide')?.textContent.includes('Robustez'));
-    const robustnessGuide = await desktop.locator('#vc-active-guide').innerText();
-    ['TICK REAL', 'WFM', 'Siguiente paso'].forEach(expected => {
-      if (!robustnessGuide.includes(expected)) throw new Error(`SQX Views Robustez guide should include ${expected}`);
+    await desktop.waitForFunction(() => document.getElementById('vc-active-guide')?.textContent.includes('SQX EDGE CORRELATION REVIEW'));
+    const corrGuide = await desktop.locator('#vc-active-guide').innerText();
+    ['SQX EDGE CORRELATION REVIEW', 'Template Maker', 'Siguiente paso'].forEach(expected => {
+      if (!corrGuide.includes(expected)) throw new Error(`View CORR1 guide should include ${expected}`);
     });
     if (await desktop.locator('#vc-download-btn').count() !== 1) throw new Error('SQX Views should keep one primary .vw download button');
     await desktop.waitForSelector('#vc-template-list .views-template-card');
     const viewsTabText = await desktop.locator('#tab-views').innerText();
     const viewsTabTextUpper = viewsTabText.toUpperCase();
     const viewsTabTextLower = viewsTabText.toLowerCase();
-    if (!viewsTabTextUpper.includes('ELIGE LA VIEW QUE NECESITAS')) throw new Error('SQX Views should expose guided view choice as the main entry');
-    ['EGT Core', 'Robustez', 'SQX EDGE CORRELATION REVIEW', 'CVC Decision Cert', 'Risk', 'Full audit', 'obligatoria', 'recomendable'].forEach(expected => {
-      if (!viewsTabText.includes(expected)) throw new Error(`SQX Views required/recommended block should include ${expected}`);
-    });
-    ['9oos', '7oos'].forEach(expected => {
-      if (!viewsTabTextLower.includes(expected)) throw new Error(`SQX Views required/recommended block should include ${expected}`);
+    if (!viewsTabTextUpper.includes('CONFIRMA LA VIEW CORR1')) throw new Error('View CORR1 should expose the canonical single-view entry');
+    ['SQX EDGE CORRELATION REVIEW', 'Template Maker', 'CORR1'].forEach(expected => {
+      if (!viewsTabText.includes(expected)) throw new Error(`View CORR1 block should include ${expected}`);
     });
     const templateListText = await desktop.locator('#vc-template-list').innerText();
     const templateListTextUpper = templateListText.toUpperCase();
     const templateListTextLower = templateListText.toLowerCase();
-    ['PF', 'Trades', 'Ret/DD', 'TICK REAL', 'MC', 'VaR', 'CVaR', 'CAGR/DD', 'CORR1', 'Decision', 'Arquetipo', 'Volatilidad'].forEach(expected => {
-      if (!templateListTextUpper.includes(expected.toUpperCase())) throw new Error(`SQX Views template tags should include ${expected}`);
+    ['CORR1', 'Decision', 'PF', 'Trades', 'Ret/DD'].forEach(expected => {
+      if (!templateListTextUpper.includes(expected.toUpperCase())) throw new Error(`View CORR1 template tags should include ${expected}`);
     });
     if (/\bfree\b|\bpro\b/i.test(templateListText)) {
       throw new Error('SQX Views template block should not include Free/Pro tags');
     }
-    ['s21..', 's23..', '9 anos', '7 anos'].forEach(removed => {
+    ['Robustez', 'EGT Core', 'CVC Decision Cert', 'Risk', 'Full audit', 's21..', 's23..', '9 anos', '7 anos'].forEach(removed => {
       if (templateListTextLower.includes(removed)) throw new Error(`SQX Views template block should not include retired tag: ${removed}`);
     });
     ['Packs por perfil', 'Flujos por activo/validacion'].forEach(removed => {
@@ -625,7 +642,7 @@ async function run() {
       throw new Error('SQX Views should explain the consolidated total without raw sampleType jargon');
     }
     const templateCount = await desktop.locator('#vc-template-list .views-template-card').count();
-    if (templateCount < 5) throw new Error(`Expected buyer-ready SQX Views examples, got ${templateCount}`);
+    if (templateCount !== 1) throw new Error(`Expected only the active CORR1 view, got ${templateCount}`);
     await desktop.locator('[data-vc-template-load="sqx-edge-correlation-review"]').click();
     await desktop.waitForFunction(() => document.getElementById('vc-view-name')?.value === 'SQX EDGE CORRELATION REVIEW');
     await desktop.waitForFunction(() => document.getElementById('vc-active-guide')?.textContent.includes('Databank CSV'));
@@ -633,16 +650,8 @@ async function run() {
     if (!certMetrics.includes('Profit factor') || !certMetrics.includes('Ret/DD Ratio') || !certMetrics.includes('SQX Edge Corr Decision')) {
       throw new Error('SQX Views should expose SQX Edge Correlation Review metrics for Template Maker C2');
     }
-    await desktop.locator('[data-vc-template-load="cvc-decision-cert"]').click();
-    await desktop.waitForFunction(() => document.getElementById('vc-view-name')?.value === 'CVC Decision Cert');
-    const cvcCertMetrics = await desktop.evaluate(() => window.SQX.viewCreator.getCvcDecisionRequiredMetrics());
-    if (!cvcCertMetrics.includes('Avg. Bars in Trade') || !cvcCertMetrics.includes('Avg. Trades Per Month')) {
-      throw new Error('SQX Views should expose CVC Decision Cert required metrics');
-    }
-    await desktop.locator('[data-vc-template-load="risk-capital-review"]').click();
-    await desktop.waitForFunction(() => document.getElementById('vc-view-name')?.value === 'Risk');
     const buyerPack = await desktop.evaluate(() => window.SQX.viewCreator.buildBuyerReadyTemplatePack());
-    if (buyerPack.type !== 'sqx-edge.view-presets' || buyerPack.presets.length < 5) throw new Error('SQX Views buyer-ready pack contract failed');
+    if (buyerPack.type !== 'sqx-edge.view-presets' || buyerPack.presets.length !== 1) throw new Error('View CORR1 buyer-ready pack contract failed');
     const retiredPackApis = await desktop.evaluate(() => ({
       buyerProfile: typeof window.SQX.viewCreator.buildBuyerProfilePack,
       validationWorkflow: typeof window.SQX.viewCreator.buildValidationWorkflowPack,
@@ -651,10 +660,11 @@ async function run() {
       throw new Error('SQX Views retired profile/workflow pack APIs should not remain exposed');
     }
     await desktop.evaluate(() => localStorage.removeItem('sqx_view_creator_presets_v1'));
-    await desktop.locator('[data-vc-template-load="risk-capital-review"]').click();
-    await desktop.waitForFunction(() => document.getElementById('vc-view-name')?.value === 'Risk');
+    await desktop.locator('[data-vc-template-load="sqx-edge-correlation-review"]').click();
+    await desktop.waitForFunction(() => document.getElementById('vc-view-name')?.value === 'SQX EDGE CORRELATION REVIEW');
     await desktop.locator('#vc-year-count').fill('5');
-    await desktop.waitForFunction(() => Number(document.getElementById('vc-column-count')?.textContent.trim() || 0) > 64);
+    await desktop.locator('#vc-year-count').dispatchEvent('change');
+    await desktop.waitForFunction(() => Number(document.getElementById('vc-column-count')?.textContent.trim() || 0) > 17);
     await saveShot(desktop, 'e2e-view-creator-desktop.png');
 
     await openTab(desktop, 'templatemaker');
@@ -957,10 +967,9 @@ async function run() {
     await desktop.locator('#strat-open-cvc-btn').click();
     await desktop.waitForFunction(() => getComputedStyle(document.getElementById('tab-cvc')).display !== 'none');
     await openTab(desktop, 'estrategias');
-    await desktop.locator('#strat-views-handoff [data-vc-handoff="risk"]').click();
-    await desktop.waitForFunction(() => getComputedStyle(document.getElementById('tab-views')).display !== 'none');
-    await desktop.waitForFunction(() => document.getElementById('vc-view-name')?.value === 'SQX Risk Review');
-    await desktop.waitForFunction(() => Number(document.getElementById('vc-column-count')?.textContent.trim() || 0) > 64);
+    if (await desktop.locator('#strat-views-handoff [data-vc-handoff]').count() !== 0) {
+      throw new Error('Strategy Control should not expose retired View handoff buttons');
+    }
     assertNoBrowserErrors(desktopErrors, 'desktop');
     await desktop.close();
 
@@ -976,6 +985,7 @@ async function run() {
       window.SQX.home.applyRemoteServiceModel(localModel, document);
     });
     await compact.waitForFunction(() => document.getElementById('remote-welcome-gate')?.hidden === true);
+    await dismissReadiness(compact);
     await compact.locator('[data-edge-mode="advanced"]').click();
     await compact.waitForSelector('[data-edge-mode="advanced"].active');
     await compact.locator('#edge-tools-toggle').click();

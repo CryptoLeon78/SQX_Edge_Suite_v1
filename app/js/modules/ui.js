@@ -2,6 +2,7 @@
   'use strict';
 
   var SQX = global.SQX = global.SQX || {};
+  var BASIC_ALLOWED_TABS = { workflow: true };
 
   function byId(id) {
     return global.document.getElementById(id);
@@ -50,8 +51,17 @@
 
   function activateTabById(id, doc) {
     var target = doc || global.document;
-    var tab = target.querySelector('.tab[data-tab="' + id + '"]');
-    var panel = target.getElementById('tab-' + id);
+    var requested = String(id || '').trim();
+    var resolved = resolveTabForExperience(requested);
+    if (requested && resolved !== requested) {
+      var status = target.getElementById('edge-basic-status');
+      if (status) {
+        status.textContent = 'Modo basico cerrado: cambia a Avanzado para abrir herramientas completas.';
+        status.dataset.state = 'warn';
+      }
+    }
+    var tab = target.querySelector('.tab[data-tab="' + resolved + '"]');
+    var panel = target.getElementById('tab-' + resolved);
     if (!panel) return false;
     all('.tab', target).forEach(function(node) { node.classList.remove('active'); });
     if (tab) tab.classList.add('active');
@@ -114,6 +124,15 @@
     }
   }
 
+  function isBasicTabAllowed(tabId) {
+    return !!BASIC_ALLOWED_TABS[String(tabId || '').trim()];
+  }
+
+  function resolveTabForExperience(tabId) {
+    if (edgeExperienceMode() === 'basic' && !isBasicTabAllowed(tabId)) return 'workflow';
+    return tabId || 'workflow';
+  }
+
   function tabLabel(tabId) {
     var tabs = global.SQX_MANIFEST && global.SQX_MANIFEST.ui && global.SQX_MANIFEST.ui.tabs || [];
     var found = tabs.find(function(tab) { return tab.id === tabId; });
@@ -122,23 +141,11 @@
 
   function basicNextTab(current, state) {
     state = state || {};
-    if (current === 'workflow') return 'activos';
-    if (current === 'activos') return 'projectgen';
-    if (current === 'projectgen') return state.c2Template ? 'cvc' : 'templatemaker';
-    if (current === 'templatemaker') return 'projectgen';
-    if (current === 'cvc') return 'inicio';
-    if (current === 'inicio') return 'workflow';
     return 'workflow';
   }
 
   function basicPrevTab(current, state) {
     state = state || {};
-    if (current === 'workflow') return 'inicio';
-    if (current === 'activos') return 'workflow';
-    if (current === 'projectgen') return state.c2Template ? 'templatemaker' : 'activos';
-    if (current === 'templatemaker') return 'projectgen';
-    if (current === 'cvc') return 'projectgen';
-    if (current === 'inicio') return 'cvc';
     return 'workflow';
   }
 
@@ -211,6 +218,8 @@
     bindTabs: bindTabs,
     byId: byId,
     hide: hide,
+    isBasicTabAllowed: isBasicTabAllowed,
+    resolveTabForExperience: resolveTabForExperience,
     setDisplay: setDisplay,
     setText: setText,
     show: show,

@@ -25,6 +25,15 @@
     { id: 'portfolio', label: 'Portfolio' }
   ];
 
+  var BASIC_STEPS = [
+    { id: 'basic-select', label: 'Elegir contexto' },
+    { id: 'basic-download', label: 'Descargar Capa1+Capa2' },
+    { id: 'basic-upload', label: 'Cargar finales Capa1' },
+    { id: 'basic-analyze', label: 'Analizar' },
+    { id: 'basic-export', label: 'Exportar templates' },
+    { id: 'basic-finish', label: 'Finalizar' }
+  ];
+
   function storageKey() {
     var keys = SQX.config && SQX.config.storageKeys
       ? SQX.config.storageKeys()
@@ -37,11 +46,17 @@
       version: VERSION,
       handoffVersion: 'edge-factory-handoffs-v1',
       activeStep: 'session',
+      activeBasicStep: 'basic-select',
       mode: 'methodology',
       experienceMode: 'basic',
       selectedCard: null,
       selectedMining: null,
       projectPrefill: null,
+      basicSelection: null,
+      basicDownloadBatch: null,
+      basicFinalFiles: [],
+      basicTemplateExports: [],
+      basicFinishedAt: null,
       capa1Outputs: [],
       capa1Analysis: null,
       c2TemplateSelection: null,
@@ -91,13 +106,38 @@
   }
 
   function setActiveStep(stepId) {
+    if (BASIC_STEPS.some(function(step) { return step.id === stepId; })) {
+      return savePatch({ activeBasicStep: stepId }, 'edge-factory-basic-active-step');
+    }
     if (!STEPS.some(function(step) { return step.id === stepId; })) return readState();
     return savePatch({ activeStep: stepId }, 'edge-factory-active-step');
   }
 
   function setExperienceMode(mode) {
     var normalized = String(mode || '').toLowerCase() === 'advanced' ? 'advanced' : 'basic';
-    return savePatch({ experienceMode: normalized }, 'edge-factory-experience-mode');
+    var patch = { experienceMode: normalized };
+    if (normalized === 'basic') patch.activeBasicStep = readState().activeBasicStep || 'basic-select';
+    return savePatch(patch, 'edge-factory-experience-mode');
+  }
+
+  function basicSteps() {
+    return BASIC_STEPS.slice();
+  }
+
+  function visibleStepsForMode(mode) {
+    return String(mode || '').toLowerCase() === 'basic' ? basicSteps() : STEPS.slice();
+  }
+
+  function basicCompletedSteps(state) {
+    state = Object.assign(defaultState(), state || readState());
+    var completed = [];
+    if (state.basicSelection || state.selectedCard) completed.push('basic-select');
+    if (state.basicDownloadBatch && state.basicDownloadBatch.files && state.basicDownloadBatch.files.length) completed.push('basic-download');
+    if (Array.isArray(state.basicFinalFiles) && state.basicFinalFiles.length) completed.push('basic-upload');
+    if (state.capa1Analysis) completed.push('basic-analyze');
+    if ((Array.isArray(state.basicTemplateExports) && state.basicTemplateExports.length) || state.c2Template) completed.push('basic-export');
+    if (state.basicFinishedAt) completed.push('basic-finish');
+    return completed;
   }
 
   function completeStep(stepId, done) {
@@ -225,6 +265,129 @@
       at: new Date().toISOString()
     };
     return writeState(next, source || 'edge-factory-handoff');
+  }
+
+  function normalizeBasicDirection(value) {
+    var raw = String(value || '').trim().toLowerCase();
+    if (raw === 'l' || raw === 'long') return 'long';
+    if (raw === 's' || raw === 'short') return 'short';
+    return 'both';
+  }
+
+  function normalizeBasicSelection(input) {
+    input = input || {};
+    var blockTrace = normalizeBlockTrace(input);
+    var blockSetting = safeString(
+      input.blockSetting || input.blocksetting || input.bs || (blockTrace && blockTrace.canonicalId),
+      'BS_Tendencia_v6'
+    );
+    return {
+      asset: upper(input.asset || input.symbol, 'EURUSD'),
+      timeframe: upper(input.timeframe || input.tf || input.selectedTimeframe, 'H1'),
+      direction: normalizeBasicDirection(input.direction || input.dir),
+      family: safeString(input.family || input.category || input.cat, 'tendencia'),
+      blockSetting: blockSetting,
+      blocksettingTrace: blockTrace,
+      source: safeString(input.source || 'edge-basic-route'),
+      selectedAt: input.selectedAt || new Date().toISOString()
+    };
+  }
+
+  function recordBasicSelection(input) {
+    var selection = normalizeBasicSelection(input || {});
+    var card = normalizeCard({
+      asset: selection.asset,
+      timeframe: selection.timeframe,
+      direction: selection.direction,
+      family: selection.family,
+      blockSetting: selection.blockSetting,
+      blocksettingTrace: selection.blocksettingTrace,
+      source: selection.source,
+      selectedAt: selection.selectedAt
+    });
+    return saveEvent({
+      selectedCard: card,
+      basicSelection: selection,
+      activeBasicStep: 'basic-download',
+      basicFinishedAt: null
+    }, ['asset'], 'capa1-generate', 'edge-factory-basic-selection');
+  }
+
+  function recordBasicDownloadBatch(payload) {
+    payload = payload || {};
+    var state = readState();
+    var files = normalizeFiles(payload.files || payload.outputFiles);
+    var batch = {
+      version: 'edge-basic-capa1-capa2-download-v1',
+      generatedAt: payload.generatedAt || new Date().toISOString(),
+      selection: normalizeBasicSelection(payload.selection || state.basicSelection || {}),
+      files: files,
+      results: summarizeResults(payload.results || []),
+      status: safeString(payload.status || (files.length ? 'ready' : 'pending'), files.length ? 'ready' : 'pending')
+    };
+    var download = {
+      kind: 'basic-capa1-capa2-cfx',
+      capa: null,
+      files: files,
+      requestedAt: new Date().toISOString()
+    };
+    return saveEvent({
+      basicDownloadBatch: batch,
+      activeBasicStep: 'basic-upload',
+      downloads: pushRecent(state.downloads, download, 10),
+      basicFinishedAt: null
+    }, ['capa1-generate', 'capa2-generate'], 'capa1-analyze', 'edge-factory-basic-capa-download');
+  }
+
+  function recordBasicFinalFiles(files) {
+    return savePatch({
+      basicFinalFiles: normalizeFiles(files),
+      activeBasicStep: 'basic-analyze',
+      basicFinishedAt: null
+    }, 'edge-factory-basic-final-files');
+  }
+
+  function recordBasicTemplateExports(payload) {
+    payload = payload || {};
+    var state = readState();
+    var files = normalizeFiles(payload.files || payload.outputFiles);
+    var item = {
+      version: 'edge-basic-template-export-v1',
+      exportedAt: payload.exportedAt || new Date().toISOString(),
+      files: files,
+      templates: Array.isArray(payload.templates) ? payload.templates.map(function(trace) {
+        return {
+          name: safeString(trace && (trace.name || trace.templateName)),
+          asset: upper(trace && trace.asset, ''),
+          timeframe: upper(trace && trace.timeframe, ''),
+          direction: upper(trace && trace.direction, ''),
+          blockSetting: safeString(trace && (trace.blockSetting || trace.blocksetting)),
+          indicatorBase: safeString(trace && (trace.indicatorBase || trace.indicator)),
+          clusterId: safeString(trace && (trace.clusterId || trace.cluster)),
+          sourceStrategyName: safeString(trace && (trace.sourceStrategyName || trace.strategyName || trace.source))
+        };
+      }).filter(function(trace) { return trace.name; }) : []
+    };
+    return saveEvent({
+      basicTemplateExports: pushRecent(state.basicTemplateExports, item, 10),
+      activeBasicStep: 'basic-finish',
+      basicFinishedAt: null
+    }, ['c2-template'], 'capa2-generate', 'edge-factory-basic-template-export');
+  }
+
+  function finishBasicFlow() {
+    var state = readState();
+    var exported = (Array.isArray(state.basicTemplateExports) && state.basicTemplateExports.length) || state.c2Template;
+    if (!exported) {
+      return savePatch({
+        activeBasicStep: 'basic-export',
+        basicFinishedAt: null
+      }, 'edge-factory-basic-finish-blocked');
+    }
+    return savePatch({
+      activeBasicStep: 'basic-finish',
+      basicFinishedAt: new Date().toISOString()
+    }, 'edge-factory-basic-finish');
   }
 
   function recordCardSelection(input) {
@@ -1844,6 +2007,15 @@
     setExperienceMode: setExperienceMode,
     completeStep: completeStep,
     steps: function() { return STEPS.slice(); },
+    basicSteps: basicSteps,
+    visibleStepsForMode: visibleStepsForMode,
+    basicCompletedSteps: basicCompletedSteps,
+    completedBasicSteps: basicCompletedSteps,
+    recordBasicSelection: recordBasicSelection,
+    recordBasicDownloadBatch: recordBasicDownloadBatch,
+    recordBasicFinalFiles: recordBasicFinalFiles,
+    recordBasicTemplateExports: recordBasicTemplateExports,
+    finishBasicFlow: finishBasicFlow,
     recordCardSelection: recordCardSelection,
     recordPlanMining: recordPlanMining,
     recordProjectPrefill: recordProjectPrefill,

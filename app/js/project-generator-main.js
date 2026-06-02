@@ -712,9 +712,19 @@ async function pgGenerateCustom() {
     pgLog(result.logText, result.logLevel);
     pgTrace(result.traceTitle, result.traceDetail, result.traceLevel);
     if (r.ok) {
+      if (r.project_name) pgSetInputValue('pg-custom-name', r.project_name);
       await pgLoadOutput();
-      pgRecordEdgeFactoryGeneration(body.capa || 1, 'manual', [], [r], { custom: body });
+      pgRecordEdgeFactoryGeneration(body.capa || 1, 'manual', [], [r], { custom: Object.assign({}, body, { name: r.project_name || body.name }) });
       pgLog('Archivo listo en .cfx generados: pulsa Descargar en la fila o Descargar todo ZIP.', 'info');
+      if (r.visual_guide_pdf) {
+        if (r.visual_guide_pdf.ok) {
+          pgLog('PDF guia visual listo: ' + r.visual_guide_pdf.filename + ' (output/pdf).', 'ok');
+          pgTrace('PDF guia visual generado', r.visual_guide_pdf.filename, 'ok');
+        } else {
+          pgLog('PDF guia visual no generado: ' + (r.visual_guide_pdf.error || 'error desconocido'), 'err');
+          pgTrace('PDF guia visual no generado', r.visual_guide_pdf.error || 'error desconocido', 'err');
+        }
+      }
     }
   } catch(e) {
     if (pgHandleFetchError(e)) return;

@@ -197,14 +197,22 @@
     try {
       if (!SQX.edgeFactory || typeof SQX.edgeFactory.recordTemplateMakerAnalysis !== 'function') return;
       var strategies = SQX.templateMaker.getStrategies ? SQX.templateMaker.getStrategies() : [];
-      var readyForC2 = SQX.templateMaker.canGenerateC2
-        ? strategies.filter(function(strategy) { return SQX.templateMaker.canGenerateC2(strategy); }).length
-        : 0;
+      var readySummary = SQX.templateMaker.getCandidateReadySummary
+        ? SQX.templateMaker.getCandidateReadySummary()
+        : null;
+      var readyForC2 = readySummary
+        ? readySummary.readyForC2
+        : (SQX.templateMaker.canGenerateC2
+          ? strategies.filter(function(strategy) { return SQX.templateMaker.canGenerateC2(strategy); }).length
+          : 0);
       SQX.edgeFactory.recordTemplateMakerAnalysis({
         source: source || 'template-maker',
         report: SQX.templateMaker.getAuditReport ? SQX.templateMaker.getAuditReport() : {},
         diversity: SQX.templateMaker.getDiversityReport ? SQX.templateMaker.getDiversityReport() : null,
-        readyForC2: readyForC2
+        readyForC2: readyForC2,
+        candidateReady: readySummary ? readySummary.candidateReady : readyForC2,
+        candidateReadyStatus: readySummary,
+        advancedCapa2AnalysisActive: false
       });
       if (SQX.edgeFactoryUI && typeof SQX.edgeFactoryUI.renderState === 'function') SQX.edgeFactoryUI.renderState();
     } catch(e) {
@@ -239,11 +247,18 @@
   function handleUnifiedFiles(files) {
     var list = Array.prototype.slice.call(files || []);
     if (!list.length) return;
-    setStatus('Procesando ' + list.length + ' archivos CSV/SQX...');
+    var plan = SQX.templateMaker.planIngestFiles ? SQX.templateMaker.planIngestFiles(list) : null;
+    if (plan && !plan.accepted.length) {
+      setStatus('Formato no compatible. Usa CSV, SQX o ZIP.', true);
+      return;
+    }
+    var acceptedCount = plan ? plan.accepted.length : list.length;
+    setStatus('Procesando ' + acceptedCount + ' archivos CSV/SQX/ZIP...');
     afterPaint().then(function() {
       return SQX.templateMaker.ingestFiles(list);
     }).then(function(rows) {
-      setStatus(rows.length + ' estrategias reconciliadas con contrato SQX EDGE CORRELATION REVIEW.');
+      var rejected = plan && plan.rejected.length ? ' · ignorados ' + plan.rejected.length + ' no compatibles' : '';
+      setStatus(rows.length + ' estrategias reconciliadas con contrato SQX EDGE CORRELATION REVIEW.' + rejected);
       return afterPaint().then(function() {
         renderAll();
         recordEdgeFactoryAnalysis('template-maker-unified');
@@ -821,13 +836,15 @@
   }
 
   function readC2Options(strategy) {
-    return {
+    var options = {
       asset: (byId('tm-c2-asset') && byId('tm-c2-asset').value.trim()) || strategy.Symbol || 'Asset',
       direction: byId('tm-c2-direction') && byId('tm-c2-direction').value || 'BOTH',
       timeframe: (byId('tm-c2-tf') && byId('tm-c2-tf').value.trim()) || strategy.TimeFrame || 'TF',
       indicatorBase: (byId('tm-c2-indicator') && byId('tm-c2-indicator').value.trim()) || 'SIN_INDICADOR',
       clusterId: (byId('tm-c2-cluster') && byId('tm-c2-cluster').value.trim()) || 'CL00',
-      blockSetting: byId('tm-c2-block') && byId('tm-c2-block').value || 'BS_Tendencia_v6'
+      blockSetting: byId('tm-c2-block') && byId('tm-c2-block').value || 'BS_Tendencia_v6',
+      analysisLayer: 'template-maker-capa1',
+      advancedCapa2AnalysisActive: false
     };
     options.exitOverrides = readExitOverrides();
     return options;

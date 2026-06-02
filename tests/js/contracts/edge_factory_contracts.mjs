@@ -23,6 +23,17 @@ assert.equal(SQX.edgeFactory.steps()[0].id, 'session');
 assert.equal(SQX.edgeFactory.steps()[0].label, 'Punto de partida');
 assert.equal(SQX.edgeFactory.steps()[7].id, 'portfolio');
 assert.equal(SQX.edgeFactory.steps()[7].label, 'Portfolio');
+assert.equal(SQX.edgeFactory.basicSteps().length, 6);
+assert.deepEqual(Array.from(SQX.edgeFactory.basicSteps().map(step => step.id)), [
+  'basic-select',
+  'basic-download',
+  'basic-upload',
+  'basic-analyze',
+  'basic-export',
+  'basic-finish',
+]);
+assert.equal(SQX.edgeFactory.visibleStepsForMode('basic').length, 6);
+assert.equal(SQX.edgeFactory.visibleStepsForMode('advanced').length, 8);
 assert.equal(SQX.edgeFactory.defaultState().experienceMode, 'basic');
 assert.equal(typeof SQX.edgeFactory.setExperienceMode, 'function');
 
@@ -79,11 +90,40 @@ SQX.edgeFactory.recordC2Template({
   direction: 'SHORT',
   blockSetting: 'BS_Volumen_v6_intraday_v6',
   indicatorBase: 'ATR',
-  clusterId: 'CL01'
+  clusterId: 'CL01',
+  advancedCapa2AnalysisActive: false
 });
 edgeState = JSON.parse(sandbox.localStorage.getItem('sqx_edge_factory_state_v1'));
 assert.equal(edgeState.c2Template.clusterId, 'CL01');
 assert.equal(edgeState.activeStep, 'capa2-generate');
+assert.equal(edgeState.activeStep === 'capa2-analyze', false);
+assert.equal(edgeState.portfolioLab, null);
+assert.equal(edgeState.completedSteps.includes('capa2-analyze'), false);
+SQX.edgeFactory.recordBasicSelection({
+  asset: 'EURGBP',
+  timeframe: 'H1',
+  direction: 'both',
+  blockSetting: 'BS_Estadistico_v6',
+});
+SQX.edgeFactory.recordBasicDownloadBatch({
+  files: [{ name: 'Project_EURGBP_H1_BS_Estadistico_v6_LS_Capa1.cfx' }, { name: 'Project_EURGBP_H1_BS_Estadistico_v6_LS_Capa2.cfx' }],
+  results: [{ ok: true, capa: 1 }, { ok: true, capa: 2 }],
+});
+SQX.edgeFactory.recordBasicFinalFiles([{ name: 'DatabankExport.csv' }, { name: 'winner.sqx' }]);
+SQX.edgeFactory.recordBasicTemplateExports({
+  files: [{ name: 'template_EURGBP_BS_Estadistico_v6_MACD_CL01_BOTH_H1.sqx' }],
+  templates: [{ name: 'template_EURGBP_BS_Estadistico_v6_MACD_CL01_BOTH_H1', asset: 'EURGBP', timeframe: 'H1', direction: 'BOTH' }],
+});
+SQX.edgeFactory.finishBasicFlow();
+edgeState = JSON.parse(sandbox.localStorage.getItem('sqx_edge_factory_state_v1'));
+assert.deepEqual(Array.from(SQX.edgeFactory.basicCompletedSteps(edgeState)), [
+  'basic-select',
+  'basic-download',
+  'basic-upload',
+  'basic-analyze',
+  'basic-export',
+  'basic-finish',
+]);
 
 const sample = [
   'strategy,asset,timeframe,profitFactor,retDd,maxDd,trades,blockSetting,indicator,cluster,Source Phase,Source Databank,Forward Status,Pass Source,Returns',
@@ -267,6 +307,7 @@ assert.equal(sampleBlockedMaster.inputReadback.forwardCsv.sampleRows > 0, true);
 assert.equal(sampleBlockedMaster.blockedReasons.some(reason => reason.includes('CSV de ejemplo')), true);
 
 const html = fs.readFileSync(path.join(repoRoot, 'app/SQX_Dashboard_v6.html'), 'utf8');
+const dashboardCss = fs.readFileSync(path.join(repoRoot, 'app/css/dashboard.css'), 'utf8');
 const appConfig = fs.readFileSync(path.join(repoRoot, 'app/js/app-config.js'), 'utf8');
 const indexJs = fs.readFileSync(path.join(repoRoot, 'app/js/modules/index.js'), 'utf8');
 
@@ -280,6 +321,11 @@ assert.equal(html.includes('data-edge-mode="advanced"'), true);
 assert.equal(html.includes('Modo básico'), true);
 assert.equal(html.includes('Modo avanzado'), true);
 assert.equal(html.includes('data-edge-advanced-only'), true);
+assert.equal((html.match(/<label class="edge-manual-check" data-edge-advanced-only>/g) || []).length, 8);
+assert.equal(html.includes('<details class="edge-methodology-advanced" data-edge-advanced-only>'), true);
+assert.equal(html.includes('<div class="edge-tool-drawer" id="edge-tool-drawer" hidden data-edge-advanced-only>'), true);
+assert.equal(html.includes('<details class="edge-advanced-custom" data-edge-advanced-only>'), true);
+assert.match(dashboardCss, /\.edge-factory-shell\.edge-mode-basic \[data-edge-advanced-only\]\s*\{\s*display:none !important;\s*\}/);
 assert.equal(html.includes('class="edge-factory-command-strip"'), true);
 assert.equal(html.includes('data-edge-signal="asset"'), true);
 assert.equal(html.includes('data-edge-signal="portfolio"'), true);
@@ -316,7 +362,7 @@ assert.equal(html.includes('portfolio-lab-governed-v1'), true);
 assert.equal(html.includes('id="edge-portfolio-max-timeframe"'), true);
 assert.equal(html.includes('Contrato Forward/Foward'), true);
 assert.equal(html.includes('correlacion real solo con equity/returns comparables'), true);
-assert.equal(html.includes('Del asset al portfolio, sin perder el hilo'), true);
+assert.equal(html.includes('Modo básico: del activo al template C2'), true);
 assert.equal(html.includes('perfil SQX destino'), true);
 assert.equal(html.includes('SQ default / configurable'), true);
 assert.equal(html.includes('Haz: valida estado remoto.'), true);

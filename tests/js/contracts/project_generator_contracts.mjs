@@ -5,6 +5,7 @@ import { assert, Element, createLoadedSandbox, repoRoot } from './harness.mjs';
 const html = fs.readFileSync(path.join(repoRoot, 'app/SQX_Dashboard_v6.html'), 'utf8');
 const dashboardCss = fs.readFileSync(path.join(repoRoot, 'app/css/dashboard.css'), 'utf8');
 const projectGeneratorMain = fs.readFileSync(path.join(repoRoot, 'app/js/project-generator-main.js'), 'utf8');
+const edgeFactoryUi = fs.readFileSync(path.join(repoRoot, 'app/js/modules/edge-factory-ui.js'), 'utf8');
 
 assert.ok(html.includes('id="tab-projectgen"'), 'Project Generator tab panel should render');
 assert.ok(html.includes('pg-guide-flow'), 'Project Generator should expose guided step flow');
@@ -15,6 +16,10 @@ assert.ok(html.includes('Genera y revisa'), 'Project Generator should expose gen
 assert.ok(html.includes('PASO 5'), 'Project Generator should expose result/log step');
 assert.ok(html.includes('Plan Mining'), 'Project Generator should clarify Plan Mining path');
 assert.ok(html.includes('Custom libre'), 'Project Generator should preserve custom generation path');
+assert.ok(html.includes('Custom libre avanzado'), 'Custom libre should remain an Advanced Edge Factory escape hatch');
+assert.ok(html.includes('id="edge-basic-generate-pair"'), 'Basic route should expose a single Capa1+Capa2 browser download action');
+assert.ok(edgeFactoryUi.includes("basicFetchJson('/generate-pair'"), 'Basic route should use the atomic generate-pair endpoint');
+assert.ok(edgeFactoryUi.includes('downloadBasicFiles'), 'Basic route should download the generated pair through the browser');
 assert.ok(html.includes('pg-service-readiness-grid'), 'Project Generator should show a route-free service readiness summary');
 assert.ok(html.includes('class="pg-operator-config" hidden'), 'Project Generator should hide operator path configuration from user-facing UI');
 assert.ok(!html.includes('id="pg-api-base-inline"'), 'Project Generator should not render raw API base in the user-facing hero');
@@ -28,6 +33,7 @@ assert.ok(html.includes('id="pg-mode-manual-panel"'), 'Project Generator should 
 assert.ok(html.includes('id="pg-mode-placeholder"'), 'Project Generator should render an empty mode placeholder');
 assert.ok(html.includes('id="pg-open-output"'), 'Project Generator should keep output download action inside generation step');
 assert.ok(html.includes('id="pg-custom-generate"'), 'Project Generator should keep custom generate action');
+assert.ok(html.includes('id="pg-custom-visual-guide-pdf"'), 'Project Generator should ask whether to generate the visual PDF guide for a custom project');
 assert.ok(html.indexOf('id="pg-custom-generate"') > html.indexOf('id="pg-mode-manual-panel"'), 'Custom libre should live inside the manual generation workspace');
 assert.ok(!html.includes('id="pg-gen-all-c1"'), 'Project Generator should remove Capa 1 bulk-all action');
 assert.ok(!html.includes('id="pg-gen-all-c2"'), 'Project Generator should remove Capa 2 bulk-all action');
@@ -57,6 +63,8 @@ assert.ok(projectGeneratorMain.includes('function pgApiBase()'), 'Project Genera
 assert.ok(projectGeneratorMain.includes('function pgConnectionDiagnostic'), 'Project Generator should expose safe connection diagnostics on fetch failures');
 assert.ok(projectGeneratorMain.includes('Diagnóstico seguro: API'), 'Project Generator error copy should include safe diagnostics for remote support');
 assert.ok(!projectGeneratorMain.includes('const PG_API ='), 'Project Generator should not freeze the API base at script load');
+assert.ok(projectGeneratorMain.includes("pgSetInputValue('pg-custom-name', r.project_name)"), 'Project Generator should reflect backend canonical custom project name after generation');
+assert.ok(projectGeneratorMain.includes("Object.assign({}, body, { name: r.project_name || body.name })"), 'Project Generator should hand off canonical custom project name to Edge Factory');
 
 const { SQX, document, sandbox } = createLoadedSandbox();
 const PG = SQX.projectGenerator;
@@ -67,7 +75,7 @@ assert.equal(PG.dom.escapeHtml('<x>'), '&lt;x&gt;');
   'pg-sqx-path', 'pg-sqx-db', 'pg-sqx-projects', 'pg-output-dir', 'pg-tpl-c1', 'pg-tpl-c2',
   'pg-target-profile', 'pg-target-postfix', 'pg-target-symbol', 'pg-target-broker-id', 'pg-target-source-id', 'pg-target-broker-name', 'pg-target-timezone',
   'pg-custom-name', 'pg-custom-asset', 'pg-custom-tf', 'pg-custom-bs',
-  'pg-custom-dir', 'pg-custom-capa', 'pg-custom-template', 'pg-custom-status'
+  'pg-custom-dir', 'pg-custom-capa', 'pg-custom-template', 'pg-custom-visual-guide-pdf', 'pg-custom-status'
 ].forEach(id => {
   document.add(new Element(id));
 });
@@ -108,18 +116,21 @@ document.getElementById('pg-custom-bs').value = '';
 document.getElementById('pg-custom-dir').value = 'both';
 document.getElementById('pg-custom-capa').value = '2';
 document.getElementById('pg-custom-template').value = ' C2.cfx ';
+document.getElementById('pg-custom-visual-guide-pdf').checked = true;
 const customInputs = PG.dom.readCustomProjectInputs(document);
 assert.equal(customInputs.asset, 'EURUSD');
 assert.equal(customInputs.tf, 'H1');
 assert.equal(customInputs.bs, 'BS_Custom');
 assert.equal(customInputs.capa, 2);
 assert.equal(customInputs.template, 'C2.cfx');
+assert.equal(customInputs.visual_guide_pdf, true);
 assert.equal(PG.dom.setCustomProjectStatus(document, { text: 'Generado', level: 'ok' }), true);
 assert.equal(document.getElementById('pg-custom-status').textContent, 'Generado');
 assert.equal(document.getElementById('pg-custom-status').classList.contains('is-ok'), true);
-PG.dom.writeCustomProjectInputs(document, { name: 'Preset EURUSD', asset: 'GBPUSD', tf: 'M15', bs: 'BS_Momentum_v6', dir: 'short', capa: 2, template: 'Tpl.cfx' });
+PG.dom.writeCustomProjectInputs(document, { name: 'Preset EURUSD', asset: 'GBPUSD', tf: 'M15', bs: 'BS_Momentum_v6', dir: 'short', capa: 2, template: 'Tpl.cfx', visual_guide_pdf: true });
 assert.equal(document.getElementById('pg-custom-asset').value, 'GBPUSD');
 assert.equal(document.getElementById('pg-custom-dir').value, 'short');
+assert.equal(document.getElementById('pg-custom-visual-guide-pdf').checked, true);
 [
   'pg-status-refresh', 'pg-settings-toggle', 'pg-settings-save', 'pg-settings-reload',
   'pg-onboarding-action', 'pg-onboarding-secondary', 'pg-onboarding-tertiary',
@@ -393,8 +404,8 @@ assert.match(PG.generateOneResult({ ok: true, filename: 'M03.cfx', data_availabl
 assert.equal(PG.generateOneResult({ ok: false, error: 'bad template' }, 3, 1).traceLevel, 'err');
 assert.equal(PG.generateCustomStartMessage({ asset: 'EURUSD', tf: 'H1', capa: 2 }), 'Generando custom EURUSD H1 · Capa 2…');
 assert.equal(PG.generateCustomMissingStatus().level, 'err');
-const generateCustomOk = PG.generateCustomResult({ ok: true, filename: 'Custom_EURUSD_H1_Capa1.cfx', project_name: 'Custom_EURUSD_H1', capa: 1 }, { asset: 'EURUSD' });
-assert.equal(generateCustomOk.text, 'Generado: Custom_EURUSD_H1_Capa1.cfx');
+const generateCustomOk = PG.generateCustomResult({ ok: true, filename: 'Custom_EURUSD_H1_LS_Capa1.cfx', project_name: 'Custom_EURUSD_H1_LS', capa: 1 }, { asset: 'EURUSD' });
+assert.equal(generateCustomOk.text, 'Generado: Custom_EURUSD_H1_LS_Capa1.cfx');
 assert.equal(generateCustomOk.traceTitle, 'Custom libre generado');
 assert.match(PG.generateCustomResult({ ok: true, filename: 'Custom_USDJPY_H4.cfx', data_available: false }, { asset: 'USDJPY' }).traceDetail, /sin historico en data\.db/);
 assert.equal(PG.generateCustomResult({ ok: false, error: 'missing asset' }, {}).level, 'err');

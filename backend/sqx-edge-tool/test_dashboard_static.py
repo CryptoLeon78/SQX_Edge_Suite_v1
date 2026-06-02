@@ -383,6 +383,7 @@ class DashboardStaticTestCase(unittest.TestCase):
                 "js/modules/modal-registry.js",
                 "js/modules/state-backup.js",
                 "js/modules/remote-state.js",
+                "js/modules/sqx-readiness.js",
                 "js/modules/license.js",
                 "js/modules/ui.js",
                 "js/modules/formatters.js",
@@ -822,7 +823,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "REMOTE-8C sigue como gate de observacion",
             "Workflow",
             "Mining Control",
-            "SQX Views",
+            "View CORR1",
             "Project Generator",
             "Template Maker",
             "Strategy Control",
@@ -1525,7 +1526,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         for pattern in (
             "REMOTE-DOWNLOADS2 - Universal Browser Downloads",
             "every user-facing export must be a browser download",
-            "SQX Views",
+            "View CORR1",
             "Template Maker",
             "Strategy Control",
             "Champion vs Challenger",
@@ -1909,7 +1910,8 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for pattern in (
             "sqx_view_creator_presets_v1",
-            "egt-core",
+            "corr1",
+            "SQX EDGE CORRELATION REVIEW",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, remote_workspace_state_tests)
@@ -6173,7 +6175,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Done; see `docs/SB5_STRATEGY_BUILDER_PROJECT_GENERATOR_PREFILL.md`", next_steps)
         self.assertIn("Phase SB6: add Strategy Builder review checklist and Project Generator save-as-preset handoff", next_steps)
         self.assertIn("Done; see `docs/SB6_STRATEGY_BUILDER_PRESET_HANDOFF.md`", next_steps)
-        self.assertIn("Phase SB7: add Strategy Builder SQX Views validation-pack handoff", next_steps)
+        self.assertIn("Phase SB7: add Strategy Builder View CORR1 handoff", next_steps)
         self.assertIn("Done; see `docs/SB7_STRATEGY_BUILDER_VIEWS_HANDOFF.md`", next_steps)
         self.assertIn("Phase SB8: add Strategy Builder handoff audit trail and buyer workflow polish", next_steps)
         self.assertIn("Done; see `docs/SB8_STRATEGY_BUILDER_AUDIT_WORKFLOW.md`", next_steps)
@@ -6206,6 +6208,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "js/modules/modal-registry.js",
             "js/modules/state-backup.js",
             "js/modules/remote-state.js",
+            "js/modules/sqx-readiness.js",
             "js/modules/license.js",
             "js/modules/ui.js",
             "js/modules/formatters.js",
@@ -6475,7 +6478,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("presetImportPreviewSummary", view_creator_js)
         self.assertIn('id="vc-template-list"', self.html)
         self.assertIn("views-guide-flow", self.html)
-        self.assertIn("Elige la view que necesitas", self.html)
+        self.assertIn("Confirma la view CORR1", self.html)
+        self.assertIn("Solo esta view forma parte del contrato activo", self.html)
         self.assertIn("Revisa la configuración", self.html)
         self.assertIn("Comprueba la vista", self.html)
         self.assertIn("Exporta e importa en SQX", self.html)
@@ -6505,6 +6509,16 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("views-profile-card", dashboard_css)
         self.assertNotIn("views-workflow-card", dashboard_css)
         self.assertNotIn("views-template-tier", dashboard_css)
+        self.assertIn('id="tm-files-input" accept=".csv,.sqx,.zip" multiple', self.html)
+        for pattern in (
+            "function planIngestFiles",
+            "function expandZipBundle",
+            "getCandidateReadySummary",
+            "advancedCapa2AnalysisActive: false",
+        ):
+            with self.subTest(template_maker_pattern=pattern):
+                self.assertIn(pattern, template_maker_js + template_maker_ui_js)
+        self.assertIn("return SQX.templateMaker.ingestFiles(list);", template_maker_ui_js)
         self.assertIn("SQX.projectGenerator", project_generator_core_js)
         self.assertIn("SQX.projectGenerator", project_generator_config_js)
         self.assertIn("SQX.projectGenerator", project_generator_dom_js)
@@ -7539,7 +7553,7 @@ class DashboardStaticTestCase(unittest.TestCase):
                 "workflow": "Edge Factory",
                 "activos": "Activos",
                 "pipeline": "Mining Control",
-                "views": "SQX Views",
+                "views": "View CORR1",
                 "projectgen": "Project Generator",
                 "templatemaker": "Template Maker",
                 "estrategias": "Strategy Control",
@@ -7625,6 +7639,14 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("SQ default / configurable", self.html)
         self.assertIn("perfil SQX destino", self.html)
         self.assertIn("data-edge-advanced-only", self.html)
+        self.assertEqual(self.html.count('class="edge-manual-check" data-edge-advanced-only'), 8)
+        self.assertIn('<details class="edge-methodology-advanced" data-edge-advanced-only>', self.html)
+        self.assertIn('<div class="edge-tool-drawer" id="edge-tool-drawer" hidden data-edge-advanced-only>', self.html)
+        self.assertIn('<details class="edge-advanced-custom" data-edge-advanced-only>', self.html)
+        self.assertIn(
+            ".edge-factory-shell.edge-mode-basic [data-edge-advanced-only] { display:none !important; }",
+            (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig"),
+        )
         self.assertIn('class="edge-factory-command-strip"', self.html)
         self.assertIn('data-edge-signal="asset"', self.html)
         self.assertIn('data-edge-signal="portfolio"', self.html)
@@ -7633,7 +7655,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn('id="edge-portfolio-export-csv"', self.html)
         self.assertIn("Contrato Forward/Foward", self.html)
         self.assertIn("Edge Factory", self.html)
-        self.assertIn("Del asset al portfolio, sin perder el hilo", self.html)
+        self.assertIn("Modo básico: del activo al template C2", self.html)
         self.assertIn("Haz: valida estado remoto.", self.html)
         self.assertIn("Certificar Capa 1", self.html)
         self.assertIn('data-edge-context="asset"', self.html)
@@ -7687,7 +7709,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("<h2>Filosofía del Proceso</h2>", workflow_overview)
         self.assertIn('data-wf-detail-target="wf-sqx-views-required-detail"', workflow_pipeline)
         self.assertIn('<div class="step-num">0</div>', workflow_pipeline)
-        self.assertIn("Vista SQX obligatoria", workflow_pipeline)
+        self.assertIn("View CORR1 activa", workflow_pipeline)
         self.assertIn('id="workflow-views-handoff"', workflow_pipeline)
         self.assertIn('id="workflow-command-center"', self.html)
         self.assertIn('id="wf-command-progress-label"', self.html)

@@ -4,6 +4,7 @@
   var SQX = global.SQX = global.SQX || {};
   var REGISTRY_DATABANK_ORDER = ['Results', 'RETEST 0', 'retest 1', 'TICK', 'MC', 'MC2', 'Sequential', 'Monkey Test', 'Synthetic', 'Syntetic', 'SPP', 'WFM', 'Forward', 'Foward', 'SQX EDGE CORR1 STABILITY', 'SQX EDGE CORR1 TAGGED'];
   var registryReadback = null;
+  var basicSelectedFiles = [];
 
   function byId(id) {
     return global.document.getElementById(id);
@@ -18,8 +19,30 @@
     if (node) node.textContent = value == null ? '' : String(value);
   }
 
+  function edgeMode() {
+    try {
+      var state = SQX.edgeFactory && SQX.edgeFactory.getState ? SQX.edgeFactory.getState() : {};
+      return state && state.experienceMode === 'advanced' ? 'advanced' : 'basic';
+    } catch (_err) {
+      return 'basic';
+    }
+  }
+
+  function setBasicStatus(message, level) {
+    var node = byId('edge-basic-status');
+    if (!node) return;
+    node.textContent = message || '';
+    node.dataset.state = level || 'info';
+  }
+
   function openTool(toolId) {
     if (!toolId) return false;
+    if (edgeMode() === 'basic') {
+      var flow = byId('edge-basic-flow');
+      if (flow && flow.scrollIntoView) flow.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setBasicStatus('Modo básico cerrado: usa la ruta única de selección, descarga, análisis y export C2.', 'warn');
+      return false;
+    }
     if (SQX.ui && SQX.ui.activateTabById) return SQX.ui.activateTabById(toolId, global.document);
     var panel = byId('tab-' + toolId);
     if (!panel) return false;
@@ -31,29 +54,42 @@
   function renderState() {
     if (!SQX.edgeFactory) return null;
     var state = SQX.edgeFactory.getState();
-    var steps = SQX.edgeFactory.steps();
-    var completed = Array.isArray(state.completedSteps) ? state.completedSteps : [];
+    var mode = state && state.experienceMode === 'advanced' ? 'advanced' : 'basic';
+    var steps = SQX.edgeFactory.visibleStepsForMode ? SQX.edgeFactory.visibleStepsForMode(mode) : SQX.edgeFactory.steps();
+    var completed = mode === 'basic' && SQX.edgeFactory.basicCompletedSteps
+      ? SQX.edgeFactory.basicCompletedSteps(state)
+      : (Array.isArray(state.completedSteps) ? state.completedSteps : []);
+    var stageCompleted = Array.isArray(state.completedSteps) ? state.completedSteps : [];
     var next = steps.find(function(step) { return completed.indexOf(step.id) === -1; }) || steps[steps.length - 1];
     var activeStep = state.activeStep || (next && next.id);
+    var activeBasicStep = state.activeBasicStep || (next && next.id);
+    if (mode === 'basic' && completed.indexOf(activeBasicStep) !== -1 && next) activeBasicStep = next.id;
     var contexts = SQX.edgeFactory.contextSummary ? SQX.edgeFactory.contextSummary(state) : {};
     renderExperienceMode(state);
     all('[data-edge-stage]').forEach(function(card) {
       var id = card.dataset.edgeStage;
-      card.classList.toggle('is-complete', completed.indexOf(id) !== -1);
-      card.classList.toggle('is-current', id === activeStep);
+      card.classList.toggle('is-complete', stageCompleted.indexOf(id) !== -1);
+      card.classList.toggle('is-current', mode === 'advanced' && id === activeStep);
       var box = card.querySelector('input[data-edge-complete]');
-      if (box) box.checked = completed.indexOf(id) !== -1;
+      if (box) box.checked = stageCompleted.indexOf(id) !== -1;
       var context = card.querySelector('[data-edge-context]');
       if (context) {
         context.textContent = contexts[id] || 'Sin contexto registrado todavía.';
         context.classList.toggle('is-empty', !contexts[id]);
       }
     });
+    all('[data-edge-basic-step]').forEach(function(card) {
+      var id = card.dataset.edgeBasicStep;
+      card.classList.toggle('is-complete', completed.indexOf(id) !== -1);
+      card.classList.toggle('is-current', mode === 'basic' && activeBasicStep === id);
+    });
     setText('edge-factory-progress-label', completed.length + ' de ' + steps.length + ' etapas');
-    setText('edge-factory-next', completed.length === steps.length ? 'Listo para portfolio o nueva iteración' : 'Siguiente: ' + (next ? next.label : 'Punto de partida'));
+    setText('edge-factory-next', completed.length === steps.length ? (mode === 'basic' ? 'Modo básico terminado' : 'Listo para portfolio o nueva iteración') : 'Siguiente: ' + (next ? next.label : 'Punto de partida'));
     var meter = byId('edge-factory-meter-bar');
     if (meter) meter.style.width = Math.round((completed.length / steps.length) * 100) + '%';
     renderSignals(state);
+    renderBasicFlowState(state);
+    renderBasicTemplateStatus();
     return state;
   }
 
@@ -68,6 +104,10 @@
       shell.classList.toggle('edge-mode-basic', mode === 'basic');
       shell.classList.toggle('edge-mode-advanced', mode === 'advanced');
     }
+    if (global.document && global.document.body) {
+      global.document.body.classList.toggle('sqx-basic-mode', mode === 'basic');
+      global.document.body.classList.toggle('sqx-advanced-mode', mode === 'advanced');
+    }
     all('[data-edge-mode]').forEach(function(button) {
       var active = button.dataset.edgeMode === mode;
       button.classList.toggle('active', active);
@@ -78,10 +118,33 @@
       'edge-factory-mode-copy',
       mode === 'advanced'
         ? 'Herramientas internas, checks manuales y custom libre visibles.'
-        : 'Ruta guiada: una accion principal por etapa y controles tecnicos ocultos.'
+        : 'Ruta cerrada: selección, descarga C1+C2, análisis C1 y export C2.'
     );
+    if (mode === 'basic' && SQX.ui && SQX.ui.activeTabId && SQX.ui.activateTabById) {
+      var activeTab = SQX.ui.activeTabId();
+      if (activeTab && activeTab !== 'workflow') {
+        setTimeout(function() { SQX.ui.activateTabById('workflow', global.document); }, 0);
+      }
+    }
     var drawer = byId('edge-tool-drawer');
     var toggle = byId('edge-tools-toggle');
+    all('[data-edge-advanced-only]').forEach(function(node) {
+      if (mode === 'basic') {
+        node.setAttribute('aria-hidden', 'true');
+        if (!node.hasAttribute('hidden')) {
+          node.dataset.edgeBasicHidden = 'true';
+          node.hidden = true;
+        }
+        try { node.inert = true; } catch (_err) {}
+      } else {
+        node.removeAttribute('aria-hidden');
+        if (node.dataset.edgeBasicHidden === 'true') {
+          node.hidden = false;
+          delete node.dataset.edgeBasicHidden;
+        }
+        try { node.inert = false; } catch (_err) {}
+      }
+    });
     if (mode === 'basic' && drawer && !drawer.hidden) {
       drawer.hidden = true;
       if (toggle) {
@@ -138,6 +201,553 @@
     );
   }
 
+  function cleanToken(value) {
+    var text = String(value == null ? '' : value).trim();
+    if (text.normalize) text = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    return text.replace(/[^A-Za-z0-9_.-]+/g, '_').replace(/^_+|_+$/g, '').replace(/_{2,}/g, '_');
+  }
+
+  function basicDirection(value) {
+    var raw = String(value || '').trim().toLowerCase();
+    if (raw === 'long' || raw === 'l') return 'long';
+    if (raw === 'short' || raw === 's') return 'short';
+    return 'both';
+  }
+
+  function basicC2Direction(value) {
+    var dir = basicDirection(value);
+    if (dir === 'long') return 'LONG';
+    if (dir === 'short') return 'SHORT';
+    return 'BOTH';
+  }
+
+  function basicAssets() {
+    var manifestAssets = global.SQX_MANIFEST && global.SQX_MANIFEST.assets && global.SQX_MANIFEST.assets.assets;
+    return Array.isArray(global.ASSETS) && global.ASSETS.length ? global.ASSETS : (Array.isArray(manifestAssets) ? manifestAssets : []);
+  }
+
+  function assetById(assetId) {
+    var target = String(assetId || '').trim().toUpperCase();
+    return basicAssets().find(function(asset) { return String(asset.id || '').toUpperCase() === target; }) || null;
+  }
+
+  function parseTimeframes(value) {
+    var seen = {};
+    return String(value || '').split(',')
+      .map(function(item) { return item.trim().toUpperCase(); })
+      .filter(function(item) {
+        if (!item || seen[item]) return false;
+        seen[item] = true;
+        return true;
+      });
+  }
+
+  function timeframesForAsset(assetId) {
+    var asset = assetById(assetId);
+    var cats = asset && asset.cats || {};
+    var values = [];
+    Object.keys(cats).forEach(function(cat) {
+      values = values.concat(parseTimeframes(cats[cat] && cats[cat].tf));
+    });
+    var seen = {};
+    values = values.filter(function(tf) {
+      if (seen[tf]) return false;
+      seen[tf] = true;
+      return true;
+    });
+    return values.length ? values : ['M15', 'M30', 'H1', 'H4', 'D1'];
+  }
+
+  function ratingWeight(value) {
+    var text = String(value || '');
+    return (text.match(/\+/g) || []).length - (text.match(/-/g) || []).length;
+  }
+
+  function categoryForSelection(assetId, timeframe) {
+    var asset = assetById(assetId);
+    var cats = asset && asset.cats || {};
+    var tf = String(timeframe || '').toUpperCase();
+    var ranked = Object.keys(cats).map(function(cat) {
+      var data = cats[cat] || {};
+      var tfs = parseTimeframes(data.tf);
+      return {
+        cat: cat,
+        tfMatch: tfs.indexOf(tf) !== -1,
+        rating: ratingWeight(data.rating)
+      };
+    }).sort(function(a, b) {
+      return (b.tfMatch ? 1 : 0) - (a.tfMatch ? 1 : 0) || b.rating - a.rating;
+    });
+    return ranked[0] ? ranked[0].cat : 'tendencia';
+  }
+
+  function blocksettingTraceForBasic(assetId, timeframe) {
+    var category = categoryForSelection(assetId, timeframe);
+    if (typeof global.blockSettingTraceForSelection === 'function') {
+      return Object.assign({ family: category }, global.blockSettingTraceForSelection(category, timeframe));
+    }
+    var resolver = global.SQX_UI && global.SQX_UI.capa1Resolver || {};
+    var rules = resolver.families && resolver.families[category] || {};
+    var intraday = resolver.intradayTimeframes || ['M5', 'M15', 'M30', 'H1'];
+    var blockSetting = intraday.indexOf(String(timeframe || '').toUpperCase()) !== -1 && rules.intraday
+      ? rules.intraday
+      : (rules.default || 'BS_Tendencia_v6');
+    return {
+      family: category,
+      blocksetting: blockSetting,
+      blocksettingTrace: { canonicalId: blockSetting, family: category }
+    };
+  }
+
+  function populateBasicAssetOptions() {
+    var select = byId('edge-basic-asset');
+    if (!select || select.__edgeBasicAssetsPopulated) return;
+    var assets = basicAssets();
+    if (!assets.length) return;
+    var current = select.value;
+    select.innerHTML = '<option value="">Seleccionar</option>' + assets.map(function(asset) {
+      var id = String(asset.id || '').toUpperCase();
+      return '<option value="' + escapeHtml(id) + '">' + escapeHtml(id) + '</option>';
+    }).join('');
+    if (current) select.value = current;
+    select.__edgeBasicAssetsPopulated = true;
+  }
+
+  function populateBasicTimeframeOptions(assetId, preferred) {
+    var select = byId('edge-basic-timeframe');
+    if (!select) return;
+    var values = timeframesForAsset(assetId);
+    var current = preferred || select.value;
+    select.innerHTML = '<option value="">Seleccionar</option>' + values.map(function(tf) {
+      return '<option value="' + escapeHtml(tf) + '">' + escapeHtml(tf) + '</option>';
+    }).join('');
+    if (current && values.indexOf(String(current).toUpperCase()) !== -1) select.value = String(current).toUpperCase();
+    else if (values.length) select.value = values[0];
+  }
+
+  function syncBasicBlockSetting() {
+    var asset = String((byId('edge-basic-asset') || {}).value || '').trim().toUpperCase();
+    var tf = String((byId('edge-basic-timeframe') || {}).value || '').trim().toUpperCase();
+    var trace = blocksettingTraceForBasic(asset, tf);
+    var input = byId('edge-basic-blocksetting');
+    if (input) input.value = trace.blocksetting || 'BS_Tendencia_v6';
+    return trace;
+  }
+
+  function renderBasicFlowState(state) {
+    var selection = state && (state.basicSelection || state.selectedCard) || {};
+    var selectedText = selection.asset && selection.timeframe
+      ? [selection.asset, selection.timeframe, selection.direction || selection.dir || 'both', selection.blockSetting].filter(Boolean).join(' · ')
+      : 'Sin contexto seleccionado.';
+    setText('edge-basic-selection-summary', selectedText);
+    var batch = state && state.basicDownloadBatch;
+    setText('edge-basic-download-summary', batch && batch.files && batch.files.length
+      ? batch.files.map(function(file) { return file.name || file; }).join(' + ')
+      : 'Esperando contexto.');
+    var files = Array.isArray(state && state.basicFinalFiles) ? state.basicFinalFiles : [];
+    setText('edge-basic-file-list', files.length ? files.map(function(file) { return file.name || file; }).join(' · ') : 'Sin archivos seleccionados.');
+    setText('edge-basic-finish-summary', state && state.basicFinishedAt ? ('Ruta finalizada: ' + state.basicFinishedAt) : 'La ruta queda lista cuando los templates C2 estan exportados.');
+  }
+
+  function readBasicSelection() {
+    var state = SQX.edgeFactory && SQX.edgeFactory.getState ? SQX.edgeFactory.getState() : {};
+    var card = state.selectedCard || {};
+    var asset = String((byId('edge-basic-asset') || {}).value || card.asset || '').trim().toUpperCase();
+    var tf = String((byId('edge-basic-timeframe') || {}).value || card.timeframe || '').trim().toUpperCase();
+    var dir = basicDirection((byId('edge-basic-direction') || {}).value || card.direction || 'both');
+    var trace = syncBasicBlockSetting();
+    var bs = String((byId('edge-basic-blocksetting') || {}).value || card.blockSetting || trace.blocksetting || 'BS_Tendencia_v6').trim() || 'BS_Tendencia_v6';
+    var name = ['Project', cleanToken(asset || 'ASSET'), cleanToken(tf || 'TF'), cleanToken(bs || 'BS_Custom')].join('_');
+    return {
+      asset: asset,
+      tf: tf,
+      dir: dir,
+      bs: bs,
+      name: name,
+      family: trace.family || 'tendencia',
+      blocksettingTrace: trace.blocksettingTrace || { canonicalId: bs }
+    };
+  }
+
+  function confirmBasicSelection() {
+    var selection = readBasicSelection();
+    if (!selection.asset || !selection.tf) {
+      setBasicStatus('Selecciona activo y timeframe.', 'error');
+      return false;
+    }
+    if (SQX.edgeFactory && SQX.edgeFactory.recordBasicSelection) {
+      SQX.edgeFactory.recordBasicSelection({
+        asset: selection.asset,
+        timeframe: selection.tf,
+        direction: selection.dir,
+        blockSetting: selection.bs,
+        blocksettingTrace: selection.blocksettingTrace,
+        family: selection.family,
+        source: 'edge-basic-flow'
+      });
+    }
+    setText('edge-basic-selection-summary', [selection.asset, selection.tf, selection.dir, selection.bs].join(' · '));
+    setBasicStatus('Contexto confirmado: ' + selection.asset + ' ' + selection.tf + ' ' + selection.dir + '.', 'ok');
+    renderState();
+    return true;
+  }
+
+  function stageBasicFiles(files) {
+    basicSelectedFiles = Array.prototype.slice.call(files || []);
+    var records = basicSelectedFiles.map(function(file) {
+      return {
+        name: file.name || '',
+        size: file.size || 0,
+        modified: file.lastModified ? new Date(file.lastModified).toISOString() : ''
+      };
+    }).filter(function(file) { return file.name; });
+    if (SQX.edgeFactory && SQX.edgeFactory.recordBasicFinalFiles) SQX.edgeFactory.recordBasicFinalFiles(records);
+    setText('edge-basic-file-list', records.length ? records.map(function(file) { return file.name; }).join(' · ') : 'Sin archivos seleccionados.');
+    setBasicStatus(records.length ? (records.length + ' archivo(s) final Capa1 seleccionados.') : 'Selecciona CSV + .sqx finales de Capa1.', records.length ? 'ok' : 'warn');
+    renderState();
+    return records;
+  }
+
+  function basicFetchJson(path, options) {
+    var request = options || {};
+    return global.fetch(apiBase() + path, {
+      method: request.method || 'GET',
+      credentials: 'include',
+      headers: Object.assign({ 'Content-Type': 'application/json' }, request.headers || {}),
+      body: request.body ? JSON.stringify(request.body) : undefined
+    }).then(function(response) {
+      return response.text().then(function(text) {
+        var data = {};
+        try { data = text ? JSON.parse(text) : {}; } catch (_err) { data = { error: text || 'invalid_json' }; }
+        if (!response.ok || data.ok === false) {
+          var error = new Error(data.message || data.error || ('HTTP ' + response.status));
+          error.status = response.status;
+          error.data = data;
+          throw error;
+        }
+        return data;
+      });
+    });
+  }
+
+  function filenameFromDisposition(headerValue, fallback) {
+    var header = String(headerValue || '');
+    var utf = header.match(/filename\*=UTF-8''([^;]+)/i);
+    if (utf && utf[1]) return decodeURIComponent(utf[1].replace(/"/g, ''));
+    var plain = header.match(/filename="?([^";]+)"?/i);
+    return plain && plain[1] ? plain[1] : fallback;
+  }
+
+  function downloadBlob(blob, filename) {
+    var url = URL.createObjectURL(blob);
+    var link = global.document.createElement('a');
+    link.href = url;
+    link.download = filename || 'sqx-edge-download.bin';
+    global.document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  function downloadBasicFiles(files) {
+    var names = (files || []).map(function(file) {
+      if (typeof file === 'string') return file;
+      return file && (file.name || file.filename || file.file);
+    }).map(function(name) { return String(name || '').trim(); }).filter(Boolean);
+    if (!names.length) return Promise.resolve(false);
+    if (typeof global.pgDownloadOutputBundle === 'function') {
+      return Promise.resolve(global.pgDownloadOutputBundle(names)).then(function() { return true; });
+    }
+    return global.fetch(apiBase() + '/output/download-selected', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ files: names })
+    }).then(function(response) {
+      if (!response.ok) throw new Error('HTTP ' + response.status);
+      return response.blob().then(function(blob) {
+        downloadBlob(blob, filenameFromDisposition(response.headers.get('Content-Disposition'), names.length === 1 ? names[0] : 'sqx-edge-suite-cfx-basic.zip'));
+        return true;
+      });
+    });
+  }
+
+  function recordBasicPair(selection, results, files) {
+    if (!SQX.edgeFactory) return;
+    if (SQX.edgeFactory.recordBasicSelection) {
+      SQX.edgeFactory.recordBasicSelection({
+        asset: selection.asset,
+        timeframe: selection.tf,
+        direction: selection.dir,
+        blockSetting: selection.bs,
+        blocksettingTrace: selection.blocksettingTrace,
+        family: selection.family,
+        source: 'edge-basic-flow'
+      });
+    }
+    if (SQX.edgeFactory.recordProjectGeneration) {
+      var c1 = results && results.capa1;
+      var c2 = results && results.capa2;
+      if (c1 && c1.ok) {
+        SQX.edgeFactory.recordProjectGeneration({
+          capa: 1,
+          mode: 'basic-pair',
+          minings: [],
+          results: [c1],
+          outputFiles: files || [],
+          custom: { name: c1.project_name || selection.name, asset: selection.asset, tf: selection.tf, dir: selection.dir, bs: selection.bs },
+          generatedAt: new Date().toISOString()
+        });
+      }
+      if (c2 && c2.ok) {
+        SQX.edgeFactory.recordProjectGeneration({
+          capa: 2,
+          mode: 'basic-pair',
+          minings: [],
+          results: [c2],
+          outputFiles: files || [],
+          custom: { name: c2.project_name || selection.name, asset: selection.asset, tf: selection.tf, dir: selection.dir, bs: selection.bs },
+          generatedAt: new Date().toISOString()
+        });
+      }
+    }
+    if (SQX.edgeFactory.recordBasicDownloadBatch) {
+      SQX.edgeFactory.recordBasicDownloadBatch({
+        selection: selection,
+        files: files || [],
+        results: [results && results.capa1, results && results.capa2].filter(Boolean),
+        status: files && files.length ? 'ready' : 'pending'
+      });
+    }
+  }
+
+  function generateBasicCustom(selection, capa) {
+    return basicFetchJson('/generate-custom', {
+      method: 'POST',
+      body: {
+        name: selection.name,
+        asset: selection.asset,
+        tf: selection.tf,
+        bs: selection.bs,
+        dir: selection.dir,
+        capa: capa
+      }
+    });
+  }
+
+  function generateBasicPair() {
+    var selection = readBasicSelection();
+    if (!selection.asset || !selection.tf) {
+      setBasicStatus('Selecciona activo y timeframe antes de descargar el par.', 'error');
+      return Promise.resolve(false);
+    }
+    var button = byId('edge-basic-generate-pair');
+    if (button) button.disabled = true;
+    setBasicStatus('Generando Capa 1 + Capa 2 para ' + selection.asset + ' ' + selection.tf + '...', 'info');
+    return basicFetchJson('/generate-pair', {
+      method: 'POST',
+      body: {
+        name: selection.name,
+        asset: selection.asset,
+        tf: selection.tf,
+        bs: selection.bs,
+        blocksetting_capa2: selection.bs,
+        dir: selection.dir
+      }
+    }).then(function(response) {
+      var results = response.results || {};
+      var files = response.files || [];
+      recordBasicPair(selection, results, files);
+      if (typeof global.pgLoadOutput === 'function') global.pgLoadOutput();
+      renderState();
+      if (!response.ok) {
+        var c1Error = results.capa1 && results.capa1.error;
+        var c2Error = results.capa2 && results.capa2.error;
+        setBasicStatus('Generación incompleta: ' + (c1Error || c2Error || 'revisa el backend antes de continuar.'), 'error');
+        return response;
+      }
+      return downloadBasicFiles(files).then(function() {
+        var names = files.map(function(file) {
+          return typeof file === 'string' ? file : (file && (file.name || file.filename || file.file));
+        }).filter(Boolean);
+        setText('edge-basic-download-summary', names.join(' + '));
+        setBasicStatus('Par descargado: ' + names.join(' + '), 'ok');
+        renderState();
+        return response;
+      });
+    }).catch(function(error) {
+      var payload = error && error.data;
+      if (payload && payload.partial) {
+        var partialResults = payload.results || {};
+        var partialFiles = (payload.files || []).filter(Boolean);
+        recordBasicPair(selection, partialResults, partialFiles);
+        renderState();
+        setBasicStatus('Generación parcial: revisa Capa 2 antes de continuar. ' + (payload.results && payload.results.capa2 && payload.results.capa2.error || error.message), 'error');
+        return payload;
+      }
+      setBasicStatus('No se pudo generar el par: ' + (error && error.message ? error.message : error), 'error');
+      return false;
+    }).finally(function() {
+      if (button) button.disabled = false;
+    });
+  }
+
+  function templateStrategies() {
+    return SQX.templateMaker && SQX.templateMaker.getStrategies ? SQX.templateMaker.getStrategies() : [];
+  }
+
+  function basicReadyStrategies() {
+    if (!SQX.templateMaker || !SQX.templateMaker.canGenerateC2) return [];
+    return templateStrategies().filter(function(strategy) { return SQX.templateMaker.canGenerateC2(strategy); });
+  }
+
+  function renderBasicTemplateStatus() {
+    var totalNode = byId('edge-basic-total-count');
+    var csvNode = byId('edge-basic-csv-count');
+    var sqxNode = byId('edge-basic-sqx-count');
+    var readyNode = byId('edge-basic-ready-count');
+    var select = byId('edge-basic-winner');
+    var exportBtn = byId('edge-basic-export-template');
+    if (!totalNode && !csvNode && !sqxNode && !readyNode && !select && !exportBtn) return;
+    var strategies = templateStrategies();
+    var ready = basicReadyStrategies();
+    var csvCount = strategies.filter(function(strategy) { return !!(strategy.sources && strategy.sources.csv); }).length;
+    var sqxCount = strategies.filter(function(strategy) { return !!(strategy._fileData || strategy.sources && strategy.sources.sqx); }).length;
+    setText('edge-basic-total-count', strategies.length);
+    setText('edge-basic-csv-count', csvCount);
+    setText('edge-basic-sqx-count', sqxCount);
+    setText('edge-basic-ready-count', ready.length);
+    if (select) {
+      var previous = select.value;
+      select.innerHTML = '';
+      if (!ready.length) {
+        var empty = global.document.createElement('option');
+        empty.value = '';
+        empty.textContent = strategies.length ? 'Sin candidatos listos' : 'Carga resultados Capa 1';
+        select.appendChild(empty);
+      } else {
+        ready.forEach(function(strategy) {
+          var option = global.document.createElement('option');
+          option.value = String(strategy._id);
+          option.textContent = String(strategy['Strategy Name'] || strategy.name || strategy._id);
+          select.appendChild(option);
+        });
+        if (previous && ready.some(function(strategy) { return String(strategy._id) === String(previous); })) {
+          select.value = previous;
+        }
+      }
+    }
+    if (exportBtn) exportBtn.disabled = ready.length === 0;
+  }
+
+  function recordBasicTemplateAnalysis(source) {
+    try {
+      if (!SQX.edgeFactory || !SQX.edgeFactory.recordTemplateMakerAnalysis) return;
+      SQX.edgeFactory.recordTemplateMakerAnalysis({
+        source: source || 'edge-basic-flow',
+        report: SQX.templateMaker && SQX.templateMaker.getAuditReport ? SQX.templateMaker.getAuditReport() : {},
+        diversity: SQX.templateMaker && SQX.templateMaker.getDiversityReport ? SQX.templateMaker.getDiversityReport() : null,
+        readyForC2: basicReadyStrategies().length
+      });
+      if (SQX.edgeFactory.savePatch) SQX.edgeFactory.savePatch({ activeBasicStep: 'basic-export' }, 'edge-factory-basic-analysis');
+    } catch (_err) {}
+  }
+
+  function ensureTemplateMakerReady() {
+    if (!SQX.templateMaker) return Promise.reject(new Error('Template Maker no esta cargado.'));
+    if (typeof SQX.templateMaker.init === 'function') return SQX.templateMaker.init();
+    return Promise.resolve();
+  }
+
+  function handleBasicFiles(files) {
+    var list = Array.prototype.slice.call(files || []);
+    if (!list.length) list = basicSelectedFiles.slice();
+    if (!list.length) {
+      setBasicStatus('Selecciona CSV + .sqx finales de Capa1 antes de analizar.', 'warn');
+      return Promise.resolve([]);
+    }
+    setBasicStatus('Analizando ' + list.length + ' archivo(s) de Capa 1...', 'info');
+    return ensureTemplateMakerReady().then(function() {
+      if (!SQX.templateMaker.ingestFiles) throw new Error('TemplateMaker.ingestFiles no esta disponible.');
+      return SQX.templateMaker.ingestFiles(list);
+    }).then(function(rows) {
+      recordBasicTemplateAnalysis('edge-basic-flow-files');
+      renderBasicTemplateStatus();
+      renderState();
+      setBasicStatus((rows || []).length + ' estrategias reconciliadas. Listas C2: ' + basicReadyStrategies().length + '.', 'ok');
+      return rows;
+    }).catch(function(error) {
+      setBasicStatus('No se pudieron analizar los archivos: ' + (error && error.message ? error.message : error), 'error');
+      return [];
+    });
+  }
+
+  function exportBasicTemplate() {
+    var ready = basicReadyStrategies();
+    if (!ready.length) {
+      setBasicStatus('No hay candidatos listos para exportar templates C2.', 'error');
+      return Promise.resolve(false);
+    }
+    var selection = readBasicSelection();
+    setBasicStatus('Exportando ' + ready.length + ' template(s) C2...', 'info');
+    var traces = [];
+    var jobs = ready.map(function(strategy) {
+      var options = {
+        asset: selection.asset || strategy.Symbol || strategy.Asset || 'Asset',
+        timeframe: selection.tf || strategy.TimeFrame || 'TF',
+        direction: basicC2Direction(selection.dir),
+        blockSetting: selection.bs || strategy.BlockSetting || 'BS_Custom'
+      };
+      var trace = SQX.templateMaker.resolveC2Trace ? SQX.templateMaker.resolveC2Trace(strategy, options) : { name: 'template_c2_basic' };
+      traces.push(trace);
+      return SQX.templateMaker.generateC2Template(strategy, options).then(function(blob) {
+        return { blob: blob, trace: trace };
+      });
+    });
+    return Promise.all(jobs).then(function(items) {
+      var filenames = [];
+      if (items.length === 1 || !global.JSZip) {
+        items.forEach(function(item) {
+          var itemName = item.trace.name + '.sqx';
+          filenames.push(itemName);
+          downloadBlob(item.blob, itemName);
+        });
+      } else {
+        var zip = new global.JSZip();
+        items.forEach(function(item) {
+          var itemName = item.trace.name + '.sqx';
+          filenames.push(itemName);
+          zip.file(itemName, item.blob);
+        });
+        zip.file('edge-basic-template-export.json', JSON.stringify({
+          version: 'edge-basic-template-export-v1',
+          exportedAt: new Date().toISOString(),
+          templates: traces
+        }, null, 2));
+        filenames = ['sqx-edge-basic-c2-templates-' + new Date().toISOString().slice(0, 10) + '.zip'];
+        return zip.generateAsync({ type: 'blob' }).then(function(blob) {
+          downloadBlob(blob, filenames[0]);
+          return filenames;
+        });
+      }
+      return filenames;
+    }).then(function(exportFiles) {
+      exportFiles = exportFiles && exportFiles.length ? exportFiles : (ready.length === 1
+        ? [traces[0].name + '.sqx']
+        : ['sqx-edge-basic-c2-templates-' + new Date().toISOString().slice(0, 10) + '.zip']);
+      if (SQX.edgeFactory && SQX.edgeFactory.recordC2Template && traces[0]) SQX.edgeFactory.recordC2Template(traces[0]);
+      if (SQX.edgeFactory && SQX.edgeFactory.recordBasicTemplateExports) {
+        SQX.edgeFactory.recordBasicTemplateExports({ files: exportFiles, templates: traces });
+      }
+      renderState();
+      setBasicStatus('Templates C2 exportados: ' + traces.length + '. Pulsa Finalizar para cerrar.', 'ok');
+      return true;
+    }).catch(function(error) {
+      setBasicStatus('No se pudieron exportar templates C2: ' + (error && error.message ? error.message : error), 'error');
+      return false;
+    });
+  }
+
   function bindTools() {
     all('[data-edge-tool]').forEach(function(button) {
       if (button.__edgeToolBound) return;
@@ -179,6 +789,12 @@
       if (button.__edgeStepBound) return;
       button.__edgeStepBound = true;
       button.addEventListener('click', function() {
+        if (edgeMode() === 'basic') {
+          var flow = byId('edge-basic-flow');
+          if (flow && flow.scrollIntoView) flow.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          setBasicStatus('Modo básico cerrado: la navegación avanzada queda bloqueada.', 'warn');
+          return;
+        }
         if (SQX.edgeFactory) SQX.edgeFactory.setActiveStep(button.dataset.edgeStepOpen);
         renderState();
         var target = global.document.querySelector('[data-edge-stage="' + button.dataset.edgeStepOpen + '"]');
@@ -1414,12 +2030,91 @@
     renderBackportResult(currentBackportSummary());
   }
 
+  function bindBasicFlow() {
+    populateBasicAssetOptions();
+    var generate = byId('edge-basic-generate-pair');
+    var saveSelection = byId('edge-basic-save-selection');
+    var files = byId('edge-basic-files');
+    var analyze = byId('edge-basic-analyze-files');
+    var exportBtn = byId('edge-basic-export-template');
+    var finish = byId('edge-basic-finish');
+    var state = SQX.edgeFactory && SQX.edgeFactory.getState ? SQX.edgeFactory.getState() : {};
+    var card = state.basicSelection || state.selectedCard || {};
+    var assetInput = byId('edge-basic-asset');
+    var tfInput = byId('edge-basic-timeframe');
+    var dirInput = byId('edge-basic-direction');
+    var bsInput = byId('edge-basic-blocksetting');
+    if (assetInput && !assetInput.value && card.asset) assetInput.value = card.asset;
+    populateBasicTimeframeOptions(assetInput && assetInput.value, card.timeframe);
+    if (tfInput && card.timeframe) tfInput.value = card.timeframe;
+    if (dirInput && card.direction) dirInput.value = basicDirection(card.direction);
+    if (bsInput && !bsInput.value && card.blockSetting) bsInput.value = card.blockSetting;
+    syncBasicBlockSetting();
+    renderBasicFlowState(state);
+    if (saveSelection && !saveSelection.__edgeBasicBound) {
+      saveSelection.__edgeBasicBound = true;
+      saveSelection.addEventListener('click', confirmBasicSelection);
+    }
+    if (generate && !generate.__edgeBasicBound) {
+      generate.__edgeBasicBound = true;
+      generate.addEventListener('click', generateBasicPair);
+    }
+    if (files && !files.__edgeBasicBound) {
+      files.__edgeBasicBound = true;
+      files.addEventListener('change', function(event) {
+        stageBasicFiles(event.target.files);
+      });
+    }
+    if (analyze && !analyze.__edgeBasicBound) {
+      analyze.__edgeBasicBound = true;
+      analyze.addEventListener('click', function() {
+        handleBasicFiles(basicSelectedFiles);
+      });
+    }
+    if (exportBtn && !exportBtn.__edgeBasicBound) {
+      exportBtn.__edgeBasicBound = true;
+      exportBtn.addEventListener('click', exportBasicTemplate);
+    }
+    if (finish && !finish.__edgeBasicBound) {
+      finish.__edgeBasicBound = true;
+      finish.addEventListener('click', function() {
+        var current = SQX.edgeFactory && SQX.edgeFactory.getState ? SQX.edgeFactory.getState() : {};
+        var exported = (Array.isArray(current.basicTemplateExports) && current.basicTemplateExports.length) || current.c2Template;
+        if (!exported) {
+          setBasicStatus('Exporta templates C2 antes de finalizar la ruta básica.', 'warn');
+          renderState();
+          return;
+        }
+        if (SQX.edgeFactory && SQX.edgeFactory.finishBasicFlow) SQX.edgeFactory.finishBasicFlow();
+        setBasicStatus('Ruta basica finalizada.', 'ok');
+        renderState();
+      });
+    }
+    ['edge-basic-asset', 'edge-basic-timeframe', 'edge-basic-direction'].forEach(function(id) {
+      var input = byId(id);
+      if (!input || input.__edgeBasicSelectionBound) return;
+      input.__edgeBasicSelectionBound = true;
+      input.addEventListener('change', function() {
+        if (id === 'edge-basic-asset') {
+          populateBasicTimeframeOptions(input.value);
+        }
+        var selection = readBasicSelection();
+        setText('edge-basic-selection-summary', selection.asset && selection.tf
+          ? [selection.asset, selection.tf, selection.dir, selection.bs].join(' · ')
+          : 'Sin contexto seleccionado.');
+        renderState();
+      });
+    });
+    renderBasicTemplateStatus();
+  }
+
   function init() {
     if (!byId('edge-factory-shell')) return false;
     bindTools();
     bindDrawer();
     bindExperienceMode();
     bindStepControls();
+    bindBasicFlow();
     bindPortfolioLab();
     bindCorrelationStability();
     bindPortfolioMaster();
@@ -1434,6 +2129,10 @@
     init: init,
     renderState: renderState,
     openTool: openTool,
+    generateBasicPair: generateBasicPair,
+    handleBasicFiles: handleBasicFiles,
+    exportBasicTemplate: exportBasicTemplate,
+    renderBasicTemplateStatus: renderBasicTemplateStatus,
     runPortfolioLab: runPortfolioLab,
     runPortfolioMasterContract: runPortfolioMasterContract,
     renderPortfolioReport: renderPortfolioReport,

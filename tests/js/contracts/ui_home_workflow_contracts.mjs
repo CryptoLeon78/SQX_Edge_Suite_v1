@@ -4,10 +4,17 @@ const { sandbox, SQX, document } = createLoadedSandbox();
 const baseStrategy = { id: 'A', mining: 1, template: 'T', asset: 'EURUSD', tf: 'H1', metrics: {}, tests_passed: [], tests_failed: [] };
 const imported = { id: 'B', mining: 1, template: 'T', asset: 'EURUSD', tf: 'H1', metrics: {}, tests_passed: [], tests_failed: [], _imported: true };
 
-document.addTab('inicio', true);
+document.addTab('workflow', true);
+document.addTab('inicio', false);
 document.addTab('pipeline', false);
 assert.equal(SQX.ui.activateTabById('pipeline', document), true);
-assert.equal(document.querySelector('.tab.active[data-tab]').dataset.tab, 'pipeline');
+assert.equal(document.querySelector('.tab.active[data-tab]').dataset.tab, 'workflow', 'Basic route should keep non-primary tabs closed');
+assert.equal(SQX.edgeFactory.defaultState().experienceMode, 'basic', 'Workflow should default to the closed Basic route');
+SQX.edgeFactory.setExperienceMode('advanced');
+assert.equal(SQX.ui.activateTabById('pipeline', document), true);
+assert.equal(document.querySelector('.tab.active[data-tab]').dataset.tab, 'pipeline', 'Advanced mode should preserve direct tab access');
+SQX.edgeFactory.setExperienceMode('unexpected');
+assert.equal(JSON.parse(sandbox.localStorage.getItem('sqx_edge_factory_state_v1')).experienceMode, 'basic', 'Invalid Edge Factory modes should fall back to Basic');
 
 const filterA = document.add(new Element('filter-all', ['filter-btn', 'active'], { filterType: 'all' }));
 const filterB = document.add(new Element('filter-forex', ['filter-btn'], { filterType: 'forex' }));
