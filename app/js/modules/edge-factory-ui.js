@@ -552,7 +552,8 @@
         tf: selection.tf,
         bs: selection.bs,
         blocksetting_capa2: selection.bs,
-        dir: selection.dir
+        dir: selection.dir,
+        target_profile: { id: 'sqxedge_darwinex' }
       }
     }).then(function(response) {
       var results = response.results || {};
@@ -1532,12 +1533,22 @@
   }
 
   function apiBase() {
+    var base = '/api';
     try {
       if (global.SQX_CONFIG && typeof global.SQX_CONFIG.apiBase === 'function') {
-        return String(global.SQX_CONFIG.apiBase() || '/api').replace(/\/$/, '');
+        base = String(global.SQX_CONFIG.apiBase() || '/api').replace(/\/$/, '') || '/api';
       }
     } catch (_err) {}
-    return '/api';
+    try {
+      var parsed = new URL(base, (global.location && global.location.origin) || 'http://127.0.0.1');
+      var pathname = String(parsed.pathname || '').replace(/\/$/, '');
+      if (pathname === '/api' || pathname.slice(-4) === '/api' || pathname.indexOf('/dashboard/api') === 0) {
+        return base;
+      }
+    } catch (_err2) {
+      if (base === '/api' || /\/api$/i.test(base) || /\/dashboard\/api$/i.test(base)) return base;
+    }
+    return base + '/api';
   }
 
   function registryProjectKey() {
