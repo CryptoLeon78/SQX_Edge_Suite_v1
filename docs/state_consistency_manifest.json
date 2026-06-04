@@ -1066,9 +1066,14 @@
           "sqx-edge.ai-wizard-capability-catalog-v1",
           "sqx-edge.ai-wizard-strategy-ast-v1",
           "installed_pending_manual_roundtrip",
-          "overlay v2 instalado con SQX cerrado y roundtrip humano pendiente"
+          "overlay v2 instalado con SQX cerrado y roundtrip humano pendiente",
+          "SQX142-AW-AI2 DRAFT1 download URL patch"
         ],
         "CHANGELOG.md": [
+          "2026-06-04 - SQX142-AW-AI2 Draft Download URL Patch",
+          "API_BASE + draft.downloadUrl",
+          "apiUrl()",
+          "sqx142_ai_wizard_overlay_20260604_170156",
           "2026-06-04 - SQX142-AW-AI2 Overlay Installed",
           "installed_pending_manual_roundtrip",
           "sqx142_ai_wizard_overlay_20260604_163808",
@@ -1083,6 +1088,9 @@
           "source is built and tested"
         ],
         "docs/PROJECT_GOVERNANCE.md": [
+          "Current local phase patched: SQX142-AW-AI2",
+          "Draft Download URL Patch",
+          "sqx142_ai_wizard_overlay_20260604_170156",
           "Current phase installed: SQX142-AW-AI2",
           "Session Studio SQLite",
           "installed_pending_manual_roundtrip",
@@ -1095,7 +1103,10 @@
           "blocked_not_draftable_yet",
           "No SQX runtime launch",
           "overlay v2 instalado: confirmado",
-          "sqx142_ai_wizard_overlay_20260604_163808"
+          "sqx142_ai_wizard_overlay_20260604_163808",
+          "Patch DRAFT1",
+          "apiUrl()",
+          "sqx142_ai_wizard_overlay_20260604_170156"
         ],
         "backend/sqx-edge-tool/core/sqx142_ai_wizard.py": [
           "AI_WIZARD_AI2_VERSION = \"sqx142-ai-wizard-studio-v2\"",
@@ -1119,6 +1130,8 @@
         ],
         "integrations/sqx142/ai_wizard_overlay/sqx-edge-aiwizard.js": [
           "sqx142-ai-wizard-overlay-v2",
+          "function apiUrl(path)",
+          "data-sqx-aiwizard-download",
           "sqx-edge-aiwizard-sessions",
           "sqx-edge-aiwizard-catalog",
           "sqx-edge-aiwizard-params",
@@ -1131,6 +1144,8 @@
         ],
         "tests/js/contracts/sqx142_aw_ai2_contracts.mjs": [
           "sqx142 aw ai2 contracts ok",
+          "assert.doesNotMatch(overlayJs, /API_BASE \\+ draft\\.downloadUrl/);",
+          "data-sqx-aiwizard-download",
           "raw_catalog_request_blocked",
           "data-sqx-aiwizard-session-id"
         ]
@@ -1147,7 +1162,8 @@
           "OPENAI_API_KEY",
           "api_key",
           "localStorage",
-          "sessionStorage"
+          "sessionStorage",
+          "API_BASE + draft.downloadUrl"
         ]
       }
     },

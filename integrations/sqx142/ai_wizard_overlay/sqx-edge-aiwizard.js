@@ -19,6 +19,13 @@
   }
 
   var API_BASE = safeApiBase(global.SQX_EDGE_AI_WIZARD_API_BASE);
+  var API_ORIGIN = (function() {
+    try {
+      return new URL(API_BASE).origin;
+    } catch (err) {
+      return "http://127.0.0.1:5050";
+    }
+  })();
   var state = {
     status: null,
     catalog: null,
@@ -52,6 +59,17 @@
       .catch(function(err) {
         return { ok: false, error: err && err.message ? err.message : "request_failed" };
       });
+  }
+
+  function apiUrl(path) {
+    var raw = String(path || "");
+    if (/^https?:\/\//i.test(raw)) {
+      return safeApiBase(raw);
+    }
+    if (raw.indexOf("/api/") === 0) {
+      return API_ORIGIN + raw;
+    }
+    return API_BASE + (raw.charAt(0) === "/" ? raw : "/" + raw);
   }
 
   function setBusy(value) {
@@ -138,7 +156,7 @@
       var draft = state.draft.data.draft;
       node.innerHTML =
         "<strong>Draft .sqx preparado.</strong><p class=\"sqx-edge-aiwizard-muted\">" + escapeHtml(draft.fileName) + "</p>" +
-        "<a class=\"sqx-edge-aiwizard-download\" href=\"" + escapeHtml(API_BASE + draft.downloadUrl) + "\">Descargar .sqx</a>";
+        "<a class=\"sqx-edge-aiwizard-download\" data-sqx-aiwizard-download=\"true\" download href=\"" + escapeHtml(apiUrl(draft.downloadUrl)) + "\">Descargar .sqx</a>";
       return;
     }
     node.innerHTML = "<strong>Draft pendiente.</strong><p class=\"sqx-edge-aiwizard-muted\">Generar draft se activa solo con sesion valida y parametros correctos.</p>";

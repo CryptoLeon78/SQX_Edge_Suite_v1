@@ -10,6 +10,8 @@ Intento seguro del 2026-06-04: `tools/sqx142_ai_wizard_overlay.ps1 status` detec
 
 Instalacion del 2026-06-04 tras cierre manual de SQX: `tools/sqx142_ai_wizard_overlay.ps1 install -Apply` devolvio `installed`, creo backup `sqx142_ai_wizard_overlay_20260604_163808` y dejo `sqx142-ai-wizard-overlay-v2` referenciado en AlgoWizard. Verificacion read-only: JS/CSS activos coinciden con la fuente repo y `processCount=0`. El roundtrip humano sigue pendiente.
 
+Patch DRAFT1 del 2026-06-04: durante el roundtrip humano, el operador reporto una pantalla `Not Found` tras la accion de draft. Causa probable: el overlay construia el link de descarga como `API_BASE + draft.downloadUrl` aunque `downloadUrl` ya empieza por `/api/...`, generando `/api/api/...`. El overlay ahora usa `apiUrl()` para resolver descargas backend `/api/...` contra el origen Flask local, instala el JS parcheado con backup `sqx142_ai_wizard_overlay_20260604_170156` y conserva estado `installed_pending_manual_roundtrip` hasta repetir la prueba humana.
+
 ## Entrega
 
 - Version: `sqx142-ai-wizard-studio-v2`.
@@ -112,3 +114,12 @@ Manual pendiente con SQX cerrado:
 - assets activos: coinciden con la fuente repo v2
 - SQX process count after install: `0`
 - siguiente accion segura: abrir SQX manualmente y completar el roundtrip humano en AlgoWizard
+
+2026-06-04 DRAFT1:
+
+- reported symptom: AlgoWizard displayed `Not Found` after draft action
+- likely cause: duplicated `/api` prefix in draft download link
+- fix: `apiUrl()` resolves backend `/api/...` download URLs against Flask origin
+- forbidden regression: `API_BASE + draft.downloadUrl`
+- reinstall backup: `sqx142_ai_wizard_overlay_20260604_170156`
+- status after patch: `installed_pending_manual_roundtrip`

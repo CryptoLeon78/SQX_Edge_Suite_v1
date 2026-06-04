@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-06-04 - SQX142-AW-AI2 Draft Download URL Patch
+
+- Fixes the AlgoWizard `Not Found` failure reported during draft download by replacing the faulty `API_BASE + draft.downloadUrl` construction with `apiUrl()`.
+- Keeps fetch calls on the local Flask `/api` base while resolving backend-provided `/api/.../download` URLs against the origin, avoiding `/api/api/...`.
+- Reinstalls the patched overlay with backup `sqx142_ai_wizard_overlay_20260604_170156`; read-only verification confirms active JS/CSS hashes match repo source, `apiUrl` is installed, the double-API pattern is absent and SQX process count is zero.
+- Keeps status `installed_pending_manual_roundtrip`: the human AlgoWizard roundtrip must be repeated after this patch.
+
 ## 2026-06-04 - SQX142-AW-AI2 Overlay Installed
 
 - Installs the SQX142-AW-AI2 overlay v2 after the operator manually closed SQX: `tools/sqx142_ai_wizard_overlay.ps1 install -Apply` returned `installed`.

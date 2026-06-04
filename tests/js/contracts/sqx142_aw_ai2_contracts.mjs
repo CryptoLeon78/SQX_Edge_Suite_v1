@@ -39,6 +39,9 @@ assert.match(overlayJs, /sqx-edge-aiwizard-sessions/);
 assert.match(overlayJs, /sqx-edge-aiwizard-catalog/);
 assert.match(overlayJs, /sqx-edge-aiwizard-params/);
 assert.match(overlayJs, /sqx-edge-aiwizard-fork/);
+assert.match(overlayJs, /function apiUrl\(path\)/);
+assert.match(overlayJs, /raw\.indexOf\("\/api\/"\) === 0/);
+assert.match(overlayJs, /data-sqx-aiwizard-download/);
 assert.match(overlayJs, /data-sqx-aiwizard-session-id/);
 assert.match(overlayJs, /data-sqx-aiwizard-archetype/);
 assert.match(overlayJs, /data-sqx-aiwizard-param/);
@@ -49,6 +52,7 @@ assert.match(overlayJs, /Runtime SQX launch: blocked/);
 assert.doesNotMatch(overlayJs, /localStorage|sessionStorage|indexedDB|document\.cookie/i);
 assert.doesNotMatch(overlayJs, /api\.openai\.com|OPENAI_API_KEY|Authorization|Bearer|token=/i);
 assert.doesNotMatch(overlayJs, /127\.0\.0\.1:11434|localhost:11434|ollama\/api/i);
+assert.doesNotMatch(overlayJs, /API_BASE \+ draft\.downloadUrl/);
 
 assert.match(overlayCss, /\.sqx-edge-aiwizard-session-list/);
 assert.match(overlayCss, /\.sqx-edge-aiwizard-catalog/);
