@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-06-04 - SQX142-AW-AI5 Compiler Candidate Decision Gate
+
+- Adds `docs/SQX142_AW_AI5_COMPILER_CANDIDATE_DECISION_GATE.md` with marker `sqx142-aw-ai5-compiler-candidate-decision-gate-v1`.
+- Closes AI5 as `candidate_selected_keltner_requires_fixture_ai6`: Keltner Channel is selected only as the next AI6 fixture/contract candidate.
+- Records sanitized evidence: Keltner Channel has 12 semantic catalog items and remains `planning_only_not_draftable`; no Keltner fixture, AST contract, ZIP compiler or manual roundtrip exists yet.
+- Keeps `draftablePatterns` limited to `ema_cross`, `candle_atr_sequence` and `rsi_mean_reversion`.
+- Keeps Keltner/Bollinger/ADX/Stochastic plan-only with `blocked_not_draftable_yet` and mixed prompts blocked with `blocked_multi_family_compiler_not_ready`.
+- Sets the next local gate to `SQX142-AW-AI6 Keltner Fixture And Contract`.
+- Preserves boundaries: no SQX runtime launch from scripts, no `data.db`, no `user/projects`, no databank mutation and no profitability or risk-zero claim.
+
 ## 2026-06-04 - SQX142-AW-AI4 RSI Manual Roundtrip Confirmed
 
 - Records operator confirmation that the manual AlgoWizard RSI roundtrip passed: pure RSI prompt, `.sqx` draft, editable open/review and no unwanted draft for Keltner/Bollinger/ADX/Stochastic.

@@ -13,6 +13,7 @@
     "docs/SQX142_AW_AI1_AI_WIZARD.md",
     "docs/SQX142_AW_AI2_AI_STUDIO.md",
     "docs/SQX142_AW_AI3_UNIVERSAL_PROMPT_COMPILER.md",
+    "docs/SQX142_AW_AI5_COMPILER_CANDIDATE_DECISION_GATE.md",
     "docs/UX_NAV_TAB_OPTIMIZATION_PLAN.md",
     "docs/maintenance/SQX142_PROJECT_RESOURCE_REPAIR_RUNBOOK.md",
     "docs/SQX142_OWN_FEATURES_CORRELATION_MANUAL_CONFIRMATION.md",
@@ -1451,6 +1452,146 @@
           "OPENAI_API_KEY",
           "Authorization",
           "Bearer"
+        ]
+      }
+    },
+    {
+      "id": "sqx142_aw_ai5_compiler_candidate_decision_gate",
+      "description": "AI5 is a decision-only gate after the confirmed RSI roundtrip. It selects Keltner Channel only as the next AI6 fixture/contract candidate and must not unlock a new draftable compiler family.",
+      "required": {
+        "README.md": [
+          "SQX142-AW-AI5 Compiler Candidate Decision Gate",
+          "sqx142-aw-ai5-compiler-candidate-decision-gate-v1",
+          "candidate_selected_keltner_requires_fixture_ai6",
+          "SQX142-AW-AI6 Keltner Fixture And Contract",
+          "Keltner tiene 12 items semanticos",
+          "planning_only_not_draftable",
+          "draftablePatterns",
+          "ema_cross",
+          "candle_atr_sequence",
+          "rsi_mean_reversion",
+          "blocked_not_draftable_yet",
+          "blocked_multi_family_compiler_not_ready",
+          "sin SQX runtime launch",
+          "sin `data.db`",
+          "sin `user/projects`",
+          "sin databanks"
+        ],
+        "CHANGELOG.md": [
+          "2026-06-04 - SQX142-AW-AI5 Compiler Candidate Decision Gate",
+          "sqx142-aw-ai5-compiler-candidate-decision-gate-v1",
+          "candidate_selected_keltner_requires_fixture_ai6",
+          "Keltner Channel is selected only as the next AI6 fixture/contract candidate",
+          "planning_only_not_draftable",
+          "draftablePatterns",
+          "ema_cross",
+          "candle_atr_sequence",
+          "rsi_mean_reversion",
+          "SQX142-AW-AI6 Keltner Fixture And Contract",
+          "no SQX runtime launch from scripts",
+          "no `data.db`",
+          "no `user/projects`"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Current local phase closed: SQX142-AW-AI5 - Compiler Candidate Decision Gate",
+          "candidate_selected_keltner_requires_fixture_ai6",
+          "docs/SQX142_AW_AI5_COMPILER_CANDIDATE_DECISION_GATE.md",
+          "sqx142-aw-ai5-compiler-candidate-decision-gate-v1",
+          "SQX142-AW-AI6 Keltner Fixture And Contract",
+          "planning_only_not_draftable",
+          "draftablePatterns",
+          "ema_cross",
+          "candle_atr_sequence",
+          "rsi_mean_reversion",
+          "blocked_not_draftable_yet",
+          "blocked_multi_family_compiler_not_ready",
+          "No SQX runtime launch",
+          "no `data.db`",
+          "no `user/projects`"
+        ],
+        "docs/SQX142_AW_AI2_AI_STUDIO.md": [
+          "AI5 Compiler Candidate Decision Gate",
+          "sqx142-aw-ai5-compiler-candidate-decision-gate-v1",
+          "candidate_selected_keltner_requires_fixture_ai6",
+          "SQX142-AW-AI6 Keltner Fixture And Contract",
+          "planning_only_not_draftable",
+          "draftablePatterns",
+          "ema_cross",
+          "candle_atr_sequence",
+          "rsi_mean_reversion",
+          "AI6.0 Keltner Fixture And Contract",
+          "blocked_not_draftable_yet"
+        ],
+        "docs/SQX142_AW_AI3_UNIVERSAL_PROMPT_COMPILER.md": [
+          "AI5 decision gate",
+          "sqx142-aw-ai5-compiler-candidate-decision-gate-v1",
+          "candidate_selected_keltner_requires_fixture_ai6",
+          "SQX142-AW-AI6 Keltner Fixture And Contract",
+          "planning_only_not_draftable",
+          "draftablePatterns",
+          "ema_cross",
+          "candle_atr_sequence",
+          "rsi_mean_reversion",
+          "blocked_not_draftable_yet",
+          "blocked_multi_family_compiler_not_ready"
+        ],
+        "docs/SQX142_AW_AI5_COMPILER_CANDIDATE_DECISION_GATE.md": [
+          "SQX142-AW-AI5 Compiler Candidate Decision Gate",
+          "sqx142-aw-ai5-compiler-candidate-decision-gate-v1",
+          "candidate_selected_keltner_requires_fixture_ai6",
+          "Keltner Channel",
+          "SQX142-AW-AI6 Keltner Fixture And Contract",
+          "12 condiciones detectadas",
+          "planning_only_not_draftable",
+          "blocked_not_draftable_yet",
+          "blocked_multi_family_compiler_not_ready",
+          "No activar `keltner_*`",
+          "No lanzar SQX runtime desde scripts",
+          "No escribir en `data.db`, `user/projects`, databanks ni settings vivos"
+        ],
+        "backend/sqx-edge-tool/core/sqx142_ai_wizard.py": [
+          "\"draftablePatterns\": [\"ema_cross\", \"candle_atr_sequence\", \"rsi_mean_reversion\"]",
+          "blocked_not_draftable_yet",
+          "blocked_multi_family_compiler_not_ready"
+        ],
+        "backend/sqx-edge-tool/test_sqx142_ai_wizard_studio.py": [
+          "Keltner Channel mean reversion EURUSD H1 SL 100 TP 200",
+          "blocked_not_draftable_yet",
+          "blocked_multi_family_compiler_not_ready"
+        ],
+        "tests/js/contracts/sqx142_aw_ai3_contracts.mjs": [
+          "rsi_mean_reversion",
+          "blocked_multi_family_compiler_not_ready"
+        ]
+      },
+      "forbidden": {
+        "README.md": [
+          "Keltner draftable",
+          "keltner_mean_reversion",
+          "risk zero guarantee",
+          "guarantees profitability"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Keltner draftable",
+          "keltner_mean_reversion",
+          "risk zero guarantee",
+          "guarantees profitability"
+        ],
+        "docs/SQX142_AW_AI5_COMPILER_CANDIDATE_DECISION_GATE.md": [
+          "Keltner draftable",
+          "keltner_mean_reversion",
+          "guarantees profitability",
+          "risk zero",
+          "raw XML",
+          "local path"
+        ],
+        "backend/sqx-edge-tool/core/sqx142_ai_wizard.py": [
+          "keltner_mean_reversion",
+          "draftable_keltner"
+        ],
+        "tests/js/contracts/sqx142_aw_ai3_contracts.mjs": [
+          "keltner_mean_reversion",
+          "draftable_keltner"
         ]
       }
     },

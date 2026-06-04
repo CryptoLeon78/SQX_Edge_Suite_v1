@@ -10,6 +10,8 @@ Estado posterior reportado por operador: `operator_manual_roundtrip_completed_ca
 
 AI4 extension: `sqx142-aw-ai4-rsi-mean-reversion-compiler-v1`.
 
+AI5 decision gate: `sqx142-aw-ai5-compiler-candidate-decision-gate-v1`.
+
 AI3 convierte el AI Wizard en una entrada universal de prompts gobernada: el usuario puede escribir lenguaje natural libre, el backend local interpreta la intencion hacia un AST validado, y solo los compiladores de familia probada pueden emitir `.sqx`. La regla clave es `universal_prompt_intake_not_universal_sqx_generation`: se aceptan prompts amplios, pero no se promete generar cualquier estrategia si no existe compilador verificable.
 
 ## Alcance
@@ -19,6 +21,7 @@ AI3 convierte el AI Wizard en una entrada universal de prompts gobernada: el usu
 - Catalogo ampliado: `sqx142-aw-ai3-expanded-catalog-v1` combina bloques Wizard, condiciones de AlgoWizard y feature IDs observados en ejemplos `.sqx` como indice semantico public-safe.
 - Compilador verificable inicial: `candle_atr_sequence`, para secuencias de velas rojas/verdes con confirmacion tipo martillo, entrada long en confirmacion y filtro ATR creciente.
 - Compilador verificable AI4: `rsi_mean_reversion`, solo para RSI puro o RSI mean-reversion; long `RSI(14) < 30`, short `RSI(14) > 70`, direccion `long_only`/`short_only`/`both`.
+- Decision AI5: Keltner Channel queda seleccionada solo como candidata de `SQX142-AW-AI6 Keltner Fixture And Contract`; no se anade familia draftable.
 - Draft `.sqx`: se emite solo con `compiler.draftable=true`, conserva las entradas del ZIP plantilla y parchea solo `strategy_Portfolio.xml`.
 - Revision: todo draft queda `manualReviewRequired=true`; AlgoWizard debe abrirlo y revisarlo antes de cualquier validacion SQX.
 
@@ -66,6 +69,19 @@ AI3-CAT sube el nivel del Studio sin ampliar la superficie de generacion insegur
 - `examples.featureIds`: claves de `Item` observadas en ejemplos `.sqx`, sin XML crudo ni nombres de plantilla.
 - `catalogRefs.semanticIds`: el AST puede registrar condiciones entendidas aunque no sean `blockIds` compilables.
 - `compilerBoundary`: los semantic items son para interpretacion/planificacion; no vuelven draftable una familia sin compilador probado.
+
+## AI5 Candidate Gate
+
+AI5 cierra la siguiente decision de compilador sin cambiar comportamiento:
+
+- Estado: `candidate_selected_keltner_requires_fixture_ai6`.
+- Marcador: `sqx142-aw-ai5-compiler-candidate-decision-gate-v1`.
+- Candidata seleccionada: Keltner Channel para `SQX142-AW-AI6 Keltner Fixture And Contract`.
+- Evidencia saneada: 12 items semanticos Keltner y soporte actual `planning_only_not_draftable`.
+- Brecha: falta fixture Keltner, contrato AST, compilador ZIP y roundtrip manual.
+- `draftablePatterns` sigue limitado a `ema_cross`, `candle_atr_sequence` y `rsi_mean_reversion`.
+- Keltner/Bollinger/ADX/Stochastic siguen plan-only con `blocked_not_draftable_yet`.
+- Prompts mixtos siguen bloqueados con `blocked_multi_family_compiler_not_ready`.
 
 ## Guardrails
 
@@ -131,3 +147,13 @@ AI3-CAT sube el nivel del Studio sin ampliar la superficie de generacion insegur
 - estado cierre: `operator_manual_rsi_roundtrip_confirmed_ai4_closed`
 - siguiente gate local: `SQX142-AW-AI5 Compiler Candidate Decision Gate`
 - limite: sin SQX runtime launch, sin `data.db`, sin `user/projects`, sin databanks
+
+2026-06-04 AI5 Compiler Candidate Decision Gate:
+
+- marcador: `sqx142-aw-ai5-compiler-candidate-decision-gate-v1`
+- estado cierre: `candidate_selected_keltner_requires_fixture_ai6`
+- decision: Keltner Channel seleccionada solo para `SQX142-AW-AI6 Keltner Fixture And Contract`
+- evidencia: 12 items semanticos saneados; sin fixture, contrato AST, compilador ZIP ni roundtrip manual
+- no cambio runtime: `draftablePatterns` sigue en `ema_cross`, `candle_atr_sequence`, `rsi_mean_reversion`
+- preservado: Keltner/Bollinger/ADX/Stochastic plan-only
+- siguiente gate local: `SQX142-AW-AI6 Keltner Fixture And Contract`
