@@ -33,6 +33,7 @@ If these sources disagree, the newer live governance entry and state manifest wi
 | `docs/PROJECT_GOVERNANCE.md` | Live operating state and gates | Canonical current-state source. |
 | `docs/RESTRUCTURING_GOVERNANCE.md` | A64-A69 restructuring register | Canonical restructuring source. |
 | `docs/DOCS_CANONICAL_INDEX.md` | Docs canonicalization index | Canonical docs-policy source. |
+| `docs/TOOLING_OWNERSHIP_MAP.md` | Tooling/wrapper ownership map | Canonical tooling ownership source. |
 | `docs/state_consistency_manifest.json` | Literal state-marker test contract | Canonical drift guard. |
 | `README.md` | Public/operator state summary | Canonical summary, not exhaustive source. |
 | `CHANGELOG.md` | Phase closeout chronology | Canonical chronology of completed changes. |

@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-06-04 - A67 Tooling Ownership Map
+
+- Adds `docs/TOOLING_OWNERSHIP_MAP.md` as `sqx-edge.tooling-ownership-map-v1`, documenting owners for root entrypoints, top-level `tools/`, backend tooling, runtime/resource wrappers, runbooks and required focal checks before any future move.
+- Keeps root BATs and top-level wrappers as compatibility surfaces; backend tools stay backend-owned and resource/readiness/packaging wrappers stay in their owner folders.
+- Preserves boundaries: No tools moved during A67, No wrappers moved during A67, No scripts executed during A67, No services started during A67, No scheduled tasks installed during A67, no SQX runtime launch, no data.db writes, no user/projects writes and no Portfolio Master unlock. Next restructuring phase is `A68 Low-Risk Physical Moves`.
+
 ## 2026-06-04 - A66 Docs Canonicalization
 
 - Adds `docs/DOCS_CANONICAL_INDEX.md` as `sqx-edge.docs-canonical-index-v1`, defining canonical lookup order, canonical core docs, domain-family policy and historical/reference conflict rules.
