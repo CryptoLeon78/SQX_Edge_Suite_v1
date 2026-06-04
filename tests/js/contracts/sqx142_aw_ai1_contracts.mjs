@@ -29,7 +29,7 @@ assert.match(overlayJs, /safeApiBase/);
 assert.match(overlayJs, /localhost-only/);
 assert.match(overlayJs, /host === "127\.0\.0\.1"/);
 assert.match(overlayJs, /Provider directo desde navegador: blocked/);
-assert.match(overlayJs, /draftButton\.disabled = state\.busy \|\| !hasValidSession\(\)/);
+assert.match(overlayJs, /draftButton\.disabled = state\.busy \|\| !hasDraftableSession\(\)/);
 assert.match(overlayJs, /blocked/);
 assert.doesNotMatch(overlayJs, /OPENAI_API_KEY|api_key|token=/i);
 assert.match(overlayCss, /\.sqx-edge-aiwizard-shell/);

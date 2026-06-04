@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-06-04 - SQX142-AW-AI2 Prompt Truthfulness Patch
+
+- Fixes the real Spanish prompt case where a user requested a candlestick/hammer/ATR bot but AI2 could drift into a different generated idea.
+- Adds faithful parsing for `SP500 -> US500`, `largo -> long_only`, explicit SL/TP numbers, candle sequence / hammer intent and ATR filter intent.
+- Removes the dangerous AI2 fallback that silently returned `EMA` when no supported block was detected; unsupported candle/filter plans now stay as recognized plan-only specs with `blocked_unsupported_candle_pattern`, `blocked_unsupported_filter` and `blocked_not_draftable_yet`.
+- Updates overlay behavior so `Generar .sqx` is disabled unless `compiler.draftable=true`, and the user sees `Plan entendido, .sqx bloqueado` instead of receiving an unrelated draft.
+- Installs the updated overlay with backup `sqx142_ai_wizard_overlay_20260604_190508`, restarts the local backend on `127.0.0.1:5050`, verifies the exact Spanish prompt through HTTP as `US500/H1/long_only/SL100/TP200/draftable=false`, then removes the probe session from the redacted local session store.
+
 ## 2026-06-04 - SQX142-AW-AI2 UX1 Overlay Installed
 
 - Installs the guided bot builder UX1 after the operator manually closed SQX: `tools/sqx142_ai_wizard_overlay.ps1 install -Apply` returned `installed` with backup `sqx142_ai_wizard_overlay_20260604_182545`.

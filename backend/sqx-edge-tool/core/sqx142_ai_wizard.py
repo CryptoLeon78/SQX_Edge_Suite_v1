@@ -71,6 +71,13 @@ SUPPORTED_ARCHETYPES = {
 }
 
 SUPPORTED_ASSETS = {"EURUSD", "USDJPY", "AUDCAD", "GBPUSD", "US500", "XAUUSD"}
+ASSET_ALIASES = {
+    "SP500": "US500",
+    "SP 500": "US500",
+    "S&P500": "US500",
+    "S&P 500": "US500",
+    "US500": "US500",
+}
 SUPPORTED_TIMEFRAMES = {"M15", "M30", "H1", "H4", "D1"}
 
 
@@ -195,6 +202,10 @@ def _safe_file_stem(value: str) -> str:
 
 def _detect_asset(prompt: str) -> str:
     upper = prompt.upper()
+    compact = re.sub(r"[^A-Z0-9]+", "", upper)
+    for alias, asset in sorted(ASSET_ALIASES.items(), key=lambda item: len(item[0]), reverse=True):
+        if alias in upper or re.sub(r"[^A-Z0-9]+", "", alias) in compact:
+            return asset
     for asset in SUPPORTED_ASSETS:
         if asset in upper:
             return asset
@@ -211,10 +222,14 @@ def _detect_timeframe(prompt: str) -> str:
 
 def _detect_direction(prompt: str) -> str:
     lowered = prompt.casefold()
-    if any(token in lowered for token in ("long only", "solo long", "only long", "compras only")):
+    long_tokens = ("long only", "solo long", "only long", "compras only", "en largo", "largo", "comprar", "compra", "buy", "alcista")
+    short_tokens = ("short only", "solo short", "only short", "ventas only", "en corto", "corto", "vender", "venta", "sell", "bajista")
+    has_long = any(token in lowered for token in long_tokens)
+    has_short = any(token in lowered for token in short_tokens)
+    if has_long and not has_short:
         return "long_only"
-    if any(token in lowered for token in ("short only", "solo short", "only short", "ventas only")):
-            return "short_only"
+    if has_short and not has_long:
+        return "short_only"
     return "both"
 
 
@@ -631,6 +646,10 @@ def _redacted_prompt_summary(prompt: str) -> str:
     asset = _detect_asset(text)
     timeframe = _detect_timeframe(text)
     blocks = _detect_ai2_blocks(text)[:5]
+    if _detect_candle_pattern(text):
+        blocks = ["CandlePattern"] + blocks
+    if re.search(r"\batr\b", text, re.IGNORECASE) and "ATR" not in blocks:
+        blocks.append("ATR")
     archetype = _detect_archetype(text) or "custom_aw"
     parts = [" + ".join(blocks), archetype, asset, timeframe]
     return " | ".join(part for part in parts if part)[:180]
@@ -999,10 +1018,52 @@ def _condition_node(comparison: str, left: dict[str, Any], right: dict[str, Any]
     return {"kind": "comparison", "operatorId": comparison, "left": left, "right": right}
 
 
+def _parse_number_token(value: str) -> int | float:
+    number = float(str(value).replace(",", "."))
+    return int(number) if number.is_integer() else number
+
+
+def _detect_named_count(text: str, fallback: int = 0) -> int:
+    lowered = text.casefold()
+    named = {
+        "una": 1,
+        "un": 1,
+        "one": 1,
+        "dos": 2,
+        "two": 2,
+        "tres": 3,
+        "three": 3,
+        "cuatro": 4,
+        "four": 4,
+        "cinco": 5,
+        "five": 5,
+    }
+    if lowered.isdigit():
+        return int(lowered)
+    return named.get(lowered, fallback)
+
+
+def _detect_pip_value(prompt: str, labels: tuple[str, ...]) -> int | float | None:
+    label_pattern = "|".join(re.escape(label) for label in labels)
+    patterns = [
+        rf"\b(?:{label_pattern})\b\s*(?:de|=|:)?\s*(\d+(?:[\.,]\d+)?)\s*(?:pips?)?",
+        rf"\b(\d+(?:[\.,]\d+)?)\s*(?:pips?)?\s*(?:de\s*)?(?:{label_pattern})\b",
+    ]
+    for pattern in patterns:
+        match = re.search(pattern, prompt, re.IGNORECASE)
+        if match:
+            return _parse_number_token(match.group(1))
+    return None
+
+
 def _default_risk(prompt: str) -> dict[str, Any]:
     lowered = prompt.casefold()
-    sl = 50 if any(token in lowered for token in ("sl", "stop", "stop loss")) else 0
-    tp = 70 if any(token in lowered for token in ("tp", "take profit", "profit target")) else 0
+    sl = _detect_pip_value(prompt, ("sl", "stop loss", "stop"))
+    tp = _detect_pip_value(prompt, ("tp", "take profit", "profit target", "objetivo"))
+    if sl is None:
+        sl = 50 if any(token in lowered for token in ("sl", "stop", "stop loss")) else 0
+    if tp is None:
+        tp = 70 if any(token in lowered for token in ("tp", "take profit", "profit target", "objetivo")) else 0
     return {
         "stopLossPips": sl,
         "takeProfitPips": tp,
@@ -1010,6 +1071,51 @@ def _default_risk(prompt: str) -> dict[str, Any]:
         "moneyManagement": {"type": "FixedSize", "size": 0.1},
         "manualReviewRequired": True,
     }
+
+
+def _detect_candle_pattern(prompt: str) -> dict[str, Any] | None:
+    lowered = prompt.casefold()
+    if not any(token in lowered for token in ("vela", "velas", "candle", "candles", "martillo", "hammer")):
+        return None
+    red_count = 0
+    red_match = re.search(r"\b(\d+|una|un|one|dos|two|tres|three|cuatro|four|cinco|five)\s+(?:velas?|candles?)\s+(?:rojas?|red)\b", lowered)
+    if red_match:
+        red_count = _detect_named_count(red_match.group(1), 0)
+    green_count = 0
+    green_match = re.search(r"\b(\d+|una|un|one|dos|two|tres|three|cuatro|four|cinco|five)\s+(?:velas?|candles?)\s+(?:verdes?|green)\b", lowered)
+    if green_match:
+        green_count = _detect_named_count(green_match.group(1), 0)
+    has_hammer = "martillo" in lowered or "hammer" in lowered
+    entry_timing = "manual_review"
+    if "segunda vela verde" in lowered or "second green" in lowered:
+        entry_timing = "market_on_second_green_after_confirmation"
+    elif "siguiente verde" in lowered or "next green" in lowered:
+        entry_timing = "market_after_next_green_confirmation"
+    return {
+        "type": "candlestick_sequence",
+        "label": "Secuencia de velas con confirmacion martillo",
+        "redCandles": red_count,
+        "greenCandlesMentioned": green_count,
+        "requiresHammer": has_hammer,
+        "entryTiming": entry_timing,
+        "compilerSupport": "blocked_unsupported_candle_pattern",
+        "manualReviewRequired": True,
+    }
+
+
+def _detect_ai2_filters(prompt: str, catalog: dict[str, Any]) -> list[dict[str, Any]]:
+    lowered = prompt.casefold()
+    keys = _catalog_key_sets(catalog)
+    filters: list[dict[str, Any]] = []
+    if re.search(r"\batr\b", lowered):
+        filters.append({
+            "type": "volatility_filter",
+            "blockId": "ATR",
+            "availableInCatalog": "ATR" in keys["blocks"],
+            "compilerSupport": "blocked_not_draftable_yet",
+            "manualReviewRequired": True,
+        })
+    return filters
 
 
 def _detect_ai2_blocks(prompt: str) -> list[str]:
@@ -1030,7 +1136,9 @@ def _detect_ai2_blocks(prompt: str) -> list[str]:
             blocks.append(block_id)
     if not blocks and _detect_archetype(prompt) == "breakout":
         blocks.extend(["High", "Low"])
-    return blocks or ["EMA"]
+    if _detect_candle_pattern(prompt) and "Close" not in blocks:
+        blocks.append("Close")
+    return blocks
 
 
 def _ast_from_prompt(prompt: str, catalog: dict[str, Any]) -> dict[str, Any]:
@@ -1038,6 +1146,12 @@ def _ast_from_prompt(prompt: str, catalog: dict[str, Any]) -> dict[str, Any]:
     timeframe = _detect_timeframe(prompt)
     direction = _detect_direction(prompt)
     blocks = _detect_ai2_blocks(prompt)
+    candle_pattern = _detect_candle_pattern(prompt)
+    filters = _detect_ai2_filters(prompt, catalog)
+    for item in filters:
+        block_id = str(item.get("blockId") or "")
+        if item.get("availableInCatalog") and block_id and block_id not in blocks:
+            blocks.append(block_id)
     conditions_long: list[dict[str, Any]] = []
     conditions_short: list[dict[str, Any]] = []
     if "EMA" in blocks and ("cross" in prompt.casefold() or "cruce" in prompt.casefold() or len(blocks) == 1):
@@ -1076,15 +1190,39 @@ def _ast_from_prompt(prompt: str, catalog: dict[str, Any]) -> dict[str, Any]:
         close = _value_node("Close", {"Shift": 1})
         conditions_long.append(_condition_node("IsGreater", close, _value_node("High", {"Shift": 2})))
         conditions_short.append(_condition_node("IsLower", close, _value_node("Low", {"Shift": 2})))
+    draftable = len(set(blocks)) == 1 and blocks[0] == "EMA" and bool(conditions_long)
+    compiler_blockers: list[str] = []
+    if candle_pattern:
+        compiler_blockers.append("blocked_unsupported_candle_pattern")
+    if filters and not draftable:
+        compiler_blockers.append("blocked_unsupported_filter")
+    if not draftable:
+        compiler_blockers.append("blocked_not_draftable_yet")
+    understood = bool(blocks or candle_pattern or filters or conditions_long or conditions_short)
+    name_tokens: list[str] = []
+    if candle_pattern:
+        name_tokens.append("CandlePattern")
+    name_tokens.extend(str(item.get("blockId")) for item in filters if item.get("blockId"))
+    name_tokens.extend(blocks[:4])
+    name_suffix = "_".join(dict.fromkeys(token for token in name_tokens if token)) or "custom_aw"
     return {
         "type": AST_TYPE,
         "version": AI_WIZARD_AI2_VERSION,
-        "status": "draftable_candidate",
+        "status": "draftable_candidate" if draftable else ("plan_only" if understood else "blocked"),
         "asset": asset,
         "timeframe": timeframe,
         "direction": direction,
-        "strategyName": _safe_file_stem(f"SQXEdgeAI2_{asset}_{timeframe}_{'_'.join(blocks[:4])}"),
+        "strategyName": _safe_file_stem(f"SQXEdgeAI2_{asset}_{timeframe}_{name_suffix}"),
         "scope": "algowizard_only",
+        "promptUnderstanding": {
+            "recognized": understood,
+            "unsupportedNaturalLanguageFallback": False,
+            "manualReviewRequired": True,
+        },
+        "recognized": {
+            "pattern": candle_pattern,
+            "filters": filters,
+        },
         "rules": {
             "longEntry": {"logic": "AND", "conditions": conditions_long},
             "shortEntry": {"logic": "AND", "conditions": conditions_short if direction != "long_only" else []},
@@ -1100,8 +1238,9 @@ def _ast_from_prompt(prompt: str, catalog: dict[str, Any]) -> dict[str, Any]:
             "comparisonIds": sorted({cond["operatorId"] for cond in conditions_long + conditions_short}),
         },
         "compiler": {
-            "draftable": len(set(blocks)) == 1 and blocks[0] == "EMA" and bool(conditions_long),
-            "templateClass": "ema_cross" if len(set(blocks)) == 1 and blocks[0] == "EMA" else "",
+            "draftable": draftable,
+            "templateClass": "ema_cross" if draftable else "",
+            "blockers": list(dict.fromkeys(compiler_blockers)),
         },
     }
 
@@ -1114,6 +1253,9 @@ def validate_ai_wizard_ast(ast: dict[str, Any], catalog: dict[str, Any]) -> dict
         blockers.append("ast_type_invalid")
     if ast.get("scope") != "algowizard_only":
         blockers.append("scope_not_algowizard")
+    prompt_understanding = ast.get("promptUnderstanding") if isinstance(ast.get("promptUnderstanding"), dict) else {}
+    if prompt_understanding.get("recognized") is False:
+        blockers.append("prompt_not_understood")
     catalog_refs = ast.get("catalogRefs") if isinstance(ast.get("catalogRefs"), dict) else {}
     for block_id in catalog_refs.get("blockIds", []):
         if block_id not in keys["blocks"]:
@@ -1128,7 +1270,9 @@ def validate_ai_wizard_ast(ast: dict[str, Any], catalog: dict[str, Any]) -> dict
             blockers.append(f"risk_param_out_of_range:{key}")
     compiler = ast.get("compiler", {}) if isinstance(ast.get("compiler"), dict) else {}
     if not compiler.get("draftable"):
+        warnings.extend(str(item) for item in compiler.get("blockers", []) if item)
         warnings.append("blocked_not_draftable_yet")
+    warnings = list(dict.fromkeys(warnings))
     return {
         "ok": not blockers,
         "status": "valid" if not blockers else "blocked",
@@ -1315,11 +1459,12 @@ def create_ai_wizard_session_draft(project_root: Path, session_id: str, *, db_pa
         return _base_response_v2({"validation": validation, "ast": ast}, ok=False, error="ast_invalid", blockers=validation.get("blockers", ["ast_invalid"]))
     compiler = ast.get("compiler", {}) if isinstance(ast.get("compiler"), dict) else {}
     if not compiler.get("draftable"):
+        compiler_blockers = list(dict.fromkeys(str(item) for item in compiler.get("blockers", []) if item)) or ["blocked_not_draftable_yet"]
         return _base_response_v2(
             {"validation": validation, "ast": ast, "nextStep": "Use the structured plan now; draft compiler support for this block mix is not proven yet."},
             ok=False,
             error="blocked_not_draftable_yet",
-            blockers=["blocked_not_draftable_yet"],
+            blockers=compiler_blockers,
             warnings=validation.get("warnings", []),
         )
     prompt = f"EMA cross trend-following {ast.get('asset', 'EURUSD')} {ast.get('timeframe', 'H1')} with SL/TP"

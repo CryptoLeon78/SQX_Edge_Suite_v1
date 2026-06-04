@@ -68,7 +68,7 @@ def _write_fake_sqx_root(tmp_path: Path) -> Path:
     )
     block_items = "".join(
         f'<Item key="{key}" returnType="number" display="{key}"/>'
-        for key in ["EMA", "SMA", "RSI", "BollingerBands", "Stochastic", "MACD", "CCI", "ADX", "High", "Low", "Close", "Number"]
+        for key in ["EMA", "SMA", "RSI", "BollingerBands", "Stochastic", "MACD", "CCI", "ADX", "ATR", "High", "Low", "Close", "Number"]
     )
     comparison_items = "".join(
         f'<Item key="{key}" returnType="boolean" display="{key}"/>'
@@ -135,6 +135,45 @@ def test_ai2_ast_validates_common_algowizard_blocks(tmp_path):
     assert report["data"]["validation"]["ok"] is True
     assert "blocked_not_draftable_yet" in report["warnings"]
     _assert_public_safe(report)
+
+
+def test_ai2_spanish_candle_prompt_is_understood_but_not_invented(tmp_path):
+    sqx_root = _write_fake_sqx_root(tmp_path)
+    db_path = tmp_path / ".local" / "sqx142_ai_wizard" / "ai_wizard.sqlite"
+    prompt = (
+        "tres velas rojas y en la siguiente verde una vela martillo entramos a mercado "
+        "en la segunda vela verde temporalidad h1 en largo en SP500 con filtro atr. "
+        "Stop de 100 pips y tp de 200"
+    )
+
+    with patch.dict(os.environ, {"SQX142_ROOT": str(sqx_root)}):
+        report = build_ai_wizard_ast_from_prompt({"prompt": prompt}, project_root=tmp_path)
+        created = create_ai_wizard_session(tmp_path, {"prompt": prompt}, db_path=db_path)
+        draft = create_ai_wizard_session_draft(tmp_path, created["data"]["session"]["sessionId"], db_path=db_path)
+
+    assert report["ok"] is True
+    ast = report["data"]["ast"]
+    assert ast["asset"] == "US500"
+    assert ast["timeframe"] == "H1"
+    assert ast["direction"] == "long_only"
+    assert ast["actions"]["risk"]["stopLossPips"] == 100
+    assert ast["actions"]["risk"]["takeProfitPips"] == 200
+    assert ast["recognized"]["pattern"]["type"] == "candlestick_sequence"
+    assert ast["recognized"]["pattern"]["redCandles"] == 3
+    assert ast["recognized"]["pattern"]["requiresHammer"] is True
+    assert ast["recognized"]["pattern"]["entryTiming"] == "market_on_second_green_after_confirmation"
+    assert ast["recognized"]["filters"][0]["blockId"] == "ATR"
+    assert ast["compiler"]["draftable"] is False
+    assert "blocked_unsupported_candle_pattern" in ast["compiler"]["blockers"]
+    assert "blocked_not_draftable_yet" in report["warnings"]
+    assert "EMA" not in ast["catalogRefs"]["blockIds"]
+    assert "BollingerBands" not in ast["catalogRefs"]["blockIds"]
+    assert created["ok"] is True
+    assert draft["ok"] is False
+    assert draft["error"] == "blocked_not_draftable_yet"
+    assert "blocked_unsupported_candle_pattern" in draft["blockers"]
+    _assert_public_safe(report)
+    _assert_public_safe(draft)
 
 
 def test_ai2_sessions_persist_redacted_state_and_block_private_prompt(tmp_path):

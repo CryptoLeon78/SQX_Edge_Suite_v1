@@ -16,6 +16,8 @@ UX1 guided bot builder del 2026-06-04: el operador reporto que crear un bot era 
 
 Instalacion UX1 del 2026-06-04 tras cierre manual de SQX: `tools/sqx142_ai_wizard_overlay.ps1 install -Apply` devolvio `installed`, creo backup `sqx142_ai_wizard_overlay_20260604_182545` y `status` queda sin warnings con `processCount=0`. Verificacion read-only: HTML incluye overlay v2, JS/CSS activos coinciden con la fuente repo, `Crear bot SQX`/`Modo guiado` estan instalados, `apiUrl()` sigue presente, `data-sqx-aiwizard-download` sigue presente y `API_BASE + draft.downloadUrl` sigue ausente. Estado UX1: `ux1_installed_pending_manual_roundtrip`; el roundtrip humano sigue pendiente.
 
+Prompt Truthfulness Patch del 2026-06-04: el operador mostro que un prompt natural en espanol para `tres velas rojas`, `vela martillo`, entrada en segunda vela verde, `SP500`, `H1`, largo, filtro `ATR`, `Stop=100` y `TP=200` podia derivar hacia un bot no pedido. AI2 ahora elimina el fallback inseguro a `EMA`, reconoce `SP500 -> US500`, `largo -> long_only`, SL/TP numericos, secuencia de velas/martillo y filtro ATR. Si la logica reconocida no tiene compilador probado, queda como plan editable con `compiler.draftable=false`, `blocked_unsupported_candle_pattern`, `blocked_unsupported_filter` y `blocked_not_draftable_yet`; el overlay desactiva `Generar .sqx` y muestra `Plan entendido, .sqx bloqueado`. Instalacion: overlay con backup `sqx142_ai_wizard_overlay_20260604_190508` y backend local reiniciado en `127.0.0.1:5050`.
+
 ## Entrega
 
 - Version: `sqx142-ai-wizard-studio-v2`.
@@ -72,6 +74,9 @@ Bloqueos principales:
 - `unknown_block`
 - `unknown_operator`
 - `param_out_of_range`
+- `prompt_not_understood`
+- `blocked_unsupported_candle_pattern`
+- `blocked_unsupported_filter`
 - `blocked_not_draftable_yet`
 
 ## Limites Duros
@@ -148,3 +153,17 @@ Manual pendiente con SQX cerrado:
 - active safety markers: `apiUrl()`, `data-sqx-aiwizard-download`, no `API_BASE + draft.downloadUrl`
 - SQX process count after install: `0`
 - siguiente accion segura: abrir SQX manualmente y repetir el roundtrip humano en AlgoWizard con UX1
+
+2026-06-04 Prompt Truthfulness:
+
+- reported symptom: a Spanish candle/hammer/ATR prompt could drift into an unrelated generated bot
+- fix: remove unsafe fallback to `EMA` when no supported block is detected
+- recognized case: `SP500 -> US500`, `H1`, `long_only`, `Stop=100`, `TP=200`, candle sequence, hammer confirmation and ATR filter intent
+- safe result: plan-only AST with `compiler.draftable=false`
+- draft blockers: `blocked_unsupported_candle_pattern`, `blocked_unsupported_filter`, `blocked_not_draftable_yet`
+- overlay behavior: `Generar .sqx` disabled unless `compiler.draftable=true`; visible message `Plan entendido, .sqx bloqueado`
+- install backup: `sqx142_ai_wizard_overlay_20260604_190508`
+- backend status: local backend restarted on `127.0.0.1:5050`
+- HTTP probe: exact Spanish prompt returns `US500`, `H1`, `long_only`, `Stop=100`, `TP=200`, `draftable=false`, no `EMA`, no `BollingerBands`
+- probe cleanup: redacted local probe session removed
+- status: `prompt_truthfulness_installed_pending_manual_roundtrip`

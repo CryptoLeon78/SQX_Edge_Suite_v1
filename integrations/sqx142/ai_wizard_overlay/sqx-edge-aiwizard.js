@@ -80,6 +80,9 @@
       unknown_block: "Hay un bloque que no esta en el catalogo local.",
       unknown_operator: "Hay un operador que no esta soportado.",
       param_out_of_range: "Un parametro esta fuera del rango permitido.",
+      prompt_not_understood: "No he podido convertir esa idea en un plan AlgoWizard fiable.",
+      blocked_unsupported_candle_pattern: "He entendido el patron de velas, pero aun no hay compilador .sqx seguro para esa logica.",
+      blocked_unsupported_filter: "He entendido el filtro, pero aun no esta conectado a un generador .sqx seguro.",
       blocked_not_draftable_yet: "Este tipo de bot aun no tiene generador .sqx seguro.",
       param_invalid: "Ajusta SL/TP con numeros entre 0 y 100000."
     };
@@ -99,9 +102,32 @@
     return state.currentSession && state.currentSession.validation ? state.currentSession.validation : null;
   }
 
+  function currentCompiler() {
+    var ast = currentAst();
+    return ast && ast.compiler ? ast.compiler : {};
+  }
+
   function hasValidSession() {
     var validation = currentValidation();
     return !!(state.currentSession && validation && validation.ok && !state.paramInvalid);
+  }
+
+  function hasDraftableSession() {
+    return hasValidSession() && !!currentCompiler().draftable;
+  }
+
+  function issueCodes() {
+    var validation = currentValidation() || {};
+    var compiler = currentCompiler() || {};
+    var codes = [];
+    (validation.blockers || []).forEach(function(code) { codes.push(code); });
+    (validation.warnings || []).forEach(function(code) { codes.push(code); });
+    (compiler.blockers || []).forEach(function(code) { codes.push(code); });
+    if (state.draft && state.draft.blockers) {
+      state.draft.blockers.forEach(function(code) { codes.push(code); });
+    }
+    if (state.paramInvalid) codes.push("param_invalid");
+    return codes.filter(function(code, index) { return code && codes.indexOf(code) === index; });
   }
 
   function renderStatus() {
@@ -153,6 +179,27 @@
       node.innerHTML = "<strong>Necesita ajuste antes de generar.</strong><p class=\"sqx-edge-aiwizard-muted\">" + escapeHtml(blockerText || "Revisa parametros y vuelve a validar.") + "</p>";
       return;
     }
+    var compiler = currentCompiler();
+    var issues = issueCodes();
+    var recognized = ast.recognized || {};
+    var pattern = recognized.pattern || {};
+    var filters = recognized.filters || [];
+    var patternLabel = pattern.label || "";
+    var filterLabel = filters.map(function(item) { return item.blockId || item.type || "filtro"; }).join(", ");
+    if (validation && validation.ok && !compiler.draftable) {
+      node.innerHTML =
+        "<strong>Plan entendido, .sqx bloqueado.</strong><p class=\"sqx-edge-aiwizard-muted\">" + escapeHtml(issues.map(blockerLabel).join(" ") || "Falta soporte de compilador para esta logica.") + "</p>" +
+        "<div class=\"sqx-edge-aiwizard-grid\">" +
+        "<div class=\"sqx-edge-aiwizard-chip\"><span>Simbolo</span>" + escapeHtml(ast.asset) + "</div>" +
+        "<div class=\"sqx-edge-aiwizard-chip\"><span>Temporalidad</span>" + escapeHtml(ast.timeframe) + "</div>" +
+        "<div class=\"sqx-edge-aiwizard-chip\"><span>Direccion</span>" + escapeHtml(ast.direction) + "</div>" +
+        "<div class=\"sqx-edge-aiwizard-chip\"><span>Entrada reconocida</span>" + escapeHtml(patternLabel || "pendiente de concretar") + "</div>" +
+        "<div class=\"sqx-edge-aiwizard-chip\"><span>Filtro</span>" + escapeHtml(filterLabel || "sin filtro") + "</div>" +
+        "<div class=\"sqx-edge-aiwizard-chip\"><span>Bloques</span>" + escapeHtml(((ast.catalogRefs || {}).blockIds || []).join(", ") || "sin bloque compilable") + "</div>" +
+        "</div>" +
+        "<p class=\"sqx-edge-aiwizard-muted\">Puedes conservar el plan y ajustar parametros, pero no se descargara un .sqx hasta que exista compilador seguro para esa logica.</p>";
+      return;
+    }
     node.innerHTML =
       "<strong>Plan del bot listo</strong><p class=\"sqx-edge-aiwizard-muted\">" + escapeHtml(ast.strategyName || "AI Wizard strategy") + "</p>" +
       "<div class=\"sqx-edge-aiwizard-grid\">" +
@@ -172,6 +219,11 @@
       node.innerHTML =
         "<strong>Archivo .sqx listo.</strong><p class=\"sqx-edge-aiwizard-muted\">" + escapeHtml(draft.fileName) + " · abrelo en AlgoWizard y revisalo manualmente.</p>" +
         "<a class=\"sqx-edge-aiwizard-download\" data-sqx-aiwizard-download=\"true\" download href=\"" + escapeHtml(apiUrl(draft.downloadUrl)) + "\">Descargar .sqx</a>";
+      return;
+    }
+    var compiler = currentCompiler();
+    if (hasValidSession() && !compiler.draftable) {
+      node.innerHTML = "<strong>.sqx bloqueado.</strong><p class=\"sqx-edge-aiwizard-muted\">" + escapeHtml(issueCodes().map(blockerLabel).join(" ") || "Este plan queda como especificacion editable hasta que haya compilador seguro.") + "</p>";
       return;
     }
     node.innerHTML = "<strong>.sqx pendiente.</strong><p class=\"sqx-edge-aiwizard-muted\">El boton se activa cuando el plan esta validado y el generador soporta ese tipo de bot.</p>";
@@ -228,7 +280,7 @@
     if (!node) return;
     var draftReady = !!(state.draft && state.draft.ok && state.draft.data && state.draft.data.draft);
     var planReady = hasValidSession();
-    var draftState = draftReady ? "done" : (planReady ? "active" : "");
+    var draftState = draftReady ? "done" : (hasDraftableSession() ? "active" : "");
     node.innerHTML =
       "<section class=\"sqx-edge-aiwizard-useful\">" +
       "<strong>Modo guiado</strong>" +
@@ -253,11 +305,7 @@
   function renderBlockers() {
     var node = byId("sqx-edge-aiwizard-blockers");
     if (!node) return;
-    var blockers = [];
-    var validation = currentValidation();
-    if (validation && validation.blockers) blockers = blockers.concat(validation.blockers);
-    if (state.draft && state.draft.blockers) blockers = blockers.concat(state.draft.blockers);
-    if (state.paramInvalid) blockers.push("param_invalid");
+    var blockers = issueCodes();
     node.innerHTML = blockers.length
       ? blockers.map(function(code) { return "<span class=\"sqx-edge-aiwizard-blocker is-blocked\" data-sqx-aiwizard-blocker-code=\"" + escapeHtml(code) + "\"><b>" + escapeHtml(blockerLabel(code)) + "</b><small>" + escapeHtml(code) + "</small></span>"; }).join(" ")
       : "Sin bloqueos activos. Ninguna accion ejecuta SQX ni escribe data.db.";
@@ -268,7 +316,7 @@
     var draftButton = byId("sqx-edge-aiwizard-generate");
     var forkButton = byId("sqx-edge-aiwizard-fork");
     if (planButton) planButton.disabled = state.busy;
-    if (draftButton) draftButton.disabled = state.busy || !hasValidSession();
+    if (draftButton) draftButton.disabled = state.busy || !hasDraftableSession();
     if (forkButton) forkButton.disabled = state.busy || !state.currentSession;
   }
 

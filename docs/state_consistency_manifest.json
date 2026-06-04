@@ -1028,7 +1028,7 @@
         "integrations/sqx142/ai_wizard_overlay/sqx-edge-aiwizard.js": [
           "safeApiBase",
           "Provider directo desde navegador: blocked",
-          "draftButton.disabled = state.busy || !hasValidSession()"
+          "draftButton.disabled = state.busy || !hasDraftableSession()"
         ],
         "tests/js/contracts/sqx142_aw_ai1_contracts.mjs": [
           "sqx142 aw ai1 contracts ok",
@@ -1058,7 +1058,7 @@
     },
     {
       "id": "sqx142_aw_ai2_ai_studio_gate",
-      "description": "AlgoWizard AI Studio must use a sanitized SQX142 capability catalog, validated AST, redacted SQLite sessions and local-only overlay/API. The overlay v2 and UX1 guided bot builder are installed with SQX closed, while the human AlgoWizard roundtrip remains pending.",
+      "description": "AlgoWizard AI Studio must use a sanitized SQX142 capability catalog, validated AST, redacted SQLite sessions and local-only overlay/API. The overlay v2, UX1 guided bot builder and prompt-truthfulness patch are installed with SQX closed, while the human AlgoWizard roundtrip remains pending.",
       "required": {
         "README.md": [
           "SQX142-AW-AI2 AlgoWizard AI Studio",
@@ -1070,9 +1070,18 @@
           "SQX142-AW-AI2 DRAFT1 download URL patch",
           "SQX142-AW-AI2 UX1 guided bot builder",
           "sqx142_ai_wizard_overlay_20260604_182545",
-          "ux1_installed_pending_manual_roundtrip"
+          "ux1_installed_pending_manual_roundtrip",
+          "SQX142-AW-AI2 Prompt Truthfulness Patch",
+          "sqx142_ai_wizard_overlay_20260604_190508",
+          "prompt_truthfulness_installed_pending_manual_roundtrip"
         ],
         "CHANGELOG.md": [
+          "2026-06-04 - SQX142-AW-AI2 Prompt Truthfulness Patch",
+          "SP500 -> US500",
+          "blocked_unsupported_candle_pattern",
+          "Plan entendido, .sqx bloqueado",
+          "sqx142_ai_wizard_overlay_20260604_190508",
+          "restarts the local backend on `127.0.0.1:5050`",
           "2026-06-04 - SQX142-AW-AI2 UX1 Overlay Installed",
           "sqx142_ai_wizard_overlay_20260604_182545",
           "ux1_installed_pending_manual_roundtrip",
@@ -1099,6 +1108,11 @@
           "source is built and tested"
         ],
         "docs/PROJECT_GOVERNANCE.md": [
+          "Current local phase installed: SQX142-AW-AI2 - Prompt Truthfulness Patch",
+          "SP500 -> US500",
+          "blocked_unsupported_candle_pattern",
+          "sqx142_ai_wizard_overlay_20260604_190508",
+          "prompt_truthfulness_installed_pending_manual_roundtrip",
           "Current local phase installed: SQX142-AW-AI2 UX1",
           "Guided Bot Builder",
           "sqx142_ai_wizard_overlay_20260604_182545",
@@ -1127,10 +1141,21 @@
           "blockerLabel()",
           "ux1_repo_ready_install_blocked_sqx_process_running",
           "sqx142_ai_wizard_overlay_20260604_182545",
-          "ux1_installed_pending_manual_roundtrip"
+          "ux1_installed_pending_manual_roundtrip",
+          "Prompt Truthfulness Patch",
+          "blocked_unsupported_candle_pattern",
+          "Plan entendido, .sqx bloqueado",
+          "sqx142_ai_wizard_overlay_20260604_190508",
+          "backend status: local backend restarted on `127.0.0.1:5050`",
+          "prompt_truthfulness_installed_pending_manual_roundtrip"
         ],
         "backend/sqx-edge-tool/core/sqx142_ai_wizard.py": [
           "AI_WIZARD_AI2_VERSION = \"sqx142-ai-wizard-studio-v2\"",
+          "ASSET_ALIASES",
+          "SP500",
+          "def _detect_candle_pattern",
+          "blocked_unsupported_candle_pattern",
+          "prompt_not_understood",
           "CATALOG_TYPE = \"sqx-edge.ai-wizard-capability-catalog-v1\"",
           "AST_TYPE = \"sqx-edge.ai-wizard-strategy-ast-v1\"",
           "SESSION_DB_RELATIVE = Path(\".local\") / \"sqx142_ai_wizard\" / \"ai_wizard.sqlite\"",
@@ -1153,8 +1178,12 @@
           "sqx142-ai-wizard-overlay-v2",
           "function apiUrl(path)",
           "function blockerLabel(code)",
+          "function hasDraftableSession()",
+          "function issueCodes()",
           "data-sqx-aiwizard-download",
           "Crear bot SQX",
+          "Plan entendido, .sqx bloqueado",
+          "blocked_unsupported_candle_pattern",
           "Idea del bot",
           "Crear plan",
           "Generar .sqx",
@@ -1173,13 +1202,16 @@
         "backend/sqx-edge-tool/test_sqx142_ai_wizard_studio.py": [
           "test_ai2_catalog_is_sanitized_and_counts_fake_sources",
           "test_ai2_sessions_persist_redacted_state_and_block_private_prompt",
-          "test_ai2_draft_generation_uses_session_and_downloads_by_draft_id"
+          "test_ai2_draft_generation_uses_session_and_downloads_by_draft_id",
+          "test_ai2_spanish_candle_prompt_is_understood_but_not_invented"
         ],
         "tests/js/contracts/sqx142_aw_ai2_contracts.mjs": [
           "sqx142 aw ai2 contracts ok",
           "assert.doesNotMatch(overlayJs, /API_BASE \\+ draft\\.downloadUrl/);",
           "data-sqx-aiwizard-download",
           "function blockerLabel\\(code\\)",
+          "function hasDraftableSession\\(\\)",
+          "blocked_unsupported_candle_pattern",
           "Crear bot SQX",
           "raw_catalog_request_blocked",
           "data-sqx-aiwizard-session-id"
