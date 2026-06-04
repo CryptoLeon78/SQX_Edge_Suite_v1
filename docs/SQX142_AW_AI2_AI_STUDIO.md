@@ -1,10 +1,12 @@
 # SQX142-AW-AI2 AlgoWizard AI Studio Con Catalogo Completo
 
-Estado: `built_pending_install_and_manual_roundtrip`.
+Estado: `blocked_sqx_process_running`.
 
 Esta fase convierte el AI Wizard de AlgoWizard 142 en un AI Studio reutilizable. El alcance v1 de AI2 es Todo AlgoWizard, no Full Editor completo: puede planificar estrategias expresables con bloques, indicadores, senales, operadores y parametros disponibles en AlgoWizard; cualquier peticion de Full Editor, Java custom o engine/plugin queda bloqueada.
 
-SQX estaba abierto durante la implementacion, por descarga de data del operador. Por tanto esta entrega es repo-side y read-only sobre SQX: no se ejecuto install, rollback ni manual roundtrip. Esos gates quedan pendientes hasta cerrar SQX.
+SQX estaba abierto durante la implementacion, por descarga de data del operador. Por tanto la entrega inicial fue repo-side y read-only sobre SQX: no se ejecuto install, rollback ni manual roundtrip.
+
+Intento seguro del 2026-06-04: `tools/sqx142_ai_wizard_overlay.ps1 status` detecto overlay/assets existentes, pero `install` dry-run quedo bloqueado por `sqx_process_running`. Una inspeccion read-only confirmo que el marcador previo existe, pero `sqx142-ai-wizard-overlay-v2` no esta instalado y los assets activos no coinciden con la fuente repo. No se ejecuto `install -Apply`, no se forzo cierre de SQX y no se hizo manual roundtrip.
 
 ## Entrega
 
@@ -88,3 +90,14 @@ Manual pendiente con SQX cerrado:
 3. Generar draft solo si el AST es compilable.
 4. Abrir el draft en AlgoWizard y confirmar que es editable.
 5. Confirmar que no hubo SQX runtime launch, no `data.db` write, no `user/projects` write y no databank mutation.
+
+## Log Public-Safe
+
+2026-06-04:
+
+- status/dry-run: `blocked_sqx_process_running`
+- overlay previo: detectado
+- overlay v2 instalado: no confirmado
+- assets activos: no coinciden con la fuente repo v2
+- mutaciones ejecutadas: ninguna
+- siguiente accion segura: cerrar SQX manualmente, reintentar `install -Apply` y hacer roundtrip humano en AlgoWizard

@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-06-04 - SQX142-AW-AI2 Install Roundtrip Blocked
+
+- Attempts the SQX142-AW-AI2 overlay install/manual roundtrip safely with `tools/sqx142_ai_wizard_overlay.ps1 status` and dry-run `install`.
+- Records `blocked_sqx_process_running`: SQX is open, so v2 install and manual AlgoWizard roundtrip are still blocked.
+- Confirms public-safe read-only state: an older overlay marker/assets are present, but `sqx142-ai-wizard-overlay-v2` is not installed and active assets do not match repo source.
+- Preserves boundaries: no `install -Apply`, no forced process stop, no SQX runtime launch from scripts, no `data.db` writes, no `user/projects` writes, no databank mutation, no license/activation change and no bypass.
+
 ## 2026-06-04 - REMOTE-8K Post Execution Monitoring Blocked
 
 - Runs the REMOTE-8K local-only post execution monitoring validator from ignored evidence and records `NO_GO_REMOTE8K_NEXT_CONTROLLED_MOVEMENT_MONITORING_BLOCKED`.

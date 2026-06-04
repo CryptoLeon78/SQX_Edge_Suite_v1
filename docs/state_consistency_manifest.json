@@ -801,7 +801,7 @@
         "docs/MODULARIZATION_NEXT_STEPS.md": [
           "Current architecture phase: Phase A69: Major Refactor Decision Gate completed as `completed_major_refactor_decision_no_go`.",
           "Current A69 decision: no-go for a major backend/frontend/tests separation",
-          "Next: complete and rerun REMOTE-8K Post Execution Monitoring, then SQX142-AW-AI2 install/manual roundtrip.",
+          "Next: complete and rerun REMOTE-8K Post Execution Monitoring; close SQX manually and retry SQX142-AW-AI2 install/manual roundtrip.",
           "Phase A69: decide major backend/frontend/tests separation only after `REMOTE-8K` and `SQX142-AW-AI2` roundtrip gates. Done as no-go/deferred."
         ],
         "CHANGELOG.md": [
@@ -1058,33 +1058,39 @@
     },
     {
       "id": "sqx142_aw_ai2_ai_studio_gate",
-      "description": "AlgoWizard AI Studio must use a sanitized SQX142 capability catalog, validated AST, redacted SQLite sessions and local-only overlay/API, with install/manual roundtrip deferred while SQX is open.",
+      "description": "AlgoWizard AI Studio must use a sanitized SQX142 capability catalog, validated AST, redacted SQLite sessions and local-only overlay/API. The 2026-06-04 install/manual roundtrip attempt is blocked because SQX is running.",
       "required": {
         "README.md": [
           "SQX142-AW-AI2 AlgoWizard AI Studio",
           "sqx142-ai-wizard-studio-v2",
           "sqx-edge.ai-wizard-capability-catalog-v1",
           "sqx-edge.ai-wizard-strategy-ast-v1",
-          "pending install/manual roundtrip while SQX open"
+          "blocked_sqx_process_running",
+          "v2 sigue pendiente de install/manual roundtrip con SQX cerrado"
         ],
         "CHANGELOG.md": [
+          "2026-06-04 - SQX142-AW-AI2 Install Roundtrip Blocked",
+          "blocked_sqx_process_running",
+          "sqx142-ai-wizard-overlay-v2",
+          "no `install -Apply`",
           "2026-06-02 - SQX142-AW-AI2 AlgoWizard AI Studio",
           "sqx142-ai-wizard-studio-v2",
           "blocked_not_draftable_yet",
           "source is built and tested"
         ],
         "docs/PROJECT_GOVERNANCE.md": [
-          "Current phase built: SQX142-AW-AI2",
+          "Current phase blocked: SQX142-AW-AI2",
           "Session Studio SQLite",
-          "built_pending_install_and_manual_roundtrip",
-          "SQX open was observed"
+          "blocked_sqx_process_running",
+          "v2 install/manual roundtrip still requires SQX closed"
         ],
         "docs/SQX142_AW_AI2_AI_STUDIO.md": [
-          "built_pending_install_and_manual_roundtrip",
+          "blocked_sqx_process_running",
           "sqx-edge.ai-wizard-capability-catalog-v1",
           "sqx-edge.ai-wizard-strategy-ast-v1",
           "blocked_not_draftable_yet",
-          "No SQX runtime launch"
+          "No SQX runtime launch",
+          "overlay v2 instalado: no confirmado"
         ],
         "backend/sqx-edge-tool/core/sqx142_ai_wizard.py": [
           "AI_WIZARD_AI2_VERSION = \"sqx142-ai-wizard-studio-v2\"",
@@ -1129,7 +1135,9 @@
           "Full Editor completo v1",
           "raw XML in UI",
           "copy 144 internals",
-          "risk zero"
+          "risk zero",
+          "manual roundtrip completed",
+          "install -Apply completed"
         ],
         "integrations/sqx142/ai_wizard_overlay/sqx-edge-aiwizard.js": [
           "OPENAI_API_KEY",
