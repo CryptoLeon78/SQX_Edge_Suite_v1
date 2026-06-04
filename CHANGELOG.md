@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-06-04 - SQX142-AW-AI2 UX1 Overlay Installed
+
+- Installs the guided bot builder UX1 after the operator manually closed SQX: `tools/sqx142_ai_wizard_overlay.ps1 install -Apply` returned `installed` with backup `sqx142_ai_wizard_overlay_20260604_182545`.
+- Read-only verification confirms `processCount=0`, AlgoWizard HTML includes overlay v2, active JS/CSS hashes match repo source, `Crear bot SQX` / `Modo guiado` are installed, `apiUrl()` remains installed and the forbidden `API_BASE + draft.downloadUrl` pattern remains absent.
+- Leaves the state as `ux1_installed_pending_manual_roundtrip` / `installed_pending_manual_roundtrip`: the human AlgoWizard open/create/edit/reopen/fork/draft/editability roundtrip still must be repeated.
+- Preserves boundaries: no SQX runtime launch from scripts, no `data.db`, no `user/projects`, no databank mutation, no license/activation change and no bypass.
+
 ## 2026-06-04 - SQX142-AW-AI2 Guided Bot Builder UX1
 
 - Reworks the AlgoWizard overlay entry flow after operator feedback that bot creation was unintuitive and unfriendly: launcher/copy now centers `Crear bot SQX`, `Idea del bot`, `Crear plan`, `Generar .sqx`, `Duplicar` and `Modo guiado`.

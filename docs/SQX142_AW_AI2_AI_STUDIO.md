@@ -14,6 +14,8 @@ Patch DRAFT1 del 2026-06-04: durante el roundtrip humano, el operador reporto un
 
 UX1 guided bot builder del 2026-06-04: el operador reporto que crear un bot era poco intuitivo y poco amigable. El overlay fuente pasa de una entrada tecnica de sesiones/AST/catalogo a una entrada guiada: `Crear bot SQX`, `Idea del bot`, `Crear plan`, `Generar .sqx`, `Duplicar`, `Modo guiado`, ajustes basicos, bloqueos legibles con `blockerLabel()` y diagnostico local plegado. Instalacion pendiente: `tools/sqx142_ai_wizard_overlay.ps1 status` reporta `sqx_process_running` con `processCount=6`, por tanto no se ejecuto `install -Apply`. Estado UX1: `ux1_repo_ready_install_blocked_sqx_process_running`; AI2 sigue `installed_pending_manual_roundtrip`.
 
+Instalacion UX1 del 2026-06-04 tras cierre manual de SQX: `tools/sqx142_ai_wizard_overlay.ps1 install -Apply` devolvio `installed`, creo backup `sqx142_ai_wizard_overlay_20260604_182545` y `status` queda sin warnings con `processCount=0`. Verificacion read-only: HTML incluye overlay v2, JS/CSS activos coinciden con la fuente repo, `Crear bot SQX`/`Modo guiado` estan instalados, `apiUrl()` sigue presente, `data-sqx-aiwizard-download` sigue presente y `API_BASE + draft.downloadUrl` sigue ausente. Estado UX1: `ux1_installed_pending_manual_roundtrip`; el roundtrip humano sigue pendiente.
+
 ## Entrega
 
 - Version: `sqx142-ai-wizard-studio-v2`.
@@ -135,3 +137,14 @@ Manual pendiente con SQX cerrado:
 - install status: `ux1_repo_ready_install_blocked_sqx_process_running`
 - install blocker: `sqx_process_running`, `processCount=6`
 - mutation status: no `install -Apply`, no SQX runtime launch from scripts, no `data.db`, no `user/projects`
+
+2026-06-04 UX1 installed:
+
+- install status: `installed`
+- backup: `sqx142_ai_wizard_overlay_20260604_182545`
+- active status: `ux1_installed_pending_manual_roundtrip`
+- active hashes: JS/CSS match repo source
+- active UX markers: `Crear bot SQX`, `Modo guiado`
+- active safety markers: `apiUrl()`, `data-sqx-aiwizard-download`, no `API_BASE + draft.downloadUrl`
+- SQX process count after install: `0`
+- siguiente accion segura: abrir SQX manualmente y repetir el roundtrip humano en AlgoWizard con UX1

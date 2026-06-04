@@ -1058,7 +1058,7 @@
     },
     {
       "id": "sqx142_aw_ai2_ai_studio_gate",
-      "description": "AlgoWizard AI Studio must use a sanitized SQX142 capability catalog, validated AST, redacted SQLite sessions and local-only overlay/API. The overlay v2 is installed with SQX closed, the UX1 guided bot builder is repo-ready but install-blocked by a running SQX process, and the human AlgoWizard roundtrip remains pending.",
+      "description": "AlgoWizard AI Studio must use a sanitized SQX142 capability catalog, validated AST, redacted SQLite sessions and local-only overlay/API. The overlay v2 and UX1 guided bot builder are installed with SQX closed, while the human AlgoWizard roundtrip remains pending.",
       "required": {
         "README.md": [
           "SQX142-AW-AI2 AlgoWizard AI Studio",
@@ -1069,9 +1069,13 @@
           "overlay v2 instalado con SQX cerrado y roundtrip humano pendiente",
           "SQX142-AW-AI2 DRAFT1 download URL patch",
           "SQX142-AW-AI2 UX1 guided bot builder",
-          "ux1_repo_ready_install_blocked_sqx_process_running"
+          "sqx142_ai_wizard_overlay_20260604_182545",
+          "ux1_installed_pending_manual_roundtrip"
         ],
         "CHANGELOG.md": [
+          "2026-06-04 - SQX142-AW-AI2 UX1 Overlay Installed",
+          "sqx142_ai_wizard_overlay_20260604_182545",
+          "ux1_installed_pending_manual_roundtrip",
           "2026-06-04 - SQX142-AW-AI2 Guided Bot Builder UX1",
           "Crear bot SQX",
           "Idea del bot",
@@ -1095,9 +1099,10 @@
           "source is built and tested"
         ],
         "docs/PROJECT_GOVERNANCE.md": [
-          "Current local phase repo-ready: SQX142-AW-AI2 UX1",
+          "Current local phase installed: SQX142-AW-AI2 UX1",
           "Guided Bot Builder",
-          "ux1_repo_ready_install_blocked_sqx_process_running",
+          "sqx142_ai_wizard_overlay_20260604_182545",
+          "ux1_installed_pending_manual_roundtrip",
           "Current local phase patched: SQX142-AW-AI2",
           "Draft Download URL Patch",
           "sqx142_ai_wizard_overlay_20260604_170156",
@@ -1120,7 +1125,9 @@
           "UX1 guided bot builder",
           "Crear bot SQX",
           "blockerLabel()",
-          "ux1_repo_ready_install_blocked_sqx_process_running"
+          "ux1_repo_ready_install_blocked_sqx_process_running",
+          "sqx142_ai_wizard_overlay_20260604_182545",
+          "ux1_installed_pending_manual_roundtrip"
         ],
         "backend/sqx-edge-tool/core/sqx142_ai_wizard.py": [
           "AI_WIZARD_AI2_VERSION = \"sqx142-ai-wizard-studio-v2\"",
