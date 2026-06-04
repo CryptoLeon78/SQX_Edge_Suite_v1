@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-06-04 - SQX144-FULL-UPDATE1 Controlled Build 144.2953 Update Gate
+
+- Adds `docs/SQX144_FULL_UPDATE1_GATE.md` with marker `sqx144-full-update1-gate-v1`.
+- Adds `tools/sqx144_full_update_gate.ps1` as a read-only `status`/`preflight` classifier for the updated 144.2953 host candidate.
+- Confirms Build 144.2953 from the updated host log, but records decision `blocked_license_activation_pending_and_migration_alignment`.
+- Keeps the updated host as no-promote: controlled launch reaches license screen before workspace, snippets compile is not observed, migrated shape is incomplete and `SQX Edge Readiness Panel` is absent.
+- Leaves ignored local config pointing to the migrated/licensed SQX 144 Full host; SQX 142 remains fallback.
+- Preserves boundaries: no license/activation/bypass copy, no engine/binarios/internals copied, no Codex-automated Migration Tool, no project runs, no MT5 import, no direct `data.db` writes, no direct `user/projects` mutation and no profitability or risk-zero claim.
+
 ## 2026-06-04 - SQX144 Full Host Promotion Gate
 
 - Opens `SQX144-FULL-PROMOTE1 Host Promotion Gate` with `docs/SQX144_FULL_PROMOTION_GATE.md` and marker `sqx144-full-promotion-gate-v1`.
@@ -9,7 +18,7 @@
 - Extends local host metadata so `validate-sqx-path` and `autodetect-sqx` can identify `sqx144_full` without renaming existing `/api/sqx142/*` endpoints.
 - Registers operator Migration Tool completion as `operator_migration_completed_snippets_compile_passed`: the operator used SQX 144 Full's official Migration Tool to import SQX 142 Codex locally; Codex did not automate Migration Tool or commit its output.
 - Adapts 13 migrated user Databanks snippets for SQX 144 by removing obsolete `MainApp.isRangerLicense()` calls, then forces snippet recompilation successfully: `Compiling Snippets done in 11s`.
-- Cleans local update/network blockers: removes StrategyQuant host overrides from the Windows hosts file, moves the local `sqx.bat` host-writer into ignored backup, and removes the stale `_MEI` installer temp folder; update 144.2953 remains `SQX144-FULL-UPDATE1 pending`.
+- Cleans local update/network blockers: removes StrategyQuant host overrides from the Windows hosts file, moves the local `sqx.bat` host-writer into ignored backup, and removes the stale `_MEI` installer temp folder; update 144.2953 is handled by `SQX144-FULL-UPDATE1` as controlled no-promote until license/alignment pass.
 - Preserves boundaries: no engine/binarios/internals 144 copied, no license/activation/bypass handling, no Codex-automated Migration Tool or committed Migration Tool output, no project runs, no MT5 import, no direct `data.db` writes, no direct `user/projects` mutation, no databank mutation and no profitability or risk-zero claim.
 - Keeps manual Results confirmation pending through `SQX144-COMPAT7B Results Plugin Visual Confirmation After Operator License`.
 

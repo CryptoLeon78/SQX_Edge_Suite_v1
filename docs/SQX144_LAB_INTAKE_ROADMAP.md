@@ -1,6 +1,6 @@
 # SQX144 Lab Intake Roadmap
 
-Estado: `SQX144-FULL-PROMOTE1 Host Promotion Gate` activo con `operator_migration_completed_snippets_compile_passed`. `SQX144-COMPAT7 Results Plugin Manual Visual Confirmation` queda como bloqueo historico del lab anterior; la build licenciada Full permite retomar la confirmacion por `SQX144-COMPAT7B` despues del preflight y la adaptacion de snippets migrados.
+Estado: `SQX144-FULL-PROMOTE1 Host Promotion Gate` activo con `operator_migration_completed_snippets_compile_passed` y `SQX144-FULL-UPDATE1` cerrado como `blocked_updated_host_requires_license_activation_and_migration_alignment`. `SQX144-COMPAT7 Results Plugin Manual Visual Confirmation` queda como bloqueo historico del lab anterior; la build licenciada Full permite retomar la confirmacion por `SQX144-COMPAT7B` despues del preflight y la adaptacion de snippets migrados.
 
 Este documento gobierna la evaluacion de StrategyQuant X Build 144 (`v.144.2938`, May 2026) como candidato local para SQX Edge Suite. Build 144 no sustituye a SQX 142 ni cambia la cadena Capa1/Capa2 hasta que cada frente pase evidencia aislada, reversible y public-safe.
 
@@ -17,6 +17,7 @@ Fuente local candidata:
 - Build 144 local instalada por el operador, tratada como evidencia privada/local-only.
 - Build SQX 144 Full licenciada por el operador, perfil local `sqx144_full`, tratada como host primario candidato con SQX 142 como fallback hasta pasar gates.
 - Migration Tool oficial ejecutada por el operador el 2026-06-04 sobre SQX 144 Full para importar SQX 142 Codex; resultado local `operator_migration_completed_snippets_compile_passed`, sin salida privada versionada en el repo.
+- Build 144.2953 localizada como host actualizado separado por `SQX144-FULL-UPDATE1`; version confirmada pero no promovida por licencia/alineacion de migracion pendiente.
 
 ## SQX144-FULL-PROMOTE1 - Host Promotion Gate
 
@@ -45,8 +46,27 @@ Resultado 2026-06-04:
 - Preflight read-only: `sqx144_full_host_gate_passed`, shape completo, cero procesos relevantes, sin copia, sin escritura directa sobre `data.db` ni `user/projects`.
 - Configuracion local ignorada actualizada a `sqx_host_profile=sqx144_full` tras backup en `.local/sqx144_full_promotion/`.
 - El operador completo Migration Tool oficial; Codex adapto 13 snippets de usuario migrados que usaban `MainApp.isRangerLicense()` obsoleto y la compilacion forzada termino con `Compiling Snippets done in 11s`.
-- Avisos residuales: `sqcustomization` HTTP 422, metadata de mercados auxiliar ausente y update 144.2953 pendiente bajo `SQX144-FULL-UPDATE1 pending`.
+- Avisos residuales: `sqcustomization` HTTP 422, metadata de mercados auxiliar ausente y update 144.2953 tratado por `SQX144-FULL-UPDATE1` como no-promote controlado.
 - Siguiente comprobacion manual: `SQX144-COMPAT7B Results Plugin Visual Confirmation After Operator License`.
+
+## SQX144-FULL-UPDATE1 - Controlled Build 144.2953 Update Gate
+
+Objetivo:
+
+- Ejecutar la actualizacion a 144.2953 como gate controlado, sin copiar licencia, internals ni salida de migracion al repo.
+- Validar si el host actualizado puede sustituir al host SQX 144 Full migrado/licenciado.
+- Mantener el host migrado anterior y SQX 142 como fallback mientras falten licencia/alineacion.
+
+Resultado 2026-06-04:
+
+- Documento de gate: `docs/SQX144_FULL_UPDATE1_GATE.md`.
+- Marker: `sqx144-full-update1-gate-v1`.
+- Herramienta read-only: `tools/sqx144_full_update_gate.ps1 status|preflight`.
+- Build confirmado: `SQX version: 144.2953` en el host actualizado separado.
+- Decision: `blocked_license_activation_pending_and_migration_alignment`.
+- No-promote: el host actualizado llega a pantalla de licencia antes del workspace, no observa compilacion de snippets y no contiene la alineacion migrada ni `SQX Edge Readiness Panel`.
+- Configuracion local ignorada: sin cambio; sigue apuntando al host SQX 144 Full migrado/licenciado anterior.
+- Fronteras preservadas: sin copia de licencia/activacion/bypass, sin engine/binarios/internals al repo, sin Migration Tool automatizada por Codex, sin proyectos, sin MT5 import, sin `data.db` writes y sin `user/projects` mutation.
 
 ## Objetivo
 

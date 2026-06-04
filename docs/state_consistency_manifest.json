@@ -15,6 +15,7 @@
     "docs/SQX142_AW_AI3_UNIVERSAL_PROMPT_COMPILER.md",
     "docs/SQX142_AW_AI5_COMPILER_CANDIDATE_DECISION_GATE.md",
     "docs/SQX144_FULL_PROMOTION_GATE.md",
+    "docs/SQX144_FULL_UPDATE1_GATE.md",
     "docs/UX_NAV_TAB_OPTIMIZATION_PLAN.md",
     "docs/maintenance/SQX142_PROJECT_RESOURCE_REPAIR_RUNBOOK.md",
     "docs/SQX142_OWN_FEATURES_CORRELATION_MANUAL_CONFIRMATION.md",
@@ -9030,7 +9031,7 @@
           "read-only gate script",
           "operator_migration_completed_snippets_compile_passed",
           "Compiling Snippets done in 11s",
-          "SQX144-FULL-UPDATE1 pending",
+          "controlled no-promote update gate",
           "Manual Results confirmation remains pending"
         ],
         "docs/SQX144_FULL_PROMOTION_GATE.md": [
@@ -9046,7 +9047,7 @@
           "migrationToolUsed=false",
           "operator_migration_completed_snippets_compile_passed",
           "Compiling Snippets done in 11s",
-          "SQX144-FULL-UPDATE1 pending",
+          "blocked_license_activation_pending_and_migration_alignment",
           "SQX144-COMPAT7B"
         ],
         "docs/SQX144_LAB_INTAKE_ROADMAP.md": [
@@ -9056,6 +9057,8 @@
           "promote_candidate_with_sqx142_fallback",
           "tools/sqx144_full_host_gate.ps1 status|preflight",
           "Compiling Snippets done in 11s",
+          "SQX144-FULL-UPDATE1",
+          "blocked_license_activation_pending_and_migration_alignment",
           "SQX144-COMPAT7B Results Plugin Visual Confirmation After Operator License"
         ],
         "CHANGELOG.md": [
@@ -9066,6 +9069,7 @@
           "sqx144_full",
           "operator_migration_completed_snippets_compile_passed",
           "Compiling Snippets done in 11s",
+          "update 144.2953 is handled by `SQX144-FULL-UPDATE1` as controlled no-promote",
           "no Codex-automated Migration Tool or committed Migration Tool output"
         ],
         "tools/sqx144_full_host_gate.ps1": [
@@ -9088,6 +9092,79 @@
       },
       "forbidden": {
         "docs/SQX144_FULL_PROMOTION_GATE.md": [
+          "risk zero",
+          "guaranteed profitability",
+          "license bypass allowed",
+          "Migration Tool output committed"
+        ],
+        "CHANGELOG.md": [
+          "license bypass allowed",
+          "engine copied from 144",
+          "Migration Tool output committed"
+        ]
+      }
+    },
+    {
+      "id": "sqx144_full_update1_gate",
+      "description": "SQX144-FULL-UPDATE1 confirms Build 144.2953 in a separate updated host but blocks promotion until license activation and migration alignment pass.",
+      "required": {
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Current local phase blocked: SQX144-FULL-UPDATE1 - Controlled Build 144.2953 Update Gate",
+          "docs/SQX144_FULL_UPDATE1_GATE.md",
+          "sqx144-full-update1-gate-v1",
+          "blocked_license_activation_pending_and_migration_alignment",
+          "SQX version: 144.2953",
+          "license screen before workspace",
+          "SQX Edge Readiness Panel` is absent",
+          "does not execute the updater",
+          "The ignored local config remains on the migrated/licensed SQX 144 Full host"
+        ],
+        "docs/SQX144_FULL_UPDATE1_GATE.md": [
+          "SQX144-FULL-UPDATE1 Controlled Build 144.2953 Update Gate",
+          "sqx144-full-update1-gate-v1",
+          "blocked_updated_host_requires_license_activation_and_migration_alignment",
+          "SQX144_2953_updated_host_candidate",
+          "SQX version: 144.2953",
+          "blocked_license_activation_pending_and_migration_alignment",
+          "pantalla de licencia",
+          "SQX Edge Readiness Panel",
+          "tools/sqx144_full_update_gate.ps1",
+          "`status`",
+          "`preflight`",
+          "localConfigSwitched = $false"
+        ],
+        "docs/SQX144_LAB_INTAKE_ROADMAP.md": [
+          "SQX144-FULL-UPDATE1 - Controlled Build 144.2953 Update Gate",
+          "docs/SQX144_FULL_UPDATE1_GATE.md",
+          "sqx144-full-update1-gate-v1",
+          "tools/sqx144_full_update_gate.ps1 status|preflight",
+          "SQX version: 144.2953",
+          "blocked_license_activation_pending_and_migration_alignment",
+          "no-promote",
+          "sin Migration Tool automatizada por Codex"
+        ],
+        "CHANGELOG.md": [
+          "2026-06-04 - SQX144-FULL-UPDATE1 Controlled Build 144.2953 Update Gate",
+          "docs/SQX144_FULL_UPDATE1_GATE.md",
+          "sqx144-full-update1-gate-v1",
+          "tools/sqx144_full_update_gate.ps1",
+          "blocked_license_activation_pending_and_migration_alignment",
+          "no-promote",
+          "Leaves ignored local config pointing to the migrated/licensed SQX 144 Full host"
+        ],
+        "tools/sqx144_full_update_gate.ps1": [
+          "sqx-edge.sqx144-full-update1-gate-v1",
+          "SQX144-FULL-UPDATE1 Controlled Build 144.2953 Update Gate",
+          "blocked_license_activation_pending_and_migration_alignment",
+          "licenseMaterialHandled",
+          "bypassAttempted",
+          "localConfigSwitched",
+          "migrationToolUsedByThisScript",
+          "updateInstallerExecutedByThisScript"
+        ]
+      },
+      "forbidden": {
+        "docs/SQX144_FULL_UPDATE1_GATE.md": [
           "risk zero",
           "guaranteed profitability",
           "license bypass allowed",

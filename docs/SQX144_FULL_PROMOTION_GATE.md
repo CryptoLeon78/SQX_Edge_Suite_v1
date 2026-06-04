@@ -1,6 +1,6 @@
 # SQX144 Full Host Promotion Gate
 
-Estado: `completed_preflight_passed_operator_migration_done_snippets_compile_passed_pending_results_confirmation`.
+Estado: `completed_preflight_passed_operator_migration_done_snippets_compile_passed_pending_results_confirmation_update1_no_promote`.
 
 Fase: `SQX144-FULL-PROMOTE1 Host Promotion Gate`.
 
@@ -92,10 +92,12 @@ Verificacion local saneada:
 - Gate `tools/sqx144_full_host_gate.ps1 -Mode preflight -SqxRoot <local>`: `sqx144_full_host_gate_passed`.
 - Procesos SQX relevantes al cierre: `0`.
 
-Avisos residuales no bloqueantes para la compilacion: `sqcustomization` devuelve HTTP 422 para la cuenta local, faltan ficheros auxiliares de metadata de mercados (`Exchanges`, `Countries`, `Sectors`, `Custom timeframes`) y la actualizacion a 144.2953 queda como `SQX144-FULL-UPDATE1 pending` tras limpieza local de overrides `hosts` y del temporal `_MEI` del instalador. Estos avisos no autorizan proyectos, imports MT5, escritura directa en `data.db` ni claims de rentabilidad.
+Avisos residuales no bloqueantes para la compilacion: `sqcustomization` devuelve HTTP 422 para la cuenta local y faltan ficheros auxiliares de metadata de mercados (`Exchanges`, `Countries`, `Sectors`, `Custom timeframes`). La actualizacion 144.2953 queda registrada en `docs/SQX144_FULL_UPDATE1_GATE.md` como `blocked_license_activation_pending_and_migration_alignment`: existe un host actualizado separado con Build 144.2953 confirmado, pero no se promueve porque abre pantalla de licencia antes del workspace y no contiene la alineacion migrada ni `SQX Edge Readiness Panel`. Estos avisos no autorizan proyectos, imports MT5, escritura directa en `data.db` ni claims de rentabilidad.
 
 ## Estado Actual
 
 `SQX144-FULL-PROMOTE1` ya paso `tools/sqx144_full_host_gate.ps1 preflight` con decision `sqx144_full_host_gate_passed`: shape completo, `projectDirCount=29`, `resultsPluginCount=5`, `sqxEdgeReadinessPanelPresent=true`, `relevantProcessCount=0`, `copyExecuted=false`, `sqxRuntimeStarted=false`, `projectRunStarted=false`, `migrationToolUsed=false` para el gate/script, `dataDbWriteAllowed=false` y `userProjectsWriteAllowed=false`.
 
 La configuracion local ignorada fue actualizada a `sqx_host_profile=sqx144_full` tras guardar backup en `.local/sqx144_full_promotion/`. SQX 142 sigue como fallback. Tras la migracion oficial ejecutada por el operador, `SQX Edge Readiness Panel` esta presente en el host 144; Codex no copio engine, internals, licencia, `data.db`, databanks, logs ni salidas de Migration Tool al repo. Queda pendiente la confirmacion manual de Results en SQX 144 Full.
+
+`SQX144-FULL-UPDATE1` confirmo Build 144.2953 en un host actualizado separado, pero no cambio esta promocion: la config local sigue apuntando al host migrado/licenciado anterior hasta que el host 144.2953 pase activacion/licencia y alineacion oficial de migracion.
