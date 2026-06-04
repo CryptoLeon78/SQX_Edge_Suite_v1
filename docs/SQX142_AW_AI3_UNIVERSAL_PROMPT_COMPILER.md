@@ -127,4 +127,7 @@ AI3-CAT sube el nivel del Studio sin ampliar la superficie de generacion insegur
 - UI/catalogo: `draftableFamilies` muestra `RSI mean reversion` como generable; Keltner/Bollinger/ADX/Stochastic siguen plan-only
 - instalado: overlay con backup `sqx142_ai_wizard_overlay_20260604_210522`
 - verificado: HTTP probe local confirma RSI draft OK y Keltner `blocked_not_draftable_yet`
+- roundtrip manual: operador confirma prompt RSI puro, draft `.sqx`, apertura editable/revision y Keltner/Bollinger/ADX/Stochastic siguen plan-only
+- estado cierre: `operator_manual_rsi_roundtrip_confirmed_ai4_closed`
+- siguiente gate local: `SQX142-AW-AI5 Compiler Candidate Decision Gate`
 - limite: sin SQX runtime launch, sin `data.db`, sin `user/projects`, sin databanks

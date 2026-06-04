@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-06-04 - SQX142-AW-AI4 RSI Manual Roundtrip Confirmed
+
+- Records operator confirmation that the manual AlgoWizard RSI roundtrip passed: pure RSI prompt, `.sqx` draft, editable open/review and no unwanted draft for Keltner/Bollinger/ADX/Stochastic.
+- Closes AI4 as `operator_manual_rsi_roundtrip_confirmed_ai4_closed`.
+- Keeps `rsi_mean_reversion` as the only new proven compiler family; Keltner, Bollinger, ADX and Stochastic stay plan-only.
+- Sets the next local gate to `SQX142-AW-AI5 Compiler Candidate Decision Gate`, without unlocking a new compiler family yet.
+- Preserves boundaries: no SQX runtime launch from scripts, no `data.db`, no `user/projects`, no databank mutation and no profitability or risk-zero claim.
+
 ## 2026-06-04 - SQX142-AW-AI4 RSI Mean-Reversion Compiler
 
 - Records AI3 Catalog Expansion manual roundtrip as OK from the operator and starts AI4 as a small compiler phase, not a broad family unlock.

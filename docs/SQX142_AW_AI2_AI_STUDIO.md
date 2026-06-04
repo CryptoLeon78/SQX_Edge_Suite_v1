@@ -24,7 +24,7 @@ AI3 Universal Prompt Compiler del 2026-06-04: el mismo caso de velas/ATR pasa a 
 
 AI3 Catalog Expansion del 2026-06-04: tras roundtrip manual reportado por el operador, el siguiente salto de nivel aumenta catalogo y explicabilidad. `sqx142-aw-ai3-expanded-catalog-v1` crea `semanticCatalog` sobre bloques Wizard, condiciones AlgoWizard y features observadas en ejemplos `.sqx`; el overlay muestra `Catalogo AlgoWizard ampliado`. Los nuevos `catalogRefs.semanticIds` ayudan a entender Keltner/ADX/RSI/Bollinger y otras familias, pero siguen siendo plan-only salvo compilador probado.
 
-AI4 RSI Mean-Reversion Compiler del 2026-06-04: el operador reporto roundtrip OK sobre AI3 Catalog Expansion y se promueve una sola familia nueva a compilador probado. `sqx142-aw-ai4-rsi-mean-reversion-compiler-v1` genera drafts `rsi_mean_reversion` para RSI puro: long `RSI(14) < 30`, short `RSI(14) > 70`, direccion desde prompt (`long_only`, `short_only`, `both`) y SL/TP desde prompt o defaults con `manualReviewRequired=true`. RSI mezclado con Bollinger u otra familia queda bloqueado con `blocked_multi_family_compiler_not_ready`; Keltner/Bollinger/ADX/Stochastic siguen plan-only. Overlay instalado con backup `sqx142_ai_wizard_overlay_20260604_210522`; HTTP probe confirma RSI draft OK y Keltner `blocked_not_draftable_yet`.
+AI4 RSI Mean-Reversion Compiler del 2026-06-04: el operador reporto roundtrip OK sobre AI3 Catalog Expansion y se promueve una sola familia nueva a compilador probado. `sqx142-aw-ai4-rsi-mean-reversion-compiler-v1` genera drafts `rsi_mean_reversion` para RSI puro: long `RSI(14) < 30`, short `RSI(14) > 70`, direccion desde prompt (`long_only`, `short_only`, `both`) y SL/TP desde prompt o defaults con `manualReviewRequired=true`. RSI mezclado con Bollinger u otra familia queda bloqueado con `blocked_multi_family_compiler_not_ready`; Keltner/Bollinger/ADX/Stochastic siguen plan-only. Overlay instalado con backup `sqx142_ai_wizard_overlay_20260604_210522`; HTTP probe confirma RSI draft OK y Keltner `blocked_not_draftable_yet`. El roundtrip manual RSI queda confirmado por operador como `operator_manual_rsi_roundtrip_confirmed_ai4_closed`.
 
 ## Entrega
 
@@ -49,7 +49,8 @@ AI4 RSI Mean-Reversion Compiler del 2026-06-04: el operador reporto roundtrip OK
 - `AI2.6 Overlay UX`: historial, reabrir/forkear sesiones, catalog browser, chips de indicadores/operadores, editor de parametros y panel de bloqueos util.
 - `AI2.7 Manual Roundtrip`: pendiente hasta SQX cerrado; requiere abrir draft en AlgoWizard y confirmar editabilidad.
 - `AI3.0 Universal Prompt Compiler`: interprete local modelo -> AST con fallback seguro y compilador `candle_atr_sequence`; status `compiler_built_roundtrip_reported_catalog_expansion_active`.
-- `AI4.0 RSI Mean-Reversion Compiler`: compilador `rsi_mean_reversion` para RSI puro con condiciones 30/70, direccion long/short/both y revision manual obligatoria; status `built_pending_manual_rsi_roundtrip`.
+- `AI4.0 RSI Mean-Reversion Compiler`: compilador `rsi_mean_reversion` para RSI puro con condiciones 30/70, direccion long/short/both y revision manual obligatoria; status `operator_manual_rsi_roundtrip_confirmed_ai4_closed`.
+- `AI5.0 Compiler Candidate Decision Gate`: siguiente gate local; elegir una familia candidata por fixture/contrato/tests antes de construir, sin desbloquear Keltner/Bollinger/ADX/Stochastic por defecto.
 
 ## APIs Local-Only
 
@@ -204,3 +205,6 @@ Manual pendiente con SQX cerrado:
 - draft rule: ZIP entries preserved, only `strategy_Portfolio.xml` patched, `manualReviewRequired=true`
 - install: overlay backup `sqx142_ai_wizard_overlay_20260604_210522`
 - HTTP probe: RSI draft OK; Keltner family understood and blocked with `blocked_not_draftable_yet`
+- manual roundtrip: operator confirmed prompt RSI puro, `.sqx` draft, editable open/review, and Keltner/Bollinger/ADX/Stochastic remain plan-only
+- status: `operator_manual_rsi_roundtrip_confirmed_ai4_closed`
+- next local gate: `SQX142-AW-AI5 Compiler Candidate Decision Gate`

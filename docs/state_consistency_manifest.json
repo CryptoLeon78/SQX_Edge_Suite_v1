@@ -1237,7 +1237,7 @@
     },
     {
       "id": "sqx142_aw_ai3_ai4_prompt_compiler_gate",
-      "description": "AI3 must provide universal prompt intake into a validated AST, while only proven compiler families may emit SQX drafts. AI4 adds the narrow RSI mean-reversion compiler after operator AI3 catalog roundtrip OK, while mixed RSI plus another family remains blocked.",
+      "description": "AI3 must provide universal prompt intake into a validated AST, while only proven compiler families may emit SQX drafts. AI4 adds the narrow RSI mean-reversion compiler and is closed only after operator manual RSI roundtrip confirmation.",
       "required": {
         "README.md": [
           "SQX142-AW-AI4 RSI Mean-Reversion Compiler",
@@ -1248,6 +1248,8 @@
           "blocked_multi_family_compiler_not_ready",
           "sqx142_ai_wizard_overlay_20260604_210522",
           "HTTP probe local confirma RSI draft OK",
+          "operator_manual_rsi_roundtrip_confirmed_ai4_closed",
+          "SQX142-AW-AI5 Compiler Candidate Decision Gate",
           "SQX142-AW-AI3 Catalog Expansion",
           "sqx142-aw-ai3-expanded-catalog-v1",
           "operator_manual_roundtrip_completed_catalog_level_up_active",
@@ -1261,6 +1263,9 @@
           "sin `user/projects`"
         ],
         "CHANGELOG.md": [
+          "2026-06-04 - SQX142-AW-AI4 RSI Manual Roundtrip Confirmed",
+          "operator_manual_rsi_roundtrip_confirmed_ai4_closed",
+          "SQX142-AW-AI5 Compiler Candidate Decision Gate",
           "2026-06-04 - SQX142-AW-AI4 RSI Mean-Reversion Compiler",
           "sqx142-aw-ai4-rsi-mean-reversion-compiler-v1",
           "rsi_mean_reversion",
@@ -1283,7 +1288,9 @@
           "blocked_unsupported_compiler_family"
         ],
         "docs/PROJECT_GOVERNANCE.md": [
-          "Current local phase built and installed: SQX142-AW-AI4 - RSI Mean-Reversion Compiler",
+          "Current local phase closed: SQX142-AW-AI4 - RSI Mean-Reversion Compiler",
+          "operator_manual_rsi_roundtrip_confirmed_ai4_closed",
+          "SQX142-AW-AI5 Compiler Candidate Decision Gate",
           "sqx142-aw-ai4-rsi-mean-reversion-compiler-v1",
           "rsi_mean_reversion",
           "RSI(14) < 30",
@@ -1311,6 +1318,8 @@
           "blocked_multi_family_compiler_not_ready",
           "sqx142_ai_wizard_overlay_20260604_210522",
           "HTTP probe confirma RSI draft OK",
+          "operator_manual_rsi_roundtrip_confirmed_ai4_closed",
+          "SQX142-AW-AI5 Compiler Candidate Decision Gate",
           "AI4.0 RSI Mean-Reversion Compiler",
           "AI3 Catalog Expansion",
           "semanticCatalog",
@@ -1335,6 +1344,8 @@
           "RSI mean reversion",
           "sqx142_ai_wizard_overlay_20260604_210522",
           "HTTP probe local confirma RSI draft OK",
+          "operator_manual_rsi_roundtrip_confirmed_ai4_closed",
+          "SQX142-AW-AI5 Compiler Candidate Decision Gate",
           "sqx142-aw-ai3-universal-prompt-compiler-v1",
           "sqx142-aw-ai3-expanded-catalog-v1",
           "operator_manual_roundtrip_completed_catalog_level_up_active",
