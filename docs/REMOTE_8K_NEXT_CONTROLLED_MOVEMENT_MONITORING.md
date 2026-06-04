@@ -107,6 +107,18 @@ Even on GO:
 - `decision.furtherExpansionAllowedNow = false`
 - `decision.requiresOperatorApprovalForNextMovement = true`
 
+## Current Public-Safe Run Log
+
+2026-06-04:
+
+- local-only validator status: `NO_GO_REMOTE8K_NEXT_CONTROLLED_MOVEMENT_MONITORING_BLOCKED`
+- source gate: REMOTE-8J GO
+- observation window: above the 24h minimum
+- zero-tolerance metrics: all zero for incidents, expansion, checkout, emails, grants, campaigns and automation
+- missing signals: `artifactGenerationObserved`, `exportsDownloaded`, `supportLoopObserved`
+- missing per-user check: `artifactFlowChecked`
+- next action: complete the missing private observations and rerun REMOTE-8K before any REMOTE-8L review or next movement
+
 ## Next Phase
 
 `REMOTE-8L - Post Monitoring Decision Review` should turn this monitoring evidence into a human decision: keep observing, fix blockers, roll back or prepare one next controlled movement. REMOTE-8K alone never expands traffic or users.

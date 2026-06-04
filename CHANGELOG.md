@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-06-04 - REMOTE-8K Post Execution Monitoring Blocked
+
+- Runs the REMOTE-8K local-only post execution monitoring validator from ignored evidence and records `NO_GO_REMOTE8K_NEXT_CONTROLLED_MOVEMENT_MONITORING_BLOCKED`.
+- Keeps the good signals public-safe: source REMOTE-8J is GO, observation is above 24h and zero-tolerance metrics remain zero.
+- Records the active blockers without private evidence: `artifactGenerationObserved`, `exportsDownloaded`, `supportLoopObserved` and `artifactFlowChecked` are still incomplete.
+- Preserves boundaries: no REMOTE-8L decision review, no remote expansion, no checkout, no grants, no emails, no public URL sharing, no onboarding automation and no raw identity/support evidence committed.
+
 ## 2026-06-04 - A69 Major Refactor Decision Gate
 
 - Closes A69 as `completed_major_refactor_decision_no_go`: the major backend/frontend/tests separation is not approved while `REMOTE-8K Post Execution Monitoring` and the `SQX142-AW-AI2` install/manual roundtrip remain open.

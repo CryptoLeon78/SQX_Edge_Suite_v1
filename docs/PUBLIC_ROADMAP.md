@@ -1,6 +1,6 @@
 # SQX Edge Public Roadmap
 
-Last updated: 2026-05-31.
+Last updated: 2026-06-04.
 
 ## Now
 
@@ -10,7 +10,7 @@ Last updated: 2026-05-31.
 - Approved testers can use the full app through `tester_free` grants while remaining authenticated, audited and revocable.
 - Approved authenticated testers can use the guided AI dock in tester-safe mode; it can explain and navigate inside Edge Factory, but it cannot see the creator's local server monitor, local inbox, grants, checkout, Cloudflare controls or protected URLs.
 - Operator launch readiness is checked locally with Backend/Tunnel/Ollama before tester sessions; the monitor is not exposed to remote users.
-- The first tiny cohort monitoring closeout is clean; the REMOTE-RILIS-STANDBY browser/custom-project retest was closed by operator confirmation on 2026-05-31, REMOTE-8G selected preparation of one next controlled movement package, REMOTE-8H prepared a one-user controlled package, REMOTE-8I approved creating the manual execution record and REMOTE-8J recorded TESTER-ESTHER's successful private access without private repo access.
+- The first tiny cohort monitoring closeout is clean; the REMOTE-RILIS-STANDBY browser/custom-project retest was closed by operator confirmation on 2026-05-31, REMOTE-8G selected preparation of one next controlled movement package, REMOTE-8H prepared a one-user controlled package, REMOTE-8I approved creating the manual execution record and REMOTE-8J recorded TESTER-ESTHER's successful private access without private repo access. REMOTE-8K monitoring is active but blocked until artifact generation, export/download and support-loop observations are completed in private evidence.
 - Edge Factory is becoming the main desktop buyer/tester experience: one guided methodology shell over the existing engines, with technical tabs available from advanced tools instead of primary navigation, WFCO-2 handoffs carrying selected card/mining/generation/analysis/C2/portfolio context, WFCO-3 copy focused on action/output/pending state, WFCO-4 Portfolio Lab classifying Capa 2 candidates as portfolio/similar/review and WFCO-5 desktop polish adding a live command strip/status stack.
 - Dashboard engines remain active behind Edge Factory: Activos, Mining Control, SQX Views, Project Generator, Template Maker, Strategy Control, Champion vs Challenger, BlockSettings Info and Control Panel.
 - Project Generator uses real BlockSettings manifests and traceable timeframe/blocksetting resolution.
@@ -21,8 +21,8 @@ Last updated: 2026-05-31.
 ## Next
 
 - Keep Edge Factory in a short acceptance pass while avoiding new surface until the pending Capa 2 base v2 decision is clear.
-- Run REMOTE-8K monitoring for the executed TESTER-ESTHER movement before any further expansion.
-- Keep any later REMOTE-8L decision review as a separate human gate.
+- Complete and rerun REMOTE-8K monitoring for the executed TESTER-ESTHER movement before any further expansion.
+- Keep any later REMOTE-8L decision review as a separate human gate only after REMOTE-8K is clean.
 - Keep the local Backend/Tunnel/Ollama monitor green before opening tester work sessions.
 - If the operator later approves a next movement, prepare the later package/approval/execution/monitoring gates without automating grants, emails, checkout, URLs or onboarding.
 - Keep verifying workspace isolation, Access/session stability, artifact generation, browser downloads, support, revocation and restore during each controlled movement.

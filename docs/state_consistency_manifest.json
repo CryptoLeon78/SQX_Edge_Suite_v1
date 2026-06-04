@@ -796,12 +796,12 @@
           "do not start a major backend/frontend/tests separation now",
           "REMOTE-8K Post Execution Monitoring",
           "SQX142-AW-AI2",
-          "Next recommended work: close `REMOTE-8K`"
+          "Next recommended work: complete and rerun `REMOTE-8K`"
         ],
         "docs/MODULARIZATION_NEXT_STEPS.md": [
           "Current architecture phase: Phase A69: Major Refactor Decision Gate completed as `completed_major_refactor_decision_no_go`.",
           "Current A69 decision: no-go for a major backend/frontend/tests separation",
-          "Next: REMOTE-8K Post Execution Monitoring, then SQX142-AW-AI2 install/manual roundtrip.",
+          "Next: complete and rerun REMOTE-8K Post Execution Monitoring, then SQX142-AW-AI2 install/manual roundtrip.",
           "Phase A69: decide major backend/frontend/tests separation only after `REMOTE-8K` and `SQX142-AW-AI2` roundtrip gates. Done as no-go/deferred."
         ],
         "CHANGELOG.md": [
@@ -1631,7 +1631,7 @@
     },
     {
       "id": "remote_current_gate",
-      "description": "REMOTE docs must agree that REMOTE-RILIS-STANDBY is closed, REMOTE-8G/8H/8I/8J returned GO, and REMOTE-8K monitoring is the next gated movement.",
+      "description": "REMOTE docs must agree that REMOTE-RILIS-STANDBY is closed, REMOTE-8G/8H/8I/8J returned GO, and REMOTE-8K monitoring is attempted but blocked until missing private observations are completed and rerun clean.",
       "required": {
         "README.md": [
           "REMOTE-RILIS-STANDBY queda cerrado por confirmacion del operador",
@@ -1640,7 +1640,8 @@
           "GO_REMOTE8H_NEXT_CONTROLLED_MOVEMENT_PACKAGE_READY",
           "GO_REMOTE8I_NEXT_CONTROLLED_MOVEMENT_EXECUTION_APPROVED",
           "GO_REMOTE8J_NEXT_CONTROLLED_MOVEMENT_MANUAL_EXECUTION_RECORDED",
-          "Siguiente paso recomendado: preparar REMOTE-8K Post Execution Monitoring"
+          "NO_GO_REMOTE8K_NEXT_CONTROLLED_MOVEMENT_MONITORING_BLOCKED",
+          "Siguiente paso recomendado: completar las observaciones privadas pendientes de REMOTE-8K"
         ],
         "docs/PUBLIC_ROADMAP.md": [
           "REMOTE-RILIS-STANDBY browser/custom-project retest was closed by operator confirmation",
@@ -1648,7 +1649,8 @@
           "REMOTE-8H prepared a one-user controlled package",
           "REMOTE-8I approved creating the manual execution record",
           "REMOTE-8J recorded TESTER-ESTHER's successful private access",
-          "Run REMOTE-8K monitoring"
+          "REMOTE-8K monitoring is active but blocked",
+          "Complete and rerun REMOTE-8K monitoring"
         ],
         "docs/PROJECT_GOVERNANCE.md": [
           "Current phase completed: REMOTE-PG-SESSION-FIX",
@@ -1657,7 +1659,25 @@
           "Current phase completed: REMOTE-8H - Next Controlled Movement Package",
           "Current phase completed: REMOTE-8I - Next Controlled Movement Execution Approval",
           "Current phase completed: REMOTE-8J - Next Controlled Movement Manual Execution Record",
-          "Next implementation phase: REMOTE-8K Post Execution Monitoring"
+          "Current remote phase blocked: REMOTE-8K - Post Execution Monitoring",
+          "NO_GO_REMOTE8K_NEXT_CONTROLLED_MOVEMENT_MONITORING_BLOCKED",
+          "Next implementation step: complete the missing private observations and rerun REMOTE-8K"
+        ],
+        "docs/REMOTE_8K_NEXT_CONTROLLED_MOVEMENT_MONITORING.md": [
+          "Current Public-Safe Run Log",
+          "NO_GO_REMOTE8K_NEXT_CONTROLLED_MOVEMENT_MONITORING_BLOCKED",
+          "artifactGenerationObserved",
+          "exportsDownloaded",
+          "supportLoopObserved",
+          "artifactFlowChecked"
+        ],
+        "CHANGELOG.md": [
+          "2026-06-04 - REMOTE-8K Post Execution Monitoring Blocked",
+          "NO_GO_REMOTE8K_NEXT_CONTROLLED_MOVEMENT_MONITORING_BLOCKED",
+          "artifactGenerationObserved",
+          "exportsDownloaded",
+          "supportLoopObserved",
+          "artifactFlowChecked"
         ]
       },
       "forbidden": {
@@ -1743,7 +1763,7 @@
       "description": "The public roadmap date must not lag the current sync anchor.",
       "required": {
         "docs/PUBLIC_ROADMAP.md": [
-          "Last updated: 2026-05-31."
+          "Last updated: 2026-06-04."
         ],
         "CHANGELOG.md": [
           "2026-05-21 - REMOTE-AI-TESTER1 Authenticated Tester AI Pilot",

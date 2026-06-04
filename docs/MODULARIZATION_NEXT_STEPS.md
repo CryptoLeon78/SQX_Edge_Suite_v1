@@ -10,12 +10,12 @@ Persistent planning note for the next SQX Edge phases.
 - Current docs canonical index: `docs/DOCS_CANONICAL_INDEX.md` (`sqx-edge.docs-canonical-index-v1`).
 - Current tooling ownership map: `docs/TOOLING_OWNERSHIP_MAP.md` (`sqx-edge.tooling-ownership-map-v1`).
 - Current A68 docs relocation anchor: `docs/DISCIPLINA_OPERATIVA.md` is the canonical operational discipline doc; root `DISCIPLINA_OPERATIVA.md` remains a compatibility shim.
-- Current A69 decision: no-go for a major backend/frontend/tests separation until `REMOTE-8K Post Execution Monitoring` is closed and `SQX142-AW-AI2` completes install/manual roundtrip. A64-A69 is closed; no major refactor started, no backend/frontend/tests split, no tools moved, no wrappers moved, no scripts executed, no import or load-order changes, no runtime changes, no SQX launch, no `data.db`, no `user/projects`.
-- Current product/commercial state: `REMOTE-8K Post Execution Monitoring` remains the next remote gate; Portfolio Master stays blocked by real inputs; `SQX142-AW-AI2` remains pending install/manual roundtrip.
+- Current A69 decision: no-go for a major backend/frontend/tests separation until `REMOTE-8K Post Execution Monitoring` is cleanly closed and `SQX142-AW-AI2` completes install/manual roundtrip. A64-A69 is closed; no major refactor started, no backend/frontend/tests split, no tools moved, no wrappers moved, no scripts executed, no import or load-order changes, no runtime changes, no SQX launch, no `data.db`, no `user/projects`.
+- Current product/commercial state: `REMOTE-8K Post Execution Monitoring` was attempted on 2026-06-04 and remains blocked pending artifact generation, export/download and support-loop observations; Portfolio Master stays blocked by real inputs; `SQX142-AW-AI2` remains pending install/manual roundtrip.
 - Governance baseline: G9/G9R subagent discipline plus Axx architecture phases.
 - Governance baseline: G6 - Institutional Dashboard Quick Actions Gate. Historical anchor only; superseded for current work by G9/G9R plus Axx restructuring gates.
 - Next recommended architecture phase after A69 close: none; reopen restructuring only with a new explicit phase plan after the remote/manual gates close.
-- Next: REMOTE-8K Post Execution Monitoring, then SQX142-AW-AI2 install/manual roundtrip.
+- Next: complete and rerun REMOTE-8K Post Execution Monitoring, then SQX142-AW-AI2 install/manual roundtrip.
 
 ## Historical State Anchors
 

@@ -1028,6 +1028,13 @@ Next REMOTE-8K scope:
 
 Observes the REMOTE-8J manual execution before any further movement or traffic expansion. It does not invite new users, widen traffic, automate onboarding, send emails, change grants or publish private URLs.
 
+Current status on 2026-06-04: ignored local evidence returned
+`NO_GO_REMOTE8K_NEXT_CONTROLLED_MOVEMENT_MONITORING_BLOCKED`. The source
+REMOTE-8J gate is GO, observation is above 24h and zero-tolerance
+incident/automation metrics remain zero, but artifact generation,
+export/download and support-loop observations are still incomplete. REMOTE-8L
+must not start until REMOTE-8K reruns clean.
+
 Artifacts added in REMOTE-8K:
 
 - `docs/REMOTE_8K_NEXT_CONTROLLED_MOVEMENT_MONITORING.md`
