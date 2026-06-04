@@ -4,14 +4,14 @@ Persistent planning note for the next SQX Edge phases.
 
 ## Current Status
 
-- Last updated: 2026-05-11.
-- Current completed phase: TL1 - Tester Launch Candidate.
-- Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
-- Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
-- Last synced base commit before S2/M-pre: `cc8dbf0`.
-- Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
-- Latest ZIP SHA256: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Next recommended phase: operator fills private TL1 evidence and runs `proof:tester-launch-candidate`; if GO, send protected access manually to selected testers outside Git.
+- Last updated: 2026-06-04.
+- Current architecture phase: Phase A64: Structure Register Bootstrap.
+- Current restructuring register: `docs/RESTRUCTURING_GOVERNANCE.md` (`sqx-edge.restructuring-governance-v1`).
+- Current A64 scope: Docs-only inventory; no physical moves, no runtime changes, no SQX launch, no `data.db`, no `user/projects`.
+- Current product/commercial state: `REMOTE-8K Post Execution Monitoring` remains the next remote gate; Portfolio Master stays blocked by real inputs; `SQX142-AW-AI2` remains pending install/manual roundtrip.
+- Governance baseline: G9/G9R subagent discipline plus Axx architecture phases.
+- Next recommended architecture phase after A64 close: A65 Boundary Guard.
+- Next: A65 Boundary Guard.
 
 ## Historical State Anchors
 
@@ -147,6 +147,12 @@ Persistent planning note for the next SQX Edge phases.
 9. Phase 44: polish release flow with one-click strict release, summary output and package guardrails. Done.
 10. Phase 45: extract Project Generator event bindings and polling from the legacy bridge. Done.
 11. Phase 46: apply operational visual polish for Project Generator, Strategies and responsive dense views. Done.
+12. Phase A64: Structure Register Bootstrap - create governed restructuring register and inventory. Active.
+13. Phase A65: classify ignored, generated, private and visible boundary cases.
+14. Phase A66: define canonical docs vs historical docs with an index before moving docs.
+15. Phase A67: map ownership for root scripts, `tools/`, wrappers and runbooks.
+16. Phase A68: perform low-risk physical moves, one domain per commit, only after references/wrappers are safe.
+17. Phase A69: decide major backend/frontend/tests separation only after `REMOTE-8K` and `SQX142-AW-AI2` roundtrip gates.
 
 ## Project Generator Track
 

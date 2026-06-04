@@ -1,11 +1,12 @@
 {
   "version": 1,
-  "updated": "2026-06-02",
+  "updated": "2026-06-04",
   "purpose": "Canonical public-safe state markers used by automated docs consistency tests.",
   "coreFiles": [
     "README.md",
     "docs/PUBLIC_ROADMAP.md",
     "docs/PROJECT_GOVERNANCE.md",
+    "docs/RESTRUCTURING_GOVERNANCE.md",
     "docs/SQX142_AW_AI1_AI_WIZARD.md",
     "docs/SQX142_AW_AI2_AI_STUDIO.md",
     "docs/UX_NAV_TAB_OPTIMIZATION_PLAN.md",
@@ -23,6 +24,135 @@
     "docs/SQX142_PORTFOLIO_CORR2_LOCAL_CUSTOM_PROJECT_INTEGRATION.md"
   ],
   "rules": [
+    {
+      "id": "sqx_edge_restructuring_governance_v1_gate",
+      "description": "A64 governed restructuring must remain a docs-only inventory/register phase and must not drift into physical moves, runtime execution or duplicate gbrain pages.",
+      "required": {
+        "docs/RESTRUCTURING_GOVERNANCE.md": [
+          "sqx-edge.restructuring-governance-v1",
+          "A64 Structure Register Bootstrap",
+          "active_docs_only_inventory",
+          "A64 solo crea inventario, ownership inicial y log de fases",
+          "No physical moves during A64",
+          "No SQX runtime launch",
+          "No public dump of `.local/`, licenses, emails, tokens, protected URLs, private evidence or sensitive local folders",
+          "A64 writes a curated summary only, not a bulk import of `docs/`",
+          "A65 Boundary Guard",
+          "A69 Major Refactor Decision Gate"
+        ],
+        "README.md": [
+          "SQX Edge restructuring governance A64 esta activo",
+          "sqx-edge.restructuring-governance-v1",
+          "docs/RESTRUCTURING_GOVERNANCE.md",
+          "active_docs_only_inventory",
+          "sin mover archivos, cambiar imports, load order ni runtime SQX"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Current phase active: A64 - Structure Register Bootstrap",
+          "sqx-edge.restructuring-governance-v1",
+          "docs/RESTRUCTURING_GOVERNANCE.md",
+          "A64 only creates inventory, initial ownership and phase log",
+          "No physical moves during A64",
+          "No new remote expansion before REMOTE-8K monitoring closeout"
+        ],
+        "docs/MODULARIZATION_NEXT_STEPS.md": [
+          "Phase A64: Structure Register Bootstrap",
+          "sqx-edge.restructuring-governance-v1",
+          "docs/RESTRUCTURING_GOVERNANCE.md",
+          "Docs-only inventory; no physical moves, no runtime changes",
+          "Next: A65 Boundary Guard"
+        ],
+        "CHANGELOG.md": [
+          "2026-06-04 - A64 Structure Register Bootstrap",
+          "sqx-edge.restructuring-governance-v1",
+          "docs/RESTRUCTURING_GOVERNANCE.md",
+          "active_docs_only_inventory",
+          "Preserves boundaries: no physical moves, no SQX runtime launch, no data.db writes, no user/projects writes"
+        ]
+      },
+      "forbidden": {
+        "docs/RESTRUCTURING_GOVERNANCE.md": [
+          "A64 Backend Agent Core",
+          "physical moves completed",
+          "imports changed",
+          "load order changed",
+          "runtime SQX launched",
+          "data.db writes enabled",
+          "user/projects writes enabled",
+          "run_project permitido",
+          "Migration Tool permitido",
+          "jars internos permitidos",
+          "Portfolio Master artifact generated",
+          "REMOTE-8K skipped",
+          "remote expansion approved",
+          "raw email:",
+          "protected URL:",
+          "Cloudflare ID:",
+          "license payload:",
+          "private key:",
+          "gbrain bulk import",
+          "duplicate gbrain page",
+          "risk zero guaranteed",
+          "guaranteed profitability"
+        ],
+        "README.md": [
+          "A64 Backend Agent Core",
+          "physical moves completed",
+          "runtime SQX launched",
+          "data.db writes enabled",
+          "user/projects writes enabled",
+          "Portfolio Master artifact generated",
+          "REMOTE-8K skipped",
+          "remote expansion approved",
+          "gbrain bulk import",
+          "duplicate gbrain page",
+          "risk zero guaranteed",
+          "guaranteed profitability"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "physical moves completed",
+          "runtime SQX launched",
+          "data.db writes enabled",
+          "user/projects writes enabled",
+          "Portfolio Master artifact generated",
+          "REMOTE-8K skipped",
+          "remote expansion approved",
+          "gbrain bulk import",
+          "duplicate gbrain page",
+          "risk zero guaranteed",
+          "guaranteed profitability"
+        ],
+        "docs/MODULARIZATION_NEXT_STEPS.md": [
+          "A64 Backend Agent Core",
+          "physical moves completed",
+          "imports changed",
+          "load order changed",
+          "runtime SQX launched",
+          "data.db writes enabled",
+          "user/projects writes enabled",
+          "REMOTE-8K skipped",
+          "remote expansion approved",
+          "gbrain bulk import",
+          "duplicate gbrain page",
+          "risk zero guaranteed",
+          "guaranteed profitability"
+        ],
+        "CHANGELOG.md": [
+          "A64 Backend Agent Core",
+          "physical moves completed",
+          "runtime SQX launched",
+          "data.db writes enabled",
+          "user/projects writes enabled",
+          "Portfolio Master artifact generated",
+          "REMOTE-8K skipped",
+          "remote expansion approved",
+          "gbrain bulk import",
+          "duplicate gbrain page",
+          "risk zero guaranteed",
+          "guaranteed profitability"
+        ]
+      }
+    },
     {
       "id": "sqx_readiness_private_qxpro_corr1_gate",
       "description": "Private QXPRO readiness packaging must use the sanitized operator-only source and CORR1-only view readiness.",

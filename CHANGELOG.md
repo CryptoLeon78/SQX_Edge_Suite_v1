@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-06-04 - A64 Structure Register Bootstrap
+
+- Starts governed restructuring as `sqx-edge.restructuring-governance-v1` in `docs/RESTRUCTURING_GOVERNANCE.md`, with repo+gbrain register, top-level inventory, ownership map and A64-A69 phase log.
+- A64 status is `active_docs_only_inventory`.
+- A64 is docs-only inventory: no file moves, no runtime changes, no SQX launch, no `data.db`, no `user/projects`, no Portfolio Master artifact and no expansion beyond REMOTE-8K.
+- Preserves boundaries: no physical moves, no SQX runtime launch, no data.db writes, no user/projects writes.
+- Preserves the subagent protocol: parallel agents may review structure/docs/tests read-only; Codex integrates and mutates only within phase scope.
+
 ## 2026-06-02 - SQX Readiness Private QXPRO Kit
 
 - Adds `sqx-edge.sqx-readiness-manifest-v2` with `correlation_view_ready` replacing the old generic views readiness check; `requiredViews` now contains only `SQX EDGE CORRELATION REVIEW.vw`.
