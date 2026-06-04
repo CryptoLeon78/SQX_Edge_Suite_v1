@@ -5,13 +5,14 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-06-04.
-- Current architecture phase: Phase A65: Boundary Guard completed.
+- Current architecture phase: Phase A66: Docs Canonicalization completed.
 - Current restructuring register: `docs/RESTRUCTURING_GOVERNANCE.md` (`sqx-edge.restructuring-governance-v1`).
-- Current A65 scope: classify tracked/ignored/generated/private boundaries and `data/DatabankExport.csv`; docs-only, no physical moves, no deletes, no runtime changes, no SQX launch, no `data.db`, no `user/projects`.
+- Current docs canonical index: `docs/DOCS_CANONICAL_INDEX.md` (`sqx-edge.docs-canonical-index-v1`).
+- Current A66 scope: define canonical docs vs historical/reference docs with an index; docs-only, no docs moved, no docs deleted, no mass docs rehome, no runtime changes, no SQX launch, no `data.db`, no `user/projects`.
 - Current product/commercial state: `REMOTE-8K Post Execution Monitoring` remains the next remote gate; Portfolio Master stays blocked by real inputs; `SQX142-AW-AI2` remains pending install/manual roundtrip.
 - Governance baseline: G9/G9R subagent discipline plus Axx architecture phases.
-- Next recommended architecture phase after A65 close: A66 Docs Canonicalization.
-- Next: A66 Docs Canonicalization.
+- Next recommended architecture phase after A66 close: A67 Tooling Ownership Map.
+- Next: A67 Tooling Ownership Map.
 
 ## Historical State Anchors
 
@@ -149,8 +150,8 @@ Persistent planning note for the next SQX Edge phases.
 11. Phase 46: apply operational visual polish for Project Generator, Strategies and responsive dense views. Done.
 12. Phase A64: Structure Register Bootstrap - create governed restructuring register and inventory. Done.
 13. Phase A65: Boundary Guard - classify ignored/generated/private boundaries. Done.
-14. Phase A66: define canonical docs vs historical docs with an index before moving docs. Next.
-15. Phase A67: map ownership for root scripts, `tools/`, wrappers and runbooks.
+14. Phase A66: Docs Canonicalization - define canonical docs vs historical docs with an index before moving docs. Done.
+15. Phase A67: Tooling Ownership Map - map ownership for root scripts, `tools/`, wrappers and runbooks. Next.
 16. Phase A68: perform low-risk physical moves, one domain per commit, only after references/wrappers are safe.
 17. Phase A69: decide major backend/frontend/tests separation only after `REMOTE-8K` and `SQX142-AW-AI2` roundtrip gates.
 

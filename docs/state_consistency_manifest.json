@@ -7,6 +7,7 @@
     "docs/PUBLIC_ROADMAP.md",
     "docs/PROJECT_GOVERNANCE.md",
     "docs/RESTRUCTURING_GOVERNANCE.md",
+    "docs/DOCS_CANONICAL_INDEX.md",
     "docs/SQX142_AW_AI1_AI_WIZARD.md",
     "docs/SQX142_AW_AI2_AI_STUDIO.md",
     "docs/UX_NAV_TAB_OPTIMIZATION_PLAN.md",
@@ -182,9 +183,9 @@
           "Next restructuring phase: A66 Docs Canonicalization"
         ],
         "docs/MODULARIZATION_NEXT_STEPS.md": [
-          "Current architecture phase: Phase A65: Boundary Guard completed.",
-          "Current A65 scope: classify tracked/ignored/generated/private boundaries",
-          "Next: A66 Docs Canonicalization",
+          "Phase A65: Boundary Guard - classify ignored/generated/private boundaries. Done.",
+          "Current architecture phase: Phase A66: Docs Canonicalization completed.",
+          "Next: A67 Tooling Ownership Map",
           "Phase A65: Boundary Guard - classify ignored/generated/private boundaries. Done."
         ],
         "CHANGELOG.md": [
@@ -262,6 +263,153 @@
           "data.db writes enabled",
           "user/projects writes enabled",
           "data/DatabankExport.csv promoted to real input",
+          "Portfolio Master input unlocked",
+          "REMOTE-8K skipped",
+          "remote expansion approved",
+          "risk zero guaranteed",
+          "guaranteed profitability"
+        ]
+      }
+    },
+    {
+      "id": "sqx_edge_docs_canonical_index_v1_gate",
+      "description": "A66 Docs Canonicalization must remain an index/policy phase that defines canonical docs vs historical/reference docs without moving or deleting docs.",
+      "required": {
+        "docs/DOCS_CANONICAL_INDEX.md": [
+          "sqx-edge.docs-canonical-index-v1",
+          "A66 Docs Canonicalization",
+          "completed_docs_canonical_index",
+          "Canonical Lookup Order",
+          "Canonical Core Docs",
+          "Historical And Reference Policy",
+          "No docs moved during A66",
+          "No docs deleted during A66",
+          "No mass docs rehome during A66",
+          "Next restructuring phase: `A67 Tooling Ownership Map`"
+        ],
+        "docs/RESTRUCTURING_GOVERNANCE.md": [
+          "Current phase: `A66 Docs Canonicalization`",
+          "Status: `completed_docs_canonical_index`",
+          "sqx-edge.docs-canonical-index-v1",
+          "A66 Docs Canonicalization completed",
+          "No docs moved during A66",
+          "No docs deleted during A66",
+          "No mass docs rehome during A66",
+          "A67 Tooling Ownership Map"
+        ],
+        "README.md": [
+          "A66 Docs Canonicalization queda registrado",
+          "completed_docs_canonical_index",
+          "sqx-edge.docs-canonical-index-v1",
+          "docs/DOCS_CANONICAL_INDEX.md",
+          "sin mover docs ni borrar historico",
+          "Siguiente reestructuracion: A67 Tooling Ownership Map"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Current architecture phase completed: A66 Docs Canonicalization",
+          "sqx-edge.docs-canonical-index-v1",
+          "completed_docs_canonical_index",
+          "No docs moved during A66",
+          "No docs deleted during A66",
+          "No mass docs rehome during A66",
+          "Next restructuring phase: A67 Tooling Ownership Map"
+        ],
+        "docs/MODULARIZATION_NEXT_STEPS.md": [
+          "Current architecture phase: Phase A66: Docs Canonicalization completed.",
+          "Current docs canonical index: `docs/DOCS_CANONICAL_INDEX.md`",
+          "Current A66 scope: define canonical docs vs historical/reference docs with an index",
+          "Next: A67 Tooling Ownership Map",
+          "Phase A66: Docs Canonicalization - define canonical docs vs historical docs with an index before moving docs. Done."
+        ],
+        "CHANGELOG.md": [
+          "2026-06-04 - A66 Docs Canonicalization",
+          "sqx-edge.docs-canonical-index-v1",
+          "docs/DOCS_CANONICAL_INDEX.md",
+          "No docs moved during A66",
+          "No docs deleted during A66",
+          "No mass docs rehome during A66",
+          "Next restructuring phase is `A67 Tooling Ownership Map`"
+        ]
+      },
+      "forbidden": {
+        "docs/DOCS_CANONICAL_INDEX.md": [
+          "A66 moved docs",
+          "A66 deleted docs",
+          "mass docs rehome completed",
+          "historical docs deleted",
+          "runtime SQX launched",
+          "data.db writes enabled",
+          "user/projects writes enabled",
+          "Portfolio Master input unlocked",
+          "REMOTE-8K skipped",
+          "remote expansion approved",
+          "risk zero guaranteed",
+          "guaranteed profitability"
+        ],
+        "docs/RESTRUCTURING_GOVERNANCE.md": [
+          "A66 moved docs",
+          "A66 deleted docs",
+          "mass docs rehome completed",
+          "historical docs deleted",
+          "runtime SQX launched",
+          "data.db writes enabled",
+          "user/projects writes enabled",
+          "Portfolio Master input unlocked",
+          "REMOTE-8K skipped",
+          "remote expansion approved",
+          "risk zero guaranteed",
+          "guaranteed profitability"
+        ],
+        "README.md": [
+          "A66 moved docs",
+          "A66 deleted docs",
+          "mass docs rehome completed",
+          "historical docs deleted",
+          "runtime SQX launched",
+          "data.db writes enabled",
+          "user/projects writes enabled",
+          "Portfolio Master input unlocked",
+          "REMOTE-8K skipped",
+          "remote expansion approved",
+          "risk zero guaranteed",
+          "guaranteed profitability"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "A66 moved docs",
+          "A66 deleted docs",
+          "mass docs rehome completed",
+          "historical docs deleted",
+          "runtime SQX launched",
+          "data.db writes enabled",
+          "user/projects writes enabled",
+          "Portfolio Master input unlocked",
+          "REMOTE-8K skipped",
+          "remote expansion approved",
+          "risk zero guaranteed",
+          "guaranteed profitability"
+        ],
+        "docs/MODULARIZATION_NEXT_STEPS.md": [
+          "A66 moved docs",
+          "A66 deleted docs",
+          "mass docs rehome completed",
+          "historical docs deleted",
+          "runtime SQX launched",
+          "data.db writes enabled",
+          "user/projects writes enabled",
+          "Portfolio Master input unlocked",
+          "REMOTE-8K skipped",
+          "remote expansion approved",
+          "risk zero guaranteed",
+          "guaranteed profitability"
+        ],
+        "CHANGELOG.md": [
+          "A66 moved docs",
+          "A66 deleted docs",
+          "mass docs rehome completed",
+          "historical docs deleted",
+          "runtime SQX launched",
+          "data.db writes enabled",
+          "user/projects writes enabled",
           "Portfolio Master input unlocked",
           "REMOTE-8K skipped",
           "remote expansion approved",

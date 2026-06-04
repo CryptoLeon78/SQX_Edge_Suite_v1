@@ -2,15 +2,15 @@
 
 Marker: `sqx-edge.restructuring-governance-v1`
 
-Current phase: `A65 Boundary Guard`
+Current phase: `A66 Docs Canonicalization`
 
-Status: `completed_boundary_guard`
+Status: `completed_docs_canonical_index`
 
 Last updated: 2026-06-04
 
 ## Purpose
 
-Este registro gobierna una reestructuracion por fases pequenas, trazada en Git y gbrain, sin refactor masivo ni cambio de comportamiento por defecto. A64 solo crea inventario, ownership inicial y log de fases; A65 clasifica fronteras antes de cualquier movimiento. Ninguna de estas fases mueve archivos, borra contenido, cambia imports, cambia build/load order ni toca runtime SQX.
+Este registro gobierna una reestructuracion por fases pequenas, trazada en Git y gbrain, sin refactor masivo ni cambio de comportamiento por defecto. A64 solo crea inventario, ownership inicial y log de fases; A65 clasifica fronteras antes de cualquier movimiento; A66 define docs canonicos vs historicos con indice. Ninguna de estas fases mueve archivos, borra contenido, cambia imports, cambia build/load order ni toca runtime SQX.
 
 ## Live Gates Preserved
 
@@ -24,6 +24,9 @@ Este registro gobierna una reestructuracion por fases pequenas, trazada en Git y
 - No `run_project`, Migration Tool, jars internos, licencia, activacion, bypass ni claims de rentabilidad o riesgo cero.
 - No physical moves during A65.
 - No deletes during A65.
+- No docs moved during A66.
+- No docs deleted during A66.
+- No mass docs rehome during A66.
 
 ## Top-Level Inventory Snapshot
 
@@ -31,7 +34,7 @@ Snapshot A64 de paths tracked principales, generado para orientar fases futuras 
 
 | Path | Tracked files | Ownership inicial | A64 policy |
 | --- | ---: | --- | --- |
-| `docs/` | 448 | Governance, runbooks, canonical and historical docs | Clasificar canonicos vs historicos en A66; no movimiento masivo. |
+| `docs/` | 450 | Governance, runbooks, canonical and historical docs | A66 crea indice canonico; no movimiento masivo. |
 | `backend/` | 409 | Flask/API, core SQX helpers, config, backend tools | No cambios de imports ni behavior en A64. |
 | `templates/` | 139 | SQX project/template artifacts | Mantener estables hasta gates explicitos. |
 | `app/` | 63 | Dashboard/frontend modules and assets | No load-order, nav, CSS or visible UI changes in A64. |
@@ -71,14 +74,27 @@ A65 Boundary Guard completed as a docs-only classification pass. It used root-le
 - Generated and backup roots remain non-canonical. Their presence does not authorize cleanup, deletion, packaging or sync.
 - Any future physical move must start from this boundary table, update references/wrappers, run focal tests and keep one domain per commit.
 
+## A66 Docs Canonicalization
+
+A66 Docs Canonicalization completed as `sqx-edge.docs-canonical-index-v1` in `docs/DOCS_CANONICAL_INDEX.md`. It defines the canonical lookup order, canonical core docs, domain-family policy and historical/reference conflict rules.
+
+| Docs class | Decision |
+| --- | --- |
+| Canonical current state | `docs/PROJECT_GOVERNANCE.md`, `docs/RESTRUCTURING_GOVERNANCE.md`, `docs/DOCS_CANONICAL_INDEX.md`, `docs/state_consistency_manifest.json`, `README.md`, `CHANGELOG.md`. |
+| Canonical planning/reference | `docs/PUBLIC_ROADMAP.md`, `docs/MODULARIZATION_NEXT_STEPS.md`, `docs/ARCHITECTURE.md`, when not superseded by live governance. |
+| Domain docs | SQX142/SQX144, REMOTE/T/TL, MONETIZATION, portfolio/Capa2, UX/J/SB/PG/WFCO, release/readiness docs are canonical only when named by governance, README, changelog or manifest. |
+| Historical/reference docs | Older phase closeouts and gate series remain tracked as evidence, but do not override live governance state. |
+
+No docs moved during A66. No docs deleted during A66. No mass docs rehome during A66. Next restructuring phase: `A67 Tooling Ownership Map`.
+
 ## Phase Register A64-A69
 
 | Phase | Status | Goal | Boundaries | Done criteria |
 | --- | --- | --- | --- | --- |
 | A64 Structure Register Bootstrap | completed | Crear registro, mapa top-level, ownership inicial y log de fases. | Docs-only inventory; no physical moves, no runtime changes. | Punteros y manifest actualizados, tests base, gbrain log, commit y push. |
 | A65 Boundary Guard | completed | Clasificar ignorados, generados, privados y casos visibles como `data/DatabankExport.csv`. | No borrados ni moves sin evidencia; privacidad primero. | Tabla de clases, acciones propuestas y tests focales. |
-| A66 Docs Canonicalization | next | Definir docs canonicos vs historicos con indice. | No mover masivamente `docs/`; primero indexar. | Indice aprobado y referencias canonicas claras. |
-| A67 Tooling Ownership Map | pending | Documentar ownership de scripts raiz, `tools/`, wrappers y runbooks. | No mover wrappers sin compatibilidad o alias. | Mapa de tooling, owners y riesgos por dominio. |
+| A66 Docs Canonicalization | completed | Definir docs canonicos vs historicos con indice. | No mover masivamente `docs/`; primero indexar. | Indice aprobado y referencias canonicas claras. |
+| A67 Tooling Ownership Map | next | Documentar ownership de scripts raiz, `tools/`, wrappers y runbooks. | No mover wrappers sin compatibilidad o alias. | Mapa de tooling, owners y riesgos por dominio. |
 | A68 Low-Risk Physical Moves | pending | Mover solo candidatos seguros, un dominio por commit. | Mantener wrappers/referencias antiguas cuando haga falta. | Un movimiento pequeno, tests focales y rollback claro. |
 | A69 Major Refactor Decision Gate | pending | Decidir si procede separar tests/backend/frontend de forma mayor. | Solo tras `REMOTE-8K` y roundtrip de `SQX142-AW-AI2`. | Decision registrada; si no hay GO, se aparca. |
 
@@ -88,6 +104,7 @@ A65 Boundary Guard completed as a docs-only classification pass. It used root-le
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | 2026-06-04 | A64 Structure Register Bootstrap | completed_docs_only_inventory | `docs/RESTRUCTURING_GOVERNANCE.md`, `README.md`, `docs/PROJECT_GOVERNANCE.md`, `docs/MODULARIZATION_NEXT_STEPS.md`, `CHANGELOG.md`, `docs/state_consistency_manifest.json` | `git diff --check`; docs-state pytest; local agent pytest; JS module contracts; privacy scan OK | A64 closeout commit in Git history | `origin/codex/sqx142-143-backport` | `projects/sqx-edge-suite-v1` A64 closeout entry |
 | 2026-06-04 | A65 Boundary Guard | completed_boundary_guard | `docs/RESTRUCTURING_GOVERNANCE.md`, `README.md`, `docs/PROJECT_GOVERNANCE.md`, `docs/MODULARIZATION_NEXT_STEPS.md`, `CHANGELOG.md`, `docs/state_consistency_manifest.json` | `git diff --check`; docs-state pytest; `data/DatabankExport.csv` privacy scan; changed-doc privacy scan OK | A65 closeout commit in Git history | `origin/codex/sqx142-143-backport` | `projects/sqx-edge-suite-v1` A65 closeout entry |
+| 2026-06-04 | A66 Docs Canonicalization | completed_docs_canonical_index | `docs/DOCS_CANONICAL_INDEX.md`, `docs/RESTRUCTURING_GOVERNANCE.md`, `README.md`, `docs/PROJECT_GOVERNANCE.md`, `docs/MODULARIZATION_NEXT_STEPS.md`, `CHANGELOG.md`, `docs/state_consistency_manifest.json` | `git diff --check`; docs-state pytest; changed-doc privacy scan OK | A66 closeout commit in Git history | `origin/codex/sqx142-143-backport` | `projects/sqx-edge-suite-v1` A66 closeout entry |
 
 ## Subagent Protocol
 
@@ -107,6 +124,9 @@ Subagents may review structure/architecture, docs/privacy and tests/verification
 - No physical moves during A64.
 - No physical moves during A65.
 - No deletes during A65.
+- No docs moved during A66.
+- No docs deleted during A66.
+- No mass docs rehome during A66.
 - No SQX runtime launch.
 - No `data.db` writes.
 - No `user/projects` writes.

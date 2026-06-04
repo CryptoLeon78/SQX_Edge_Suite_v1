@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-06-04 - A66 Docs Canonicalization
+
+- Adds `docs/DOCS_CANONICAL_INDEX.md` as `sqx-edge.docs-canonical-index-v1`, defining canonical lookup order, canonical core docs, domain-family policy and historical/reference conflict rules.
+- Classifies long gate series and older feature tracks as reference history unless current governance, README, changelog or manifest explicitly selects them as active.
+- Preserves boundaries: No docs moved during A66, No docs deleted during A66, No mass docs rehome during A66, no runtime changes, no Portfolio Master unlock and no private evidence import. Next restructuring phase is `A67 Tooling Ownership Map`.
+
 ## 2026-06-04 - A65 Boundary Guard
 
 - Completes `A65 Boundary Guard` as `completed_boundary_guard` in `docs/RESTRUCTURING_GOVERNANCE.md`, classifying tracked source/docs/tooling, ignored generated roots, ignored private/operator roots, backups/copies and visible public-safe sample data before any movement.
