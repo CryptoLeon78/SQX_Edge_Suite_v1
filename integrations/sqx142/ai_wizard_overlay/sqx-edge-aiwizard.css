@@ -3,9 +3,9 @@
   right: 22px;
   bottom: 22px;
   z-index: 2147483000;
-  border: 1px solid rgba(117, 178, 255, 0.42);
+  border: 1px solid rgba(93, 217, 166, 0.5);
   border-radius: 8px;
-  background: #132238;
+  background: #1d5f49;
   color: #f7fbff;
   font: 700 13px/1.1 "Segoe UI", Arial, sans-serif;
   padding: 12px 14px;
@@ -69,6 +69,22 @@
   font-size: 12px;
 }
 
+.sqx-edge-aiwizard-prompt-label {
+  display: grid;
+  gap: 4px;
+  margin: 12px 0 8px;
+}
+
+.sqx-edge-aiwizard-prompt-label strong {
+  font-size: 13px;
+}
+
+.sqx-edge-aiwizard-prompt-label small {
+  color: #94aac4;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
 .sqx-edge-aiwizard-close {
   width: 34px;
   height: 34px;
@@ -103,12 +119,18 @@
 .sqx-edge-aiwizard-download {
   border: 1px solid rgba(97, 159, 235, 0.42);
   border-radius: 8px;
-  background: #1c5fd6;
+  background: #233247;
   color: #fff;
   padding: 10px 12px;
   font-weight: 700;
   text-decoration: none;
   cursor: pointer;
+}
+
+.sqx-edge-aiwizard-actions button.sqx-edge-aiwizard-primary,
+.sqx-edge-aiwizard-download {
+  border-color: rgba(93, 217, 166, 0.48);
+  background: #1f7a5c;
 }
 
 .sqx-edge-aiwizard-actions-compact button {
@@ -406,6 +428,17 @@
   background: #321e28;
   color: #ffd2d2;
   padding: 4px 7px;
+}
+
+.sqx-edge-aiwizard-blocker b,
+.sqx-edge-aiwizard-blocker small {
+  display: block;
+}
+
+.sqx-edge-aiwizard-blocker small {
+  margin-top: 2px;
+  color: #e7a7a7;
+  font-size: 11px;
 }
 
 .sqx-edge-aiwizard-lineage {

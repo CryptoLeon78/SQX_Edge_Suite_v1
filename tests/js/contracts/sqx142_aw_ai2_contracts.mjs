@@ -40,8 +40,15 @@ assert.match(overlayJs, /sqx-edge-aiwizard-catalog/);
 assert.match(overlayJs, /sqx-edge-aiwizard-params/);
 assert.match(overlayJs, /sqx-edge-aiwizard-fork/);
 assert.match(overlayJs, /function apiUrl\(path\)/);
+assert.match(overlayJs, /function blockerLabel\(code\)/);
 assert.match(overlayJs, /raw\.indexOf\("\/api\/"\) === 0/);
 assert.match(overlayJs, /data-sqx-aiwizard-download/);
+assert.match(overlayJs, /Crear bot SQX/);
+assert.match(overlayJs, /Idea del bot/);
+assert.match(overlayJs, /Crear plan/);
+assert.match(overlayJs, /Generar \.sqx/);
+assert.match(overlayJs, /Duplicar/);
+assert.match(overlayJs, /Modo guiado/);
 assert.match(overlayJs, /data-sqx-aiwizard-session-id/);
 assert.match(overlayJs, /data-sqx-aiwizard-archetype/);
 assert.match(overlayJs, /data-sqx-aiwizard-param/);
@@ -57,6 +64,8 @@ assert.doesNotMatch(overlayJs, /API_BASE \+ draft\.downloadUrl/);
 assert.match(overlayCss, /\.sqx-edge-aiwizard-session-list/);
 assert.match(overlayCss, /\.sqx-edge-aiwizard-catalog/);
 assert.match(overlayCss, /\.sqx-edge-aiwizard-param-grid/);
+assert.match(overlayCss, /\.sqx-edge-aiwizard-prompt-label/);
+assert.match(overlayCss, /\.sqx-edge-aiwizard-primary/);
 
 if (doc) {
   assert.match(doc, /SQX142-AW-AI2/);

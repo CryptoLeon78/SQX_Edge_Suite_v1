@@ -1058,7 +1058,7 @@
     },
     {
       "id": "sqx142_aw_ai2_ai_studio_gate",
-      "description": "AlgoWizard AI Studio must use a sanitized SQX142 capability catalog, validated AST, redacted SQLite sessions and local-only overlay/API. The overlay v2 is installed with SQX closed, while the human AlgoWizard roundtrip remains pending.",
+      "description": "AlgoWizard AI Studio must use a sanitized SQX142 capability catalog, validated AST, redacted SQLite sessions and local-only overlay/API. The overlay v2 is installed with SQX closed, the UX1 guided bot builder is repo-ready but install-blocked by a running SQX process, and the human AlgoWizard roundtrip remains pending.",
       "required": {
         "README.md": [
           "SQX142-AW-AI2 AlgoWizard AI Studio",
@@ -1067,9 +1067,16 @@
           "sqx-edge.ai-wizard-strategy-ast-v1",
           "installed_pending_manual_roundtrip",
           "overlay v2 instalado con SQX cerrado y roundtrip humano pendiente",
-          "SQX142-AW-AI2 DRAFT1 download URL patch"
+          "SQX142-AW-AI2 DRAFT1 download URL patch",
+          "SQX142-AW-AI2 UX1 guided bot builder",
+          "ux1_repo_ready_install_blocked_sqx_process_running"
         ],
         "CHANGELOG.md": [
+          "2026-06-04 - SQX142-AW-AI2 Guided Bot Builder UX1",
+          "Crear bot SQX",
+          "Idea del bot",
+          "blockerLabel()",
+          "ux1_repo_ready_install_blocked_sqx_process_running",
           "2026-06-04 - SQX142-AW-AI2 Draft Download URL Patch",
           "API_BASE + draft.downloadUrl",
           "apiUrl()",
@@ -1088,6 +1095,9 @@
           "source is built and tested"
         ],
         "docs/PROJECT_GOVERNANCE.md": [
+          "Current local phase repo-ready: SQX142-AW-AI2 UX1",
+          "Guided Bot Builder",
+          "ux1_repo_ready_install_blocked_sqx_process_running",
           "Current local phase patched: SQX142-AW-AI2",
           "Draft Download URL Patch",
           "sqx142_ai_wizard_overlay_20260604_170156",
@@ -1106,7 +1116,11 @@
           "sqx142_ai_wizard_overlay_20260604_163808",
           "Patch DRAFT1",
           "apiUrl()",
-          "sqx142_ai_wizard_overlay_20260604_170156"
+          "sqx142_ai_wizard_overlay_20260604_170156",
+          "UX1 guided bot builder",
+          "Crear bot SQX",
+          "blockerLabel()",
+          "ux1_repo_ready_install_blocked_sqx_process_running"
         ],
         "backend/sqx-edge-tool/core/sqx142_ai_wizard.py": [
           "AI_WIZARD_AI2_VERSION = \"sqx142-ai-wizard-studio-v2\"",
@@ -1131,11 +1145,23 @@
         "integrations/sqx142/ai_wizard_overlay/sqx-edge-aiwizard.js": [
           "sqx142-ai-wizard-overlay-v2",
           "function apiUrl(path)",
+          "function blockerLabel(code)",
           "data-sqx-aiwizard-download",
+          "Crear bot SQX",
+          "Idea del bot",
+          "Crear plan",
+          "Generar .sqx",
+          "Duplicar",
+          "Modo guiado UX: enabled",
           "sqx-edge-aiwizard-sessions",
           "sqx-edge-aiwizard-catalog",
           "sqx-edge-aiwizard-params",
           "Provider directo desde navegador: blocked"
+        ],
+        "integrations/sqx142/ai_wizard_overlay/sqx-edge-aiwizard.css": [
+          "sqx-edge-aiwizard-prompt-label",
+          "sqx-edge-aiwizard-primary",
+          "#1f7a5c"
         ],
         "backend/sqx-edge-tool/test_sqx142_ai_wizard_studio.py": [
           "test_ai2_catalog_is_sanitized_and_counts_fake_sources",
@@ -1146,6 +1172,8 @@
           "sqx142 aw ai2 contracts ok",
           "assert.doesNotMatch(overlayJs, /API_BASE \\+ draft\\.downloadUrl/);",
           "data-sqx-aiwizard-download",
+          "function blockerLabel\\(code\\)",
+          "Crear bot SQX",
           "raw_catalog_request_blocked",
           "data-sqx-aiwizard-session-id"
         ]

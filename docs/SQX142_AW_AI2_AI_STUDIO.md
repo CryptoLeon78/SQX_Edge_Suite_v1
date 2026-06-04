@@ -12,6 +12,8 @@ Instalacion del 2026-06-04 tras cierre manual de SQX: `tools/sqx142_ai_wizard_ov
 
 Patch DRAFT1 del 2026-06-04: durante el roundtrip humano, el operador reporto una pantalla `Not Found` tras la accion de draft. Causa probable: el overlay construia el link de descarga como `API_BASE + draft.downloadUrl` aunque `downloadUrl` ya empieza por `/api/...`, generando `/api/api/...`. El overlay ahora usa `apiUrl()` para resolver descargas backend `/api/...` contra el origen Flask local, instala el JS parcheado con backup `sqx142_ai_wizard_overlay_20260604_170156` y conserva estado `installed_pending_manual_roundtrip` hasta repetir la prueba humana.
 
+UX1 guided bot builder del 2026-06-04: el operador reporto que crear un bot era poco intuitivo y poco amigable. El overlay fuente pasa de una entrada tecnica de sesiones/AST/catalogo a una entrada guiada: `Crear bot SQX`, `Idea del bot`, `Crear plan`, `Generar .sqx`, `Duplicar`, `Modo guiado`, ajustes basicos, bloqueos legibles con `blockerLabel()` y diagnostico local plegado. Instalacion pendiente: `tools/sqx142_ai_wizard_overlay.ps1 status` reporta `sqx_process_running` con `processCount=6`, por tanto no se ejecuto `install -Apply`. Estado UX1: `ux1_repo_ready_install_blocked_sqx_process_running`; AI2 sigue `installed_pending_manual_roundtrip`.
+
 ## Entrega
 
 - Version: `sqx142-ai-wizard-studio-v2`.
@@ -123,3 +125,13 @@ Manual pendiente con SQX cerrado:
 - forbidden regression: `API_BASE + draft.downloadUrl`
 - reinstall backup: `sqx142_ai_wizard_overlay_20260604_170156`
 - status after patch: `installed_pending_manual_roundtrip`
+
+2026-06-04 UX1:
+
+- reported symptom: bot creation felt unintuitive and unfriendly
+- fix scope: overlay source copy/order/states only, no backend/runtime contract change
+- user-facing markers: `Crear bot SQX`, `Idea del bot`, `Crear plan`, `Generar .sqx`, `Duplicar`, `Modo guiado`
+- blocker UX: `blockerLabel()` maps technical blocker codes to actionable Spanish text
+- install status: `ux1_repo_ready_install_blocked_sqx_process_running`
+- install blocker: `sqx_process_running`, `processCount=6`
+- mutation status: no `install -Apply`, no SQX runtime launch from scripts, no `data.db`, no `user/projects`

@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-06-04 - SQX142-AW-AI2 Guided Bot Builder UX1
+
+- Reworks the AlgoWizard overlay entry flow after operator feedback that bot creation was unintuitive and unfriendly: launcher/copy now centers `Crear bot SQX`, `Idea del bot`, `Crear plan`, `Generar .sqx`, `Duplicar` and `Modo guiado`.
+- Moves the guided workflow before technical catalog details, adds friendly blocker labels through `blockerLabel()` and keeps local diagnostics folded under `Diagnostico local`.
+- Preserves safety contracts: no direct provider calls from browser, no browser storage, no `API_BASE + draft.downloadUrl` regression and no SQX runtime launch from scripts.
+- Leaves UX1 repo-ready but not installed because `tools/sqx142_ai_wizard_overlay.ps1 status` reports `sqx_process_running` with `processCount=6`; no `install -Apply` was executed. Status: `ux1_repo_ready_install_blocked_sqx_process_running`; AI2 remains `installed_pending_manual_roundtrip`.
+
 ## 2026-06-04 - SQX142-AW-AI2 Draft Download URL Patch
 
 - Fixes the AlgoWizard `Not Found` failure reported during draft download by replacing the faulty `API_BASE + draft.downloadUrl` construction with `apiUrl()`.
