@@ -1,12 +1,14 @@
 # SQX142-AW-AI2 AlgoWizard AI Studio Con Catalogo Completo
 
-Estado: `blocked_sqx_process_running`.
+Estado: `installed_pending_manual_roundtrip`.
 
 Esta fase convierte el AI Wizard de AlgoWizard 142 en un AI Studio reutilizable. El alcance v1 de AI2 es Todo AlgoWizard, no Full Editor completo: puede planificar estrategias expresables con bloques, indicadores, senales, operadores y parametros disponibles en AlgoWizard; cualquier peticion de Full Editor, Java custom o engine/plugin queda bloqueada.
 
 SQX estaba abierto durante la implementacion, por descarga de data del operador. Por tanto la entrega inicial fue repo-side y read-only sobre SQX: no se ejecuto install, rollback ni manual roundtrip.
 
 Intento seguro del 2026-06-04: `tools/sqx142_ai_wizard_overlay.ps1 status` detecto overlay/assets existentes, pero `install` dry-run quedo bloqueado por `sqx_process_running`. Una inspeccion read-only confirmo que el marcador previo existe, pero `sqx142-ai-wizard-overlay-v2` no esta instalado y los assets activos no coinciden con la fuente repo. No se ejecuto `install -Apply`, no se forzo cierre de SQX y no se hizo manual roundtrip.
+
+Instalacion del 2026-06-04 tras cierre manual de SQX: `tools/sqx142_ai_wizard_overlay.ps1 install -Apply` devolvio `installed`, creo backup `sqx142_ai_wizard_overlay_20260604_163808` y dejo `sqx142-ai-wizard-overlay-v2` referenciado en AlgoWizard. Verificacion read-only: JS/CSS activos coinciden con la fuente repo y `processCount=0`. El roundtrip humano sigue pendiente.
 
 ## Entrega
 
@@ -101,3 +103,12 @@ Manual pendiente con SQX cerrado:
 - assets activos: no coinciden con la fuente repo v2
 - mutaciones ejecutadas: ninguna
 - siguiente accion segura: cerrar SQX manualmente, reintentar `install -Apply` y hacer roundtrip humano en AlgoWizard
+
+2026-06-04 after manual SQX close:
+
+- install status: `installed`
+- backup: `sqx142_ai_wizard_overlay_20260604_163808`
+- overlay v2 instalado: confirmado
+- assets activos: coinciden con la fuente repo v2
+- SQX process count after install: `0`
+- siguiente accion segura: abrir SQX manualmente y completar el roundtrip humano en AlgoWizard

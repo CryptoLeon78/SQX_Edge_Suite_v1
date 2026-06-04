@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-06-04 - SQX142-AW-AI2 Overlay Installed
+
+- Installs the SQX142-AW-AI2 overlay v2 after the operator manually closed SQX: `tools/sqx142_ai_wizard_overlay.ps1 install -Apply` returned `installed`.
+- Records backup `sqx142_ai_wizard_overlay_20260604_163808` and read-only verification: `sqx142-ai-wizard-overlay-v2` is present in AlgoWizard HTML, active JS/CSS hashes match repo source and SQX process count stayed zero after install.
+- Leaves the state as `installed_pending_manual_roundtrip`: the human AlgoWizard open/edit/reopen/fork/draft/editability roundtrip is still pending.
+- Preserves boundaries: no forced process stop, no SQX runtime launch from scripts, no `data.db` writes, no `user/projects` writes, no databank mutation, no license/activation change and no bypass.
+
 ## 2026-06-04 - SQX142-AW-AI2 Install Roundtrip Blocked
 
 - Attempts the SQX142-AW-AI2 overlay install/manual roundtrip safely with `tools/sqx142_ai_wizard_overlay.ps1 status` and dry-run `install`.
