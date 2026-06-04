@@ -31,7 +31,7 @@
         "docs/RESTRUCTURING_GOVERNANCE.md": [
           "sqx-edge.restructuring-governance-v1",
           "A64 Structure Register Bootstrap",
-          "active_docs_only_inventory",
+          "completed_docs_only_inventory",
           "A64 solo crea inventario, ownership inicial y log de fases",
           "No physical moves during A64",
           "No SQX runtime launch",
@@ -41,26 +41,26 @@
           "A69 Major Refactor Decision Gate"
         ],
         "README.md": [
-          "SQX Edge restructuring governance A64 esta activo",
+          "SQX Edge restructuring governance A64 quedo registrado",
           "sqx-edge.restructuring-governance-v1",
           "docs/RESTRUCTURING_GOVERNANCE.md",
           "active_docs_only_inventory",
           "sin mover archivos, cambiar imports, load order ni runtime SQX"
         ],
         "docs/PROJECT_GOVERNANCE.md": [
-          "Current phase active: A64 - Structure Register Bootstrap",
+          "Current architecture baseline completed: A64 - Structure Register Bootstrap",
           "sqx-edge.restructuring-governance-v1",
           "docs/RESTRUCTURING_GOVERNANCE.md",
           "A64 only creates inventory, initial ownership and phase log",
           "No physical moves during A64",
-          "No new remote expansion before REMOTE-8K monitoring closeout"
+          "no remote expansion before REMOTE-8K monitoring closeout"
         ],
         "docs/MODULARIZATION_NEXT_STEPS.md": [
           "Phase A64: Structure Register Bootstrap",
           "sqx-edge.restructuring-governance-v1",
           "docs/RESTRUCTURING_GOVERNANCE.md",
-          "Docs-only inventory; no physical moves, no runtime changes",
-          "Next: A65 Boundary Guard"
+          "Phase A64: Structure Register Bootstrap - create governed restructuring register and inventory. Done.",
+          "Phase A65: Boundary Guard - classify ignored/generated/private boundaries. Done."
         ],
         "CHANGELOG.md": [
           "2026-06-04 - A64 Structure Register Bootstrap",
@@ -148,6 +148,123 @@
           "remote expansion approved",
           "gbrain bulk import",
           "duplicate gbrain page",
+          "risk zero guaranteed",
+          "guaranteed profitability"
+        ]
+      }
+    },
+    {
+      "id": "sqx_edge_restructuring_boundary_guard_v1_gate",
+      "description": "A65 Boundary Guard must remain a docs-only boundary classification phase and must not imply file moves, deletion, runtime execution or Portfolio Master input unlock.",
+      "required": {
+        "docs/RESTRUCTURING_GOVERNANCE.md": [
+          "A65 Boundary Guard",
+          "completed_boundary_guard",
+          "A65 Boundary Classification",
+          "Visible public-safe sample",
+          "data/DatabankExport.csv",
+          "No physical moves during A65",
+          "No deletes during A65",
+          "A66 Docs Canonicalization"
+        ],
+        "README.md": [
+          "A65 Boundary Guard queda registrado",
+          "completed_boundary_guard",
+          "data/DatabankExport.csv",
+          "sin mover ni borrar archivos",
+          "Siguiente reestructuracion: A66 Docs Canonicalization"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Current architecture phase completed: A65 Boundary Guard",
+          "completed_boundary_guard",
+          "No physical moves during A65",
+          "No deletes during A65",
+          "Next restructuring phase: A66 Docs Canonicalization"
+        ],
+        "docs/MODULARIZATION_NEXT_STEPS.md": [
+          "Current architecture phase: Phase A65: Boundary Guard completed.",
+          "Current A65 scope: classify tracked/ignored/generated/private boundaries",
+          "Next: A66 Docs Canonicalization",
+          "Phase A65: Boundary Guard - classify ignored/generated/private boundaries. Done."
+        ],
+        "CHANGELOG.md": [
+          "2026-06-04 - A65 Boundary Guard",
+          "completed_boundary_guard",
+          "data/DatabankExport.csv",
+          "Preserves boundaries: no physical moves, no deletes, no SQX runtime launch, no data.db writes, no user/projects writes",
+          "Next restructuring phase is `A66 Docs Canonicalization`"
+        ]
+      },
+      "forbidden": {
+        "docs/RESTRUCTURING_GOVERNANCE.md": [
+          "A65 moved files",
+          "A65 deleted files",
+          "A65 changed imports",
+          "A65 changed load order",
+          "runtime SQX launched",
+          "data.db writes enabled",
+          "user/projects writes enabled",
+          "data/DatabankExport.csv promoted to real input",
+          "Portfolio Master input unlocked",
+          "Portfolio Master artifact generated",
+          "REMOTE-8K skipped",
+          "remote expansion approved",
+          "gbrain bulk import",
+          "duplicate gbrain page",
+          "risk zero guaranteed",
+          "guaranteed profitability"
+        ],
+        "README.md": [
+          "A65 moved files",
+          "A65 deleted files",
+          "runtime SQX launched",
+          "data.db writes enabled",
+          "user/projects writes enabled",
+          "data/DatabankExport.csv promoted to real input",
+          "Portfolio Master input unlocked",
+          "REMOTE-8K skipped",
+          "remote expansion approved",
+          "risk zero guaranteed",
+          "guaranteed profitability"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "A65 moved files",
+          "A65 deleted files",
+          "runtime SQX launched",
+          "data.db writes enabled",
+          "user/projects writes enabled",
+          "data/DatabankExport.csv promoted to real input",
+          "Portfolio Master input unlocked",
+          "REMOTE-8K skipped",
+          "remote expansion approved",
+          "risk zero guaranteed",
+          "guaranteed profitability"
+        ],
+        "docs/MODULARIZATION_NEXT_STEPS.md": [
+          "A65 moved files",
+          "A65 deleted files",
+          "A65 changed imports",
+          "A65 changed load order",
+          "runtime SQX launched",
+          "data.db writes enabled",
+          "user/projects writes enabled",
+          "data/DatabankExport.csv promoted to real input",
+          "Portfolio Master input unlocked",
+          "REMOTE-8K skipped",
+          "remote expansion approved",
+          "risk zero guaranteed",
+          "guaranteed profitability"
+        ],
+        "CHANGELOG.md": [
+          "A65 moved files",
+          "A65 deleted files",
+          "runtime SQX launched",
+          "data.db writes enabled",
+          "user/projects writes enabled",
+          "data/DatabankExport.csv promoted to real input",
+          "Portfolio Master input unlocked",
+          "REMOTE-8K skipped",
+          "remote expansion approved",
           "risk zero guaranteed",
           "guaranteed profitability"
         ]

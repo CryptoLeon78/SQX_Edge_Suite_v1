@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-06-04 - A65 Boundary Guard
+
+- Completes `A65 Boundary Guard` as `completed_boundary_guard` in `docs/RESTRUCTURING_GOVERNANCE.md`, classifying tracked source/docs/tooling, ignored generated roots, ignored private/operator roots, backups/copies and visible public-safe sample data before any movement.
+- Keeps `data/DatabankExport.csv` tracked for now as a small visible public-safe sample/export fixture, not private evidence and not a Portfolio Master input; A65 scan found no email, URL, local Windows path, full IP, token, secret, license payload or private-key pattern.
+- Preserves boundaries: no physical moves, no deletes, no SQX runtime launch, no data.db writes, no user/projects writes, curated gbrain update only and single canonical gbrain page. Next restructuring phase is `A66 Docs Canonicalization`.
+
 ## 2026-06-04 - A64 Structure Register Bootstrap
 
 - Starts governed restructuring as `sqx-edge.restructuring-governance-v1` in `docs/RESTRUCTURING_GOVERNANCE.md`, with repo+gbrain register, top-level inventory, ownership map and A64-A69 phase log.
