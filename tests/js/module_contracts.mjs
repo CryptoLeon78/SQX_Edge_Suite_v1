@@ -28,5 +28,6 @@ import './contracts/project_generator_contracts.mjs';
 import './contracts/project_generator_boundaries_contracts.mjs';
 import './contracts/sqx142_aw_ai1_contracts.mjs';
 import './contracts/sqx142_aw_ai2_contracts.mjs';
+import './contracts/sqx142_aw_ai3_contracts.mjs';
 
 console.log('module contracts ok');

@@ -7,6 +7,7 @@ from unittest.mock import patch
 from api import server
 from core.sqx142_ai_wizard import (
     AI_WIZARD_AI2_VERSION,
+    AI_WIZARD_AI3_COMPILER_VERSION,
     AST_TYPE,
     CATALOG_TYPE,
     XML_ENTRY,
@@ -28,6 +29,46 @@ MINIMAL_XML = """<?xml version="1.0" encoding="UTF-8"?>
   </options>
   <Strategy name="" engine="MetaTrader">
     <Description />
+  </Strategy>
+</StrategyFile>
+"""
+
+AI3_SIGNAL_XML = """<?xml version="1.0" encoding="UTF-8"?>
+<StrategyFile Version="3.9.130">
+  <options>
+    <StrategyName>New strategy</StrategyName>
+    <Date>01/08/2020 08:24</Date>
+  </options>
+  <Strategy name="" engine="MetaTrader" negateRules="false">
+    <Description />
+    <Rules>
+      <Rule name="Trading signals" type="Signal" everyTick="false">
+        <signals>
+          <signal variable="33333333-1111-1111-3333-333333333333">
+            <Item key="CrossesAbove" name="Crosses Above" display="#Left# crosses above #Right#" mI="Comparisons" returnType="boolean" categoryType="operators" />
+          </signal>
+          <signal variable="33333333-2222-1111-3333-333333333333">
+            <Item key="CrossesBelow" name="Crosses Below" display="#Left# crosses below #Right#" mI="Comparisons" returnType="boolean" categoryType="operators" />
+          </signal>
+        </signals>
+      </Rule>
+      <Rule name="Long entry" type="IfThen" everyTick="false">
+        <Block />
+        <Item key="EnterAtMarket" name="(MKT) Enter at market" display="EnterAtMarket" mI="Open" returnType="order" categoryType="other">
+          <Param key="#Direction#" name="Direction" type="int">1</Param>
+          <Param key="#ProfitTarget.ProfitTarget#" name="Profit Target" type="double"><Param key="#Value#" name="Value" type="double">70</Param></Param>
+          <Param key="#StopLoss.StopLoss#" name="Stop Loss" type="double"><Param key="#Value#" name="Value" type="double">50</Param></Param>
+        </Item>
+      </Rule>
+      <Rule name="Short entry" type="IfThen" everyTick="false">
+        <Block />
+        <Item key="EnterAtMarket" name="(MKT) Enter at market" display="EnterAtMarket" mI="Open" returnType="order" categoryType="other">
+          <Param key="#Direction#" name="Direction" type="int">-1</Param>
+          <Param key="#ProfitTarget.ProfitTarget#" name="Profit Target" type="double"><Param key="#Value#" name="Value" type="double">70</Param></Param>
+          <Param key="#StopLoss.StopLoss#" name="Stop Loss" type="double"><Param key="#Value#" name="Value" type="double">50</Param></Param>
+        </Item>
+      </Rule>
+    </Rules>
   </Strategy>
 </StrategyFile>
 """
@@ -68,7 +109,7 @@ def _write_fake_sqx_root(tmp_path: Path) -> Path:
     )
     block_items = "".join(
         f'<Item key="{key}" returnType="number" display="{key}"/>'
-        for key in ["EMA", "SMA", "RSI", "BollingerBands", "Stochastic", "MACD", "CCI", "ADX", "ATR", "High", "Low", "Close", "Number"]
+        for key in ["EMA", "SMA", "RSI", "BollingerBands", "Stochastic", "MACD", "CCI", "ADX", "ATR", "Open", "High", "Low", "Close", "Number"]
     )
     comparison_items = "".join(
         f'<Item key="{key}" returnType="boolean" display="{key}"/>'
@@ -81,7 +122,7 @@ def _write_fake_sqx_root(tmp_path: Path) -> Path:
     for name in ["EMACross.sqx", "breakout.sqx", "RangeBreakout.sqx", "mean_reversion.sqx"]:
         with zipfile.ZipFile(examples / name, "w", compression=zipfile.ZIP_DEFLATED) as archive:
             archive.writestr("META-INF/MANIFEST.MF", "Manifest-Version: 1.0\n")
-            archive.writestr(XML_ENTRY, MINIMAL_XML)
+            archive.writestr(XML_ENTRY, AI3_SIGNAL_XML if name == "EMACross.sqx" else MINIMAL_XML)
     (examples / "examples.json").write_text("[]", encoding="utf-8")
     (blocks / "EMA.tpl").write_text("redacted", encoding="utf-8")
     (custom / "SqRSI.mq5").write_text("redacted", encoding="utf-8")
@@ -137,7 +178,7 @@ def test_ai2_ast_validates_common_algowizard_blocks(tmp_path):
     _assert_public_safe(report)
 
 
-def test_ai2_spanish_candle_prompt_is_understood_but_not_invented(tmp_path):
+def test_ai3_spanish_candle_prompt_compiles_traceable_draft(tmp_path):
     sqx_root = _write_fake_sqx_root(tmp_path)
     db_path = tmp_path / ".local" / "sqx142_ai_wizard" / "ai_wizard.sqlite"
     prompt = (
@@ -163,17 +204,77 @@ def test_ai2_spanish_candle_prompt_is_understood_but_not_invented(tmp_path):
     assert ast["recognized"]["pattern"]["requiresHammer"] is True
     assert ast["recognized"]["pattern"]["entryTiming"] == "market_on_second_green_after_confirmation"
     assert ast["recognized"]["filters"][0]["blockId"] == "ATR"
-    assert ast["compiler"]["draftable"] is False
-    assert "blocked_unsupported_candle_pattern" in ast["compiler"]["blockers"]
-    assert "blocked_not_draftable_yet" in report["warnings"]
+    assert ast["compiler"]["draftable"] is True
+    assert ast["compiler"]["templateClass"] == "candle_atr_sequence"
+    assert ast["compiler"]["version"] == AI_WIZARD_AI3_COMPILER_VERSION
+    assert ast["compiler"]["universalPromptIntake"] is True
+    assert ast["compiler"]["universalSqxGeneration"] is False
+    assert ast["interpreter"]["rawPromptPersisted"] is False
     assert "EMA" not in ast["catalogRefs"]["blockIds"]
     assert "BollingerBands" not in ast["catalogRefs"]["blockIds"]
     assert created["ok"] is True
-    assert draft["ok"] is False
-    assert draft["error"] == "blocked_not_draftable_yet"
-    assert "blocked_unsupported_candle_pattern" in draft["blockers"]
+    assert draft["ok"] is True
+    generated = resolve_ai_wizard_draft_download(tmp_path, draft["data"]["draft"]["draftId"], db_path=db_path)
+    assert generated is not None
+    assert zipfile.is_zipfile(generated)
+    with zipfile.ZipFile(generated) as archive:
+        assert sorted(archive.namelist()) == ["META-INF/MANIFEST.MF", XML_ENTRY]
+        xml = archive.read(XML_ENTRY).decode("utf-8")
+    assert "SQX Edge AI3 Universal Prompt Compiler draft" in xml
+    assert "SQXEdgeAI2_US500_H1_CandlePattern_ATR_Close" in xml
+    assert 'Item key="talib_ATR"' in xml
+    assert 'Item key="Close"' in xml
+    assert 'Item key="Open"' in xml
+    assert ">100<" in xml
+    assert ">200<" in xml
     _assert_public_safe(report)
     _assert_public_safe(draft)
+
+
+class _FakeAiWizardModel:
+    model = "fake-local-model"
+
+    def status(self, *, auto_start=False):
+        return {"available": True, "model": self.model}
+
+    def chat_json(self, *, messages, schema, model=None):
+        return {
+            "asset": "US500",
+            "timeframe": "H1",
+            "direction": "long_only",
+            "intent": "candlestick_sequence",
+            "blocks": ["Open", "Close", "High", "Low"],
+            "filters": ["ATR"],
+            "risk": {"stopLossPips": 100, "takeProfitPips": 200},
+            "candlePattern": {
+                "type": "candlestick_sequence",
+                "redCandles": 3,
+                "requiresHammer": True,
+                "entryTiming": "market_on_second_green_after_confirmation",
+            },
+            "confidence": 0.86,
+        }
+
+
+def test_ai3_local_model_interpreter_feeds_ast_without_persisting_raw(tmp_path):
+    sqx_root = _write_fake_sqx_root(tmp_path)
+    with patch.dict(os.environ, {"SQX142_ROOT": str(sqx_root)}):
+        report = build_ai_wizard_ast_from_prompt(
+            {"prompt": "setup de velas para indice americano h1 con filtro atr", "compilerMode": "ollama"},
+            project_root=tmp_path,
+            llm_client=_FakeAiWizardModel(),
+        )
+
+    assert report["ok"] is True
+    ast = report["data"]["ast"]
+    assert ast["asset"] == "US500"
+    assert ast["timeframe"] == "H1"
+    assert ast["interpreter"]["source"] == "ollama_ast"
+    assert ast["interpreter"]["model"] == "fake-local-model"
+    assert ast["interpreter"]["rawPromptPersisted"] is False
+    assert ast["interpreter"]["rawResponsePersisted"] is False
+    assert ast["compiler"]["templateClass"] == "candle_atr_sequence"
+    _assert_public_safe(report)
 
 
 def test_ai2_sessions_persist_redacted_state_and_block_private_prompt(tmp_path):
@@ -188,7 +289,7 @@ def test_ai2_sessions_persist_redacted_state_and_block_private_prompt(tmp_path):
         )
         private = create_ai_wizard_session(
             tmp_path,
-            {"prompt": r"EMA cross from C:\\Users\\Ivan SQX\\secret token=abcdef"},
+            {"prompt": r"EMA cross from C:\\Users\\Operator\\secret token=abcdef"},
             db_path=db_path,
         )
         listed = list_ai_wizard_sessions(tmp_path, db_path=db_path)

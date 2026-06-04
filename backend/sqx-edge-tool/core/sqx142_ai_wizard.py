@@ -18,6 +18,7 @@ from .sqx_compatibility import SQX142_DEFAULT_ROOT
 
 AI_WIZARD_VERSION = "sqx142-ai-wizard-v1"
 AI_WIZARD_AI2_VERSION = "sqx142-ai-wizard-studio-v2"
+AI_WIZARD_AI3_COMPILER_VERSION = "sqx142-aw-ai3-universal-prompt-compiler-v1"
 SPEC_TYPE = "sqx-edge.ai-wizard-strategy-spec"
 CATALOG_TYPE = "sqx-edge.ai-wizard-capability-catalog-v1"
 AST_TYPE = "sqx-edge.ai-wizard-strategy-ast-v1"
@@ -107,6 +108,38 @@ def _privacy() -> dict[str, bool]:
     }
 
 
+AI_WIZARD_INTERPRETER_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "asset": {"type": "string"},
+        "timeframe": {"type": "string"},
+        "direction": {"type": "string", "enum": ["long_only", "short_only", "both", ""]},
+        "intent": {"type": "string"},
+        "blocks": {"type": "array", "items": {"type": "string"}},
+        "filters": {"type": "array", "items": {"type": "string"}},
+        "risk": {
+            "type": "object",
+            "properties": {
+                "stopLossPips": {"type": ["number", "integer", "null"]},
+                "takeProfitPips": {"type": ["number", "integer", "null"]},
+            },
+        },
+        "candlePattern": {
+            "type": "object",
+            "properties": {
+                "type": {"type": "string"},
+                "redCandles": {"type": ["integer", "null"]},
+                "greenCandles": {"type": ["integer", "null"]},
+                "requiresHammer": {"type": "boolean"},
+                "entryTiming": {"type": "string"},
+            },
+        },
+        "confidence": {"type": ["number", "integer", "null"]},
+    },
+    "required": [],
+}
+
+
 def _base_response(
     data: dict[str, Any] | None = None,
     *,
@@ -155,6 +188,117 @@ def _provider_config() -> AiWizardProviderConfig:
         openai_enabled=openai_enabled,
         openai_model=str(os.environ.get("SQX_AI_WIZARD_OPENAI_MODEL", "gpt-4.1-mini")).strip() or "gpt-4.1-mini",
     )
+
+
+def _safe_float(value: Any, default: float = 0.0) -> float:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _safe_int(value: Any, default: int = 0) -> int:
+    try:
+        return int(float(value))
+    except (TypeError, ValueError):
+        return default
+
+
+def _normalize_hint_list(value: Any, *, limit: int = 12) -> list[str]:
+    if not isinstance(value, list):
+        return []
+    items: list[str] = []
+    for item in value[:limit]:
+        text = re.sub(r"[^A-Za-z0-9_&.+ -]+", "", str(item or "")).strip()
+        if text:
+            items.append(text[:80])
+    return list(dict.fromkeys(items))
+
+
+def _catalog_prompt_summary(catalog: dict[str, Any]) -> dict[str, Any]:
+    keys = _catalog_key_sets(catalog)
+    data = catalog.get("data", {}).get("catalog", catalog)
+    conditions = data.get("conditions") if isinstance(data.get("conditions"), dict) else {}
+    condition_items = conditions.get("items") if isinstance(conditions.get("items"), list) else []
+    safe_conditions = []
+    for item in condition_items[:80]:
+        if not isinstance(item, dict):
+            continue
+        safe_conditions.append({
+            "id": str(item.get("id") or "")[:80],
+            "category": str(item.get("category") or "")[:80],
+            "returnType": str(item.get("returnType") or "")[:40],
+        })
+    return {
+        "blocks": sorted(keys["blocks"])[:80],
+        "comparisons": sorted(keys["comparisons"] | keys["conditions"])[:120],
+        "conditions": safe_conditions,
+        "supports": {
+            "ohlc": all(item in keys["blocks"] for item in ("Open", "Close", "High", "Low")),
+            "atr": _catalog_has_atr_support(catalog),
+        },
+    }
+
+
+def _try_local_model_interpretation(prompt: str, catalog: dict[str, Any], payload: dict[str, Any], llm_client: Any | None = None) -> dict[str, Any]:
+    mode = str(payload.get("compilerMode") or payload.get("interpreterMode") or "auto").strip().casefold()
+    if mode in {"heuristic", "off", "disabled"}:
+        return {"source": "heuristic_requested", "available": False, "privacy": _privacy()}
+    if llm_client is None:
+        try:
+            from .agent.llm_client import OllamaClient, OllamaConfig
+
+            provider = _provider_config()
+            timeout = _safe_float(os.environ.get("SQX_AI_WIZARD_INTERPRETER_TIMEOUT_SECONDS"), 2.0)
+            client = OllamaClient(OllamaConfig(model=provider.ollama_model, timeout_seconds=timeout, auto_start=False))
+        except Exception as exc:
+            return {"source": "heuristic_model_client_unavailable", "available": False, "error": type(exc).__name__, "privacy": _privacy()}
+    else:
+        client = llm_client
+    try:
+        status = client.status(auto_start=False) if hasattr(client, "status") else {"available": True, "model": getattr(client, "model", "")}
+        if not status.get("available") and mode == "ollama":
+            return {"source": "heuristic_no_ollama", "available": False, "model": status.get("model", ""), "privacy": _privacy()}
+        if not status.get("available"):
+            return {"source": "heuristic_no_ollama", "available": False, "model": status.get("model", ""), "privacy": _privacy()}
+        messages = [
+            {
+                "role": "system",
+                "content": (
+                    "You are a local-only AlgoWizard AST interpreter. Return only JSON matching the schema. "
+                    "Use only catalog ids provided. If unsure, leave fields empty or mark manual review. "
+                    "Do not invent files, paths, providers, profitability claims, SQX runtime actions or private data."
+                ),
+            },
+            {
+                "role": "user",
+                "content": _json_dump({
+                    "prompt": prompt,
+                    "catalog": _catalog_prompt_summary(catalog),
+                    "target": "sqx-edge.ai-wizard-strategy-ast-v1",
+                }),
+            },
+        ]
+        raw = client.chat_json(messages=messages, schema=AI_WIZARD_INTERPRETER_SCHEMA, model=status.get("model"))
+        if not isinstance(raw, dict):
+            return {"source": "heuristic_after_model_error", "available": True, "model": status.get("model", ""), "error": "model_json_not_object", "privacy": _privacy()}
+        return {
+            "source": "ollama_ast",
+            "available": True,
+            "model": status.get("model", ""),
+            "asset": str(raw.get("asset") or "")[:32],
+            "timeframe": str(raw.get("timeframe") or "")[:16],
+            "direction": str(raw.get("direction") or "")[:24],
+            "intent": str(raw.get("intent") or "")[:120],
+            "blocks": _normalize_hint_list(raw.get("blocks")),
+            "filters": _normalize_hint_list(raw.get("filters")),
+            "risk": raw.get("risk") if isinstance(raw.get("risk"), dict) else {},
+            "candlePattern": raw.get("candlePattern") if isinstance(raw.get("candlePattern"), dict) else {},
+            "confidence": max(0.0, min(_safe_float(raw.get("confidence"), 0.0), 1.0)),
+            "privacy": _privacy(),
+        }
+    except Exception as exc:
+        return {"source": "heuristic_after_model_error", "available": False, "error": type(exc).__name__, "privacy": _privacy()}
 
 
 def _hash_id(prefix: str, value: str) -> str:
@@ -418,6 +562,102 @@ def _patch_strategy_xml(xml_bytes: bytes, spec: dict[str, Any]) -> bytes:
     return b'<?xml version="1.0" encoding="UTF-8"?>\n' + ET.tostring(root, encoding="utf-8")
 
 
+def _set_strategy_metadata(root: ET.Element, name: str, description_text: str) -> None:
+    options = root.find("options")
+    if options is not None:
+        strategy_name = options.find("StrategyName")
+        if strategy_name is not None:
+            strategy_name.text = name
+        date = options.find("Date")
+        if date is not None:
+            date.text = datetime.now().strftime("%m/%d/%Y %H:%M")
+    strategy = root.find("Strategy")
+    if strategy is not None:
+        strategy.set("name", f"{name}.sqx")
+        description = strategy.find("Description")
+        if description is None:
+            description = ET.SubElement(strategy, "Description")
+        description.text = description_text
+
+
+def _set_nested_slpt_values(root: ET.Element, *, stop_loss: int | float, take_profit: int | float) -> None:
+    targets = {
+        "#StopLoss.StopLoss#": stop_loss,
+        "#ProfitTarget.ProfitTarget#": take_profit,
+    }
+    for param in root.iter("Param"):
+        target = targets.get(param.get("key") or "")
+        if target is None:
+            continue
+        for child in param.iter("Param"):
+            if child is not param and child.get("key") == "#Value#":
+                child.text = str(target)
+                child.set("variable", "false")
+                break
+
+
+def _replace_element_children(parent: ET.Element, child: ET.Element) -> None:
+    for existing in list(parent):
+        parent.remove(existing)
+    parent.append(child)
+
+
+def _candle_atr_conditions(ast: dict[str, Any]) -> list[ET.Element]:
+    pattern = ast.get("recognized", {}).get("pattern", {}) if isinstance(ast.get("recognized"), dict) else {}
+    red_count = max(1, min(_safe_int(pattern.get("redCandles"), 3) or 3, 5))
+    conditions: list[ET.Element] = []
+    # On bar close: shift 1 is the second green confirmation, shift 2 is the hammer/first green.
+    for shift in range(red_count + 2, 2, -1):
+        conditions.append(_xml_red_candle(shift))
+    conditions.append(_xml_green_candle(2))
+    if pattern.get("requiresHammer"):
+        # Conservative hammer proxy expressible with allowlisted OHLC: green body and lower wick below both body endpoints.
+        conditions.append(_xml_comparison("IsLower", _xml_price_value("Low", 2), _xml_price_value("Open", 2)))
+        conditions.append(_xml_comparison("IsLower", _xml_price_value("Low", 2), _xml_price_value("Close", 2)))
+    conditions.append(_xml_green_candle(1))
+    filters = ast.get("recognized", {}).get("filters", []) if isinstance(ast.get("recognized"), dict) else []
+    if any(isinstance(item, dict) and item.get("blockId") == "ATR" and item.get("availableInCatalog") for item in filters):
+        conditions.append(_xml_comparison("IsGreater", _xml_atr_value(14, 1), _xml_atr_value(14, 2)))
+    return conditions
+
+
+def _patch_candle_atr_strategy_xml(xml_bytes: bytes, ast: dict[str, Any]) -> bytes:
+    root = ET.fromstring(xml_bytes)
+    name = str(ast.get("strategyName") or "SQXEdgeAI3_Candle_ATR")
+    risk = ast.get("actions", {}).get("risk", {}) if isinstance(ast.get("actions"), dict) else {}
+    _set_strategy_metadata(
+        root,
+        name,
+        (
+            "SQX Edge AI3 Universal Prompt Compiler draft. "
+            f"Asset={ast.get('asset')}; timeframe={ast.get('timeframe')}; direction={ast.get('direction')}; "
+            "family=candle_atr_sequence. Manual AlgoWizard review required before any SQX validation."
+        ),
+    )
+    signals = root.findall(".//signal")
+    if len(signals) < 2:
+        raise ValueError("candle_atr_template_missing_signals")
+    _replace_element_children(signals[0], _xml_and(_candle_atr_conditions(ast)))
+    _replace_element_children(signals[1], _xml_false_condition())
+    _set_nested_slpt_values(
+        root,
+        stop_loss=risk.get("stopLossPips", 0),
+        take_profit=risk.get("takeProfitPips", 0),
+    )
+    ET.indent(root, space="  ")
+    return b'<?xml version="1.0" encoding="UTF-8"?>\n' + ET.tostring(root, encoding="utf-8")
+
+
+def _copy_sqx_with_patched_xml(template: Path, target: Path, patched_xml: bytes) -> None:
+    with zipfile.ZipFile(template, "r") as source:
+        with zipfile.ZipFile(target, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+            for item in source.infolist():
+                if item.filename == XML_ENTRY:
+                    archive.writestr(item, patched_xml)
+                else:
+                    archive.writestr(item, source.read(item.filename))
+
+
 def generate_draft_sqx(
     payload: dict[str, Any] | None,
     *,
@@ -479,6 +719,71 @@ def generate_draft_sqx(
             "no_sqx_user_projects_write",
             "no_data_db_write",
             "no_runtime_launch",
+        ],
+    }, ok=bool(valid), error="" if valid else "draft_zip_invalid")
+
+
+def generate_ai_wizard_draft_from_ast(
+    ast: dict[str, Any],
+    *,
+    project_root: Path,
+    sqx142_root: Path | None = None,
+    output_dir: Path | None = None,
+) -> dict[str, Any]:
+    compiler = ast.get("compiler", {}) if isinstance(ast.get("compiler"), dict) else {}
+    if not compiler.get("draftable"):
+        return _base_response_v2(ok=False, error="blocked_not_draftable_yet", blockers=compiler.get("blockers", ["blocked_not_draftable_yet"]))
+    template_class = str(compiler.get("templateClass") or "")
+    if template_class == "ema_cross":
+        prompt = f"EMA cross trend-following {ast.get('asset', 'EURUSD')} {ast.get('timeframe', 'H1')} with SL/TP"
+        return generate_draft_sqx({"prompt": prompt}, project_root=project_root, sqx142_root=sqx142_root, output_dir=output_dir)
+    if template_class != "candle_atr_sequence":
+        return _base_response_v2(ok=False, error="blocked_unsupported_compiler_family", blockers=["blocked_unsupported_compiler_family"])
+    template = _template_path("ema_cross", sqx142_root, project_root)
+    if not template.is_file() or not zipfile.is_zipfile(template):
+        return _base_response_v2(ok=False, error="candle_atr_template_unavailable", blockers=["candle_atr_template_unavailable"])
+    output_root = _output_root(project_root, output_dir)
+    output_root.mkdir(parents=True, exist_ok=True)
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+    file_name = f"{_safe_file_stem(str(ast.get('strategyName') or 'SQXEdgeAI3_Candle_ATR'))}_{timestamp}.sqx"
+    target = (output_root / file_name).resolve()
+    try:
+        target.relative_to(output_root.resolve())
+    except ValueError:
+        return _base_response_v2(ok=False, error="output_path_invalid", blockers=["output_path_invalid"])
+    try:
+        with zipfile.ZipFile(template, "r") as source:
+            xml_bytes = source.read(XML_ENTRY)
+            source_entries = sorted(source.namelist())
+        patched_xml = _patch_candle_atr_strategy_xml(xml_bytes, ast)
+        _copy_sqx_with_patched_xml(template, target, patched_xml)
+        valid = zipfile.is_zipfile(target)
+        with zipfile.ZipFile(target, "r") as generated:
+            generated_entries = sorted(generated.namelist())
+        if source_entries != generated_entries:
+            return _base_response_v2(ok=False, error="draft_zip_entries_changed", blockers=["draft_zip_entries_changed"])
+    except (OSError, KeyError, zipfile.BadZipFile, ET.ParseError, ValueError) as exc:
+        return _base_response_v2(ok=False, error=type(exc).__name__, blockers=["draft_generation_failed"])
+    return _base_response_v2({
+        "status": "draft_ready" if valid else "blocked",
+        "draft": {
+            "fileName": file_name,
+            "fileId": _hash_id("draft", file_name),
+            "downloadUrl": f"/api/sqx142/ai-wizard/draft-sqx/download/{file_name}",
+            "isZip": bool(valid),
+            "xmlEntry": XML_ENTRY,
+            "manualReviewRequired": True,
+            "compilerFamily": "candle_atr_sequence",
+            "compilerVersion": AI_WIZARD_AI3_COMPILER_VERSION,
+        },
+        "ast": ast,
+        "guardrails": [
+            "written_to_sqx_edge_output_only",
+            "zip_entries_preserved",
+            "no_sqx_user_projects_write",
+            "no_data_db_write",
+            "no_runtime_launch",
+            "manual_algowizard_review_required",
         ],
     }, ok=bool(valid), error="" if valid else "draft_zip_invalid")
 
@@ -981,9 +1286,12 @@ def build_ai_wizard_capability_catalog(
         "customIndicators": custom_indicators,
         "blockSettings": blocksettings,
         "compilerSupport": {
-            "draftablePatterns": ["ema_cross"],
+            "draftablePatterns": ["ema_cross", "candle_atr_sequence"],
             "blockedFallback": "blocked_not_draftable_yet",
             "manualReviewRequired": True,
+            "phase": AI_WIZARD_AI3_COMPILER_VERSION,
+            "universalPromptIntake": True,
+            "universalSqxGeneration": False,
         },
     }
     if persist:
@@ -1016,6 +1324,118 @@ def _value_node(kind: str, params: dict[str, Any] | None = None) -> dict[str, An
 
 def _condition_node(comparison: str, left: dict[str, Any], right: dict[str, Any]) -> dict[str, Any]:
     return {"kind": "comparison", "operatorId": comparison, "left": left, "right": right}
+
+
+def _catalog_has_atr_support(catalog: dict[str, Any]) -> bool:
+    data = catalog.get("data", {}).get("catalog", catalog)
+    keys = _catalog_key_sets(catalog)
+    if "ATR" in keys["blocks"] or "talib_ATR" in keys["blocks"]:
+        return True
+    for section_name in ("conditions", "wizard"):
+        section = data.get(section_name) if isinstance(data.get(section_name), dict) else {}
+        containers = []
+        if section_name == "wizard":
+            containers.extend(section.get("blocks", []) if isinstance(section.get("blocks"), list) else [])
+            containers.extend(section.get("comparisons", []) if isinstance(section.get("comparisons"), list) else [])
+        else:
+            containers.extend(section.get("items", []) if isinstance(section.get("items"), list) else [])
+        for item in containers:
+            if not isinstance(item, dict):
+                continue
+            searchable = " ".join(str(value) for value in item.values())
+            if "atr" in searchable.casefold() or "average true range" in searchable.casefold():
+                return True
+    return False
+
+
+def _xml_param(key: str, name: str, value: Any, **attrs: Any) -> ET.Element:
+    param = ET.Element("Param", {"key": key, "name": name, **{k: str(v) for k, v in attrs.items() if v is not None}})
+    param.text = str(value)
+    return param
+
+
+def _xml_block(child: ET.Element, key: str | None = None) -> ET.Element:
+    attrs = {"key": key} if key else {}
+    block = ET.Element("Block", attrs)
+    block.append(child)
+    return block
+
+
+def _xml_price_value(block_id: str, shift: int) -> ET.Element:
+    item = ET.Element(
+        "Item",
+        {
+            "key": block_id,
+            "name": f"({block_id[0]}) {block_id}",
+            "display": f"{block_id}[#Shift#]",
+            "mI": "Price",
+            "returnType": "price",
+            "categoryType": "priceValue",
+        },
+    )
+    item.append(_xml_param("#Chart#", "Chart", 0, type="data", controlType="dataVar", defaultValue="0"))
+    item.append(_xml_param("#Shift#", "Shift", shift, type="int", defaultValue="1", controlType="jspinnerVar", minValue="0", maxValue="1000", step="1", builderStep="1"))
+    return item
+
+
+def _xml_number_value(value: int | float) -> ET.Element:
+    item = ET.Element("Item", {"key": "Number", "name": "(NUM) Number", "display": "#Number#", "mI": "Other", "returnType": "number", "categoryType": "other", "notFirstValue": "true"})
+    item.append(_xml_param("#Number#", "Number", value, type="double", defaultValue="0", controlType="jspinner", minValue="-999999999", maxValue="999999999", step="1", builderStep="1", variable="false"))
+    return item
+
+
+def _xml_atr_value(period: int = 14, shift: int = 1) -> ET.Element:
+    item = ET.Element(
+        "Item",
+        {
+            "key": "talib_ATR",
+            "name": "(ATR) Average True Range",
+            "display": "ATR(@Chart@#TimePeriod#)[#Shift#]",
+            "returnType": "pricerange",
+            "categoryType": "indicator",
+        },
+    )
+    item.append(_xml_param("#Chart#", "Chart", 0, type="data", controlType="dataVar", defaultValue="0"))
+    item.append(_xml_param("#TimePeriod#", "Time Period", period, type="int", controlType="jspinnerVar", defaultValue="14", step="1", builderStep="1", minValue="2", maxValue="10000", builderMinValue="1", builderMaxValue="200", builderStepValue="1", paramType="period"))
+    item.append(_xml_param("#Shift#", "Shift", shift, type="int", defaultValue="1", controlType="jspinnerVar", minValue="0", maxValue="1000", step="1", builderStep="1"))
+    return item
+
+
+def _xml_comparison(operator_id: str, left: ET.Element, right: ET.Element) -> ET.Element:
+    labels = {
+        "IsGreater": ("(>) Is greater", "#Left# > #Right#"),
+        "IsLower": ("(<) Is lower", "#Left# < #Right#"),
+        "Equals": ("(=) Equals", "#Left# = #Right#"),
+    }
+    name, display = labels.get(operator_id, (operator_id, operator_id))
+    item = ET.Element("Item", {"key": operator_id, "name": name, "display": display, "mI": "Comparisons", "returnType": "boolean", "categoryType": "operators"})
+    item.append(_xml_block(left, "#Left#"))
+    item.append(_xml_block(right, "#Right#"))
+    return item
+
+
+def _xml_and(conditions: list[ET.Element]) -> ET.Element:
+    filtered = [condition for condition in conditions if condition is not None]
+    if not filtered:
+        return _xml_comparison("Equals", _xml_number_value(1), _xml_number_value(1))
+    if len(filtered) == 1:
+        return filtered[0]
+    item = ET.Element("Item", {"key": "AND"})
+    item.append(_xml_block(filtered[0]))
+    item.append(_xml_block(_xml_and(filtered[1:])))
+    return item
+
+
+def _xml_red_candle(shift: int) -> ET.Element:
+    return _xml_comparison("IsLower", _xml_price_value("Close", shift), _xml_price_value("Open", shift))
+
+
+def _xml_green_candle(shift: int) -> ET.Element:
+    return _xml_comparison("IsGreater", _xml_price_value("Close", shift), _xml_price_value("Open", shift))
+
+
+def _xml_false_condition() -> ET.Element:
+    return _xml_comparison("IsGreater", _xml_number_value(0), _xml_number_value(1))
 
 
 def _parse_number_token(value: str) -> int | float:
@@ -1106,19 +1526,20 @@ def _detect_candle_pattern(prompt: str) -> dict[str, Any] | None:
 def _detect_ai2_filters(prompt: str, catalog: dict[str, Any]) -> list[dict[str, Any]]:
     lowered = prompt.casefold()
     keys = _catalog_key_sets(catalog)
+    atr_supported = "ATR" in keys["blocks"] or _catalog_has_atr_support(catalog)
     filters: list[dict[str, Any]] = []
     if re.search(r"\batr\b", lowered):
         filters.append({
             "type": "volatility_filter",
             "blockId": "ATR",
-            "availableInCatalog": "ATR" in keys["blocks"],
-            "compilerSupport": "blocked_not_draftable_yet",
+            "availableInCatalog": atr_supported,
+            "compilerSupport": "compiled_as_atr_rising" if atr_supported else "manual_review_only",
             "manualReviewRequired": True,
         })
     return filters
 
 
-def _detect_ai2_blocks(prompt: str) -> list[str]:
+def _detect_ai2_blocks(prompt: str, model_interpretation: dict[str, Any] | None = None) -> list[str]:
     lowered = prompt.casefold()
     ordered = [
         ("EMA", ("ema", "exponential moving average", "media exponencial")),
@@ -1134,6 +1555,13 @@ def _detect_ai2_blocks(prompt: str) -> list[str]:
     for block_id, tokens in ordered:
         if any(token in lowered for token in tokens):
             blocks.append(block_id)
+    if model_interpretation and model_interpretation.get("source") == "ollama_ast":
+        model_blocks = _normalize_hint_list(model_interpretation.get("blocks"))
+        known_aliases = {"ATR": "ATR", "TALIB_ATR": "ATR", "CANDLE": "Close", "PRICE": "Close"}
+        for item in model_blocks:
+            candidate = known_aliases.get(item.upper(), item)
+            if candidate in {"EMA", "SMA", "RSI", "BollingerBands", "Stochastic", "MACD", "CCI", "ADX", "High", "Low", "Close", "Open", "Number", "ATR"} and candidate not in blocks:
+                blocks.append(candidate)
     if not blocks and _detect_archetype(prompt) == "breakout":
         blocks.extend(["High", "Low"])
     if _detect_candle_pattern(prompt) and "Close" not in blocks:
@@ -1141,13 +1569,54 @@ def _detect_ai2_blocks(prompt: str) -> list[str]:
     return blocks
 
 
-def _ast_from_prompt(prompt: str, catalog: dict[str, Any]) -> dict[str, Any]:
-    asset = _detect_asset(prompt)
-    timeframe = _detect_timeframe(prompt)
-    direction = _detect_direction(prompt)
-    blocks = _detect_ai2_blocks(prompt)
-    candle_pattern = _detect_candle_pattern(prompt)
+def _risk_from_prompt_and_model(prompt: str, model_interpretation: dict[str, Any] | None = None) -> dict[str, Any]:
+    risk = _default_risk(prompt)
+    model_risk = model_interpretation.get("risk") if isinstance(model_interpretation, dict) and isinstance(model_interpretation.get("risk"), dict) else {}
+    for key in ("stopLossPips", "takeProfitPips"):
+        if risk.get(key) in {0, None} and model_risk.get(key) is not None:
+            risk[key] = _parse_number_token(str(model_risk.get(key)))
+    return risk
+
+
+def _candle_pattern_from_prompt_and_model(prompt: str, model_interpretation: dict[str, Any] | None = None) -> dict[str, Any] | None:
+    pattern = _detect_candle_pattern(prompt)
+    model_pattern = model_interpretation.get("candlePattern") if isinstance(model_interpretation, dict) and isinstance(model_interpretation.get("candlePattern"), dict) else {}
+    if not pattern and str(model_pattern.get("type") or "").casefold() in {"candlestick_sequence", "candle_sequence"}:
+        pattern = {
+            "type": "candlestick_sequence",
+            "label": "Secuencia de velas con confirmacion martillo",
+            "redCandles": _safe_int(model_pattern.get("redCandles"), 0),
+            "greenCandlesMentioned": _safe_int(model_pattern.get("greenCandles"), 0),
+            "requiresHammer": bool(model_pattern.get("requiresHammer")),
+            "entryTiming": str(model_pattern.get("entryTiming") or "manual_review")[:80],
+            "compilerSupport": "blocked_unsupported_candle_pattern",
+            "manualReviewRequired": True,
+        }
+    elif pattern and model_pattern:
+        if not pattern.get("redCandles") and model_pattern.get("redCandles") is not None:
+            pattern["redCandles"] = _safe_int(model_pattern.get("redCandles"), 0)
+        if not pattern.get("greenCandlesMentioned") and model_pattern.get("greenCandles") is not None:
+            pattern["greenCandlesMentioned"] = _safe_int(model_pattern.get("greenCandles"), 0)
+        if model_pattern.get("requiresHammer"):
+            pattern["requiresHammer"] = True
+    return pattern
+
+
+def _ast_from_prompt(prompt: str, catalog: dict[str, Any], model_interpretation: dict[str, Any] | None = None) -> dict[str, Any]:
+    model_interpretation = model_interpretation or {"source": "heuristic"}
+    model_asset = str(model_interpretation.get("asset") or "").upper()
+    model_timeframe = str(model_interpretation.get("timeframe") or "").upper()
+    model_direction = str(model_interpretation.get("direction") or "")
+    asset = ASSET_ALIASES.get(model_asset, model_asset) if model_asset in SUPPORTED_ASSETS or model_asset in ASSET_ALIASES else _detect_asset(prompt)
+    timeframe = model_timeframe if model_timeframe in SUPPORTED_TIMEFRAMES else _detect_timeframe(prompt)
+    direction = model_direction if model_direction in {"long_only", "short_only", "both"} else _detect_direction(prompt)
+    blocks = _detect_ai2_blocks(prompt, model_interpretation)
+    candle_pattern = _candle_pattern_from_prompt_and_model(prompt, model_interpretation)
     filters = _detect_ai2_filters(prompt, catalog)
+    if model_interpretation.get("source") == "ollama_ast":
+        model_filters = {item.casefold() for item in _normalize_hint_list(model_interpretation.get("filters"))}
+        if "atr" in model_filters and not any(item.get("blockId") == "ATR" for item in filters):
+            filters.extend(_detect_ai2_filters("ATR", catalog))
     for item in filters:
         block_id = str(item.get("blockId") or "")
         if item.get("availableInCatalog") and block_id and block_id not in blocks:
@@ -1190,11 +1659,19 @@ def _ast_from_prompt(prompt: str, catalog: dict[str, Any]) -> dict[str, Any]:
         close = _value_node("Close", {"Shift": 1})
         conditions_long.append(_condition_node("IsGreater", close, _value_node("High", {"Shift": 2})))
         conditions_short.append(_condition_node("IsLower", close, _value_node("Low", {"Shift": 2})))
-    draftable = len(set(blocks)) == 1 and blocks[0] == "EMA" and bool(conditions_long)
+    candle_compilable = bool(
+        candle_pattern
+        and candle_pattern.get("type") == "candlestick_sequence"
+        and direction in {"long_only", "both"}
+        and all(item in _catalog_key_sets(catalog)["blocks"] for item in ("Open", "Close", "High", "Low", "Number"))
+        and all(item.get("availableInCatalog", True) for item in filters)
+    )
+    ema_draftable = len(set(blocks)) == 1 and blocks[0] == "EMA" and bool(conditions_long)
+    draftable = bool(ema_draftable or candle_compilable)
     compiler_blockers: list[str] = []
-    if candle_pattern:
+    if candle_pattern and not candle_compilable:
         compiler_blockers.append("blocked_unsupported_candle_pattern")
-    if filters and not draftable:
+    if filters and not candle_compilable and not ema_draftable:
         compiler_blockers.append("blocked_unsupported_filter")
     if not draftable:
         compiler_blockers.append("blocked_not_draftable_yet")
@@ -1219,6 +1696,15 @@ def _ast_from_prompt(prompt: str, catalog: dict[str, Any]) -> dict[str, Any]:
             "unsupportedNaturalLanguageFallback": False,
             "manualReviewRequired": True,
         },
+        "interpreter": {
+            "phase": AI_WIZARD_AI3_COMPILER_VERSION,
+            "source": str(model_interpretation.get("source") or "heuristic")[:80],
+            "model": str(model_interpretation.get("model") or "")[:80],
+            "confidence": max(0.0, min(_safe_float(model_interpretation.get("confidence"), 0.0), 1.0)),
+            "rawPromptPersisted": False,
+            "rawResponsePersisted": False,
+            "externalApiCalled": False,
+        },
         "recognized": {
             "pattern": candle_pattern,
             "filters": filters,
@@ -1231,15 +1717,18 @@ def _ast_from_prompt(prompt: str, catalog: dict[str, Any]) -> dict[str, Any]:
         },
         "actions": {
             "entry": {"orderType": "EnterAtMarket", "allowDuplicateTrades": False},
-            "risk": _default_risk(prompt),
+            "risk": _risk_from_prompt_and_model(prompt, model_interpretation),
         },
         "catalogRefs": {
-            "blockIds": blocks,
+            "blockIds": [block_id for block_id in blocks if block_id in _catalog_key_sets(catalog)["blocks"]],
             "comparisonIds": sorted({cond["operatorId"] for cond in conditions_long + conditions_short}),
         },
         "compiler": {
             "draftable": draftable,
-            "templateClass": "ema_cross" if draftable else "",
+            "templateClass": "candle_atr_sequence" if candle_compilable else ("ema_cross" if ema_draftable else ""),
+            "version": AI_WIZARD_AI3_COMPILER_VERSION,
+            "universalPromptIntake": True,
+            "universalSqxGeneration": False,
             "blockers": list(dict.fromkeys(compiler_blockers)),
         },
     }
@@ -1288,6 +1777,7 @@ def build_ai_wizard_ast_from_prompt(
     *,
     project_root: Path,
     sqx142_root: Path | None = None,
+    llm_client: Any | None = None,
 ) -> dict[str, Any]:
     payload = payload or {}
     prompt = _clean_text(payload.get("prompt") or payload.get("message") or payload.get("idea"))
@@ -1299,13 +1789,21 @@ def build_ai_wizard_ast_from_prompt(
         return _base_response_v2(ok=False, error="blocked_full_editor_scope", blockers=["blocked_full_editor_scope"])
     catalog_report = build_ai_wizard_capability_catalog(project_root, sqx142_root)
     catalog = catalog_report["data"]["catalog"]
-    ast = _ast_from_prompt(prompt, catalog)
+    model_interpretation = _try_local_model_interpretation(prompt, catalog, payload, llm_client)
+    ast = _ast_from_prompt(prompt, catalog, model_interpretation)
     validation = validate_ai_wizard_ast(ast, catalog)
     return _base_response_v2({
         "status": "ready" if validation["ok"] else "blocked",
         "ast": ast,
         "validation": validation,
         "catalogSummary": catalog.get("counts", {}),
+        "compiler": {
+            "phase": AI_WIZARD_AI3_COMPILER_VERSION,
+            "interpreterSource": ast.get("interpreter", {}).get("source"),
+            "model": ast.get("interpreter", {}).get("model"),
+            "universalPromptIntake": True,
+            "universalSqxGeneration": False,
+        },
         "nextStep": "Edit structured parameters or generate a draft if compiler support is available.",
     }, ok=validation["ok"], blockers=validation["blockers"], warnings=validation["warnings"])
 
@@ -1467,8 +1965,7 @@ def create_ai_wizard_session_draft(project_root: Path, session_id: str, *, db_pa
             blockers=compiler_blockers,
             warnings=validation.get("warnings", []),
         )
-    prompt = f"EMA cross trend-following {ast.get('asset', 'EURUSD')} {ast.get('timeframe', 'H1')} with SL/TP"
-    draft_report = generate_draft_sqx({"prompt": prompt}, project_root=project_root)
+    draft_report = generate_ai_wizard_draft_from_ast(ast, project_root=project_root)
     if not draft_report.get("ok"):
         return draft_report
     draft = draft_report["data"]["draft"]

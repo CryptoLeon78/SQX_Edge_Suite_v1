@@ -12,6 +12,7 @@
     "docs/DISCIPLINA_OPERATIVA.md",
     "docs/SQX142_AW_AI1_AI_WIZARD.md",
     "docs/SQX142_AW_AI2_AI_STUDIO.md",
+    "docs/SQX142_AW_AI3_UNIVERSAL_PROMPT_COMPILER.md",
     "docs/UX_NAV_TAB_OPTIMIZATION_PLAN.md",
     "docs/maintenance/SQX142_PROJECT_RESOURCE_REPAIR_RUNBOOK.md",
     "docs/SQX142_OWN_FEATURES_CORRELATION_MANUAL_CONFIRMATION.md",
@@ -1203,7 +1204,7 @@
           "test_ai2_catalog_is_sanitized_and_counts_fake_sources",
           "test_ai2_sessions_persist_redacted_state_and_block_private_prompt",
           "test_ai2_draft_generation_uses_session_and_downloads_by_draft_id",
-          "test_ai2_spanish_candle_prompt_is_understood_but_not_invented"
+          "test_ai3_spanish_candle_prompt_compiles_traceable_draft"
         ],
         "tests/js/contracts/sqx142_aw_ai2_contracts.mjs": [
           "sqx142 aw ai2 contracts ok",
@@ -1231,6 +1232,112 @@
           "localStorage",
           "sessionStorage",
           "API_BASE + draft.downloadUrl"
+        ]
+      }
+    },
+    {
+      "id": "sqx142_aw_ai3_universal_prompt_compiler_gate",
+      "description": "AI3 must provide universal prompt intake into a validated AST, while only proven compiler families may emit SQX drafts. The first verified family is candle_atr_sequence for candle/ATR prompts, with local-only model interpretation and no raw prompt/provider-response persistence.",
+      "required": {
+        "README.md": [
+          "SQX142-AW-AI3 Universal Prompt Compiler",
+          "sqx142-aw-ai3-universal-prompt-compiler-v1",
+          "prompt libre como entrada universal gobernada",
+          "candle_atr_sequence",
+          "built_pending_install_and_manual_roundtrip",
+          "sin SQX runtime launch",
+          "sin `data.db`",
+          "sin `user/projects`"
+        ],
+        "CHANGELOG.md": [
+          "2026-06-04 - SQX142-AW-AI3 Universal Prompt Compiler",
+          "universal prompt intake routed to validated AlgoWizard AST",
+          "local Ollama -> AST interpretation",
+          "candle_atr_sequence",
+          "ZIP entries preserved",
+          "blocked_unsupported_compiler_family"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Current local phase built: SQX142-AW-AI3",
+          "docs/SQX142_AW_AI3_UNIVERSAL_PROMPT_COMPILER.md",
+          "sqx142-aw-ai3-universal-prompt-compiler-v1",
+          "local model -> AST interpretation",
+          "candle_atr_sequence",
+          "built_pending_install_and_manual_roundtrip"
+        ],
+        "docs/SQX142_AW_AI2_AI_STUDIO.md": [
+          "AI3 Universal Prompt Compiler",
+          "sqx142-aw-ai3-universal-prompt-compiler-v1",
+          "universal_prompt_intake_not_universal_sqx_generation",
+          "candle_atr_sequence",
+          "raw_prompt_persisted=false",
+          "raw_provider_response_persisted=false",
+          "built_pending_install_and_manual_roundtrip"
+        ],
+        "docs/SQX142_AW_AI3_UNIVERSAL_PROMPT_COMPILER.md": [
+          "SQX142-AW-AI3 Universal Prompt Compiler",
+          "sqx142-aw-ai3-universal-prompt-compiler-v1",
+          "universal_prompt_intake_not_universal_sqx_generation",
+          "allowlisted_catalog_only",
+          "compiler.draftable=true only for proven compiler families",
+          "unsupportedNaturalLanguageFallback=false",
+          "blocked_not_draftable_yet",
+          "blocked_unsupported_prompt_semantics",
+          "blocked_unsupported_compiler_family",
+          "raw_prompt_persisted=false",
+          "raw_provider_response_persisted=false",
+          "local-only",
+          "no provider calls from browser",
+          "No SQX runtime launch",
+          "No `run_project`",
+          "No writes a `data.db`, `user/projects`, databanks ni settings vivos"
+        ],
+        "backend/sqx-edge-tool/core/sqx142_ai_wizard.py": [
+          "AI_WIZARD_AI3_COMPILER_VERSION = \"sqx142-aw-ai3-universal-prompt-compiler-v1\"",
+          "AI_WIZARD_INTERPRETER_SCHEMA",
+          "def _try_local_model_interpretation",
+          "OllamaClient(OllamaConfig",
+          "auto_start=False",
+          "rawPromptPersisted\": False",
+          "rawResponsePersisted\": False",
+          "externalApiCalled\": False",
+          "\"candle_atr_sequence\"",
+          "def generate_ai_wizard_draft_from_ast",
+          "\"zip_entries_preserved\""
+        ],
+        "backend/sqx-edge-tool/test_sqx142_ai_wizard_studio.py": [
+          "test_ai3_spanish_candle_prompt_compiles_traceable_draft",
+          "test_ai3_local_model_interpreter_feeds_ast_without_persisting_raw",
+          "SQX Edge AI3 Universal Prompt Compiler draft",
+          "fake-local-model"
+        ],
+        "tests/js/contracts/sqx142_aw_ai3_contracts.mjs": [
+          "sqx142 aw ai3 contracts ok",
+          "AI_WIZARD_AI3_COMPILER_VERSION",
+          "candle_atr_sequence",
+          "rawPromptPersisted",
+          "rawResponsePersisted",
+          "127\\.0\\.0\\.1:11434"
+        ],
+        "tests/js/module_contracts.mjs": [
+          "sqx142_aw_ai3_contracts.mjs"
+        ]
+      },
+      "forbidden": {
+        "docs/SQX142_AW_AI3_UNIVERSAL_PROMPT_COMPILER.md": [
+          "manual roundtrip completed",
+          "guarantees profitability",
+          "risk zero",
+          "copy 144 internals",
+          "raw XML in UI"
+        ],
+        "integrations/sqx142/ai_wizard_overlay/sqx-edge-aiwizard.js": [
+          "127.0.0.1:11434",
+          "localhost:11434",
+          "ollama/api",
+          "OPENAI_API_KEY",
+          "Authorization",
+          "Bearer"
         ]
       }
     },

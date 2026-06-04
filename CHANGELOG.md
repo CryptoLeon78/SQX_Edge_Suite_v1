@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-06-04 - SQX142-AW-AI3 Universal Prompt Compiler
+
+- Adds `sqx142-aw-ai3-universal-prompt-compiler-v1`: universal prompt intake routed to validated AlgoWizard AST, not universal `.sqx` generation.
+- Adds local Ollama -> AST interpretation behind Flask with safe heuristic fallback, no browser provider calls, no raw prompt persistence and no raw provider-response persistence.
+- Adds first verified compiler family `candle_atr_sequence` for the real Spanish candle/hammer/ATR case, producing a traceable draft `.sqx` with ZIP entries preserved and manual AlgoWizard review required.
+- Keeps unsupported families blocked with `blocked_not_draftable_yet` / `blocked_unsupported_compiler_family` instead of inventing EMA/Bollinger.
+- Restarts the local backend and verifies the catalog over HTTP reports AI3 phase, `ema_cross,candle_atr_sequence`, universal prompt intake true and universal SQX generation false.
+- Preserves boundaries: no SQX runtime launch, no `data.db`, no `user/projects`, no databank mutation, no license/activation change and no bypass.
+
 ## 2026-06-04 - SQX142-AW-AI2 Prompt Truthfulness Patch
 
 - Fixes the real Spanish prompt case where a user requested a candlestick/hammer/ATR bot but AI2 could drift into a different generated idea.
