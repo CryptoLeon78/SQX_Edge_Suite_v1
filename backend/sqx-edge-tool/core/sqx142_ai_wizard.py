@@ -20,6 +20,7 @@ AI_WIZARD_VERSION = "sqx142-ai-wizard-v1"
 AI_WIZARD_AI2_VERSION = "sqx142-ai-wizard-studio-v2"
 AI_WIZARD_AI3_COMPILER_VERSION = "sqx142-aw-ai3-universal-prompt-compiler-v1"
 AI_WIZARD_AI3_CATALOG_VERSION = "sqx142-aw-ai3-expanded-catalog-v1"
+AI_WIZARD_AI4_RSI_COMPILER_VERSION = "sqx142-aw-ai4-rsi-mean-reversion-compiler-v1"
 SPEC_TYPE = "sqx-edge.ai-wizard-strategy-spec"
 CATALOG_TYPE = "sqx-edge.ai-wizard-capability-catalog-v1"
 AST_TYPE = "sqx-edge.ai-wizard-strategy-ast-v1"
@@ -388,8 +389,8 @@ def _detect_direction(prompt: str) -> str:
     lowered = prompt.casefold()
     long_tokens = ("long only", "solo long", "only long", "compras only", "en largo", "largo", "comprar", "compra", "buy", "alcista")
     short_tokens = ("short only", "solo short", "only short", "ventas only", "en corto", "corto", "vender", "venta", "sell", "bajista")
-    has_long = any(token in lowered for token in long_tokens)
-    has_short = any(token in lowered for token in short_tokens)
+    has_long = any(token in lowered for token in long_tokens) or bool(re.search(r"\blong\b", lowered))
+    has_short = any(token in lowered for token in short_tokens) or bool(re.search(r"\bshort\b", lowered))
     if has_long and not has_short:
         return "long_only"
     if has_short and not has_long:
@@ -668,6 +669,45 @@ def _patch_candle_atr_strategy_xml(xml_bytes: bytes, ast: dict[str, Any]) -> byt
     return b'<?xml version="1.0" encoding="UTF-8"?>\n' + ET.tostring(root, encoding="utf-8")
 
 
+def _rsi_mean_reversion_conditions(direction: str) -> tuple[ET.Element, ET.Element]:
+    long_condition = _xml_comparison("IsLower", _xml_rsi_value(14, 1), _xml_number_value(30))
+    short_condition = _xml_comparison("IsGreater", _xml_rsi_value(14, 1), _xml_number_value(70))
+    if direction == "long_only":
+        return long_condition, _xml_false_condition()
+    if direction == "short_only":
+        return _xml_false_condition(), short_condition
+    return long_condition, short_condition
+
+
+def _patch_rsi_mean_reversion_strategy_xml(xml_bytes: bytes, ast: dict[str, Any]) -> bytes:
+    root = ET.fromstring(xml_bytes)
+    name = str(ast.get("strategyName") or "SQXEdgeAI4_RSI_MeanReversion")
+    risk = ast.get("actions", {}).get("risk", {}) if isinstance(ast.get("actions"), dict) else {}
+    direction = str(ast.get("direction") or "both")
+    _set_strategy_metadata(
+        root,
+        name,
+        (
+            "SQX Edge AI4 RSI Mean-Reversion Compiler draft. "
+            f"Asset={ast.get('asset')}; timeframe={ast.get('timeframe')}; direction={direction}; "
+            "family=rsi_mean_reversion. Manual AlgoWizard review required before any SQX validation."
+        ),
+    )
+    signals = root.findall(".//signal")
+    if len(signals) < 2:
+        raise ValueError("rsi_mean_reversion_template_missing_signals")
+    long_condition, short_condition = _rsi_mean_reversion_conditions(direction)
+    _replace_element_children(signals[0], long_condition)
+    _replace_element_children(signals[1], short_condition)
+    _set_nested_slpt_values(
+        root,
+        stop_loss=risk.get("stopLossPips", 0),
+        take_profit=risk.get("takeProfitPips", 0),
+    )
+    ET.indent(root, space="  ")
+    return b'<?xml version="1.0" encoding="UTF-8"?>\n' + ET.tostring(root, encoding="utf-8")
+
+
 def _copy_sqx_with_patched_xml(template: Path, target: Path, patched_xml: bytes) -> None:
     with zipfile.ZipFile(template, "r") as source:
         with zipfile.ZipFile(target, "w", compression=zipfile.ZIP_DEFLATED) as archive:
@@ -757,15 +797,16 @@ def generate_ai_wizard_draft_from_ast(
     if template_class == "ema_cross":
         prompt = f"EMA cross trend-following {ast.get('asset', 'EURUSD')} {ast.get('timeframe', 'H1')} with SL/TP"
         return generate_draft_sqx({"prompt": prompt}, project_root=project_root, sqx142_root=sqx142_root, output_dir=output_dir)
-    if template_class != "candle_atr_sequence":
+    if template_class not in {"candle_atr_sequence", "rsi_mean_reversion"}:
         return _base_response_v2(ok=False, error="blocked_unsupported_compiler_family", blockers=["blocked_unsupported_compiler_family"])
     template = _template_path("ema_cross", sqx142_root, project_root)
     if not template.is_file() or not zipfile.is_zipfile(template):
-        return _base_response_v2(ok=False, error="candle_atr_template_unavailable", blockers=["candle_atr_template_unavailable"])
+        return _base_response_v2(ok=False, error=f"{template_class}_template_unavailable", blockers=[f"{template_class}_template_unavailable"])
     output_root = _output_root(project_root, output_dir)
     output_root.mkdir(parents=True, exist_ok=True)
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
-    file_name = f"{_safe_file_stem(str(ast.get('strategyName') or 'SQXEdgeAI3_Candle_ATR'))}_{timestamp}.sqx"
+    fallback_name = "SQXEdgeAI4_RSI_MeanReversion" if template_class == "rsi_mean_reversion" else "SQXEdgeAI3_Candle_ATR"
+    file_name = f"{_safe_file_stem(str(ast.get('strategyName') or fallback_name))}_{timestamp}.sqx"
     target = (output_root / file_name).resolve()
     try:
         target.relative_to(output_root.resolve())
@@ -775,7 +816,10 @@ def generate_ai_wizard_draft_from_ast(
         with zipfile.ZipFile(template, "r") as source:
             xml_bytes = source.read(XML_ENTRY)
             source_entries = sorted(source.namelist())
-        patched_xml = _patch_candle_atr_strategy_xml(xml_bytes, ast)
+        if template_class == "rsi_mean_reversion":
+            patched_xml = _patch_rsi_mean_reversion_strategy_xml(xml_bytes, ast)
+        else:
+            patched_xml = _patch_candle_atr_strategy_xml(xml_bytes, ast)
         _copy_sqx_with_patched_xml(template, target, patched_xml)
         valid = zipfile.is_zipfile(target)
         with zipfile.ZipFile(target, "r") as generated:
@@ -793,8 +837,8 @@ def generate_ai_wizard_draft_from_ast(
             "isZip": bool(valid),
             "xmlEntry": XML_ENTRY,
             "manualReviewRequired": True,
-            "compilerFamily": "candle_atr_sequence",
-            "compilerVersion": AI_WIZARD_AI3_COMPILER_VERSION,
+            "compilerFamily": template_class,
+            "compilerVersion": AI_WIZARD_AI4_RSI_COMPILER_VERSION if template_class == "rsi_mean_reversion" else AI_WIZARD_AI3_COMPILER_VERSION,
         },
         "ast": ast,
         "guardrails": [
@@ -1345,7 +1389,7 @@ def _build_semantic_catalog(
             "category": "Wizard block",
             "returnType": str(block.get("returnType") or "")[:40],
             "aliases": _catalog_aliases(block.get("id"), block.get("displayTemplate")),
-            "compilerSupport": "catalog_ref_only",
+            "compilerSupport": "draftable_rsi_mean_reversion" if str(block.get("id") or "") == "RSI" else "catalog_ref_only",
             "promptSeed": str(block.get("id") or "")[:120],
         }
         items.append(item)
@@ -1396,6 +1440,13 @@ def _build_semantic_catalog(
         "itemCount": len(items),
         "aliasCount": alias_count,
         "familyCount": len(by_category),
+        "draftableFamilies": [
+            {
+                "id": "rsi_mean_reversion",
+                "label": "RSI mean reversion",
+                "version": AI_WIZARD_AI4_RSI_COMPILER_VERSION,
+            }
+        ],
         "families": [
             {"category": category, "itemCount": by_category[category]}
             for category in sorted(by_category)
@@ -1471,10 +1522,10 @@ def build_ai_wizard_capability_catalog(
         "customIndicators": custom_indicators,
         "blockSettings": blocksettings,
         "compilerSupport": {
-            "draftablePatterns": ["ema_cross", "candle_atr_sequence"],
+            "draftablePatterns": ["ema_cross", "candle_atr_sequence", "rsi_mean_reversion"],
             "blockedFallback": "blocked_not_draftable_yet",
             "manualReviewRequired": True,
-            "phase": AI_WIZARD_AI3_COMPILER_VERSION,
+            "phase": AI_WIZARD_AI4_RSI_COMPILER_VERSION,
             "universalPromptIntake": True,
             "universalSqxGeneration": False,
         },
@@ -1573,6 +1624,23 @@ def _xml_atr_value(period: int = 14, shift: int = 1) -> ET.Element:
     )
     item.append(_xml_param("#Chart#", "Chart", 0, type="data", controlType="dataVar", defaultValue="0"))
     item.append(_xml_param("#TimePeriod#", "Time Period", period, type="int", controlType="jspinnerVar", defaultValue="14", step="1", builderStep="1", minValue="2", maxValue="10000", builderMinValue="1", builderMaxValue="200", builderStepValue="1", paramType="period"))
+    item.append(_xml_param("#Shift#", "Shift", shift, type="int", defaultValue="1", controlType="jspinnerVar", minValue="0", maxValue="1000", step="1", builderStep="1"))
+    return item
+
+
+def _xml_rsi_value(period: int = 14, shift: int = 1) -> ET.Element:
+    item = ET.Element(
+        "Item",
+        {
+            "key": "RSI",
+            "name": "(RSI) RSI",
+            "display": "RSI(#Period#)[#Shift#]",
+            "returnType": "number",
+            "categoryType": "indicator",
+        },
+    )
+    item.append(_xml_param("#Chart#", "Chart", 0, type="data", controlType="dataVar", defaultValue="0"))
+    item.append(_xml_param("#Period#", "Period", period, type="int", controlType="jspinnerVar", defaultValue="14", step="1", builderStep="1", minValue="1", maxValue="10000", paramType="period"))
     item.append(_xml_param("#Shift#", "Shift", shift, type="int", defaultValue="1", controlType="jspinnerVar", minValue="0", maxValue="1000", step="1", builderStep="1"))
     return item
 
@@ -1715,6 +1783,15 @@ def _detect_ai2_filters(prompt: str, catalog: dict[str, Any]) -> list[dict[str, 
     return filters
 
 
+def _keyword_matches_prompt(prompt_lower: str, token: str) -> bool:
+    token_lower = str(token or "").strip().casefold()
+    if not token_lower:
+        return False
+    if re.fullmatch(r"[a-z0-9]+", token_lower):
+        return bool(re.search(rf"(?<![a-z0-9]){re.escape(token_lower)}(?![a-z0-9])", prompt_lower))
+    return token_lower in prompt_lower
+
+
 def _detect_ai2_blocks(prompt: str, model_interpretation: dict[str, Any] | None = None) -> list[str]:
     lowered = prompt.casefold()
     ordered = [
@@ -1729,7 +1806,7 @@ def _detect_ai2_blocks(prompt: str, model_interpretation: dict[str, Any] | None 
     ]
     blocks: list[str] = []
     for block_id, tokens in ordered:
-        if any(token in lowered for token in tokens):
+        if any(_keyword_matches_prompt(lowered, token) for token in tokens):
             blocks.append(block_id)
     if model_interpretation and model_interpretation.get("source") == "ollama_ast":
         model_blocks = _normalize_hint_list(model_interpretation.get("blocks"))
@@ -1771,6 +1848,16 @@ def _semantic_alias_matches(prompt_lower: str, alias: str) -> bool:
     return _semantic_alias_score(prompt_lower, alias) > 0
 
 
+def _detect_semantic_family_mentions(prompt: str, catalog: dict[str, Any]) -> list[str]:
+    prompt_lower = prompt.casefold()
+    families: list[str] = []
+    for item in _catalog_semantic_items(catalog):
+        category = str(item.get("category") or "")
+        if category and _semantic_alias_score(prompt_lower, category, weight=1) > 0:
+            families.append(category)
+    return list(dict.fromkeys(families))
+
+
 def _detect_semantic_refs(
     prompt: str,
     catalog: dict[str, Any],
@@ -1788,11 +1875,7 @@ def _detect_semantic_refs(
     refs: list[str] = []
     scored_refs: list[tuple[int, str]] = []
     semantic_items = _catalog_semantic_items(catalog)
-    mentioned_categories = {
-        str(item.get("category") or "")
-        for item in semantic_items
-        if item.get("category") and _semantic_alias_score(prompt_lower, str(item.get("category") or ""), weight=1) > 0
-    }
+    mentioned_categories = set(_detect_semantic_family_mentions(prompt, catalog))
     for item in semantic_items:
         item_id = str(item.get("id") or "")
         if not item_id:
@@ -1873,6 +1956,7 @@ def _ast_from_prompt(prompt: str, catalog: dict[str, Any], model_interpretation:
     candle_pattern = _candle_pattern_from_prompt_and_model(prompt, model_interpretation)
     filters = _detect_ai2_filters(prompt, catalog)
     semantic_refs = _detect_semantic_refs(prompt, catalog, model_interpretation)
+    semantic_families = _detect_semantic_family_mentions(prompt, catalog)
     if model_interpretation.get("source") == "ollama_ast":
         model_filters = {item.casefold() for item in _normalize_hint_list(model_interpretation.get("filters"))}
         if "atr" in model_filters and not any(item.get("blockId") == "ATR" for item in filters):
@@ -1919,6 +2003,17 @@ def _ast_from_prompt(prompt: str, catalog: dict[str, Any], model_interpretation:
         close = _value_node("Close", {"Shift": 1})
         conditions_long.append(_condition_node("IsGreater", close, _value_node("High", {"Shift": 2})))
         conditions_short.append(_condition_node("IsLower", close, _value_node("Low", {"Shift": 2})))
+    block_set = set(blocks)
+    compiler_known_blocks = {"EMA", "RSI", "BollingerBands", "Stochastic", "MACD", "CCI", "ADX", "ATR", "High", "Low", "Close", "Open", "Number"}
+    semantic_family_refs = {
+        item_id
+        for item_id in semantic_refs
+        if item_id and item_id not in block_set and not item_id.startswith("RSI")
+    }
+    non_rsi_semantic_families = {
+        family for family in semantic_families if family.casefold() not in {"relative strength index", "rsi"}
+    }
+    rsi_multi_family = bool("RSI" in block_set and ((block_set & (compiler_known_blocks - {"RSI"})) or semantic_family_refs or non_rsi_semantic_families))
     candle_compilable = bool(
         candle_pattern
         and candle_pattern.get("type") == "candlestick_sequence"
@@ -1927,15 +2022,18 @@ def _ast_from_prompt(prompt: str, catalog: dict[str, Any], model_interpretation:
         and all(item.get("availableInCatalog", True) for item in filters)
     )
     ema_draftable = len(set(blocks)) == 1 and blocks[0] == "EMA" and bool(conditions_long)
-    draftable = bool(ema_draftable or candle_compilable)
+    rsi_draftable = "RSI" in block_set and not rsi_multi_family and not candle_pattern and not filters and bool(conditions_long or conditions_short)
+    draftable = bool(ema_draftable or candle_compilable or rsi_draftable)
     compiler_blockers: list[str] = []
     if candle_pattern and not candle_compilable:
         compiler_blockers.append("blocked_unsupported_candle_pattern")
-    if filters and not candle_compilable and not ema_draftable:
+    if rsi_multi_family:
+        compiler_blockers.append("blocked_multi_family_compiler_not_ready")
+    if filters and not candle_compilable and not ema_draftable and not rsi_draftable:
         compiler_blockers.append("blocked_unsupported_filter")
     if not draftable:
         compiler_blockers.append("blocked_not_draftable_yet")
-    understood = bool(blocks or candle_pattern or filters or semantic_refs or conditions_long or conditions_short)
+    understood = bool(blocks or candle_pattern or filters or semantic_refs or semantic_families or conditions_long or conditions_short)
     name_tokens: list[str] = []
     if candle_pattern:
         name_tokens.append("CandlePattern")
@@ -1982,12 +2080,13 @@ def _ast_from_prompt(prompt: str, catalog: dict[str, Any], model_interpretation:
         "catalogRefs": {
             "blockIds": [block_id for block_id in blocks if block_id in _catalog_key_sets(catalog)["blocks"]],
             "semanticIds": [item_id for item_id in semantic_refs if item_id in _catalog_key_sets(catalog)["semantic"]],
+            "semanticFamilies": semantic_families[:12],
             "comparisonIds": sorted({cond["operatorId"] for cond in conditions_long + conditions_short}),
         },
         "compiler": {
             "draftable": draftable,
-            "templateClass": "candle_atr_sequence" if candle_compilable else ("ema_cross" if ema_draftable else ""),
-            "version": AI_WIZARD_AI3_COMPILER_VERSION,
+            "templateClass": "candle_atr_sequence" if candle_compilable else ("rsi_mean_reversion" if rsi_draftable else ("ema_cross" if ema_draftable else "")),
+            "version": AI_WIZARD_AI4_RSI_COMPILER_VERSION if rsi_draftable else AI_WIZARD_AI3_COMPILER_VERSION,
             "universalPromptIntake": True,
             "universalSqxGeneration": False,
             "blockers": list(dict.fromkeys(compiler_blockers)),

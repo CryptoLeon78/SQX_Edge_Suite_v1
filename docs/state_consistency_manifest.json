@@ -1236,10 +1236,18 @@
       }
     },
     {
-      "id": "sqx142_aw_ai3_universal_prompt_compiler_gate",
-      "description": "AI3 must provide universal prompt intake into a validated AST, while only proven compiler families may emit SQX drafts. The first verified family is candle_atr_sequence for candle/ATR prompts, with local-only model interpretation and no raw prompt/provider-response persistence.",
+      "id": "sqx142_aw_ai3_ai4_prompt_compiler_gate",
+      "description": "AI3 must provide universal prompt intake into a validated AST, while only proven compiler families may emit SQX drafts. AI4 adds the narrow RSI mean-reversion compiler after operator AI3 catalog roundtrip OK, while mixed RSI plus another family remains blocked.",
       "required": {
         "README.md": [
+          "SQX142-AW-AI4 RSI Mean-Reversion Compiler",
+          "sqx142-aw-ai4-rsi-mean-reversion-compiler-v1",
+          "rsi_mean_reversion",
+          "RSI(14) < 30",
+          "RSI(14) > 70",
+          "blocked_multi_family_compiler_not_ready",
+          "sqx142_ai_wizard_overlay_20260604_210522",
+          "HTTP probe local confirma RSI draft OK",
           "SQX142-AW-AI3 Catalog Expansion",
           "sqx142-aw-ai3-expanded-catalog-v1",
           "operator_manual_roundtrip_completed_catalog_level_up_active",
@@ -1253,6 +1261,15 @@
           "sin `user/projects`"
         ],
         "CHANGELOG.md": [
+          "2026-06-04 - SQX142-AW-AI4 RSI Mean-Reversion Compiler",
+          "sqx142-aw-ai4-rsi-mean-reversion-compiler-v1",
+          "rsi_mean_reversion",
+          "RSI(14) < 30",
+          "RSI(14) > 70",
+          "blocked_multi_family_compiler_not_ready",
+          "sqx142_ai_wizard_overlay_20260604_210522",
+          "HTTP probe",
+          "Keltner, Bollinger, ADX and Stochastic plan-only",
           "2026-06-04 - SQX142-AW-AI3 Catalog Expansion",
           "sqx142-aw-ai3-expanded-catalog-v1",
           "sanitized semantic catalog",
@@ -1266,6 +1283,14 @@
           "blocked_unsupported_compiler_family"
         ],
         "docs/PROJECT_GOVERNANCE.md": [
+          "Current local phase built and installed: SQX142-AW-AI4 - RSI Mean-Reversion Compiler",
+          "sqx142-aw-ai4-rsi-mean-reversion-compiler-v1",
+          "rsi_mean_reversion",
+          "RSI(14) < 30",
+          "RSI(14) > 70",
+          "blocked_multi_family_compiler_not_ready",
+          "sqx142_ai_wizard_overlay_20260604_210522",
+          "HTTP probe confirms RSI draft OK",
           "Current local phase active: SQX142-AW-AI3 - Catalog Expansion",
           "operator_manual_roundtrip_completed_catalog_level_up_active",
           "sqx142-aw-ai3-expanded-catalog-v1",
@@ -1278,6 +1303,15 @@
           "compiler_built_roundtrip_reported_catalog_expansion_active"
         ],
         "docs/SQX142_AW_AI2_AI_STUDIO.md": [
+          "AI4 RSI Mean-Reversion Compiler",
+          "sqx142-aw-ai4-rsi-mean-reversion-compiler-v1",
+          "rsi_mean_reversion",
+          "RSI(14) < 30",
+          "RSI(14) > 70",
+          "blocked_multi_family_compiler_not_ready",
+          "sqx142_ai_wizard_overlay_20260604_210522",
+          "HTTP probe confirma RSI draft OK",
+          "AI4.0 RSI Mean-Reversion Compiler",
           "AI3 Catalog Expansion",
           "semanticCatalog",
           "Catalogo AlgoWizard ampliado",
@@ -1292,6 +1326,15 @@
         ],
         "docs/SQX142_AW_AI3_UNIVERSAL_PROMPT_COMPILER.md": [
           "SQX142-AW-AI3 Universal Prompt Compiler",
+          "sqx142-aw-ai4-rsi-mean-reversion-compiler-v1",
+          "rsi_mean_reversion",
+          "RSI(14) < 30",
+          "RSI(14) > 70",
+          "blocked_multi_family_compiler_not_ready",
+          "draftableFamilies",
+          "RSI mean reversion",
+          "sqx142_ai_wizard_overlay_20260604_210522",
+          "HTTP probe local confirma RSI draft OK",
           "sqx142-aw-ai3-universal-prompt-compiler-v1",
           "sqx142-aw-ai3-expanded-catalog-v1",
           "operator_manual_roundtrip_completed_catalog_level_up_active",
@@ -1316,6 +1359,7 @@
         ],
         "backend/sqx-edge-tool/core/sqx142_ai_wizard.py": [
           "AI_WIZARD_AI3_COMPILER_VERSION = \"sqx142-aw-ai3-universal-prompt-compiler-v1\"",
+          "AI_WIZARD_AI4_RSI_COMPILER_VERSION = \"sqx142-aw-ai4-rsi-mean-reversion-compiler-v1\"",
           "AI_WIZARD_AI3_CATALOG_VERSION = \"sqx142-aw-ai3-expanded-catalog-v1\"",
           "AI_WIZARD_INTERPRETER_SCHEMA",
           "def _try_local_model_interpretation",
@@ -1327,6 +1371,10 @@
           "rawResponsePersisted\": False",
           "externalApiCalled\": False",
           "\"candle_atr_sequence\"",
+          "\"rsi_mean_reversion\"",
+          "def _patch_rsi_mean_reversion_strategy_xml",
+          "blocked_multi_family_compiler_not_ready",
+          "\"draftableFamilies\"",
           "\"semanticCatalog\": semantic_catalog",
           "\"semanticIds\"",
           "unknown_semantic_item",
@@ -1336,6 +1384,10 @@
           "\"zip_entries_preserved\""
         ],
         "backend/sqx-edge-tool/test_sqx142_ai_wizard_studio.py": [
+          "test_ai4_rsi_mean_reversion_compiles_long_short_and_both",
+          "AI_WIZARD_AI4_RSI_COMPILER_VERSION",
+          "blocked_multi_family_compiler_not_ready",
+          "SQX Edge AI4 RSI Mean-Reversion Compiler draft",
           "test_ai3_spanish_candle_prompt_compiles_traceable_draft",
           "test_ai3_expanded_catalog_understands_condition_items_without_draft",
           "test_ai3_local_model_interpreter_feeds_ast_without_persisting_raw",
@@ -1347,6 +1399,9 @@
         "tests/js/contracts/sqx142_aw_ai3_contracts.mjs": [
           "sqx142 aw ai3 contracts ok",
           "AI_WIZARD_AI3_COMPILER_VERSION",
+          "AI_WIZARD_AI4_RSI_COMPILER_VERSION",
+          "rsi_mean_reversion",
+          "blocked_multi_family_compiler_not_ready",
           "AI_WIZARD_AI3_CATALOG_VERSION",
           "semanticCatalog",
           "candle_atr_sequence",
@@ -1355,6 +1410,9 @@
           "127\\.0\\.0\\.1:11434"
         ],
         "integrations/sqx142/ai_wizard_overlay/sqx-edge-aiwizard.js": [
+          "draftableFamilies",
+          "Generable ahora",
+          "RSI mean reversion",
           "Catalogo AlgoWizard ampliado",
           "semanticCatalog",
           "promptSeed",

@@ -4,7 +4,7 @@ Estado: `installed_pending_manual_roundtrip`.
 
 Esta fase convierte el AI Wizard de AlgoWizard 142 en un AI Studio reutilizable. El alcance v1 de AI2 es Todo AlgoWizard, no Full Editor completo: puede planificar estrategias expresables con bloques, indicadores, senales, operadores y parametros disponibles en AlgoWizard; cualquier peticion de Full Editor, Java custom o engine/plugin queda bloqueada.
 
-AI3 extiende esta base con `sqx142-aw-ai3-universal-prompt-compiler-v1`: entrada universal de prompt, interpretacion local modelo -> AST y primera familia compilable `candle_atr_sequence`. La regla sigue siendo conservadora: `universal_prompt_intake_not_universal_sqx_generation`; si no hay compilador probado, se bloquea y no se inventa un bot.
+AI3 extiende esta base con `sqx142-aw-ai3-universal-prompt-compiler-v1`: entrada universal de prompt, interpretacion local modelo -> AST y primera familia compilable `candle_atr_sequence`. AI4 anade `sqx142-aw-ai4-rsi-mean-reversion-compiler-v1` para RSI mean-reversion puro. La regla sigue siendo conservadora: `universal_prompt_intake_not_universal_sqx_generation`; si no hay compilador probado, se bloquea y no se inventa un bot.
 
 SQX estaba abierto durante la implementacion, por descarga de data del operador. Por tanto la entrega inicial fue repo-side y read-only sobre SQX: no se ejecuto install, rollback ni manual roundtrip.
 
@@ -24,10 +24,12 @@ AI3 Universal Prompt Compiler del 2026-06-04: el mismo caso de velas/ATR pasa a 
 
 AI3 Catalog Expansion del 2026-06-04: tras roundtrip manual reportado por el operador, el siguiente salto de nivel aumenta catalogo y explicabilidad. `sqx142-aw-ai3-expanded-catalog-v1` crea `semanticCatalog` sobre bloques Wizard, condiciones AlgoWizard y features observadas en ejemplos `.sqx`; el overlay muestra `Catalogo AlgoWizard ampliado`. Los nuevos `catalogRefs.semanticIds` ayudan a entender Keltner/ADX/RSI/Bollinger y otras familias, pero siguen siendo plan-only salvo compilador probado.
 
+AI4 RSI Mean-Reversion Compiler del 2026-06-04: el operador reporto roundtrip OK sobre AI3 Catalog Expansion y se promueve una sola familia nueva a compilador probado. `sqx142-aw-ai4-rsi-mean-reversion-compiler-v1` genera drafts `rsi_mean_reversion` para RSI puro: long `RSI(14) < 30`, short `RSI(14) > 70`, direccion desde prompt (`long_only`, `short_only`, `both`) y SL/TP desde prompt o defaults con `manualReviewRequired=true`. RSI mezclado con Bollinger u otra familia queda bloqueado con `blocked_multi_family_compiler_not_ready`; Keltner/Bollinger/ADX/Stochastic siguen plan-only. Overlay instalado con backup `sqx142_ai_wizard_overlay_20260604_210522`; HTTP probe confirma RSI draft OK y Keltner `blocked_not_draftable_yet`.
+
 ## Entrega
 
 - Version: `sqx142-ai-wizard-studio-v2`.
-- Compiler phase: `sqx142-aw-ai3-universal-prompt-compiler-v1`.
+- Compiler phase: `sqx142-aw-ai4-rsi-mean-reversion-compiler-v1` on top of `sqx142-aw-ai3-universal-prompt-compiler-v1`.
 - Catalogo: `sqx-edge.ai-wizard-capability-catalog-v1`.
 - AST: `sqx-edge.ai-wizard-strategy-ast-v1`.
 - SQLite local: `.local/sqx142_ai_wizard/ai_wizard.sqlite`.
@@ -47,6 +49,7 @@ AI3 Catalog Expansion del 2026-06-04: tras roundtrip manual reportado por el ope
 - `AI2.6 Overlay UX`: historial, reabrir/forkear sesiones, catalog browser, chips de indicadores/operadores, editor de parametros y panel de bloqueos util.
 - `AI2.7 Manual Roundtrip`: pendiente hasta SQX cerrado; requiere abrir draft en AlgoWizard y confirmar editabilidad.
 - `AI3.0 Universal Prompt Compiler`: interprete local modelo -> AST con fallback seguro y compilador `candle_atr_sequence`; status `compiler_built_roundtrip_reported_catalog_expansion_active`.
+- `AI4.0 RSI Mean-Reversion Compiler`: compilador `rsi_mean_reversion` para RSI puro con condiciones 30/70, direccion long/short/both y revision manual obligatoria; status `built_pending_manual_rsi_roundtrip`.
 
 ## APIs Local-Only
 
@@ -72,7 +75,7 @@ El navegador llama solo a Flask local. No llama a Ollama, OpenAI ni ningun prove
 
 ## Compilacion
 
-El Studio puede planificar cualquier estrategia expresable con el catalogo de AlgoWizard detectado, pero el draft `.sqx` solo se emite si el compilador tiene soporte probado para ese AST. AI3 mantiene compatibilidad conservadora con EMA cross y anade `candle_atr_sequence`; el resto de planes validos no probados siguen bloqueados con `blocked_not_draftable_yet`.
+El Studio puede planificar cualquier estrategia expresable con el catalogo de AlgoWizard detectado, pero el draft `.sqx` solo se emite si el compilador tiene soporte probado para ese AST. AI3 mantiene compatibilidad conservadora con EMA cross y anade `candle_atr_sequence`; AI4 anade `rsi_mean_reversion` para RSI puro con `RSI(14) < 30` / `RSI(14) > 70`. El resto de planes validos no probados siguen bloqueados con `blocked_not_draftable_yet`.
 
 Bloqueos principales:
 
@@ -86,6 +89,7 @@ Bloqueos principales:
 - `blocked_unsupported_candle_pattern`
 - `blocked_unsupported_filter`
 - `blocked_unsupported_compiler_family`
+- `blocked_multi_family_compiler_not_ready`
 - `blocked_not_draftable_yet`
 
 ## Limites Duros
@@ -187,3 +191,16 @@ Manual pendiente con SQX cerrado:
 - compiler family: `candle_atr_sequence`
 - safe draft: ZIP entries preserved, only `strategy_Portfolio.xml` patched
 - status: `compiler_built_roundtrip_reported_catalog_expansion_active`
+
+2026-06-04 AI4 RSI Mean-Reversion Compiler:
+
+- operator evidence: AI3 Catalog Expansion roundtrip OK
+- phase marker: `sqx142-aw-ai4-rsi-mean-reversion-compiler-v1`
+- compiler family: `rsi_mean_reversion`
+- conditions: long `RSI(14) < 30`, short `RSI(14) > 70`
+- direction support: `long_only`, `short_only`, `both`
+- safety: mixed RSI+Bollinger prompts blocked with `blocked_multi_family_compiler_not_ready`
+- plan-only families preserved: Keltner, Bollinger, ADX, Stochastic
+- draft rule: ZIP entries preserved, only `strategy_Portfolio.xml` patched, `manualReviewRequired=true`
+- install: overlay backup `sqx142_ai_wizard_overlay_20260604_210522`
+- HTTP probe: RSI draft OK; Keltner family understood and blocked with `blocked_not_draftable_yet`

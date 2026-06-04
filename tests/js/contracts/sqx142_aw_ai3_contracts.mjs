@@ -12,6 +12,7 @@ const doc = fs.existsSync(path.join(repoRoot, 'docs/SQX142_AW_AI3_UNIVERSAL_PROM
 
 assert.match(core, /AI_WIZARD_AI3_COMPILER_VERSION = "sqx142-aw-ai3-universal-prompt-compiler-v1"/);
 assert.match(core, /AI_WIZARD_AI3_CATALOG_VERSION = "sqx142-aw-ai3-expanded-catalog-v1"/);
+assert.match(core, /AI_WIZARD_AI4_RSI_COMPILER_VERSION = "sqx142-aw-ai4-rsi-mean-reversion-compiler-v1"/);
 assert.match(core, /AI_WIZARD_INTERPRETER_SCHEMA/);
 assert.match(core, /_try_local_model_interpretation/);
 assert.match(core, /_build_semantic_catalog/);
@@ -25,6 +26,10 @@ assert.match(core, /universalPromptIntake": True/);
 assert.match(core, /universalSqxGeneration": False/);
 
 assert.match(core, /"candle_atr_sequence"/);
+assert.match(core, /"rsi_mean_reversion"/);
+assert.match(core, /_patch_rsi_mean_reversion_strategy_xml/);
+assert.match(core, /blocked_multi_family_compiler_not_ready/);
+assert.match(core, /semanticFamilies/);
 assert.match(core, /"expanded_planning_catalog_not_universal_sqx_generation"/);
 assert.match(core, /"semanticCatalog": semantic_catalog/);
 assert.match(core, /"semanticIds"/);
@@ -44,6 +49,7 @@ assert.match(core, /_xml_price_value\("Close", shift\)/);
 assert.match(core, /_xml_price_value\("Open", shift\)/);
 
 assert.match(studioTest, /test_ai3_spanish_candle_prompt_compiles_traceable_draft/);
+assert.match(studioTest, /test_ai4_rsi_mean_reversion_compiles_long_short_and_both/);
 assert.match(studioTest, /test_ai3_expanded_catalog_understands_condition_items_without_draft/);
 assert.match(studioTest, /test_ai3_local_model_interpreter_feeds_ast_without_persisting_raw/);
 assert.match(studioTest, /create_ai_wizard_session_draft/);
@@ -53,6 +59,9 @@ assert.match(studioTest, /fake-local-model/);
 
 assert.match(overlayJs, /Catalogo AlgoWizard ampliado/);
 assert.match(overlayJs, /semanticCatalog/);
+assert.match(overlayJs, /draftableFamilies/);
+assert.match(overlayJs, /Generable ahora/);
+assert.match(overlayJs, /RSI mean reversion/);
 assert.match(overlayJs, /items semanticos/);
 assert.match(overlayJs, /features de ejemplos/);
 assert.match(overlayJs, /familias probadas/);

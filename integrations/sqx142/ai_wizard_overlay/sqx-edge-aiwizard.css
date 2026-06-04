@@ -298,6 +298,30 @@
   font-size: 11px;
 }
 
+.sqx-edge-aiwizard-catalog-draftable {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+  margin-top: 10px;
+}
+
+.sqx-edge-aiwizard-catalog-draftable strong {
+  color: #e9f6ff;
+  font-size: 12px;
+}
+
+.sqx-edge-aiwizard-catalog-draftable button,
+.sqx-edge-aiwizard-catalog-draftable span {
+  min-height: 28px;
+  border: 1px solid rgba(93, 217, 166, 0.38);
+  border-radius: 8px;
+  background: #123145;
+  color: #e9fff5;
+  padding: 5px 8px;
+  font-size: 11px;
+}
+
 .sqx-edge-aiwizard-catalog-item {
   min-height: 72px;
   border: 1px solid rgba(148, 170, 196, 0.24);

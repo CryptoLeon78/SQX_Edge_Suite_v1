@@ -8,6 +8,8 @@ Catalog level-up: `sqx142-aw-ai3-expanded-catalog-v1`.
 
 Estado posterior reportado por operador: `operator_manual_roundtrip_completed_catalog_level_up_active`.
 
+AI4 extension: `sqx142-aw-ai4-rsi-mean-reversion-compiler-v1`.
+
 AI3 convierte el AI Wizard en una entrada universal de prompts gobernada: el usuario puede escribir lenguaje natural libre, el backend local interpreta la intencion hacia un AST validado, y solo los compiladores de familia probada pueden emitir `.sqx`. La regla clave es `universal_prompt_intake_not_universal_sqx_generation`: se aceptan prompts amplios, pero no se promete generar cualquier estrategia si no existe compilador verificable.
 
 ## Alcance
@@ -16,6 +18,7 @@ AI3 convierte el AI Wizard en una entrada universal de prompts gobernada: el usu
 - Catalogo: `allowlisted_catalog_only`; el AST solo puede referenciar IDs detectados en el catalogo sanitizado de AlgoWizard.
 - Catalogo ampliado: `sqx142-aw-ai3-expanded-catalog-v1` combina bloques Wizard, condiciones de AlgoWizard y feature IDs observados en ejemplos `.sqx` como indice semantico public-safe.
 - Compilador verificable inicial: `candle_atr_sequence`, para secuencias de velas rojas/verdes con confirmacion tipo martillo, entrada long en confirmacion y filtro ATR creciente.
+- Compilador verificable AI4: `rsi_mean_reversion`, solo para RSI puro o RSI mean-reversion; long `RSI(14) < 30`, short `RSI(14) > 70`, direccion `long_only`/`short_only`/`both`.
 - Draft `.sqx`: se emite solo con `compiler.draftable=true`, conserva las entradas del ZIP plantilla y parchea solo `strategy_Portfolio.xml`.
 - Revision: todo draft queda `manualReviewRequired=true`; AlgoWizard debe abrirlo y revisarlo antes de cualquier validacion SQX.
 
@@ -42,6 +45,18 @@ La primera familia AI3 compila el caso real reportado por el operador:
 
 El compilador no intenta detectar rentabilidad ni calidad trading. Solo traduce una estructura de AlgoWizard editable y trazable para revision manual.
 
+## Familia RSI Mean-Reversion
+
+AI4 promueve RSI desde catalogo/plan a compilador probado con alcance estrecho:
+
+- `compiler.templateClass = "rsi_mean_reversion"` solo si el prompt es RSI puro o RSI mean-reversion.
+- Long: `RSI(14) < 30`.
+- Short: `RSI(14) > 70`.
+- Direccion desde prompt: `long_only`, `short_only` o `both`; si falta, `both`.
+- SL/TP desde prompt; si faltan, defaults actuales y `manualReviewRequired=true`.
+- Multi-familia, por ejemplo RSI+Bollinger, queda bloqueado con `blocked_multi_family_compiler_not_ready`.
+- Keltner, Bollinger, ADX y Stochastic siguen plan-only con `blocked_not_draftable_yet`.
+
 ## Catalogo Ampliado
 
 AI3-CAT sube el nivel del Studio sin ampliar la superficie de generacion insegura:
@@ -57,6 +72,7 @@ AI3-CAT sube el nivel del Studio sin ampliar la superficie de generacion insegur
 - `compiler.draftable=true only for proven compiler families`.
 - `unsupportedNaturalLanguageFallback=false`.
 - `blocked_not_draftable_yet` para familias sin compilador.
+- `blocked_multi_family_compiler_not_ready` para RSI combinado con otra familia no preparada.
 - `blocked_unsupported_prompt_semantics` para peticiones fuera de alcance.
 - `blocked_unsupported_compiler_family` si se pide emitir una familia no probada.
 - No SQX runtime launch.
@@ -99,3 +115,16 @@ AI3-CAT sube el nivel del Studio sin ampliar la superficie de generacion insegur
 - UI: `Catalogo AlgoWizard ampliado`
 - AST: `catalogRefs.semanticIds`
 - limite: expanded catalog no implica universal `.sqx` generation
+
+2026-06-04 AI4 RSI Mean-Reversion Compiler:
+
+- operador: AI3 Catalog Expansion roundtrip OK
+- nuevo marcador: `sqx142-aw-ai4-rsi-mean-reversion-compiler-v1`
+- compiler family: `rsi_mean_reversion`
+- condiciones: long `RSI(14) < 30`, short `RSI(14) > 70`
+- direccion: `long_only`, `short_only`, `both`
+- bloqueo: `blocked_multi_family_compiler_not_ready` para RSI mezclado con Bollinger u otra familia
+- UI/catalogo: `draftableFamilies` muestra `RSI mean reversion` como generable; Keltner/Bollinger/ADX/Stochastic siguen plan-only
+- instalado: overlay con backup `sqx142_ai_wizard_overlay_20260604_210522`
+- verificado: HTTP probe local confirma RSI draft OK y Keltner `blocked_not_draftable_yet`
+- limite: sin SQX runtime launch, sin `data.db`, sin `user/projects`, sin databanks

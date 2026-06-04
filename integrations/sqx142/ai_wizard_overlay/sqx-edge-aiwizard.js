@@ -241,6 +241,7 @@
     var counts = catalog.counts || {};
     var semantic = catalog.semanticCatalog || {};
     var families = (semantic.families || []).slice(0, 10);
+    var draftableFamilies = semantic.draftableFamilies || [];
     var items = (semantic.items || []).slice(0, 36);
     node.innerHTML =
       "<strong>Catalogo AlgoWizard ampliado</strong><p class=\"sqx-edge-aiwizard-muted\">Referencia avanzada para interpretar ideas. Pulsar un item lo convierte en idea inicial; generar .sqx sigue limitado a familias probadas.</p>" +
@@ -255,6 +256,12 @@
       families.map(function(family) {
         return "<span>" + escapeHtml(family.category || "Familia") + " · " + escapeHtml(family.itemCount || 0) + "</span>";
       }).join("") +
+      "</div>" +
+      "<div class=\"sqx-edge-aiwizard-catalog-draftable\">" +
+      "<strong>Generable ahora</strong>" +
+      (draftableFamilies.length ? draftableFamilies.map(function(family) {
+        return "<button type=\"button\" data-sqx-aiwizard-prompt=\"" + escapeHtml((family.label || family.id || "RSI mean reversion") + " EURUSD H1 with SL 100 TP 200") + "\">" + escapeHtml(family.label || family.id) + "</button>";
+      }).join("") : "<span>Sin familias nuevas compilables</span>") +
       "</div>" +
       "<div class=\"sqx-edge-aiwizard-catalog-grid\">" +
       items.map(function(item) {
@@ -309,7 +316,7 @@
       "<strong>Elige un punto de partida</strong>" +
       "<div class=\"sqx-edge-aiwizard-patterns\">" +
       "<button type=\"button\" data-sqx-aiwizard-prompt=\"EMA cross trend-following EURUSD H1 with SL/TP\"><b>Tendencia simple</b><small>EMA cross · mas probable que genere .sqx</small></button>" +
-      "<button type=\"button\" data-sqx-aiwizard-prompt=\"RSI mean reversion EURUSD H1 with SL/TP\"><b>Reversion RSI</b><small>Plan editable · puede bloquear draft</small></button>" +
+      "<button type=\"button\" data-sqx-aiwizard-prompt=\"RSI mean reversion EURUSD H1 with SL/TP\"><b>Reversion RSI</b><small>RSI 30/70 · genera .sqx</small></button>" +
       "<button type=\"button\" data-sqx-aiwizard-prompt=\"Bollinger mean reversion EURUSD H1 with SL/TP\"><b>Bollinger</b><small>Idea con parametros revisables</small></button>" +
       "<button type=\"button\" data-sqx-aiwizard-prompt=\"MACD trend EURUSD H1 with SL/TP\"><b>MACD tendencia</b><small>Valida contra catalogo local</small></button>" +
       "</div>" +

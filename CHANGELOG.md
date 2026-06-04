@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-06-04 - SQX142-AW-AI4 RSI Mean-Reversion Compiler
+
+- Records AI3 Catalog Expansion manual roundtrip as OK from the operator and starts AI4 as a small compiler phase, not a broad family unlock.
+- Adds `sqx142-aw-ai4-rsi-mean-reversion-compiler-v1` and draftable pattern `rsi_mean_reversion` for pure RSI / RSI mean-reversion prompts.
+- Generates `.sqx` drafts by preserving ZIP entries and patching only `strategy_Portfolio.xml` with `RSI(14) < 30` for long and `RSI(14) > 70` for short.
+- Parses direction as `long_only`, `short_only` or `both`; SL/TP come from the prompt or guarded defaults with `manualReviewRequired=true`.
+- Blocks RSI plus another strategy family, such as RSI+Bollinger, with `blocked_multi_family_compiler_not_ready`.
+- Installs the updated overlay with backup `sqx142_ai_wizard_overlay_20260604_210522`, reloads the local backend and records the HTTP probe: RSI drafts OK while Keltner remains `blocked_not_draftable_yet`.
+- Keeps Keltner, Bollinger, ADX and Stochastic plan-only until future fixture, contract, tests and manual roundtrip evidence exist.
+- Preserves boundaries: no SQX runtime launch, no `data.db`, no `user/projects`, no databank mutation, no provider calls from browser and no profitability or risk-zero claim.
+
 ## 2026-06-04 - SQX142-AW-AI3 Catalog Expansion
 
 - Records operator manual AI3 roundtrip as performed and starts the level-up pass focused on catalog coverage.

@@ -9,6 +9,7 @@ from core.sqx142_ai_wizard import (
     AI_WIZARD_AI2_VERSION,
     AI_WIZARD_AI3_CATALOG_VERSION,
     AI_WIZARD_AI3_COMPILER_VERSION,
+    AI_WIZARD_AI4_RSI_COMPILER_VERSION,
     AST_TYPE,
     CATALOG_TYPE,
     XML_ENTRY,
@@ -162,8 +163,12 @@ def test_ai2_catalog_is_sanitized_and_counts_fake_sources(tmp_path):
     assert catalog["counts"]["semanticFamilies"] >= 3
     assert catalog["semanticCatalog"]["version"] == AI_WIZARD_AI3_CATALOG_VERSION
     assert catalog["semanticCatalog"]["policy"] == "expanded_planning_catalog_not_universal_sqx_generation"
+    assert {"id": "rsi_mean_reversion", "label": "RSI mean reversion", "version": AI_WIZARD_AI4_RSI_COMPILER_VERSION} in catalog["semanticCatalog"]["draftableFamilies"]
+    assert "rsi_mean_reversion" in catalog["compilerSupport"]["draftablePatterns"]
+    assert catalog["compilerSupport"]["phase"] == AI_WIZARD_AI4_RSI_COMPILER_VERSION
     semantic_ids = {item["id"] for item in catalog["semanticCatalog"]["items"]}
     assert {"MARising", "KCUpperRising", "EnterAtMarket"}.issubset(semantic_ids)
+    assert any(item["id"] == "RSI" and item["compilerSupport"] == "draftable_rsi_mean_reversion" for item in catalog["semanticCatalog"]["items"])
     assert catalog["examples"]["items"][0]["hasStrategyPortfolioXml"] is True
     assert catalog["examples"]["featureCount"] >= 3
     assert "name" not in catalog["examples"]["items"][0]
@@ -185,8 +190,62 @@ def test_ai2_ast_validates_common_algowizard_blocks(tmp_path):
     assert "RSI" in ast["catalogRefs"]["blockIds"]
     assert "BollingerBands" in ast["catalogRefs"]["blockIds"]
     assert report["data"]["validation"]["ok"] is True
+    assert "blocked_multi_family_compiler_not_ready" in report["warnings"]
     assert "blocked_not_draftable_yet" in report["warnings"]
     _assert_public_safe(report)
+
+
+def test_ai4_rsi_mean_reversion_compiles_long_short_and_both(tmp_path):
+    sqx_root = _write_fake_sqx_root(tmp_path)
+    db_path = tmp_path / ".local" / "sqx142_ai_wizard" / "ai_wizard.sqlite"
+    prompts = {
+        "long_only": "RSI mean reversion EURUSD H1 long SL 100 TP 200",
+        "short_only": "RSI mean reversion EURUSD H1 short SL 100 TP 200",
+        "both": "RSI mean reversion EURUSD H1 SL 100 TP 200",
+    }
+
+    reports = {}
+    drafts = {}
+    with patch.dict(os.environ, {"SQX142_ROOT": str(sqx_root)}):
+        for expected_direction, prompt in prompts.items():
+            report = build_ai_wizard_ast_from_prompt({"prompt": prompt}, project_root=tmp_path)
+            created = create_ai_wizard_session(tmp_path, {"prompt": prompt}, db_path=db_path)
+            draft = create_ai_wizard_session_draft(tmp_path, created["data"]["session"]["sessionId"], db_path=db_path)
+            reports[expected_direction] = report
+            drafts[expected_direction] = draft
+
+    for expected_direction, report in reports.items():
+        assert report["ok"] is True
+        ast = report["data"]["ast"]
+        assert ast["direction"] == expected_direction
+        assert ast["compiler"]["draftable"] is True
+        assert ast["compiler"]["templateClass"] == "rsi_mean_reversion"
+        assert ast["compiler"]["version"] == AI_WIZARD_AI4_RSI_COMPILER_VERSION
+        assert ast["compiler"]["universalPromptIntake"] is True
+        assert ast["compiler"]["universalSqxGeneration"] is False
+        assert ast["actions"]["risk"]["manualReviewRequired"] is True
+        assert "RSI" in ast["catalogRefs"]["blockIds"]
+        _assert_public_safe(report)
+        assert drafts[expected_direction]["ok"] is True
+        assert drafts[expected_direction]["data"]["draft"]["compilerFamily"] == "rsi_mean_reversion"
+        assert drafts[expected_direction]["data"]["draft"]["compilerVersion"] == AI_WIZARD_AI4_RSI_COMPILER_VERSION
+        _assert_public_safe(drafts[expected_direction])
+
+    generated = resolve_ai_wizard_draft_download(tmp_path, drafts["both"]["data"]["draft"]["draftId"], db_path=db_path)
+    assert generated is not None
+    assert zipfile.is_zipfile(generated)
+    with zipfile.ZipFile(generated) as archive:
+        assert sorted(archive.namelist()) == ["META-INF/MANIFEST.MF", XML_ENTRY]
+        xml = archive.read(XML_ENTRY).decode("utf-8")
+    assert "SQX Edge AI4 RSI Mean-Reversion Compiler draft" in xml
+    assert "SQXEdgeAI2_EURUSD_H1_RSI" in xml
+    assert 'Item key="RSI"' in xml
+    assert 'Item key="IsLower"' in xml
+    assert 'Item key="IsGreater"' in xml
+    assert ">30<" in xml
+    assert ">70<" in xml
+    assert ">100<" in xml
+    assert ">200<" in xml
 
 
 def test_ai3_expanded_catalog_understands_condition_items_without_draft(tmp_path):
@@ -214,6 +273,29 @@ def test_ai3_expanded_catalog_understands_condition_items_without_draft(tmp_path
     assert draft["error"] == "blocked_not_draftable_yet"
     assert "blocked_not_draftable_yet" in draft["blockers"]
     assert "draft" not in draft.get("data", {})
+    _assert_public_safe(report)
+    _assert_public_safe(draft)
+
+
+def test_ai4_does_not_turn_keltner_mean_reversion_into_rsi_draft(tmp_path):
+    sqx_root = _write_fake_sqx_root(tmp_path)
+    db_path = tmp_path / ".local" / "sqx142_ai_wizard" / "ai_wizard.sqlite"
+    prompt = "Keltner Channel mean reversion EURUSD H1 SL 100 TP 200"
+    with patch.dict(os.environ, {"SQX142_ROOT": str(sqx_root)}):
+        report = build_ai_wizard_ast_from_prompt({"prompt": prompt}, project_root=tmp_path)
+        created = create_ai_wizard_session(tmp_path, {"prompt": prompt}, db_path=db_path)
+        draft = create_ai_wizard_session_draft(tmp_path, created["data"]["session"]["sessionId"], db_path=db_path)
+
+    ast = report["data"]["ast"]
+    assert report["ok"] is True
+    assert "RSI" not in ast["catalogRefs"]["blockIds"]
+    assert "Keltner Channel" in ast["catalogRefs"]["semanticFamilies"]
+    assert ast["promptUnderstanding"]["recognized"] is True
+    assert ast["compiler"]["draftable"] is False
+    assert ast["compiler"]["templateClass"] == ""
+    assert "blocked_not_draftable_yet" in report["warnings"]
+    assert draft["ok"] is False
+    assert draft["error"] == "blocked_not_draftable_yet"
     _assert_public_safe(report)
     _assert_public_safe(draft)
 
