@@ -82,3 +82,7 @@ A66 Docs Canonicalization completed as `sqx-edge.docs-canonical-index-v1` with a
 ## A68 Closeout
 
 A68 Low-Risk Physical Moves completed as `completed_low_risk_physical_move` with one docs-domain relocation: `docs/DISCIPLINA_OPERATIVA.md` is the canonical operational discipline document and root `DISCIPLINA_OPERATIVA.md` is a compatibility shim. No tools moved, no wrappers moved, no scripts executed, no import or load-order changes and no runtime behavior changes during A68.
+
+## A69 Closeout
+
+A69 Major Refactor Decision Gate completed as `completed_major_refactor_decision_no_go`. The A64-A69 restructuring cycle closes without approving a major backend/frontend/tests separation because `REMOTE-8K Post Execution Monitoring` and the `SQX142-AW-AI2` install/manual roundtrip remain open. Future restructuring needs a new explicit phase plan after those gates close.

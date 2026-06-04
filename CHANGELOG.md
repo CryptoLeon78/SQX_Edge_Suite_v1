@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-06-04 - A69 Major Refactor Decision Gate
+
+- Closes A69 as `completed_major_refactor_decision_no_go`: the major backend/frontend/tests separation is not approved while `REMOTE-8K Post Execution Monitoring` and the `SQX142-AW-AI2` install/manual roundtrip remain open.
+- Closes the A64-A69 governed restructuring cycle as small-phase work only: register, boundary guard, docs canonicalization, tooling ownership, one low-risk docs move and this decision gate.
+- Preserves boundaries: no major refactor started, no backend/frontend/tests split, no tools moved, no wrappers moved, no scripts executed, no import or load-order changes, no SQX runtime launch, no data.db writes, no user/projects writes and no Portfolio Master unlock. Next work returns to `REMOTE-8K` and `SQX142-AW-AI2`.
+
 ## 2026-06-04 - A68 Low-Risk Physical Moves
 
 - Completes A68 as `completed_low_risk_physical_move` with one docs/institutional relocation: the canonical operational discipline document now lives at `docs/DISCIPLINA_OPERATIVA.md`.

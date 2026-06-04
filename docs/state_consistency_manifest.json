@@ -476,8 +476,8 @@
         "docs/MODULARIZATION_NEXT_STEPS.md": [
           "Phase A67: Tooling Ownership Map - map ownership for root scripts, `tools/`, wrappers and runbooks. Done.",
           "Current tooling ownership map: `docs/TOOLING_OWNERSHIP_MAP.md`",
-          "Current A68 scope: one docs/institutional relocation",
           "Phase A68: Low-Risk Physical Moves - perform one docs-domain relocation with root compatibility shim and rollback. Done.",
+          "Phase A69: decide major backend/frontend/tests separation only after `REMOTE-8K` and `SQX142-AW-AI2` roundtrip gates. Done as no-go/deferred.",
           "Phase A67: Tooling Ownership Map - map ownership for root scripts, `tools/`, wrappers and runbooks. Done."
         ],
         "CHANGELOG.md": [
@@ -620,8 +620,8 @@
       "description": "A68 Low-Risk Physical Moves must remain a single docs/institutional relocation with a root compatibility shim and no behavior, tooling or runtime changes.",
       "required": {
         "docs/RESTRUCTURING_GOVERNANCE.md": [
-          "Current phase: `A68 Low-Risk Physical Moves`",
-          "Status: `completed_low_risk_physical_move`",
+          "A68 Low-Risk Physical Moves completed",
+          "completed_low_risk_physical_move",
           "docs/DISCIPLINA_OPERATIVA.md",
           "root compatibility shim",
           "A68 did not move tools or wrappers",
@@ -660,10 +660,9 @@
           "Next restructuring phase: A69 Major Refactor Decision Gate"
         ],
         "docs/MODULARIZATION_NEXT_STEPS.md": [
-          "Current architecture phase: Phase A68: Low-Risk Physical Moves completed.",
-          "Current A68 scope: one docs/institutional relocation",
+          "Phase A68: Low-Risk Physical Moves - perform one docs-domain relocation with root compatibility shim and rollback. Done.",
           "docs/DISCIPLINA_OPERATIVA.md",
-          "Next: A69 Major Refactor Decision Gate",
+          "Phase A69: decide major backend/frontend/tests separation only after `REMOTE-8K` and `SQX142-AW-AI2` roundtrip gates. Done as no-go/deferred.",
           "Phase A68: Low-Risk Physical Moves - perform one docs-domain relocation with root compatibility shim and rollback. Done."
         ],
         "CHANGELOG.md": [
@@ -752,6 +751,150 @@
           "A68 changed load order",
           "A68 deleted docs",
           "A68 removed compatibility shim",
+          "runtime SQX launched",
+          "data.db writes enabled",
+          "user/projects writes enabled",
+          "Portfolio Master input unlocked",
+          "REMOTE-8K skipped",
+          "remote expansion approved",
+          "risk zero guaranteed",
+          "guaranteed profitability"
+        ]
+      }
+    },
+    {
+      "id": "sqx_edge_major_refactor_decision_gate_v1",
+      "description": "A69 Major Refactor Decision Gate must close the A64-A69 restructuring cycle as no-go/deferred for major backend/frontend/tests separation until REMOTE-8K and SQX142-AW-AI2 gates close.",
+      "required": {
+        "docs/RESTRUCTURING_GOVERNANCE.md": [
+          "Current phase: `A69 Major Refactor Decision Gate`",
+          "Status: `completed_major_refactor_decision_no_go`",
+          "A69 Major Refactor Decision Gate completed",
+          "Decision: no-go for major backend/frontend/tests separation now",
+          "REMOTE-8K Post Execution Monitoring",
+          "SQX142-AW-AI2",
+          "No major refactor started during A69",
+          "Future rule: reopen restructuring only with a new explicit phase plan"
+        ],
+        "docs/DOCS_CANONICAL_INDEX.md": [
+          "A69 Closeout",
+          "completed_major_refactor_decision_no_go",
+          "The A64-A69 restructuring cycle closes without approving a major backend/frontend/tests separation",
+          "Future restructuring needs a new explicit phase plan"
+        ],
+        "README.md": [
+          "A69 Major Refactor Decision Gate queda cerrado",
+          "completed_major_refactor_decision_no_go",
+          "no se aprueba separacion mayor backend/frontend/tests",
+          "REMOTE-8K Post Execution Monitoring",
+          "SQX142-AW-AI2",
+          "Siguiente trabajo recomendado"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Current architecture phase completed: A69 Major Refactor Decision Gate",
+          "completed_major_refactor_decision_no_go",
+          "do not start a major backend/frontend/tests separation now",
+          "REMOTE-8K Post Execution Monitoring",
+          "SQX142-AW-AI2",
+          "Next recommended work: close `REMOTE-8K`"
+        ],
+        "docs/MODULARIZATION_NEXT_STEPS.md": [
+          "Current architecture phase: Phase A69: Major Refactor Decision Gate completed as `completed_major_refactor_decision_no_go`.",
+          "Current A69 decision: no-go for a major backend/frontend/tests separation",
+          "Next: REMOTE-8K Post Execution Monitoring, then SQX142-AW-AI2 install/manual roundtrip.",
+          "Phase A69: decide major backend/frontend/tests separation only after `REMOTE-8K` and `SQX142-AW-AI2` roundtrip gates. Done as no-go/deferred."
+        ],
+        "CHANGELOG.md": [
+          "2026-06-04 - A69 Major Refactor Decision Gate",
+          "completed_major_refactor_decision_no_go",
+          "major backend/frontend/tests separation is not approved",
+          "REMOTE-8K Post Execution Monitoring",
+          "SQX142-AW-AI2",
+          "Next work returns to `REMOTE-8K` and `SQX142-AW-AI2`"
+        ]
+      },
+      "forbidden": {
+        "docs/RESTRUCTURING_GOVERNANCE.md": [
+          "A69 approved major refactor",
+          "A69 started major refactor",
+          "A69 split backend/frontend/tests",
+          "A69 moved backend",
+          "A69 moved frontend",
+          "A69 moved tests",
+          "A69 changed imports",
+          "A69 changed load order",
+          "runtime SQX launched",
+          "data.db writes enabled",
+          "user/projects writes enabled",
+          "Portfolio Master input unlocked",
+          "REMOTE-8K skipped",
+          "remote expansion approved",
+          "risk zero guaranteed",
+          "guaranteed profitability"
+        ],
+        "README.md": [
+          "A69 approved major refactor",
+          "A69 started major refactor",
+          "A69 split backend/frontend/tests",
+          "A69 moved backend",
+          "A69 moved frontend",
+          "A69 moved tests",
+          "A69 changed imports",
+          "A69 changed load order",
+          "runtime SQX launched",
+          "data.db writes enabled",
+          "user/projects writes enabled",
+          "Portfolio Master input unlocked",
+          "REMOTE-8K skipped",
+          "remote expansion approved",
+          "risk zero guaranteed",
+          "guaranteed profitability"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "A69 approved major refactor",
+          "A69 started major refactor",
+          "A69 split backend/frontend/tests",
+          "A69 moved backend",
+          "A69 moved frontend",
+          "A69 moved tests",
+          "A69 changed imports",
+          "A69 changed load order",
+          "runtime SQX launched",
+          "data.db writes enabled",
+          "user/projects writes enabled",
+          "Portfolio Master input unlocked",
+          "REMOTE-8K skipped",
+          "remote expansion approved",
+          "risk zero guaranteed",
+          "guaranteed profitability"
+        ],
+        "docs/MODULARIZATION_NEXT_STEPS.md": [
+          "A69 approved major refactor",
+          "A69 started major refactor",
+          "A69 split backend/frontend/tests",
+          "A69 moved backend",
+          "A69 moved frontend",
+          "A69 moved tests",
+          "A69 changed imports",
+          "A69 changed load order",
+          "runtime SQX launched",
+          "data.db writes enabled",
+          "user/projects writes enabled",
+          "Portfolio Master input unlocked",
+          "REMOTE-8K skipped",
+          "remote expansion approved",
+          "risk zero guaranteed",
+          "guaranteed profitability"
+        ],
+        "CHANGELOG.md": [
+          "A69 approved major refactor",
+          "A69 started major refactor",
+          "A69 split backend/frontend/tests",
+          "A69 moved backend",
+          "A69 moved frontend",
+          "A69 moved tests",
+          "A69 changed imports",
+          "A69 changed load order",
           "runtime SQX launched",
           "data.db writes enabled",
           "user/projects writes enabled",

@@ -2,15 +2,15 @@
 
 Marker: `sqx-edge.restructuring-governance-v1`
 
-Current phase: `A68 Low-Risk Physical Moves`
+Current phase: `A69 Major Refactor Decision Gate`
 
-Status: `completed_low_risk_physical_move`
+Status: `completed_major_refactor_decision_no_go`
 
 Last updated: 2026-06-04
 
 ## Purpose
 
-Este registro gobierna una reestructuracion por fases pequenas, trazada en Git y gbrain, sin refactor masivo ni cambio de comportamiento por defecto. A64 solo crea inventario, ownership inicial y log de fases; A65 clasifica fronteras antes de cualquier movimiento; A66 define docs canonicos vs historicos con indice; A67 documenta ownership de tooling, wrappers y runbooks; A68 ejecuta un unico traslado docs/institutional de bajo riesgo con shim de compatibilidad. Ninguna fase autoriza borrado masivo, cambio de imports, cambio de build/load order ni runtime SQX.
+Este registro gobierna una reestructuracion por fases pequenas, trazada en Git y gbrain, sin refactor masivo ni cambio de comportamiento por defecto. A64 solo crea inventario, ownership inicial y log de fases; A65 clasifica fronteras antes de cualquier movimiento; A66 define docs canonicos vs historicos con indice; A67 documenta ownership de tooling, wrappers y runbooks; A68 ejecuta un unico traslado docs/institutional de bajo riesgo con shim de compatibilidad; A69 decide no iniciar una separacion mayor backend/frontend/tests mientras los gates remoto/manual sigan abiertos. Ninguna fase autoriza borrado masivo, cambio de imports, cambio de build/load order ni runtime SQX.
 
 ## Live Gates Preserved
 
@@ -38,6 +38,11 @@ Este registro gobierna una reestructuracion por fases pequenas, trazada en Git y
 - No services started during A68.
 - No docs deleted during A68.
 - No root compatibility shim removal during A68.
+- No major refactor started during A69.
+- No backend/frontend/tests split during A69.
+- No physical moves during A69.
+- No tooling moves during A69.
+- No runtime changes during A69.
 
 ## Top-Level Inventory Snapshot
 
@@ -123,6 +128,23 @@ A68 Low-Risk Physical Moves completed as `completed_low_risk_physical_move` with
 
 A68 did not move tools or wrappers, did not execute scripts, did not start services, did not change imports/load order, did not delete docs, did not touch SQX runtime, did not write `data.db`, did not write `user/projects` and did not unlock Portfolio Master. Next restructuring phase: `A69 Major Refactor Decision Gate`.
 
+## A69 Major Refactor Decision Gate
+
+A69 Major Refactor Decision Gate completed as `completed_major_refactor_decision_no_go`.
+
+Decision: no-go for major backend/frontend/tests separation now. The required preconditions are not closed: `REMOTE-8K Post Execution Monitoring` remains the next remote gate, and `SQX142-AW-AI2` remains pending install/manual roundtrip. A64-A69 therefore closes as a governed small-phase restructuring cycle, not as authorization for a big refactor.
+
+Preserved boundaries:
+
+- No major refactor started during A69.
+- No backend/frontend/tests split during A69.
+- No physical moves during A69.
+- No tooling moves during A69.
+- No import or load-order changes during A69.
+- No SQX runtime launch, no `data.db`, no `user/projects` and no Portfolio Master unlock.
+
+Future rule: reopen restructuring only with a new explicit phase plan after `REMOTE-8K` and the `SQX142-AW-AI2` manual roundtrip close. Until then, the next work returns to remote monitoring and the manual AI Studio roundtrip.
+
 ## Phase Register A64-A69
 
 | Phase | Status | Goal | Boundaries | Done criteria |
@@ -132,7 +154,7 @@ A68 did not move tools or wrappers, did not execute scripts, did not start servi
 | A66 Docs Canonicalization | completed | Definir docs canonicos vs historicos con indice. | No mover masivamente `docs/`; primero indexar. | Indice aprobado y referencias canonicas claras. |
 | A67 Tooling Ownership Map | completed | Documentar ownership de scripts raiz, `tools/`, wrappers y runbooks. | No mover wrappers sin compatibilidad o alias. | Mapa de tooling, owners y riesgos por dominio. |
 | A68 Low-Risk Physical Moves | completed | Mover solo candidatos seguros, un dominio por commit. | Mantener wrappers/referencias antiguas cuando haga falta. | Un movimiento docs/institutional, shim raiz, tests focales y rollback claro. |
-| A69 Major Refactor Decision Gate | next | Decidir si procede separar tests/backend/frontend de forma mayor. | Solo tras `REMOTE-8K` y roundtrip de `SQX142-AW-AI2`. | Decision registrada; si no hay GO, se aparca. |
+| A69 Major Refactor Decision Gate | completed_no_go | Decidir si procede separar tests/backend/frontend de forma mayor. | Solo tras `REMOTE-8K` y roundtrip de `SQX142-AW-AI2`. | No-go registrado; refactor mayor aparcado hasta cerrar gates. |
 
 ## Phase Log
 
@@ -143,6 +165,7 @@ A68 did not move tools or wrappers, did not execute scripts, did not start servi
 | 2026-06-04 | A66 Docs Canonicalization | completed_docs_canonical_index | `docs/DOCS_CANONICAL_INDEX.md`, `docs/RESTRUCTURING_GOVERNANCE.md`, `README.md`, `docs/PROJECT_GOVERNANCE.md`, `docs/MODULARIZATION_NEXT_STEPS.md`, `CHANGELOG.md`, `docs/state_consistency_manifest.json` | `git diff --check`; docs-state pytest; changed-doc privacy scan OK | A66 closeout commit in Git history | `origin/codex/sqx142-143-backport` | `projects/sqx-edge-suite-v1` A66 closeout entry |
 | 2026-06-04 | A67 Tooling Ownership Map | completed_tooling_ownership_map | `docs/TOOLING_OWNERSHIP_MAP.md`, `docs/RESTRUCTURING_GOVERNANCE.md`, `docs/DOCS_CANONICAL_INDEX.md`, `README.md`, `docs/PROJECT_GOVERNANCE.md`, `docs/MODULARIZATION_NEXT_STEPS.md`, `CHANGELOG.md`, `docs/state_consistency_manifest.json` | `git diff --check`; docs-state pytest; changed-doc privacy scan OK | A67 closeout commit in Git history | `origin/codex/sqx142-143-backport` | `projects/sqx-edge-suite-v1` A67 closeout entry |
 | 2026-06-04 | A68 Low-Risk Physical Moves | completed_low_risk_physical_move | `docs/DISCIPLINA_OPERATIVA.md`, root shim `DISCIPLINA_OPERATIVA.md`, `docs/RESTRUCTURING_GOVERNANCE.md`, `docs/DOCS_CANONICAL_INDEX.md`, `README.md`, `docs/PROJECT_GOVERNANCE.md`, `docs/MODULARIZATION_NEXT_STEPS.md`, `CHANGELOG.md`, `docs/state_consistency_manifest.json` | `git diff --check`; docs-state pytest; changed-doc privacy scan OK | A68 closeout commit in Git history | `origin/codex/sqx142-143-backport` | `projects/sqx-edge-suite-v1` A68 closeout entry |
+| 2026-06-04 | A69 Major Refactor Decision Gate | completed_major_refactor_decision_no_go | `docs/RESTRUCTURING_GOVERNANCE.md`, `docs/DOCS_CANONICAL_INDEX.md`, `README.md`, `docs/PROJECT_GOVERNANCE.md`, `docs/MODULARIZATION_NEXT_STEPS.md`, `CHANGELOG.md`, `docs/state_consistency_manifest.json` | `git diff --check`; docs-state pytest; changed-doc privacy scan OK | A69 closeout commit in Git history | `origin/codex/sqx142-143-backport` | `projects/sqx-edge-suite-v1` A69 closeout entry |
 
 ## Subagent Protocol
 
@@ -176,6 +199,11 @@ Subagents may review structure/architecture, docs/privacy and tests/verification
 - No services started during A68.
 - No docs deleted during A68.
 - No root compatibility shim removal during A68.
+- No major refactor started during A69.
+- No backend/frontend/tests split during A69.
+- No physical moves during A69.
+- No tooling moves during A69.
+- No runtime changes during A69.
 - No SQX runtime launch.
 - No `data.db` writes.
 - No `user/projects` writes.
@@ -185,4 +213,4 @@ Subagents may review structure/architecture, docs/privacy and tests/verification
 
 ## Gbrain Write-Back
 
-Each phase closure updates the existing gbrain page `projects/sqx-edge-suite-v1`; no duplicate page is created. The log records date, phase, scope, tests, commit/push and next step. A64 writes a curated summary only, not a bulk import of `docs/`.
+Each phase closure updates the existing gbrain page `projects/sqx-edge-suite-v1`; no duplicate page is created. The log records date, phase, scope, tests, commit/push and next step. A64 writes a curated summary only, not a bulk import of `docs/`. A69 closes the A64-A69 restructuring cycle and records that future restructuring needs a new explicit phase plan after remote/manual gates close.
