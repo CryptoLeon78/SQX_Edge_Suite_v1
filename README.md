@@ -4,6 +4,7 @@ Servicio web Pro para organizar el pipeline SQX Edge, generar Custom Projects `.
 
 ## Estado Actual
 
+- Estado interno: A68 Low-Risk Physical Moves queda registrado como `completed_low_risk_physical_move`; `docs/DISCIPLINA_OPERATIVA.md` es ahora la ubicacion canonica de la disciplina operativa y `DISCIPLINA_OPERATIVA.md` queda como root compatibility shim para referencias y checks existentes. A68 toca solo el dominio docs/institutional, sin mover tools ni wrappers, sin ejecutar scripts, sin cambios de imports ni load order, sin SQX runtime, sin `data.db`, sin `user/projects` y sin desbloquear Portfolio Master. Siguiente reestructuracion: A69 Major Refactor Decision Gate.
 - Estado interno: A67 Tooling Ownership Map queda registrado como `completed_tooling_ownership_map`; `docs/TOOLING_OWNERSHIP_MAP.md` define `sqx-edge.tooling-ownership-map-v1`, owners de scripts raiz, `tools/`, backend tools, wrappers, runbooks y checks focales. A67 es docs-only: sin mover tools ni wrappers, sin ejecutar scripts, sin arrancar servicios, sin scheduled tasks, sin SQX runtime, sin `data.db`, sin `user/projects` y sin desbloquear Portfolio Master. Siguiente reestructuracion: A68 Low-Risk Physical Moves.
 - Estado interno: A66 Docs Canonicalization queda registrado como `completed_docs_canonical_index`; `docs/DOCS_CANONICAL_INDEX.md` define `sqx-edge.docs-canonical-index-v1`, el orden canonico de lectura, docs core, familias de dominio e historico/reference. A66 es docs-only: sin mover docs ni borrar historico, sin rehome masivo de `docs/`, sin cambios runtime y sin desbloquear Portfolio Master. Siguiente reestructuracion: A67 Tooling Ownership Map.
 - Estado interno: A65 Boundary Guard queda registrado como `completed_boundary_guard` en `docs/RESTRUCTURING_GOVERNANCE.md`; clasifica fronteras tracked, ignored/generated, ignored/private y el caso visible `data/DatabankExport.csv`. A65 es docs-only: sin mover ni borrar archivos, sin cambiar imports/load order/runtime SQX, sin `data.db`, sin `user/projects` y sin desbloquear Portfolio Master. Siguiente reestructuracion: A66 Docs Canonicalization.
@@ -311,7 +312,7 @@ Documentos comerciales:
 - `docs/PUBLIC_ROADMAP.md`
 - `docs/PROJECT_GOVERNANCE.md` consulta obligatoria antes de fases/mensajes de trabajo; incluye G4 para tratar `SQX_Institutional_Core` como repo original/first-class mediante el remoto `institutional`, sin `force push` ni espejo destructivo.
 - `docs/STATE_CONSISTENCY_GUARD.md` y `docs/state_consistency_manifest.json` mantienen alineados README, roadmap, governance y UX-NAV con un test pytest contra frases obligatorias/obsoletas.
-- `DISCIPLINA_OPERATIVA.md` estandar de sincronizacion y calidad para el equipo institucional.
+- `docs/DISCIPLINA_OPERATIVA.md` estandar canonico de sincronizacion y calidad para el equipo institucional; `DISCIPLINA_OPERATIVA.md` queda como shim de compatibilidad A68.
 - `resources/pro-buyer-pack/README.md`
 - `resources/pro-buyer-pack/onboarding/START_HERE.md`
 - `docs/sales/TEMPLATE_PACK_1_DELIVERY.md`

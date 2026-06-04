@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-06-04 - A68 Low-Risk Physical Moves
+
+- Completes A68 as `completed_low_risk_physical_move` with one docs/institutional relocation: the canonical operational discipline document now lives at `docs/DISCIPLINA_OPERATIVA.md`.
+- Keeps root `DISCIPLINA_OPERATIVA.md` as a root compatibility shim so existing references and static checks remain stable while new policy edits go to the canonical docs path.
+- Preserves boundaries: no tools moved, no wrappers moved, no scripts executed, no import or load-order changes, no SQX runtime launch, no data.db writes, no user/projects writes and no Portfolio Master unlock. Next restructuring phase is `A69 Major Refactor Decision Gate`.
+
 ## 2026-06-04 - A67 Tooling Ownership Map
 
 - Adds `docs/TOOLING_OWNERSHIP_MAP.md` as `sqx-edge.tooling-ownership-map-v1`, documenting owners for root entrypoints, top-level `tools/`, backend tooling, runtime/resource wrappers, runbooks and required focal checks before any future move.

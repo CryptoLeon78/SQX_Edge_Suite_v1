@@ -2,15 +2,15 @@
 
 Marker: `sqx-edge.restructuring-governance-v1`
 
-Current phase: `A67 Tooling Ownership Map`
+Current phase: `A68 Low-Risk Physical Moves`
 
-Status: `completed_tooling_ownership_map`
+Status: `completed_low_risk_physical_move`
 
 Last updated: 2026-06-04
 
 ## Purpose
 
-Este registro gobierna una reestructuracion por fases pequenas, trazada en Git y gbrain, sin refactor masivo ni cambio de comportamiento por defecto. A64 solo crea inventario, ownership inicial y log de fases; A65 clasifica fronteras antes de cualquier movimiento; A66 define docs canonicos vs historicos con indice; A67 documenta ownership de tooling, wrappers y runbooks. Ninguna de estas fases mueve archivos, borra contenido, cambia imports, cambia build/load order ni toca runtime SQX.
+Este registro gobierna una reestructuracion por fases pequenas, trazada en Git y gbrain, sin refactor masivo ni cambio de comportamiento por defecto. A64 solo crea inventario, ownership inicial y log de fases; A65 clasifica fronteras antes de cualquier movimiento; A66 define docs canonicos vs historicos con indice; A67 documenta ownership de tooling, wrappers y runbooks; A68 ejecuta un unico traslado docs/institutional de bajo riesgo con shim de compatibilidad. Ninguna fase autoriza borrado masivo, cambio de imports, cambio de build/load order ni runtime SQX.
 
 ## Live Gates Preserved
 
@@ -32,6 +32,12 @@ Este registro gobierna una reestructuracion por fases pequenas, trazada en Git y
 - No scripts executed during A67.
 - No services started during A67.
 - No scheduled tasks installed during A67.
+- No tools moved during A68.
+- No wrappers moved during A68.
+- No scripts executed during A68.
+- No services started during A68.
+- No docs deleted during A68.
+- No root compatibility shim removal during A68.
 
 ## Top-Level Inventory Snapshot
 
@@ -39,7 +45,7 @@ Snapshot A64 de paths tracked principales, generado para orientar fases futuras 
 
 | Path | Tracked files | Ownership inicial | A64 policy |
 | --- | ---: | --- | --- |
-| `docs/` | 452 | Governance, runbooks, canonical and historical docs | A67 anade ownership tooling; no movimiento masivo. |
+| `docs/` | 453 | Governance, runbooks, canonical and historical docs | A68 anade `docs/DISCIPLINA_OPERATIVA.md` como doc canonico; no movimiento masivo. |
 | `backend/` | 409 | Flask/API, core SQX helpers, config, backend tools | No cambios de imports ni behavior en A64. |
 | `templates/` | 139 | SQX project/template artifacts | Mantener estables hasta gates explicitos. |
 | `app/` | 63 | Dashboard/frontend modules and assets | No load-order, nav, CSS or visible UI changes in A64. |
@@ -53,7 +59,7 @@ Snapshot A64 de paths tracked principales, generado para orientar fases futuras 
 | `Presentaciones Proyecto/` | 2 | Presentation assets | Conservar hasta politica docs/assets. |
 | `data/DatabankExport.csv` | 1 | Visible data sample/export | A65 decide si queda sample publico, se redacciona o se reubica. |
 | Root launchers | 4 | `GENERAR_GUIA_VISUAL_CUSTOM_PROJECT.bat`, `RELEASE_SQX_EDGE.bat`, `START_SQX_EDGE_REMOTE.bat`, `STOP_SQX_EDGE_REMOTE.bat` | No movimientos; A67 decide wrappers/aliases. |
-| Root docs/config | 9 | `.gitattributes`, `.gitignore`, `CHANGELOG.md`, `DISCIPLINA_OPERATIVA.md`, `README.md`, `package-lock.json`, `package.json`, `pytest.ini`, `requirements-dev.txt` | No movimientos; ownership explicito antes de rehome. |
+| Root docs/config | 9 | `.gitattributes`, `.gitignore`, `CHANGELOG.md`, `DISCIPLINA_OPERATIVA.md`, `README.md`, `package-lock.json`, `package.json`, `pytest.ini`, `requirements-dev.txt` | `DISCIPLINA_OPERATIVA.md` queda como root compatibility shim; resto estable. |
 
 Ignored/local/private/generated roots observed on disk stay outside the public restructuring inventory unless a later gate explicitly classifies them: `.local/`, `.pytest_cache/`, `artifacts/`, `backups/`, `dist/`, `license_keys/`, `licenses_private/`, `material de diagnostico/`, `node_modules/`, `output/`, `tmp/` and copy folders.
 
@@ -64,7 +70,7 @@ A65 Boundary Guard completed as a docs-only classification pass. It used root-le
 | Boundary class | Paths / patterns | Decision | Next owner |
 | --- | --- | --- | --- |
 | Canonical tracked source | `app/`, `backend/`, `integrations/`, `templates/` | Treat as product/runtime surface. No physical moves until a later phase provides wrappers, import checks and focal tests. | A67/A68 |
-| Canonical tracked governance/docs | `docs/`, `README.md`, `CHANGELOG.md`, `DISCIPLINA_OPERATIVA.md` | Keep tracked. A66 will classify canonical vs historical docs before any docs rehome. | A66 |
+| Canonical tracked governance/docs | `docs/`, `README.md`, `CHANGELOG.md`, `docs/DISCIPLINA_OPERATIVA.md`, root shim `DISCIPLINA_OPERATIVA.md` | Keep tracked. A68 makes the docs path canonical and leaves root compatibility. | A68 |
 | Tracked tooling/config | `tools/`, root BAT launchers, `package*.json`, `pytest.ini`, `requirements-dev.txt`, `.github/`, `.gitattributes`, `.gitignore` | Keep stable. A67 maps ownership and wrapper compatibility before movement. | A67 |
 | Tracked analysis/assets | `analysis/`, `resources/`, `packaging/`, `Presentaciones Proyecto/` | Keep tracked. Needs owner and purpose classification before any relocation. | A66/A67 |
 | Visible public-safe sample | `data/DatabankExport.csv` | Keep tracked for now as a small SQX export sample, not private operator evidence and not Portfolio Master input. A65 scan found no email, URL, local Windows path, full IP, token, secret, license payload or private-key pattern. | A66/A68 |
@@ -106,6 +112,17 @@ A67 Tooling Ownership Map completed as `sqx-edge.tooling-ownership-map-v1` in `d
 
 No tools moved during A67. No wrappers moved during A67. No scripts executed during A67. No services started during A67. No scheduled tasks installed during A67. Next restructuring phase: `A68 Low-Risk Physical Moves`.
 
+## A68 Low-Risk Physical Moves
+
+A68 Low-Risk Physical Moves completed as `completed_low_risk_physical_move` with one docs/institutional relocation:
+
+- Canonical document moved to `docs/DISCIPLINA_OPERATIVA.md`.
+- Root `DISCIPLINA_OPERATIVA.md` kept as a root compatibility shim for existing references and static checks.
+- New policy edits must target `docs/DISCIPLINA_OPERATIVA.md`; the root shim should only preserve compatibility markers.
+- Rollback path is simple: restore the canonical content to root and remove the docs copy if a future gate rejects the relocation.
+
+A68 did not move tools or wrappers, did not execute scripts, did not start services, did not change imports/load order, did not delete docs, did not touch SQX runtime, did not write `data.db`, did not write `user/projects` and did not unlock Portfolio Master. Next restructuring phase: `A69 Major Refactor Decision Gate`.
+
 ## Phase Register A64-A69
 
 | Phase | Status | Goal | Boundaries | Done criteria |
@@ -114,8 +131,8 @@ No tools moved during A67. No wrappers moved during A67. No scripts executed dur
 | A65 Boundary Guard | completed | Clasificar ignorados, generados, privados y casos visibles como `data/DatabankExport.csv`. | No borrados ni moves sin evidencia; privacidad primero. | Tabla de clases, acciones propuestas y tests focales. |
 | A66 Docs Canonicalization | completed | Definir docs canonicos vs historicos con indice. | No mover masivamente `docs/`; primero indexar. | Indice aprobado y referencias canonicas claras. |
 | A67 Tooling Ownership Map | completed | Documentar ownership de scripts raiz, `tools/`, wrappers y runbooks. | No mover wrappers sin compatibilidad o alias. | Mapa de tooling, owners y riesgos por dominio. |
-| A68 Low-Risk Physical Moves | next | Mover solo candidatos seguros, un dominio por commit. | Mantener wrappers/referencias antiguas cuando haga falta. | Un movimiento pequeno, tests focales y rollback claro. |
-| A69 Major Refactor Decision Gate | pending | Decidir si procede separar tests/backend/frontend de forma mayor. | Solo tras `REMOTE-8K` y roundtrip de `SQX142-AW-AI2`. | Decision registrada; si no hay GO, se aparca. |
+| A68 Low-Risk Physical Moves | completed | Mover solo candidatos seguros, un dominio por commit. | Mantener wrappers/referencias antiguas cuando haga falta. | Un movimiento docs/institutional, shim raiz, tests focales y rollback claro. |
+| A69 Major Refactor Decision Gate | next | Decidir si procede separar tests/backend/frontend de forma mayor. | Solo tras `REMOTE-8K` y roundtrip de `SQX142-AW-AI2`. | Decision registrada; si no hay GO, se aparca. |
 
 ## Phase Log
 
@@ -125,6 +142,7 @@ No tools moved during A67. No wrappers moved during A67. No scripts executed dur
 | 2026-06-04 | A65 Boundary Guard | completed_boundary_guard | `docs/RESTRUCTURING_GOVERNANCE.md`, `README.md`, `docs/PROJECT_GOVERNANCE.md`, `docs/MODULARIZATION_NEXT_STEPS.md`, `CHANGELOG.md`, `docs/state_consistency_manifest.json` | `git diff --check`; docs-state pytest; `data/DatabankExport.csv` privacy scan; changed-doc privacy scan OK | A65 closeout commit in Git history | `origin/codex/sqx142-143-backport` | `projects/sqx-edge-suite-v1` A65 closeout entry |
 | 2026-06-04 | A66 Docs Canonicalization | completed_docs_canonical_index | `docs/DOCS_CANONICAL_INDEX.md`, `docs/RESTRUCTURING_GOVERNANCE.md`, `README.md`, `docs/PROJECT_GOVERNANCE.md`, `docs/MODULARIZATION_NEXT_STEPS.md`, `CHANGELOG.md`, `docs/state_consistency_manifest.json` | `git diff --check`; docs-state pytest; changed-doc privacy scan OK | A66 closeout commit in Git history | `origin/codex/sqx142-143-backport` | `projects/sqx-edge-suite-v1` A66 closeout entry |
 | 2026-06-04 | A67 Tooling Ownership Map | completed_tooling_ownership_map | `docs/TOOLING_OWNERSHIP_MAP.md`, `docs/RESTRUCTURING_GOVERNANCE.md`, `docs/DOCS_CANONICAL_INDEX.md`, `README.md`, `docs/PROJECT_GOVERNANCE.md`, `docs/MODULARIZATION_NEXT_STEPS.md`, `CHANGELOG.md`, `docs/state_consistency_manifest.json` | `git diff --check`; docs-state pytest; changed-doc privacy scan OK | A67 closeout commit in Git history | `origin/codex/sqx142-143-backport` | `projects/sqx-edge-suite-v1` A67 closeout entry |
+| 2026-06-04 | A68 Low-Risk Physical Moves | completed_low_risk_physical_move | `docs/DISCIPLINA_OPERATIVA.md`, root shim `DISCIPLINA_OPERATIVA.md`, `docs/RESTRUCTURING_GOVERNANCE.md`, `docs/DOCS_CANONICAL_INDEX.md`, `README.md`, `docs/PROJECT_GOVERNANCE.md`, `docs/MODULARIZATION_NEXT_STEPS.md`, `CHANGELOG.md`, `docs/state_consistency_manifest.json` | `git diff --check`; docs-state pytest; changed-doc privacy scan OK | A68 closeout commit in Git history | `origin/codex/sqx142-143-backport` | `projects/sqx-edge-suite-v1` A68 closeout entry |
 
 ## Subagent Protocol
 
@@ -152,6 +170,12 @@ Subagents may review structure/architecture, docs/privacy and tests/verification
 - No scripts executed during A67.
 - No services started during A67.
 - No scheduled tasks installed during A67.
+- No tools moved during A68.
+- No wrappers moved during A68.
+- No scripts executed during A68.
+- No services started during A68.
+- No docs deleted during A68.
+- No root compatibility shim removal during A68.
 - No SQX runtime launch.
 - No `data.db` writes.
 - No `user/projects` writes.

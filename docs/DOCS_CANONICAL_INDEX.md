@@ -34,6 +34,7 @@ If these sources disagree, the newer live governance entry and state manifest wi
 | `docs/RESTRUCTURING_GOVERNANCE.md` | A64-A69 restructuring register | Canonical restructuring source. |
 | `docs/DOCS_CANONICAL_INDEX.md` | Docs canonicalization index | Canonical docs-policy source. |
 | `docs/TOOLING_OWNERSHIP_MAP.md` | Tooling/wrapper ownership map | Canonical tooling ownership source. |
+| `docs/DISCIPLINA_OPERATIVA.md` | Operational discipline and institutional workflow policy | Canonical discipline source after A68; root `DISCIPLINA_OPERATIVA.md` is compatibility shim only. |
 | `docs/state_consistency_manifest.json` | Literal state-marker test contract | Canonical drift guard. |
 | `README.md` | Public/operator state summary | Canonical summary, not exhaustive source. |
 | `CHANGELOG.md` | Phase closeout chronology | Canonical chronology of completed changes. |
@@ -77,3 +78,7 @@ Next restructuring phase: `A67 Tooling Ownership Map`.
 ## A66 Closeout
 
 A66 Docs Canonicalization completed as `sqx-edge.docs-canonical-index-v1` with a canonical core-doc list, domain family policy and historical/reference conflict rules. No docs moved during A66. No docs deleted during A66. No mass docs rehome during A66.
+
+## A68 Closeout
+
+A68 Low-Risk Physical Moves completed as `completed_low_risk_physical_move` with one docs-domain relocation: `docs/DISCIPLINA_OPERATIVA.md` is the canonical operational discipline document and root `DISCIPLINA_OPERATIVA.md` is a compatibility shim. No tools moved, no wrappers moved, no scripts executed, no import or load-order changes and no runtime behavior changes during A68.

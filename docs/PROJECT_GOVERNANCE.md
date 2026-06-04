@@ -4,6 +4,7 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
+- Current architecture phase completed: A68 Low-Risk Physical Moves. `docs/DISCIPLINA_OPERATIVA.md` is now the canonical operational discipline document and root `DISCIPLINA_OPERATIVA.md` remains as a root compatibility shim for existing references and static checks. Status: `completed_low_risk_physical_move`. A68 touched only the docs/institutional domain: no tools or wrappers moved, no scripts executed, no import or load-order changes, no SQX runtime, no `data.db`, no `user/projects`, no Portfolio Master unlock and no remote expansion before REMOTE-8K monitoring closeout. Next restructuring phase: A69 Major Refactor Decision Gate.
 - Current architecture phase completed: A67 Tooling Ownership Map. `docs/TOOLING_OWNERSHIP_MAP.md` records `sqx-edge.tooling-ownership-map-v1` and `completed_tooling_ownership_map`: root entrypoints, top-level `tools/`, backend tooling, runtime/resource wrappers, runbooks and focal checks are mapped before any physical move. No tools moved during A67. No wrappers moved during A67. No scripts executed during A67. No services started during A67. No scheduled tasks installed during A67. Next restructuring phase: A68 Low-Risk Physical Moves.
 - Current architecture phase completed: A66 Docs Canonicalization. `docs/DOCS_CANONICAL_INDEX.md` records `sqx-edge.docs-canonical-index-v1` and `completed_docs_canonical_index`: canonical lookup order, core docs, domain families and historical/reference conflict rules are defined before any docs movement. No docs moved during A66. No docs deleted during A66. No mass docs rehome during A66. Next restructuring phase: A67 Tooling Ownership Map.
 - Current architecture phase completed: A65 Boundary Guard. `docs/RESTRUCTURING_GOVERNANCE.md` records `completed_boundary_guard`: tracked source/docs/tooling, ignored generated roots, ignored private/operator roots, backups/copies and `data/DatabankExport.csv` are classified before any physical move. No physical moves during A65. No deletes during A65. No SQX runtime launch, no `data.db`, no `user/projects`, no Portfolio Master input unlock and no remote expansion before REMOTE-8K monitoring closeout. Next restructuring phase: A66 Docs Canonicalization.
@@ -481,7 +482,7 @@ G4 - Institutional Core Repository Gate:
 G5 - Institutional Core Synchronized Gate:
 
 - `institutional/main` is reconciled through a merge commit, not a force push, so both repository histories remain traceable.
-- Institutional-only assets are preserved in the public working tree: `.github/CODEOWNERS`, institutional workflows, `DISCIPLINA_OPERATIVA.md`, `app/css/analyzer.css` and `app/js/modules/analyzer.js`.
+- Institutional-only assets are preserved in the public working tree: `.github/CODEOWNERS`, institutional workflows, canonical `docs/DISCIPLINA_OPERATIVA.md`, root compatibility shim `DISCIPLINA_OPERATIVA.md`, `app/css/analyzer.css` and `app/js/modules/analyzer.js`.
 - The institutional analyzer is exposed as a normal SQX tab (`Analyzer C2`) through the manifest, dashboard load order, module registry and `main.js` initialization.
 - Continue fetching both remotes before every push; once both `origin/main` and `institutional/main` point at the same verified merge commit, routine dual pushes are allowed again.
 

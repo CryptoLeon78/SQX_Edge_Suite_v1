@@ -9,6 +9,7 @@
     "docs/RESTRUCTURING_GOVERNANCE.md",
     "docs/DOCS_CANONICAL_INDEX.md",
     "docs/TOOLING_OWNERSHIP_MAP.md",
+    "docs/DISCIPLINA_OPERATIVA.md",
     "docs/SQX142_AW_AI1_AI_WIZARD.md",
     "docs/SQX142_AW_AI2_AI_STUDIO.md",
     "docs/UX_NAV_TAB_OPTIMIZATION_PLAN.md",
@@ -185,8 +186,8 @@
         ],
         "docs/MODULARIZATION_NEXT_STEPS.md": [
           "Phase A65: Boundary Guard - classify ignored/generated/private boundaries. Done.",
-          "Current architecture phase: Phase A67: Tooling Ownership Map completed.",
-          "Next: A68 Low-Risk Physical Moves",
+          "Phase A67: Tooling Ownership Map - map ownership for root scripts, `tools/`, wrappers and runbooks. Done.",
+          "Phase A68: Low-Risk Physical Moves - perform one docs-domain relocation with root compatibility shim and rollback. Done.",
           "Phase A65: Boundary Guard - classify ignored/generated/private boundaries. Done."
         ],
         "CHANGELOG.md": [
@@ -317,8 +318,8 @@
         "docs/MODULARIZATION_NEXT_STEPS.md": [
           "Phase A66: Docs Canonicalization - define canonical docs vs historical docs with an index before moving docs. Done.",
           "Current docs canonical index: `docs/DOCS_CANONICAL_INDEX.md`",
-          "Current architecture phase: Phase A67: Tooling Ownership Map completed.",
-          "Next: A68 Low-Risk Physical Moves",
+          "Phase A67: Tooling Ownership Map - map ownership for root scripts, `tools/`, wrappers and runbooks. Done.",
+          "Phase A68: Low-Risk Physical Moves - perform one docs-domain relocation with root compatibility shim and rollback. Done.",
           "Phase A66: Docs Canonicalization - define canonical docs vs historical docs with an index before moving docs. Done."
         ],
         "CHANGELOG.md": [
@@ -438,8 +439,8 @@
           "A68 Low-Risk Physical Moves"
         ],
         "docs/RESTRUCTURING_GOVERNANCE.md": [
-          "Current phase: `A67 Tooling Ownership Map`",
-          "Status: `completed_tooling_ownership_map`",
+          "A67 Tooling Ownership Map completed",
+          "completed_tooling_ownership_map",
           "sqx-edge.tooling-ownership-map-v1",
           "A67 Tooling Ownership Map completed",
           "No tools moved during A67",
@@ -473,10 +474,10 @@
           "Next restructuring phase: A68 Low-Risk Physical Moves"
         ],
         "docs/MODULARIZATION_NEXT_STEPS.md": [
-          "Current architecture phase: Phase A67: Tooling Ownership Map completed.",
+          "Phase A67: Tooling Ownership Map - map ownership for root scripts, `tools/`, wrappers and runbooks. Done.",
           "Current tooling ownership map: `docs/TOOLING_OWNERSHIP_MAP.md`",
-          "Current A67 scope: document ownership of root scripts",
-          "Next: A68 Low-Risk Physical Moves",
+          "Current A68 scope: one docs/institutional relocation",
+          "Phase A68: Low-Risk Physical Moves - perform one docs-domain relocation with root compatibility shim and rollback. Done.",
           "Phase A67: Tooling Ownership Map - map ownership for root scripts, `tools/`, wrappers and runbooks. Done."
         ],
         "CHANGELOG.md": [
@@ -606,6 +607,154 @@
           "grant action executed",
           "checkout action executed",
           "email action executed",
+          "Portfolio Master input unlocked",
+          "REMOTE-8K skipped",
+          "remote expansion approved",
+          "risk zero guaranteed",
+          "guaranteed profitability"
+        ]
+      }
+    },
+    {
+      "id": "sqx_edge_low_risk_physical_moves_v1_gate",
+      "description": "A68 Low-Risk Physical Moves must remain a single docs/institutional relocation with a root compatibility shim and no behavior, tooling or runtime changes.",
+      "required": {
+        "docs/RESTRUCTURING_GOVERNANCE.md": [
+          "Current phase: `A68 Low-Risk Physical Moves`",
+          "Status: `completed_low_risk_physical_move`",
+          "docs/DISCIPLINA_OPERATIVA.md",
+          "root compatibility shim",
+          "A68 did not move tools or wrappers",
+          "A69 Major Refactor Decision Gate"
+        ],
+        "docs/DOCS_CANONICAL_INDEX.md": [
+          "docs/DISCIPLINA_OPERATIVA.md",
+          "Canonical discipline source after A68",
+          "A68 Low-Risk Physical Moves completed",
+          "completed_low_risk_physical_move"
+        ],
+        "docs/DISCIPLINA_OPERATIVA.md": [
+          "Disciplina Operativa SQX Institutional",
+          "SQX_Institutional_Core",
+          "Compatibilidad SQX Edge Suite",
+          "Ecosistema Cloud y Tester Portal (Vercel)"
+        ],
+        "DISCIPLINA_OPERATIVA.md": [
+          "Canonical location: `docs/DISCIPLINA_OPERATIVA.md`",
+          "A68 Low-Risk Physical Moves",
+          "compatibility pointer",
+          "Compatibility markers preserved"
+        ],
+        "README.md": [
+          "A68 Low-Risk Physical Moves queda registrado",
+          "completed_low_risk_physical_move",
+          "docs/DISCIPLINA_OPERATIVA.md",
+          "root compatibility shim",
+          "Siguiente reestructuracion: A69 Major Refactor Decision Gate"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Current architecture phase completed: A68 Low-Risk Physical Moves",
+          "completed_low_risk_physical_move",
+          "docs/DISCIPLINA_OPERATIVA.md",
+          "root compatibility shim",
+          "Next restructuring phase: A69 Major Refactor Decision Gate"
+        ],
+        "docs/MODULARIZATION_NEXT_STEPS.md": [
+          "Current architecture phase: Phase A68: Low-Risk Physical Moves completed.",
+          "Current A68 scope: one docs/institutional relocation",
+          "docs/DISCIPLINA_OPERATIVA.md",
+          "Next: A69 Major Refactor Decision Gate",
+          "Phase A68: Low-Risk Physical Moves - perform one docs-domain relocation with root compatibility shim and rollback. Done."
+        ],
+        "CHANGELOG.md": [
+          "2026-06-04 - A68 Low-Risk Physical Moves",
+          "completed_low_risk_physical_move",
+          "docs/DISCIPLINA_OPERATIVA.md",
+          "root compatibility shim",
+          "Next restructuring phase is `A69 Major Refactor Decision Gate`"
+        ]
+      },
+      "forbidden": {
+        "docs/RESTRUCTURING_GOVERNANCE.md": [
+          "A68 moved tools",
+          "A68 moved wrappers",
+          "A68 executed scripts",
+          "A68 started services",
+          "A68 changed imports",
+          "A68 changed load order",
+          "A68 deleted docs",
+          "A68 removed compatibility shim",
+          "runtime SQX launched",
+          "data.db writes enabled",
+          "user/projects writes enabled",
+          "Portfolio Master input unlocked",
+          "REMOTE-8K skipped",
+          "remote expansion approved",
+          "risk zero guaranteed",
+          "guaranteed profitability"
+        ],
+        "README.md": [
+          "A68 moved tools",
+          "A68 moved wrappers",
+          "A68 executed scripts",
+          "A68 changed imports",
+          "A68 changed load order",
+          "A68 deleted docs",
+          "A68 removed compatibility shim",
+          "runtime SQX launched",
+          "data.db writes enabled",
+          "user/projects writes enabled",
+          "Portfolio Master input unlocked",
+          "REMOTE-8K skipped",
+          "remote expansion approved",
+          "risk zero guaranteed",
+          "guaranteed profitability"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "A68 moved tools",
+          "A68 moved wrappers",
+          "A68 executed scripts",
+          "A68 changed imports",
+          "A68 changed load order",
+          "A68 deleted docs",
+          "A68 removed compatibility shim",
+          "runtime SQX launched",
+          "data.db writes enabled",
+          "user/projects writes enabled",
+          "Portfolio Master input unlocked",
+          "REMOTE-8K skipped",
+          "remote expansion approved",
+          "risk zero guaranteed",
+          "guaranteed profitability"
+        ],
+        "docs/MODULARIZATION_NEXT_STEPS.md": [
+          "A68 moved tools",
+          "A68 moved wrappers",
+          "A68 executed scripts",
+          "A68 changed imports",
+          "A68 changed load order",
+          "A68 deleted docs",
+          "A68 removed compatibility shim",
+          "runtime SQX launched",
+          "data.db writes enabled",
+          "user/projects writes enabled",
+          "Portfolio Master input unlocked",
+          "REMOTE-8K skipped",
+          "remote expansion approved",
+          "risk zero guaranteed",
+          "guaranteed profitability"
+        ],
+        "CHANGELOG.md": [
+          "A68 moved tools",
+          "A68 moved wrappers",
+          "A68 executed scripts",
+          "A68 changed imports",
+          "A68 changed load order",
+          "A68 deleted docs",
+          "A68 removed compatibility shim",
+          "runtime SQX launched",
+          "data.db writes enabled",
+          "user/projects writes enabled",
           "Portfolio Master input unlocked",
           "REMOTE-8K skipped",
           "remote expansion approved",

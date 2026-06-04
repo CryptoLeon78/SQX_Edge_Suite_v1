@@ -5,15 +5,16 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-06-04.
-- Current architecture phase: Phase A67: Tooling Ownership Map completed.
+- Current architecture phase: Phase A68: Low-Risk Physical Moves completed.
 - Current restructuring register: `docs/RESTRUCTURING_GOVERNANCE.md` (`sqx-edge.restructuring-governance-v1`).
 - Current docs canonical index: `docs/DOCS_CANONICAL_INDEX.md` (`sqx-edge.docs-canonical-index-v1`).
 - Current tooling ownership map: `docs/TOOLING_OWNERSHIP_MAP.md` (`sqx-edge.tooling-ownership-map-v1`).
-- Current A67 scope: document ownership of root scripts, `tools/`, backend tools, wrappers and runbooks; docs-only, no tools moved, no wrappers moved, no scripts executed, no services started, no runtime changes, no SQX launch, no `data.db`, no `user/projects`.
+- Current A68 scope: one docs/institutional relocation, moving the canonical discipline document to `docs/DISCIPLINA_OPERATIVA.md` while keeping root `DISCIPLINA_OPERATIVA.md` as a compatibility shim; no tools moved, no wrappers moved, no scripts executed, no import or load-order changes, no runtime changes, no SQX launch, no `data.db`, no `user/projects`.
 - Current product/commercial state: `REMOTE-8K Post Execution Monitoring` remains the next remote gate; Portfolio Master stays blocked by real inputs; `SQX142-AW-AI2` remains pending install/manual roundtrip.
 - Governance baseline: G9/G9R subagent discipline plus Axx architecture phases.
-- Next recommended architecture phase after A67 close: A68 Low-Risk Physical Moves.
-- Next: A68 Low-Risk Physical Moves.
+- Governance baseline: G6 - Institutional Dashboard Quick Actions Gate. Historical anchor only; superseded for current work by G9/G9R plus Axx restructuring gates.
+- Next recommended architecture phase after A68 close: A69 Major Refactor Decision Gate.
+- Next: A69 Major Refactor Decision Gate.
 
 ## Historical State Anchors
 
@@ -153,8 +154,8 @@ Persistent planning note for the next SQX Edge phases.
 13. Phase A65: Boundary Guard - classify ignored/generated/private boundaries. Done.
 14. Phase A66: Docs Canonicalization - define canonical docs vs historical docs with an index before moving docs. Done.
 15. Phase A67: Tooling Ownership Map - map ownership for root scripts, `tools/`, wrappers and runbooks. Done.
-16. Phase A68: Low-Risk Physical Moves - perform low-risk physical moves, one domain per commit, only after references/wrappers are safe. Next.
-17. Phase A69: decide major backend/frontend/tests separation only after `REMOTE-8K` and `SQX142-AW-AI2` roundtrip gates.
+16. Phase A68: Low-Risk Physical Moves - perform one docs-domain relocation with root compatibility shim and rollback. Done.
+17. Phase A69: decide major backend/frontend/tests separation only after `REMOTE-8K` and `SQX142-AW-AI2` roundtrip gates. Next.
 
 ## Project Generator Track
 
