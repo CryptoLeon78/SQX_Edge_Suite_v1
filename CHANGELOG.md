@@ -7,7 +7,10 @@
 - Adds `tools/sqx144_full_host_gate.ps1` for read-only `status` and `preflight` checks over executable, `user/data/data.db`, `user/projects`, `user/extend/ResultsPlugins` and relevant process state.
 - Records read-only preflight pass as `sqx144_full_host_gate_passed`, with local ignored config backed up and switched to `sqx_host_profile=sqx144_full`.
 - Extends local host metadata so `validate-sqx-path` and `autodetect-sqx` can identify `sqx144_full` without renaming existing `/api/sqx142/*` endpoints.
-- Preserves boundaries: no engine/binarios/internals 144 copied, no license/activation/bypass handling, no Migration Tool, no project runs, no MT5 import, no `data.db` writes, no `user/projects` mutation, no databank mutation and no profitability or risk-zero claim.
+- Registers operator Migration Tool completion as `operator_migration_completed_snippets_compile_passed`: the operator used SQX 144 Full's official Migration Tool to import SQX 142 Codex locally; Codex did not automate Migration Tool or commit its output.
+- Adapts 13 migrated user Databanks snippets for SQX 144 by removing obsolete `MainApp.isRangerLicense()` calls, then forces snippet recompilation successfully: `Compiling Snippets done in 11s`.
+- Cleans local update/network blockers: removes StrategyQuant host overrides from the Windows hosts file, moves the local `sqx.bat` host-writer into ignored backup, and removes the stale `_MEI` installer temp folder; update 144.2953 remains `SQX144-FULL-UPDATE1 pending`.
+- Preserves boundaries: no engine/binarios/internals 144 copied, no license/activation/bypass handling, no Codex-automated Migration Tool or committed Migration Tool output, no project runs, no MT5 import, no direct `data.db` writes, no direct `user/projects` mutation, no databank mutation and no profitability or risk-zero claim.
 - Keeps manual Results confirmation pending through `SQX144-COMPAT7B Results Plugin Visual Confirmation After Operator License`.
 
 ## 2026-06-04 - SQX142-AW-AI5 Compiler Candidate Decision Gate

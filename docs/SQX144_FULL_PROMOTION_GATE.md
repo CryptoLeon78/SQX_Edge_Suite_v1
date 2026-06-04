@@ -1,6 +1,6 @@
 # SQX144 Full Host Promotion Gate
 
-Estado: `completed_preflight_passed_local_config_switched_pending_manual_results_confirmation`.
+Estado: `completed_preflight_passed_operator_migration_done_snippets_compile_passed_pending_results_confirmation`.
 
 Fase: `SQX144-FULL-PROMOTE1 Host Promotion Gate`.
 
@@ -13,6 +13,7 @@ Este bloque promueve `SQX_144_Full` como host primario candidato para SQX Edge S
 - Host candidato: `SQX_144_Full`.
 - Perfil local: `sqx144_full`.
 - Fallback: el host SQX 142 actual sigue siendo rollback operativo hasta que la promocion este verificada.
+- Migracion local: el operador ejecuto la Migration Tool oficial de SQX 144 Full e importo la instalacion SQX 142 Codex con exito; esta accion queda registrada como `operator_migration_completed_snippets_compile_passed`, sin copiar salidas privadas al repo.
 - Fuente de memoria: gbrain page `sqx-edge-suite/sqx144-full-promotion-decision-20260604`.
 - Rama de trabajo: `codex/sqx144-full-host-promotion`.
 
@@ -28,7 +29,7 @@ Este bloque promueve `SQX_144_Full` como host primario candidato para SQX Edge S
 
 - Copiar engine, binarios, runtime, `internal`, jars, licencia, activacion, bypass, tokens, cookies o secretos.
 - Copiar `data.db`, databanks, logs o proyectos completos al repo.
-- Usar Migration Tool como fuente automatica de migracion.
+- Automatizar Migration Tool desde Codex, versionar su salida o usarla como fuente publica de migracion.
 - Lanzar proyectos, retests, MT5 import, MCP write calls, `run_project` o `stop_project`.
 - Mutar `user/projects`, escribir en `data.db`, borrar databanks o forzar resultados.
 - Cambiar endpoints `/api/sqx142/*` en esta fase.
@@ -78,8 +79,23 @@ Antes del cambio se debe guardar una copia ignorada bajo `.local/sqx144_full_pro
 - Tests de copy-only migration checklist para confirmar que licencia, engine, `data.db`, databanks y Migration Tool siguen bloqueados.
 - Confirmacion manual pendiente: abrir SQX 144 Full con licencia valida, llegar al workspace/Results sin bypass, no lanzar proyectos y verificar si `SQX Edge Readiness Panel` aparece sin errores.
 
+## Operator Migration And Snippet Compatibility
+
+El 2026-06-04 el operador abrio SQX 144 Full con licencia valida, llego al workspace y ejecuto la Migration Tool oficial para importar la instalacion SQX 142 Codex. La migracion fue reportada como completa por el operador.
+
+Tras esa migracion, la compilacion de snippets fallo por una incompatibilidad API localizada: 13 snippets de usuario bajo `SQ.Columns.Databanks` llamaban al metodo obsoleto `MainApp.isRangerLicense()`, ausente en SQX 144 Full. La comparacion con columnas internas de SQX 144 mostro que el filtro Ranger/EndTest fue retirado en Build 144. Codex adapto solo esos snippets de usuario, eliminando la llamada obsoleta y sus imports, con backup local ignorado bajo `.local/sqx144_full_migration_fix/`.
+
+Verificacion local saneada:
+
+- Snippet compile forzado tras regenerar el indice `user/settings/snippets.txt`: `Compiling Snippets done in 11s`.
+- Referencias obsoletas `MainApp.isRangerLicense()` en Databanks: `0`.
+- Gate `tools/sqx144_full_host_gate.ps1 -Mode preflight -SqxRoot <local>`: `sqx144_full_host_gate_passed`.
+- Procesos SQX relevantes al cierre: `0`.
+
+Avisos residuales no bloqueantes para la compilacion: `sqcustomization` devuelve HTTP 422 para la cuenta local, faltan ficheros auxiliares de metadata de mercados (`Exchanges`, `Countries`, `Sectors`, `Custom timeframes`) y la actualizacion a 144.2953 queda como `SQX144-FULL-UPDATE1 pending` tras limpieza local de overrides `hosts` y del temporal `_MEI` del instalador. Estos avisos no autorizan proyectos, imports MT5, escritura directa en `data.db` ni claims de rentabilidad.
+
 ## Estado Actual
 
-`SQX144-FULL-PROMOTE1` ya paso `tools/sqx144_full_host_gate.ps1 preflight` con decision `sqx144_full_host_gate_passed`: shape completo, `projectDirCount=15`, `resultsPluginCount=3`, `relevantProcessCount=0`, `copyExecuted=false`, `sqxRuntimeStarted=false`, `projectRunStarted=false`, `migrationToolUsed=false`, `dataDbWriteAllowed=false` y `userProjectsWriteAllowed=false`.
+`SQX144-FULL-PROMOTE1` ya paso `tools/sqx144_full_host_gate.ps1 preflight` con decision `sqx144_full_host_gate_passed`: shape completo, `projectDirCount=29`, `resultsPluginCount=5`, `sqxEdgeReadinessPanelPresent=true`, `relevantProcessCount=0`, `copyExecuted=false`, `sqxRuntimeStarted=false`, `projectRunStarted=false`, `migrationToolUsed=false` para el gate/script, `dataDbWriteAllowed=false` y `userProjectsWriteAllowed=false`.
 
-La configuracion local ignorada fue actualizada a `sqx_host_profile=sqx144_full` tras guardar backup en `.local/sqx144_full_promotion/`. SQX 142 sigue como fallback. Queda pendiente la confirmacion manual de workspace/Results en SQX 144 Full; el `SQX Edge Readiness Panel` no se copio en esta fase y sigue pendiente de decision/backup especifico.
+La configuracion local ignorada fue actualizada a `sqx_host_profile=sqx144_full` tras guardar backup en `.local/sqx144_full_promotion/`. SQX 142 sigue como fallback. Tras la migracion oficial ejecutada por el operador, `SQX Edge Readiness Panel` esta presente en el host 144; Codex no copio engine, internals, licencia, `data.db`, databanks, logs ni salidas de Migration Tool al repo. Queda pendiente la confirmacion manual de Results en SQX 144 Full.

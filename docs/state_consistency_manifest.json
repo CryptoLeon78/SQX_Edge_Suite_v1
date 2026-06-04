@@ -9018,7 +9018,7 @@
     },
     {
       "id": "sqx144_full_promotion_gate",
-      "description": "SQX144-FULL-PROMOTE1 promotes the licensed SQX 144 Full host as the primary candidate while preserving SQX 142 fallback and blocking proprietary internal copy/mutation.",
+      "description": "SQX144-FULL-PROMOTE1 promotes the licensed SQX 144 Full host as the primary candidate, records the operator-run official migration and snippet compile fix, and preserves SQX 142 fallback while blocking proprietary internal copy/mutation.",
       "required": {
         "docs/PROJECT_GOVERNANCE.md": [
           "Current local phase active: SQX144-FULL-PROMOTE1 - Host Promotion Gate",
@@ -9028,7 +9028,9 @@
           "sqx144_full",
           "SQX 142 as fallback",
           "read-only gate script",
-          "Migration Tool",
+          "operator_migration_completed_snippets_compile_passed",
+          "Compiling Snippets done in 11s",
+          "SQX144-FULL-UPDATE1 pending",
           "Manual Results confirmation remains pending"
         ],
         "docs/SQX144_FULL_PROMOTION_GATE.md": [
@@ -9042,13 +9044,18 @@
           "`preflight`",
           "copyExecuted=false",
           "migrationToolUsed=false",
+          "operator_migration_completed_snippets_compile_passed",
+          "Compiling Snippets done in 11s",
+          "SQX144-FULL-UPDATE1 pending",
           "SQX144-COMPAT7B"
         ],
         "docs/SQX144_LAB_INTAKE_ROADMAP.md": [
           "SQX144-FULL-PROMOTE1 Host Promotion Gate",
           "Build SQX 144 Full licenciada",
+          "operator_migration_completed_snippets_compile_passed",
           "promote_candidate_with_sqx142_fallback",
           "tools/sqx144_full_host_gate.ps1 status|preflight",
+          "Compiling Snippets done in 11s",
           "SQX144-COMPAT7B Results Plugin Visual Confirmation After Operator License"
         ],
         "CHANGELOG.md": [
@@ -9057,7 +9064,9 @@
           "sqx144-full-promotion-gate-v1",
           "tools/sqx144_full_host_gate.ps1",
           "sqx144_full",
-          "no Migration Tool"
+          "operator_migration_completed_snippets_compile_passed",
+          "Compiling Snippets done in 11s",
+          "no Codex-automated Migration Tool or committed Migration Tool output"
         ],
         "tools/sqx144_full_host_gate.ps1": [
           "sqx-edge.sqx144-full-host-gate-v1",
@@ -9081,11 +9090,13 @@
         "docs/SQX144_FULL_PROMOTION_GATE.md": [
           "risk zero",
           "guaranteed profitability",
-          "license bypass allowed"
+          "license bypass allowed",
+          "Migration Tool output committed"
         ],
         "CHANGELOG.md": [
           "license bypass allowed",
-          "engine copied from 144"
+          "engine copied from 144",
+          "Migration Tool output committed"
         ]
       }
     },

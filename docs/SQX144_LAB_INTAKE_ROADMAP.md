@@ -1,6 +1,6 @@
 # SQX144 Lab Intake Roadmap
 
-Estado: `SQX144-FULL-PROMOTE1 Host Promotion Gate` activo. `SQX144-COMPAT7 Results Plugin Manual Visual Confirmation` queda como bloqueo historico del lab anterior; la nueva build licenciada Full permite retomar la confirmacion por `SQX144-COMPAT7B` despues del preflight.
+Estado: `SQX144-FULL-PROMOTE1 Host Promotion Gate` activo con `operator_migration_completed_snippets_compile_passed`. `SQX144-COMPAT7 Results Plugin Manual Visual Confirmation` queda como bloqueo historico del lab anterior; la build licenciada Full permite retomar la confirmacion por `SQX144-COMPAT7B` despues del preflight y la adaptacion de snippets migrados.
 
 Este documento gobierna la evaluacion de StrategyQuant X Build 144 (`v.144.2938`, May 2026) como candidato local para SQX Edge Suite. Build 144 no sustituye a SQX 142 ni cambia la cadena Capa1/Capa2 hasta que cada frente pase evidencia aislada, reversible y public-safe.
 
@@ -16,6 +16,7 @@ Fuente local candidata:
 
 - Build 144 local instalada por el operador, tratada como evidencia privada/local-only.
 - Build SQX 144 Full licenciada por el operador, perfil local `sqx144_full`, tratada como host primario candidato con SQX 142 como fallback hasta pasar gates.
+- Migration Tool oficial ejecutada por el operador el 2026-06-04 sobre SQX 144 Full para importar SQX 142 Codex; resultado local `operator_migration_completed_snippets_compile_passed`, sin salida privada versionada en el repo.
 
 ## SQX144-FULL-PROMOTE1 - Host Promotion Gate
 
@@ -35,14 +36,16 @@ Alcance:
 Bloqueado:
 
 - Engine/binarios/runtime/internal/jars de 144 en repo o copiados a SQX 142.
-- Licencia, activacion, bypass, tokens, cookies, secretos, `data.db`, databanks, logs o Migration Tool.
+- Licencia, activacion, bypass, tokens, cookies, secretos, `data.db`, databanks, logs o salida de Migration Tool en el repo.
 - Project runs, MT5 import, MCP writes, `data.db` writes, `user/projects` mutation, databank mutation, forced pass y claims de rentabilidad/riesgo cero.
 
 Resultado 2026-06-04:
 
 - Decision `promote_candidate_with_sqx142_fallback`.
-- Preflight read-only: `sqx144_full_host_gate_passed`, shape completo, cero procesos relevantes, sin runtime start, sin copia, sin Migration Tool y sin escritura sobre SQX.
+- Preflight read-only: `sqx144_full_host_gate_passed`, shape completo, cero procesos relevantes, sin copia, sin escritura directa sobre `data.db` ni `user/projects`.
 - Configuracion local ignorada actualizada a `sqx_host_profile=sqx144_full` tras backup en `.local/sqx144_full_promotion/`.
+- El operador completo Migration Tool oficial; Codex adapto 13 snippets de usuario migrados que usaban `MainApp.isRangerLicense()` obsoleto y la compilacion forzada termino con `Compiling Snippets done in 11s`.
+- Avisos residuales: `sqcustomization` HTTP 422, metadata de mercados auxiliar ausente y update 144.2953 pendiente bajo `SQX144-FULL-UPDATE1 pending`.
 - Siguiente comprobacion manual: `SQX144-COMPAT7B Results Plugin Visual Confirmation After Operator License`.
 
 ## Objetivo
@@ -55,9 +58,9 @@ Integrar tres prioridades sin degradar la metodologia validada:
 
 ## Reglas De Seguridad
 
-- No ejecutar SQX 144 ni lanzar proyectos desde este gate sin un bloque posterior explicito.
+- No ejecutar SQX 144 ni lanzar proyectos desde bloques historicos sin un bloque posterior explicito; en `SQX144-FULL-PROMOTE1` solo se permiten arranques cortos de validacion sin proyectos.
 - No copiar engine, binarios, licencia, bypass/crack, plugins core ni internals propietarios al repo.
-- No migrar datos sobre instalaciones activas; toda migracion se prueba sobre copia.
+- No automatizar Migration Tool desde Codex ni versionar su salida; la migracion oficial ejecutada manualmente por el operador queda como evidencia privada/local-only.
 - No sustituir rutas `sqx_path`, `sqx_data_db`, templates ni host 142/143 hasta decision `promote`.
 - No mezclar datos MT5 importados con Darwinex/Dukascopy gobernado sin comparativa de symbol, source, broker, precision, timezone, sesiones, spread y rango de fechas.
 - No activar nuevos metodos Monte Carlo en Capa1/Capa2 actual sin benchmark y aprobacion metodologica.
