@@ -114,7 +114,7 @@
         optionHtml('blank', 'Blank / manual'),
         optionHtml('cvc_handoff', 'CVC handoff'),
         optionHtml('project_generator_profile', 'Project Generator profile'),
-        optionHtml('views_workflow', 'SQX Views workflow')
+        optionHtml('views_workflow', 'View CORR1 workflow')
       ].join('');
     }
     if (archetype && api) {
@@ -441,16 +441,16 @@
     var api = core();
     var payload = lastPackage || build({ document: doc });
     if (!api || !api.sqxViewsHandoffFromPackage) {
-      setStatus('SQX Views handoff contract missing.', 'error', doc);
+      setStatus('View CORR1 handoff contract missing.', 'error', doc);
       return null;
     }
     var result = api.sqxViewsHandoffFromPackage(payload);
     if (!result.ok) {
-      setStatus('SQX Views handoff blocked: ' + result.errors.join(', ') + '.', 'warn', doc);
+      setStatus('View CORR1 handoff blocked: ' + result.errors.join(', ') + '.', 'warn', doc);
       return result;
     }
     if (!SQX.viewCreator || !SQX.viewCreator.openHandoff) {
-      setStatus('SQX Views is not available yet.', 'error', doc);
+      setStatus('View CORR1 is not available yet.', 'error', doc);
       return { ok: false, errors: ['sqx_views_missing'], handoff: result.handoff };
     }
     SQX.viewCreator.openHandoff({
@@ -458,10 +458,11 @@
       viewName: result.handoff.viewName,
       yearCount: result.handoff.yearCount,
       sampleStart: result.handoff.sampleStart,
+      includeTotal: result.handoff.includeTotal,
       groupMode: result.handoff.groupMode
     });
-    addAuditEntry('SQX Views', payload, result, doc);
-    setStatus('SQX Views prepared. No template was saved.', 'ok', doc);
+    addAuditEntry('View CORR1', payload, result, doc);
+    setStatus('View CORR1 prepared. No template was saved.', 'ok', doc);
     return result;
   }
 

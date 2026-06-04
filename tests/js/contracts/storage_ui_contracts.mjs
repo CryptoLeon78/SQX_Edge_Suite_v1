@@ -46,6 +46,7 @@ assert.equal(document.getElementById('tab-workflow').style.display, 'block');
 assert.equal(document.getElementById('tab-inicio').style.display, 'none');
 const hiddenToolPanel = document.add(new Element('tab-projectgen', ['tab-content']));
 document.panels.push(hiddenToolPanel);
+SQX.edgeFactory = { getState: () => ({ experienceMode: 'advanced' }) };
 assert.equal(SQX.ui.activateTabById('projectgen', document), true);
 assert.equal(hiddenToolPanel.style.display, 'block');
 assert.equal(document.querySelector('.tab[data-tab="projectgen"]'), null);

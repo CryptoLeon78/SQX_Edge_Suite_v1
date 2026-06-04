@@ -19,7 +19,13 @@ from .blocksettings import apply_blocksetting_to_xml, blocksetting_trace, resolv
 from .config_loader import load_manifest
 from .plan import Mining
 from .sqx_db import SqxDb
-from .xml_patcher import RETEST_PERIODS, apply_mining_to_xml, clean_external_paths, patch_dates
+from .xml_patcher import (
+    RETEST_PERIODS,
+    apply_mining_to_xml,
+    clean_external_paths,
+    patch_dates,
+    patch_main_test_values_dates,
+)
 
 
 _GENERATOR_PROFILE = load_manifest("generator_profiles.json")
@@ -1057,6 +1063,7 @@ def generate_project(
                    "dates": 0, "resources": 0, "paths_cleaned": 0, "commissions": 0, "spread_stress": 0,
                    "instrument_resources": 0,
                    "trading_window": 0, "blocksettings": 0, "exit_after_bars_disabled": 0,
+                   "main_test_value_dates": 0,
                    "costs_source": costs["source"], "symbol": costs["symbol"],
                    "blocksetting": blocksetting_trace(blocksetting_entry)}
     for filename, tree in editor.iter_xml_files():
@@ -1120,6 +1127,8 @@ def generate_project(
         )
         if apply_blocksetting_to_xml(root, blocksetting_entry):
             total_stats["blocksettings"] += 1
+        if filename.startswith("AutomaticRetest-"):
+            total_stats["main_test_value_dates"] += patch_main_test_values_dates(root, True)
         if capa == 2 and filename in CAPA2_NO_EXIT_AFTER_BARS_TASKS:
             total_stats["exit_after_bars_disabled"] += _disable_exit_after_bars(root)
         editor.update_xml(filename, tree)

@@ -1,5 +1,44 @@
 # Changelog
 
+## 2026-06-02 - SQX Readiness Private QXPRO Kit
+
+- Adds `sqx-edge.sqx-readiness-manifest-v2` with `correlation_view_ready` replacing the old generic views readiness check; `requiredViews` now contains only `SQX EDGE CORRELATION REVIEW.vw`.
+- Reduces the View Creator/SQX Views surface to the CORR1 utility: `SQX EDGE CORRELATION REVIEW` remains active for Template Maker C2, while `EGT Core`, `Robustez`, `CVC Decision Cert`, `Risk` and `Full audit` are no longer required or exposed as readiness views.
+- Adds private operator packaging for a caller-provided authorized SQX 142 QXPRO source through `tools/sqx_readiness_kit.ps1 -PrivateOperatorTransfer -SqxPrivateSourceRoot <private-source>`, generating `SQX_Edge_Preparacion_Kit_PRIVADO_QXPRO_v1.zip` under `05_SQX_142_Codex_QXPRO_Privado`.
+- Preserves the original SQX root folder name inside the private block as `05_SQX_142_Codex_QXPRO_Privado/SQX_142_Codex_QXPRO` to reduce portable path/name compatibility risk.
+- The private QXPRO packager excludes `.git`, `.local`, caches, backups, `user/projects`, user data history, license/activation/token/secret markers and any path containing `Crack`, then writes `portable_authorization_manifest.json` with `distributionScope=private_operator_only` and `NO REDISTRIBUIR`.
+- Refines the private QXPRO packager with a runtime allowlist for neutral SQX licensing UI/legal files and `internal/libs/activation.jar`, while still blocking `license.db`, Trust Tokens, user data history, projects and activation/license state.
+- Adds a private Data Manager bootstrap allowlist for startup compatibility: `brokers.version`, `connections.txt`, `data_futures.h2.db`, `data_futures.version`, `data_stock.h2.db`, `data_stock.version` and `data.db`; `user/data/History` remains excluded to avoid shipping historical market data bulk.
+- Adds user-friendly BAT launchers for basic operators: `Instalar_snippets_y_View_CORR1.bat` installs the authorized snippets and CORR1 view with backup, while `Deshacer_instalacion_snippets_y_View_CORR1.bat` restores the latest checker backup without requiring PowerShell commands.
+- Preserves boundaries: no public redistribution source is claimed, no license/activation/tokens/data/projects are copied, and the private QXPRO route supersedes the old local diagnostic route for this kit track.
+
+## 2026-06-02 - SQX142-AW-AI2 AlgoWizard AI Studio
+
+- Builds `sqx142-ai-wizard-studio-v2` as the expandable AlgoWizard AI Studio: sanitized capability catalog `sqx-edge.ai-wizard-capability-catalog-v1`, strategy AST `sqx-edge.ai-wizard-strategy-ast-v1`, local SQLite sessions, opaque draft IDs and reusable overlay UX with history, catalog browser and structured parameter editing.
+- Adds local-only APIs for catalog refresh, sessions, messages, spec patches, draft creation and draft download under `/api/sqx142/ai-wizard/*`; browser calls stay Flask-only and no Ollama/OpenAI/provider secrets are exposed client-side.
+- Extends validation so AI output must reference available AlgoWizard catalog IDs and bounded params; blocks Full Editor scope and returns `blocked_not_draftable_yet` when a valid catalog plan is not yet proven compilable to `.sqx`.
+- Keeps the SQX-open gate explicit: source is built and tested, but install/rollback/manual roundtrip remain pending until SQX is closed. Boundaries remain no SQX runtime launch, no `data.db`, no `user/projects`, no databank mutation, no raw XML/local paths/prompts, no 144 internals and no license/activation/bypass.
+
+## 2026-06-01 - SQX142-AW-AI1 AI Wizard Propio
+
+- Adds `sqx142-ai-wizard-v1` as a local-only hybrid AI Wizard for AlgoWizard 142: Flask endpoints `/api/sqx142/ai-wizard/status`, `/plan`, `/draft-sqx` and draft download, plus a guarded overlay package and installer.
+- Generates v1 draft `.sqx` files conservatively from valid AlgoWizard 142 example templates after a structured `sqx-edge.ai-wizard-strategy-spec` and `sqx-edge.strategy-builder-package` handoff; unsupported prompts return blockers instead of invented XML.
+- Keeps Ollama as the default local provider and leaves OpenAI optional/off by default through private env config; prompts/responses are not persisted and the browser never calls AI providers directly.
+- Preserves boundaries: no SQX runtime launch, no `run_project`, no retests, no `data.db` writes, no `user/projects`/databank mutation, no engine/binarios/internals 144, no license/activation/bypass and no profitability/risk-zero claim.
+
+## 2026-05-31 - REMOTE-RILIS Standby Retest Closed
+
+- Records the operator confirmation that TESTER-RILIS has access, can enter without problems and can load newly generated custom projects correctly.
+- Closes `REMOTE-RILIS-STANDBY` as the active blocker, runs REMOTE-8G decision review from ignored local evidence and gets `GO_REMOTE8G_TINY_COHORT_DECISION_REVIEW_READY` with `prepare_next_controlled_movement`.
+- Runs `REMOTE-8H Next Controlled Movement Package` and gets `GO_REMOTE8H_NEXT_CONTROLLED_MOVEMENT_PACKAGE_READY` for `add_1_2_users`, `plannedNewUsers=1`, 24h support and 7 days max duration.
+- Runs `REMOTE-8I Next Controlled Movement Execution Approval` and gets `GO_REMOTE8I_NEXT_CONTROLLED_MOVEMENT_EXECUTION_APPROVED` with decision `approve_execution_record`, 24h support, 24h monitoring and max 24h execution delay.
+- Runs `REMOTE-8J Next Controlled Movement Manual Execution Record` after the operator confirms TESTER-ESTHER received the private access link, logged in successfully and was not granted private repo access; ignored local evidence gets `GO_REMOTE8J_NEXT_CONTROLLED_MOVEMENT_MANUAL_EXECUTION_RECORDED`.
+- Moves the next remote movement to `REMOTE-8K Post Execution Monitoring`; further expansion remains blocked until at least 24 clean hours are observed and recorded with private evidence.
+- Preserves boundaries: no raw emails, grant keys, protected URLs, message bodies, Cloudflare secrets, private repo access, checkout links, tester expansion, onboarding automation or private identity/support evidence were committed.
+- Applies `TL12 Per-Tester License Delivery Flow`: adds `--no-expires` support for approved tester licenses, reissues the 6 private tester licenses without `expires_at`, regenerates the generic tester ZIP without embedded license, audits distribution PASS and validates local import to `pro_active`.
+- Preserves TL12 boundaries: no raw tester emails, signed license JSON, private keys, protected URLs or Cloudflare asset replacement were committed.
+- Closes the stale `SQX142-OWN-FEATURES3` manual-confirmation pending marker as `superseded_by_features4_features5_clean_path`: FEATURES3 remains historical lab evidence, while FEATURES4/5 are the accepted clean-path Correlation Pack confirmation.
+
 ## 2026-05-31 - SQX142 USDJPY H1 Capa2 Candidate Cohort Parked
 
 - Registers the real USDJPY H1 Volatilidad Capa2 correlation/CVC closeout as an accepted single-asset candidate cohort: 3 portfolio candidates, 5 similar reserves, OOS3 warnings preserved and 0 hard OOS3 breaks.
@@ -130,7 +169,7 @@
 
 ## 2026-05-27 - SQX142-OWN-FEATURES3 Correlation Pack Manual Confirmation
 
-- Adds `docs/SQX142_OWN_FEATURES_CORRELATION_MANUAL_CONFIRMATION.md` with status `preflight_ready_pending_operator_ui_confirmation` for the SQX142 lab UI confirmation.
+- Adds `docs/SQX142_OWN_FEATURES_CORRELATION_MANUAL_CONFIRMATION.md` for the SQX142 lab UI confirmation; this historical lab marker is now superseded by FEATURES4/5 clean-path validation.
 - Adds `tools/sqx142_own_features_correlation_manual_confirmation.ps1` with read-only `status/checklist` and local-only `record` actions; it names the exact view `SQX EDGE CORRELATION REVIEW` and exact Custom Analysis item `SQX Edge Correlation Tagger` / `SQXEdgeCorrelationTagger`.
 - Captures current preflight: pack targets installed, `correlation_decisions.csv` schema valid with 86 rows, SQX process count zero at preflight time and manual UI confirmation still pending.
 - Adds `tests/js/contracts/sqx142_own_features3_correlation_manual_confirmation_contracts.mjs` to block SQX launch, SQX file writes, `Stop-Process`, destructive deletes and unsafe claims.

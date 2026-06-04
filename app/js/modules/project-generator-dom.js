@@ -66,6 +66,7 @@
   }
 
   function readCustomProjectInputs(doc) {
+    var visualGuide = byId(doc, 'pg-custom-visual-guide-pdf');
     return {
       name: trimmedInputValue(doc, 'pg-custom-name'),
       asset: trimmedInputValue(doc, 'pg-custom-asset').toUpperCase(),
@@ -73,7 +74,8 @@
       bs: trimmedInputValue(doc, 'pg-custom-bs') || 'BS_Custom',
       dir: inputValue(doc, 'pg-custom-dir') || 'long',
       capa: parseInt(inputValue(doc, 'pg-custom-capa') || '1', 10) || 1,
-      template: trimmedInputValue(doc, 'pg-custom-template')
+      template: trimmedInputValue(doc, 'pg-custom-template'),
+      visual_guide_pdf: !!(visualGuide && visualGuide.checked)
     };
   }
 
@@ -86,6 +88,8 @@
     setInputValue(doc, 'pg-custom-dir', data.dir || 'long');
     setInputValue(doc, 'pg-custom-capa', data.capa || 1);
     setInputValue(doc, 'pg-custom-template', data.template);
+    var visualGuide = byId(doc, 'pg-custom-visual-guide-pdf');
+    if (visualGuide) visualGuide.checked = !!(data.visual_guide_pdf || data.visualGuidePdf);
   }
 
   function setCustomProjectStatus(doc, status) {

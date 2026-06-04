@@ -10,7 +10,7 @@ download.
 Project Generator `.cfx` downloads were already covered by REMOTE-OUTPUT1. This
 phase audits and aligns the remaining export surfaces:
 
-- SQX Views: `.vw` and preset packs.
+- View CORR1 (former SQX Views surface): `.vw` and preset packs.
 - Template Maker: generated `.sqx` C2 templates.
 - Strategy Control: CSV export and consolidated JSON.
 - Champion vs Challenger: redacted review JSON.

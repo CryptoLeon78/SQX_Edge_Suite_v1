@@ -158,7 +158,7 @@ def apply_runtime_hardening(
     close_processes: bool,
     copy_runtime: bool,
 ) -> dict[str, Any]:
-    backup_root = root142.parent / "SQX_142_Crack_local_backups" / f"sqx142_compat_before_{stamp()}"
+    backup_root = root142.parent / "SQX142_ROOT_local_backups" / f"sqx142_compat_before_{stamp()}"
     before = build_sqx142_status(root142, root143, include_paths=True)
     close_result = close_sqx142_processes(root142, apply=apply) if close_processes else {"attempted": False, "reason": "not_requested"}
     after_close = build_sqx142_status(root142, root143, include_paths=True)
@@ -288,4 +288,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

@@ -110,6 +110,7 @@ await SQX.agentGuide.requestPlan();
 assert.equal(document.getElementById('agent-guide-confirm').disabled, false);
 assert.equal(document.getElementById('agent-guide-output').innerHTML.includes('Project Generator'), true);
 
+SQX.edgeFactory.setExperienceMode('advanced');
 await SQX.agentGuide.executeCurrentPlan();
 assert.equal(document.getElementById('tab-projectgen').style.display, 'block');
 assert.equal(document.getElementById('home-agent-last-action').textContent.includes('Abrir herramienta'), true);

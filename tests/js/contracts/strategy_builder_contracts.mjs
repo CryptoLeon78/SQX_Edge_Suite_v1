@@ -18,6 +18,7 @@ sandbox.SQX_MANIFEST = {
     ],
   },
 };
+SQX.edgeFactory = { getState: () => ({ experienceMode: 'advanced' }) };
 
 const core = SQX.strategyBuilderCore;
 assert.ok(core, 'strategy builder core should register');
@@ -110,18 +111,21 @@ assert.equal(presetDraft.preset_name, 'SB EURUSD H1 trend following');
 assert.equal(presetDraft.guardrails.includes('no_auto_save'), true);
 const viewsHandoff = core.sqxViewsHandoffFromPackage(ready);
 assert.equal(viewsHandoff.ok, true);
-assert.equal(viewsHandoff.handoff.preset, 'robustness');
-assert.equal(viewsHandoff.handoff.viewName, 'SB EURUSD H1 Robustness');
+assert.equal(viewsHandoff.handoff.preset, 'sqx-edge-correlation-review');
+assert.equal(viewsHandoff.handoff.viewName, 'SB EURUSD H1 View CORR1');
 assert.equal(viewsHandoff.handoff.validation_pack_id, 'robustness');
+assert.equal(viewsHandoff.handoff.yearCount, 1);
+assert.equal(viewsHandoff.handoff.includeTotal, false);
+assert.equal(viewsHandoff.handoff.groupMode, 'plain');
 assert.equal(viewsHandoff.guardrails.includes('no_template_saved'), true);
 assert.equal(core.sqxViewsHandoffFromPackage(blocked).ok, false);
 const workflowSummary = core.buyerWorkflowSummary(ready);
 assert.equal(workflowSummary.ready, true);
 assert.equal(workflowSummary.steps.filter(step => step.status === 'done').length, 5);
 assert.match(workflowSummary.next_action, /Prepare a handoff/);
-const auditEntry = core.handoffAuditEntry('SQX Views', ready, viewsHandoff, { createdAt: '2026-05-09T01:15:00.000Z' });
+const auditEntry = core.handoffAuditEntry('View CORR1', ready, viewsHandoff, { createdAt: '2026-05-09T01:15:00.000Z' });
 assert.equal(auditEntry.type, 'sqx-edge.strategy-builder-audit-entry');
-assert.equal(auditEntry.target, 'SQX Views');
+assert.equal(auditEntry.target, 'View CORR1');
 assert.equal(auditEntry.asset, 'EURUSD');
 assert.equal(auditEntry.guardrails.includes('no_local_storage_write'), true);
 const cleanerDraft = core.strategyCleanerDraftFromPackage(ready);
@@ -371,16 +375,18 @@ assert.equal(document.getElementById('sb-state').textContent, 'package_exportabl
 assert.equal(document.getElementById('sb-source').textContent, 'cvc_handoff');
 assert.match(document.getElementById('sb-package-preview').textContent, /sqx-edge\.strategy-builder-package/);
 assert.match(document.getElementById('sb-status').textContent, /Package ready/);
-assert.match(document.getElementById('sb-workflow-steps').innerHTML, /SQX Views validation available/);
+assert.match(document.getElementById('sb-workflow-steps').innerHTML, /View CORR1 handoff available/);
 const viewPresetCountBefore = SQX.viewCreator.getSavedPresets().length;
 document.getElementById('sb-send-views-btn').click();
 assert.equal(document.getElementById('tab-views').style.display, 'block');
-assert.equal(document.getElementById('vc-view-name').value, 'SB EURUSD H1 Robustness');
-assert.ok(Number(document.getElementById('vc-column-count').textContent) > 104);
+assert.equal(document.getElementById('vc-view-name').value, 'SB EURUSD H1 View CORR1');
+assert.equal(document.getElementById('vc-group-mode').value, 'plain');
+assert.equal(document.getElementById('vc-include-total').checked, false);
+assert.equal(Number(document.getElementById('vc-column-count').textContent), 17);
 assert.match(document.getElementById('vc-status').textContent, /Handoff cargado/);
 assert.equal(SQX.viewCreator.getSavedPresets().length, viewPresetCountBefore);
 assert.match(document.getElementById('sb-status').textContent, /No template was saved/);
-assert.match(document.getElementById('sb-audit-list').innerHTML, /SQX Views/);
+assert.match(document.getElementById('sb-audit-list').innerHTML, /View CORR1/);
 document.getElementById('sb-send-pg-btn').click();
 assert.equal(document.getElementById('tab-projectgen').style.display, 'block');
 assert.equal(document.getElementById('pg-custom-name').value, 'SB_EURUSD_H1_trend_following');

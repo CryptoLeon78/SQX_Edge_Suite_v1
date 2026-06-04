@@ -8,8 +8,9 @@ from xml.etree import ElementTree as ET
 from core.plan import Mining
 from core.blocksettings import load_blocksettings_manifest
 from core.cfx_compatibility import audit_cfx_compatibility
-from core.project_generator import _bound_retest_period_to_available_data, generate_project
+from core.project_generator import CAPA_TASK_MAPS, _bound_retest_period_to_available_data, generate_project
 from core.xml_patcher import (
+    RETEST_PERIODS,
     patch_backtest_precision,
     patch_custom_block_resources,
     patch_embedded_strategy_metadata,
@@ -1997,6 +1998,189 @@ def _task_databanks(root: ET.Element) -> dict[str, str | None]:
     }
 
 
+CANONICAL_TASK_PERIOD_POLICY = {
+    1: {
+        "Build-Task1.xml": ("2017.10.02", "2023.01.01"),
+        "Retest-Task3.xml": ("2017.10.02", "2025.01.01"),
+        "Retest-Task1.xml": ("2010.01.01", "2017.10.02"),
+        "AutomaticRetest-Task2.xml": ("2017.10.02", "2023.12.31"),
+        "AutomaticRetest-Task1.xml": ("2017.10.02", "2023.12.31"),
+        "AutomaticRetest-Task8.xml": ("2017.10.02", "2023.12.31"),
+        "AutomaticRetest-Task3.xml": ("2017.10.02", "2023.12.31"),
+        "AutomaticRetest-Task6.xml": ("2017.10.02", "2023.12.31"),
+        "AutomaticRetest-Task5.xml": ("2017.10.02", "2023.12.31"),
+        "AutomaticRetest-Task7.xml": ("2017.10.02", "2023.12.31"),
+        "AutomaticRetest-Task4.xml": ("2017.10.02", "2023.12.31"),
+        "Retest-Task2.xml": ("2025.01.01", "2026.04.08"),
+    },
+    2: {
+        "Build-Task1.xml": ("2017.10.02", "2023.01.01"),
+        "Retest-Task1.xml": ("2017.10.02", "2025.01.01"),
+        "AutomaticRetest-Task7.xml": ("2010.01.01", "2017.10.02"),
+        "AutomaticRetest-Task2.xml": ("2017.10.02", "2023.12.31"),
+        "AutomaticRetest-Task1.xml": ("2017.10.02", "2023.12.31"),
+        "AutomaticRetest-Task8.xml": ("2017.10.02", "2023.12.31"),
+        "AutomaticRetest-Task3.xml": ("2017.10.02", "2023.12.31"),
+        "AutomaticRetest-Task6.xml": ("2017.10.02", "2023.12.31"),
+        "AutomaticRetest-Task5.xml": ("2017.10.02", "2023.12.31"),
+        "AutomaticRetest-Task4.xml": ("2017.10.02", "2023.12.31"),
+        "Optimize-Task1.xml": ("2017.10.02", "2023.12.31"),
+        "Retest-Task2.xml": ("2025.01.01", "2026.04.08"),
+    },
+}
+
+CANONICAL_GENERATED_TASK_PERIODS = {
+    1: {
+        **{name: {period} for name, period in CANONICAL_TASK_PERIOD_POLICY[1].items()},
+        "Retest-Task4.xml": {
+            ("2017.10.02", "2026.04.08"),
+            ("2025.01.01", "2026.04.08"),
+        },
+        "Retest-Task5.xml": {
+            ("2017.10.02", "2026.04.08"),
+            ("2025.01.01", "2026.04.08"),
+        },
+    },
+    2: {
+        **{name: {period} for name, period in CANONICAL_TASK_PERIOD_POLICY[2].items()},
+        "Retest-Task3.xml": {
+            ("2017.10.02", "2026.04.08"),
+            ("2025.01.01", "2026.04.08"),
+        },
+        "Retest-Task4.xml": {
+            ("2017.10.02", "2026.04.08"),
+            ("2025.01.01", "2026.04.08"),
+        },
+    },
+}
+
+CANONICAL_CORR_REVIEW_TASKS = {
+    1: {
+        "Retest-Task4.xml": {
+            "title": "CORR1 STABILITY RETEST",
+            "input": "Forward",
+            "output": "SQX EDGE CORR1 STABILITY",
+            "method": "none",
+            "periods": {
+                ("2017.10.02", "2026.04.08"),
+                ("2025.01.01", "2026.04.08"),
+            },
+            "oos": [{"dateFrom": "2025.01.01", "dateTo": "2026.04.08"}],
+        },
+        "Retest-Task5.xml": {
+            "title": "CORR1 TAG REVIEW",
+            "input": "SQX EDGE CORR1 STABILITY",
+            "output": "SQX EDGE CORR1 TAGGED",
+            "method": "SQXEdgeCorrelationTagger",
+            "periods": {
+                ("2017.10.02", "2026.04.08"),
+                ("2025.01.01", "2026.04.08"),
+            },
+            "oos": [{"dateFrom": "2025.01.01", "dateTo": "2026.04.08"}],
+        },
+    },
+    2: {
+        "Retest-Task3.xml": {
+            "title": "C2 CORR STABILITY RETEST",
+            "input": "Forward",
+            "output": "SQX EDGE C2 CORR STABILITY",
+            "method": "none",
+            "periods": {
+                ("2017.10.02", "2026.04.08"),
+                ("2025.01.01", "2026.04.08"),
+            },
+            "oos": [
+                {"dateFrom": "2025.01.01", "dateTo": "2026.01.01"},
+                {"dateFrom": "2026.01.01", "dateTo": "2026.04.08"},
+            ],
+        },
+        "Retest-Task4.xml": {
+            "title": "C2 CORR TAG REVIEW",
+            "input": "SQX EDGE C2 CORR STABILITY",
+            "output": "SQX EDGE C2 CORR TAGGED",
+            "method": "SQXEdgeCorrelationTagger",
+            "periods": {
+                ("2017.10.02", "2026.04.08"),
+                ("2025.01.01", "2026.04.08"),
+            },
+            "oos": [
+                {"dateFrom": "2025.01.01", "dateTo": "2026.01.01"},
+                {"dateFrom": "2026.01.01", "dateTo": "2026.04.08"},
+            ],
+        },
+    },
+}
+
+
+def _setup_periods(root: ET.Element) -> set[tuple[str | None, str | None]]:
+    return {
+        (setup.get("dateFrom"), setup.get("dateTo"))
+        for setup in root.findall(".//Setup")
+    }
+
+
+def _assert_generated_task_periods(roots: dict[str, ET.Element], capa: int) -> None:
+    for task_xml, expected in CANONICAL_GENERATED_TASK_PERIODS[capa].items():
+        assert task_xml in roots
+        assert _setup_periods(roots[task_xml]) == expected, task_xml
+
+
+def _assert_automatic_retests_mark_date_ranges(roots: dict[str, ET.Element]) -> None:
+    issues = []
+    for task_xml, root in roots.items():
+        if not task_xml.startswith("AutomaticRetest-"):
+            continue
+        values = root.findall(".//MainTestValues")
+        if not values:
+            issues.append((task_xml, "missing MainTestValues"))
+            continue
+        for node in values:
+            if node.get("dates") != "true":
+                issues.append((task_xml, dict(node.attrib)))
+    assert issues == []
+
+
+def _assert_corr_review_task_contracts(roots: dict[str, ET.Element], capa: int) -> None:
+    config = roots["config.xml"]
+    tasks = {task.get("taskXMLFile"): task for task in config.findall(".//Task")}
+    for task_xml, expected in CANONICAL_CORR_REVIEW_TASKS[capa].items():
+        assert task_xml in tasks
+        assert tasks[task_xml].get("title") == expected["title"]
+        root = roots[task_xml]
+        assert _setup_periods(root) == expected["periods"]
+        assert _task_databanks(root) == {
+            "Input": expected["input"],
+            "Output": expected["output"],
+        }
+        assert root.find(".//CustomAnalysis").get("method") == expected["method"]
+        assert root.find(".//CustomAnalysis").get("filter") == "false"
+        assert root.find(".//DeleteFailedStrategies").text == "false"
+        assert root.find(".//CrossChecks").get("use") == "false"
+        assert [dict(node.attrib) for node in root.findall(".//Data/OutOfSample/Range")] == expected["oos"]
+
+
+def test_generator_task_period_policy_is_invariant_across_timeframes_and_directions():
+    for capa, expected in CANONICAL_TASK_PERIOD_POLICY.items():
+        actual = {
+            task_xml: RETEST_PERIODS[period_key]
+            for task_xml, period_key in CAPA_TASK_MAPS[capa].items()
+        }
+        for timeframe in ("M5", "M15", "M30", "H1", "H4"):
+            for direction in ("long", "short", "both"):
+                assert actual == expected, (capa, timeframe, direction)
+
+
+def test_generator_date_period_doc_lists_corr_review_tasks_explicitly():
+    doc = (TOOL_ROOT.parent.parent / "docs" / "SQX142_PROJECT_GENERATOR_DATE_PERIOD_CONTRACT.md").read_text(encoding="utf-8")
+    for capa_tasks in CANONICAL_CORR_REVIEW_TASKS.values():
+        for task_xml, expected in capa_tasks.items():
+            assert task_xml in doc
+            assert expected["title"] in doc
+            assert expected["input"] in doc
+            assert expected["output"] in doc
+            assert expected["method"] in doc
+
+
 def _resource_issues(cfx_path: Path) -> list[str]:
     issues: list[str] = []
     for name, root in _xml_roots(cfx_path):
@@ -2747,6 +2931,9 @@ def test_generate_project_names_build_task_and_applies_capa1_time_window():
         )
         roots = dict(_xml_roots(Path(out_path)))
 
+    _assert_generated_task_periods(roots, 1)
+    _assert_automatic_retests_mark_date_ranges(roots)
+    _assert_corr_review_task_contracts(roots, 1)
     config = roots["config.xml"]
     build_task = next(task for task in config.findall(".//Task") if task.get("type") == "Build")
     assert build_task.get("title") == "Build BS_Volatilidad_v6 · Capa1 L+S H4"
@@ -3112,6 +3299,9 @@ def test_generate_capa2_project_applies_layer2_build_window_and_disables_heavy_r
         )
         roots = dict(_xml_roots(Path(out_path)))
 
+    _assert_generated_task_periods(roots, 2)
+    _assert_automatic_retests_mark_date_ranges(roots)
+    _assert_corr_review_task_contracts(roots, 2)
     config = roots["config.xml"]
     tick_task = next(task for task in config.findall(".//Task") if task.get("taskXMLFile") == "AutomaticRetest-Task2.xml")
     config_databanks = {databank.get("name") for databank in config.findall(".//Databank")}

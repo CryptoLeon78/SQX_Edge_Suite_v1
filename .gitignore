@@ -145,6 +145,8 @@ analysis/analysis_output/real_mtf_pipeline_run/
 # ── Debug / browser / logs ──────────────────────────
 .playwright-cli/
 .playwright-mcp/
+artifacts/
+tmp/
 material de diagnostico/
 material de diagnóstico/
 console_errors.txt

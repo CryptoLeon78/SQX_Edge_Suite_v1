@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 from unittest.mock import patch
 
 from api import server
@@ -6,6 +7,7 @@ from core.agent.llm_client import OllamaClient, OllamaConfig
 from core.agent.redaction import redact_data, redact_text
 from core.agent.tool_catalog import build_action_catalog
 from core.agent.policy import create_confirmation, consume_confirmation, is_action_allowed
+from core.sqx_performance import build_sqx142_performance_status
 from tools.build_sqx142_source_translator import patch_html
 
 
@@ -227,6 +229,19 @@ def test_sqx142_performance_status_is_local_operator_only_and_path_safe():
     )
     assert blocked.status_code == 403
     assert blocked.get_json()["error"] == "local_operator_required"
+
+
+def test_sqx142_performance_status_handles_placeholder_root_without_crashing(tmp_path):
+    status = build_sqx142_performance_status(
+        tmp_path,
+        sqx142_root=Path("<LOCAL_SQX142_ROOT>"),
+        sqx143_root=tmp_path / "sqx143",
+        include_paths=False,
+    )
+
+    assert status["ok"] is False
+    assert status["privacy"]["local_paths_returned"] is False
+    assert "sqx142_root_missing" in status["warnings"] or "compatibility_not_ok" in status["warnings"]
 
 
 def test_agent_plan_and_execute_returns_validated_ui_command():

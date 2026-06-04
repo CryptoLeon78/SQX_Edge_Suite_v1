@@ -8,6 +8,7 @@ from api import server
 from core.remote_access import SESSION_COOKIE_NAME, create_signed_session, email_hash
 from core.remote_workspace_outputs import REMOTE_WORKSPACE_OUTPUT_VERSION
 from core.remote_workspaces import workspace_id_from_identity_hash
+from core.sqx_readiness import required_check_ids
 
 
 def _context_ref_for_test(client, email: str) -> tuple[str, dict[str, str]]:
@@ -43,6 +44,14 @@ def _authorized_client(tmp_path, monkeypatch, email: str = "remote-output@exampl
         access_context_ref=context_ref,
     )
     client.set_cookie(SESSION_COOKIE_NAME, signed["token"])
+    readiness = client.post(
+        "/api/sqx-readiness/status",
+        json={"checks": {check_id: True for check_id in required_check_ids()}},
+        headers=headers,
+        base_url="https://localhost",
+    )
+    assert readiness.status_code == 200
+    assert readiness.get_json()["complete"] is True
     return client, headers, workspaces_root
 
 

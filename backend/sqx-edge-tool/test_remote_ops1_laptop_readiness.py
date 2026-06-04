@@ -28,8 +28,8 @@ def _complete_payload() -> dict:
             "cloudflareTunnelId": "private-tunnel-id",
             "cloudflareAccessAppId": "private-access-app-id",
             "localWorkspaceRoot": "C:/BOTS/private/workspaces",
-            "sqxPath": "C:/BOTS/Versiones/SQX_142_Crack",
-            "sqxDataDb": "C:/BOTS/Versiones/SQX_142_Crack/user/settings/data.db",
+            "sqxPath": "C:/BOTS/Versiones/LOCAL_SQX142_ROOT",
+            "sqxDataDb": "C:/BOTS/Versiones/LOCAL_SQX142_ROOT/user/settings/data.db",
             "operatorEmail": "operator@example.invalid",
         },
         "checks": {

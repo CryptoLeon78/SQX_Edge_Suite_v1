@@ -834,12 +834,15 @@ incidents before the cohort can be considered clean.
 Context recapture on 2026-05-19: REMOTE-COHORT-FIX2 adds an alias-only
 anti-sharing reconciliation plan. After the operator could not contact
 `TESTER-RILIS`, the ignored scope file moved that alias to `standby`. The active
-cohort now reports 4 active aliases, 4 ready and 0 recapture actions. Standby
-aliases remain visible but do not block REMOTE-8F-CLOSE.
+cohort reported 4 active aliases, 4 ready and 0 recapture actions. On 2026-05-31
+the operator confirmed RILIS access and new custom-project loading as clean, so
+the RILIS standby blocker no longer blocks REMOTE-8G. Standby aliases remain
+visible but do not block REMOTE-8F-CLOSE.
 
 Close on 2026-05-19: REMOTE-8F-CLOSE records the active cohort as clean:
 `CREATOR-IVAN`, `TESTER-DRP`, `TESTER-BIBI` and `TESTER-JL` are active and ready;
-`TESTER-RILIS` and `TESTER-ESTHER` are standby. Public-safe result:
+`TESTER-ESTHER` is standby, and the later RILIS standby browser/custom-load
+check was closed by operator confirmation on 2026-05-31. Public-safe result:
 `GO_REMOTE8F_TINY_COHORT_MONITORING_CLEAN`. No grants, Cloudflare changes,
 checkout, emails, protected URLs, automation jobs or tester expansion were
 performed.
@@ -896,7 +899,7 @@ Close evidence added in REMOTE-8F-CLOSE:
 - ignored evidence `.local/remote_service/remote8f_tiny_cohort_monitoring.local.json`
 - ignored output `.local/remote_service/remote8f_tiny_cohort_monitoring/remote8f_tiny_cohort_monitoring.public.json`
 - active cohort `4/4 ready`
-- standby aliases: `TESTER-RILIS`, `TESTER-ESTHER`
+- standby aliases: `TESTER-RILIS`, `TESTER-ESTHER`; `TESTER-RILIS` standby blocker closed on 2026-05-31
 - `GO_REMOTE8F_TINY_COHORT_MONITORING_CLEAN`
 
 Next REMOTE-8G scope:
@@ -908,6 +911,13 @@ Next REMOTE-8G scope:
 ### REMOTE-8G - Tiny Cohort Decision Review
 
 Turns REMOTE-8F monitoring into a human decision and does not execute traffic, checkout, grants, emails or onboarding automatically. It accepts clean or blocked monitoring, but only clean monitoring can prepare a next controlled movement package.
+
+Current status on 2026-05-31: REMOTE-8G returned
+`GO_REMOTE8G_TINY_COHORT_DECISION_REVIEW_READY` from ignored local evidence.
+The selected decision is `prepare_next_controlled_movement`; 5 aliases were
+reviewed, monitoring blockers are 0, all required checks are true and execution
+metrics remain 0. This authorizes REMOTE-8H package preparation only, not
+execution.
 
 Artifacts added in REMOTE-8G:
 
@@ -929,6 +939,13 @@ Next REMOTE-8H scope:
 ### REMOTE-8H - Next Controlled Movement Package
 
 Prepares the exact next movement package after the active decision gate. In the current loop, REMOTE-8L is the source that routes back here with `prepare_next_controlled_movement`; legacy REMOTE-8G evidence is accepted only for older tiny-cohort records. It still does not execute traffic, checkout, grants, emails, onboarding or public URL sharing automatically.
+
+Current status on 2026-05-31: REMOTE-8H returned
+`GO_REMOTE8H_NEXT_CONTROLLED_MOVEMENT_PACKAGE_READY` from ignored local evidence.
+The package is `add_1_2_users` with `plannedNewUsers=1`,
+`supportWindowHours=24` and `maxDurationDays=7`. Candidate identity and handoff
+details stay private; execution metrics remain 0. This authorizes REMOTE-8I
+approval review only, not execution.
 
 Artifacts added in REMOTE-8H:
 
@@ -953,6 +970,13 @@ Next REMOTE-8I scope:
 
 Approves, rejects or defers execution of the REMOTE-8H package and still does not execute automatically without a separate execution record.
 
+Current status on 2026-05-31: REMOTE-8I returned
+`GO_REMOTE8I_NEXT_CONTROLLED_MOVEMENT_EXECUTION_APPROVED` from ignored local
+evidence. The selected decision is `approve_execution_record`; support and
+monitoring windows are 24h, max execution delay is 24h and execution metrics
+remain 0. This authorizes REMOTE-8J manual execution evidence only; it does not
+perform grants, emails, URL sharing, Cloudflare changes or onboarding.
+
 Artifacts added in REMOTE-8I:
 
 - `docs/REMOTE_8I_NEXT_CONTROLLED_MOVEMENT_EXECUTION_APPROVAL.md`
@@ -974,6 +998,15 @@ Next REMOTE-8J scope:
 
 Records the manual execution authorized by REMOTE-8I and remains redacted, auditable and non-automated.
 
+Current status on 2026-05-31: REMOTE-8J returned
+`GO_REMOTE8J_NEXT_CONTROLLED_MOVEMENT_MANUAL_EXECUTION_RECORDED` from ignored
+local evidence after the operator confirmed TESTER-ESTHER received the private
+access link, logged in successfully and did not receive private repository
+access. The record covers one `tester_free` executed user, manual counts
+1/1/1/1, monitoring started, zero automation metrics and no committed raw
+emails, protected URLs, private messages, grant keys, repo access or local
+paths.
+
 Artifacts added in REMOTE-8J:
 
 - `docs/REMOTE_8J_NEXT_CONTROLLED_MOVEMENT_MANUAL_EXECUTION.md`
@@ -984,6 +1017,12 @@ Artifacts added in REMOTE-8J:
 - `remote-next-controlled-movement-manual-execution-v1`
 - ignored evidence root `.local/remote_service/remote8j_next_controlled_movement_manual_execution*`
 - `Next Controlled Movement Manual Execution Gate`
+
+Next REMOTE-8K scope:
+
+- observe TESTER-ESTHER for at least 24 clean hours after the recorded access;
+- keep identity, support notes, protected URLs and local paths private/ignored;
+- keep incidents and automation metrics at zero before any REMOTE-8L decision review.
 
 ### REMOTE-8K - Post Execution Monitoring
 

@@ -1,0 +1,1352 @@
+from __future__ import annotations
+
+import hashlib
+import json
+import os
+import re
+import sqlite3
+import zipfile
+from dataclasses import dataclass
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any
+from xml.etree import ElementTree as ET
+from uuid import uuid4
+
+from .sqx_compatibility import SQX142_DEFAULT_ROOT
+
+
+AI_WIZARD_VERSION = "sqx142-ai-wizard-v1"
+AI_WIZARD_AI2_VERSION = "sqx142-ai-wizard-studio-v2"
+SPEC_TYPE = "sqx-edge.ai-wizard-strategy-spec"
+CATALOG_TYPE = "sqx-edge.ai-wizard-capability-catalog-v1"
+AST_TYPE = "sqx-edge.ai-wizard-strategy-ast-v1"
+PACKAGE_TYPE = "sqx-edge.strategy-builder-package"
+DEFAULT_OUTPUT_DIRNAME = "ai_wizard_drafts"
+SESSION_DB_RELATIVE = Path(".local") / "sqx142_ai_wizard" / "ai_wizard.sqlite"
+XML_ENTRY = "strategy_Portfolio.xml"
+
+
+SUPPORTED_ARCHETYPES = {
+    "ema_cross": {
+        "label": "EMA cross trend-following",
+        "ideaArchetype": "trend_following",
+        "template": "EMACross.sqx",
+        "keywords": ("ema", "moving average", "media movil", "media móvil", "cross", "cruce", "trend"),
+        "rules": [
+            "Fast EMA crosses above slow EMA for long signal.",
+            "Fast EMA crosses below slow EMA for short signal.",
+        ],
+    },
+    "breakout": {
+        "label": "Breakout",
+        "ideaArchetype": "breakout",
+        "template": "breakout.sqx",
+        "keywords": ("breakout", "break out", "rompimiento", "ruptura", "highest", "maximo", "máximo"),
+        "rules": [
+            "Enter when price breaks a prior range or high.",
+            "Keep execution review manual before using the strategy in SQX.",
+        ],
+    },
+    "range_breakout": {
+        "label": "Range breakout",
+        "ideaArchetype": "breakout",
+        "template": "RangeBreakout.sqx",
+        "keywords": ("range breakout", "rango", "inside range", "range break"),
+        "rules": [
+            "Define a recent range.",
+            "Enter when price breaks the range boundary.",
+        ],
+    },
+    "mean_reversion": {
+        "label": "Mean reversion",
+        "ideaArchetype": "mean_reversion",
+        "template": "mean_reversion.sqx",
+        "keywords": ("mean reversion", "reversion", "reversión", "reversion a la media", "buy dips", "dip"),
+        "rules": [
+            "Look for temporary extension away from mean.",
+            "Return-to-mean logic remains a draft for manual AlgoWizard review.",
+        ],
+    },
+}
+
+SUPPORTED_ASSETS = {"EURUSD", "USDJPY", "AUDCAD", "GBPUSD", "US500", "XAUUSD"}
+SUPPORTED_TIMEFRAMES = {"M15", "M30", "H1", "H4", "D1"}
+
+
+@dataclass(frozen=True)
+class AiWizardProviderConfig:
+    provider_id: str
+    ollama_model: str
+    openai_enabled: bool
+    openai_model: str
+
+
+def _privacy() -> dict[str, bool]:
+    return {
+        "local_paths_returned": False,
+        "raw_prompt_persisted": False,
+        "raw_response_persisted": False,
+        "external_api_called": False,
+        "license_material_returned": False,
+        "tokens_returned": False,
+        "raw_xml_returned": False,
+        "raw_template_names_returned": False,
+        "raw_capability_labels_returned": False,
+        "session_token_returned": False,
+        "sqx_runtime_started": False,
+        "sqx_data_db_written": False,
+        "sqx_user_projects_written": False,
+    }
+
+
+def _base_response(
+    data: dict[str, Any] | None = None,
+    *,
+    ok: bool = True,
+    error: str = "",
+    blockers: list[str] | None = None,
+    warnings: list[str] | None = None,
+) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "ok": ok,
+        "version": AI_WIZARD_VERSION,
+        "scope": "local_operator_only",
+        "mode": "guided_strategy_draft",
+        "data": data or {},
+        "blockers": blockers or [],
+        "warnings": warnings or [],
+        "privacy": _privacy(),
+    }
+    if error:
+        payload["error"] = error
+    return payload
+
+
+def _clean_text(value: Any, limit: int = 1200) -> str:
+    text = str(value or "").strip()
+    text = re.sub(r"\s+", " ", text)
+    return text[:limit]
+
+
+def _contains_private_or_path_text(prompt: str) -> bool:
+    lowered = prompt.casefold()
+    if re.search(r"[A-Za-z]:\\|/users/|\\users\\|token=|password=|apikey|api_key|secret", prompt, re.IGNORECASE):
+        return True
+    if any(word in lowered for word in ("license", "licencia", "bypass", "crack", "activation", "activacion", "activación")):
+        return True
+    return False
+
+
+def _provider_config() -> AiWizardProviderConfig:
+    openai_enabled = str(os.environ.get("SQX_AI_WIZARD_OPENAI_ENABLED", "")).strip().casefold() in {"1", "true", "yes", "on"}
+    configured_provider = str(os.environ.get("SQX_AI_WIZARD_PROVIDER", "ollama")).strip().casefold()
+    provider_id = "openai" if configured_provider == "openai" and openai_enabled else "ollama"
+    return AiWizardProviderConfig(
+        provider_id=provider_id,
+        ollama_model=str(os.environ.get("SQX_AI_WIZARD_OLLAMA_MODEL", "qwen3.5:latest")).strip() or "qwen3.5:latest",
+        openai_enabled=openai_enabled,
+        openai_model=str(os.environ.get("SQX_AI_WIZARD_OPENAI_MODEL", "gpt-4.1-mini")).strip() or "gpt-4.1-mini",
+    )
+
+
+def _hash_id(prefix: str, value: str) -> str:
+    digest = hashlib.sha256(value.encode("utf-8", errors="replace")).hexdigest()[:16]
+    return f"{prefix}_{digest}"
+
+
+def _resolve_sqx142_root(project_root: Path | None = None, sqx142_root: Path | None = None) -> Path:
+    if sqx142_root:
+        return Path(sqx142_root)
+    env_root = os.environ.get("SQX142_ROOT")
+    if env_root:
+        return Path(env_root)
+    if project_root:
+        config_path = Path(project_root) / "backend" / "sqx-edge-tool" / "config.json"
+        if config_path.is_file():
+            try:
+                import json
+
+                config = json.loads(config_path.read_text(encoding="utf-8"))
+                if config.get("sqx_path"):
+                    return Path(str(config["sqx_path"]))
+            except (OSError, ValueError, TypeError):
+                pass
+    return Path(SQX142_DEFAULT_ROOT)
+
+
+def _template_root(sqx142_root: Path | None = None, project_root: Path | None = None) -> Path:
+    return _resolve_sqx142_root(project_root, sqx142_root) / "internal" / "web" / "AlgoWizard" / "examples"
+
+
+def _template_path(archetype: str, sqx142_root: Path | None = None, project_root: Path | None = None) -> Path:
+    template = SUPPORTED_ARCHETYPES[archetype]["template"]
+    return _template_root(sqx142_root, project_root) / template
+
+
+def _output_root(project_root: Path, output_dir: Path | None = None) -> Path:
+    return Path(output_dir or (Path(project_root) / "output" / DEFAULT_OUTPUT_DIRNAME))
+
+
+def _safe_file_stem(value: str) -> str:
+    cleaned = re.sub(r"[^A-Za-z0-9._-]+", "_", value.strip())[:80].strip("._-")
+    return cleaned or "SQX_Edge_AI_Draft"
+
+
+def _detect_asset(prompt: str) -> str:
+    upper = prompt.upper()
+    for asset in SUPPORTED_ASSETS:
+        if asset in upper:
+            return asset
+    return "EURUSD"
+
+
+def _detect_timeframe(prompt: str) -> str:
+    upper = prompt.upper()
+    for timeframe in sorted(SUPPORTED_TIMEFRAMES, key=len, reverse=True):
+        if re.search(rf"\b{re.escape(timeframe)}\b", upper):
+            return timeframe
+    return "H1"
+
+
+def _detect_direction(prompt: str) -> str:
+    lowered = prompt.casefold()
+    if any(token in lowered for token in ("long only", "solo long", "only long", "compras only")):
+        return "long_only"
+    if any(token in lowered for token in ("short only", "solo short", "only short", "ventas only")):
+            return "short_only"
+    return "both"
+
+
+def _detect_archetype(prompt: str) -> str:
+    lowered = prompt.casefold()
+    if "range breakout" in lowered or "rango" in lowered:
+        return "range_breakout"
+    scores: dict[str, int] = {}
+    for archetype, meta in SUPPORTED_ARCHETYPES.items():
+        scores[archetype] = sum(1 for keyword in meta["keywords"] if keyword in lowered)
+    best = max(scores, key=lambda key: scores[key])
+    return best if scores[best] > 0 else ""
+
+
+def _strategy_name(asset: str, timeframe: str, archetype: str) -> str:
+    label = SUPPORTED_ARCHETYPES[archetype]["label"].replace(" ", "_").replace("-", "_")
+    return _safe_file_stem(f"SQXEdgeAI_{asset}_{timeframe}_{label}")
+
+
+def _strategy_builder_package(spec: dict[str, Any]) -> dict[str, Any]:
+    archetype = spec["archetype"]
+    return {
+        "type": PACKAGE_TYPE,
+        "version": AI_WIZARD_VERSION,
+        "workflow_state": "package_exportable",
+        "source_mode": "ai_wizard_prompt",
+        "asset_profile": {
+            "asset": spec["asset"],
+            "timeframe": spec["timeframe"],
+            "direction": spec["direction"],
+        },
+        "idea_archetype": {
+            "id": SUPPORTED_ARCHETYPES[archetype]["ideaArchetype"],
+            "source": "ai_wizard",
+        },
+        "project_generator_handoff": {
+            "auto_run_bulk_generation": False,
+            "manual_review_required": True,
+        },
+        "algo_wizard_draft": {
+            "supported": True,
+            "templateClass": archetype,
+            "templateFileRef": _hash_id("aw_template", SUPPORTED_ARCHETYPES[archetype]["template"]),
+        },
+        "guardrails": [
+            "no_generation_triggered",
+            "no_sqx_runtime_launch",
+            "no_data_db_write",
+            "manual_algowizard_review_required",
+        ],
+    }
+
+
+def build_ai_wizard_spec(payload: dict[str, Any] | None = None) -> dict[str, Any]:
+    payload = payload or {}
+    prompt = _clean_text(payload.get("prompt") or payload.get("message") or payload.get("idea"))
+    if not prompt:
+        blocked = ["prompt_required"]
+        return _base_response(
+            {
+                "status": "blocked",
+                "spec": {"type": SPEC_TYPE, "status": "blocked", "blockers": blocked},
+                "nextStep": "Describe a simple supported strategy idea.",
+            },
+            ok=False,
+            error="prompt_required",
+            blockers=blocked,
+        )
+    if _contains_private_or_path_text(prompt):
+        blocked = ["private_or_forbidden_text_detected"]
+        return _base_response(
+            {
+                "status": "blocked",
+                "spec": {"type": SPEC_TYPE, "status": "blocked", "blockers": blocked},
+                "nextStep": "Remove paths, sensitive values, license terms or bypass language from the request.",
+            },
+            ok=False,
+            error="prompt_not_public_safe",
+            blockers=blocked,
+        )
+    archetype = _detect_archetype(prompt)
+    if not archetype:
+        blocked = ["blocked_unsupported_rule"]
+        return _base_response(
+            {
+                "status": "blocked",
+                "spec": {
+                    "type": SPEC_TYPE,
+                    "status": "blocked",
+                    "blockers": blocked,
+                    "supportedArchetypes": list(SUPPORTED_ARCHETYPES),
+                },
+                "nextStep": "Use EMA cross, breakout, range breakout or mean reversion for v1.",
+            },
+            ok=False,
+            error="blocked_unsupported_rule",
+            blockers=blocked,
+        )
+    asset = _detect_asset(prompt)
+    timeframe = _detect_timeframe(prompt)
+    direction = _detect_direction(prompt)
+    name = _strategy_name(asset, timeframe, archetype)
+    spec = {
+        "type": SPEC_TYPE,
+        "version": AI_WIZARD_VERSION,
+        "status": "ready",
+        "ideaFingerprint": _hash_id("idea", prompt),
+        "asset": asset,
+        "timeframe": timeframe,
+        "direction": direction,
+        "archetype": archetype,
+        "label": SUPPORTED_ARCHETYPES[archetype]["label"],
+        "strategyName": name,
+        "rules": SUPPORTED_ARCHETYPES[archetype]["rules"],
+        "risk": {
+            "slTpMentioned": bool(re.search(r"\b(sl|stop loss|tp|take profit)\b", prompt, re.IGNORECASE)),
+            "manualReviewRequired": True,
+        },
+    }
+    package = _strategy_builder_package(spec)
+    return _base_response({
+        "status": "ready",
+        "spec": spec,
+        "strategyBuilderPackage": package,
+        "nextStep": "Generate draft .sqx and review it manually inside AlgoWizard.",
+    })
+
+
+def probe_algowizard_templates(sqx142_root: Path | None = None, project_root: Path | None = None) -> dict[str, Any]:
+    items: list[dict[str, Any]] = []
+    blockers: list[str] = []
+    for archetype, meta in SUPPORTED_ARCHETYPES.items():
+        path = _template_path(archetype, sqx142_root, project_root)
+        exists = path.is_file()
+        is_zip = exists and zipfile.is_zipfile(path)
+        has_xml = False
+        entry_count = 0
+        if is_zip:
+            try:
+                with zipfile.ZipFile(path, "r") as archive:
+                    names = set(archive.namelist())
+                    has_xml = XML_ENTRY in names
+                    entry_count = len(names)
+            except (OSError, zipfile.BadZipFile):
+                is_zip = False
+        if not (exists and is_zip and has_xml):
+            blockers.append(f"{archetype}_template_unavailable")
+        items.append({
+            "archetype": archetype,
+            "templateRef": _hash_id("aw_template", str(meta["template"])),
+            "exists": exists,
+            "isZip": bool(is_zip),
+            "hasStrategyPortfolioXml": bool(has_xml),
+            "entryCount": entry_count,
+        })
+    return _base_response({
+        "templates": items,
+        "allReady": not blockers,
+        "xmlEntry": XML_ENTRY,
+    }, ok=not blockers, blockers=blockers, error="template_probe_failed" if blockers else "")
+
+
+def _patch_strategy_xml(xml_bytes: bytes, spec: dict[str, Any]) -> bytes:
+    root = ET.fromstring(xml_bytes)
+    name = str(spec.get("strategyName") or "SQXEdgeAI_Draft")
+    options = root.find("options")
+    if options is not None:
+        strategy_name = options.find("StrategyName")
+        if strategy_name is not None:
+            strategy_name.text = name
+        date = options.find("Date")
+        if date is not None:
+            date.text = datetime.now().strftime("%m/%d/%Y %H:%M")
+    strategy = root.find("Strategy")
+    if strategy is not None:
+        strategy.set("name", f"{name}.sqx")
+        description = strategy.find("Description")
+        if description is not None:
+            description.text = (
+                "SQX Edge AI Wizard draft. "
+                f"Asset={spec.get('asset')}; timeframe={spec.get('timeframe')}; "
+                f"direction={spec.get('direction')}; archetype={spec.get('archetype')}. "
+                "Review manually in AlgoWizard before any SQX validation."
+            )
+    ET.indent(root, space="  ")
+    return b'<?xml version="1.0" encoding="UTF-8"?>\n' + ET.tostring(root, encoding="utf-8")
+
+
+def generate_draft_sqx(
+    payload: dict[str, Any] | None,
+    *,
+    project_root: Path,
+    sqx142_root: Path | None = None,
+    output_dir: Path | None = None,
+) -> dict[str, Any]:
+    plan = build_ai_wizard_spec(payload)
+    if not plan.get("ok"):
+        return plan
+    spec = plan["data"]["spec"]
+    probe = probe_algowizard_templates(sqx142_root, project_root)
+    if not probe.get("ok"):
+        return _base_response(
+            {
+                "status": "blocked",
+                "spec": spec,
+                "probe": probe["data"],
+                "nextStep": "Repair or verify AlgoWizard example templates before generating drafts.",
+            },
+            ok=False,
+            error="template_probe_failed",
+            blockers=probe.get("blockers", []),
+        )
+    template = _template_path(spec["archetype"], sqx142_root, project_root)
+    output_root = _output_root(project_root, output_dir)
+    output_root.mkdir(parents=True, exist_ok=True)
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+    file_name = f"{_safe_file_stem(spec['strategyName'])}_{timestamp}.sqx"
+    target = (output_root / file_name).resolve()
+    try:
+        target.relative_to(output_root.resolve())
+    except ValueError:
+        return _base_response(ok=False, error="output_path_invalid", blockers=["output_path_invalid"])
+    try:
+        with zipfile.ZipFile(template, "r") as source:
+            xml_bytes = source.read(XML_ENTRY)
+            patched_xml = _patch_strategy_xml(xml_bytes, spec)
+            with zipfile.ZipFile(target, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+                archive.writestr("META-INF/MANIFEST.MF", source.read("META-INF/MANIFEST.MF") if "META-INF/MANIFEST.MF" in source.namelist() else b"Manifest-Version: 1.0\n")
+                archive.writestr(XML_ENTRY, patched_xml)
+        valid = zipfile.is_zipfile(target)
+    except (OSError, KeyError, zipfile.BadZipFile, ET.ParseError) as exc:
+        return _base_response(ok=False, error=type(exc).__name__, blockers=["draft_generation_failed"])
+    return _base_response({
+        "status": "draft_ready" if valid else "blocked",
+        "spec": spec,
+        "strategyBuilderPackage": plan["data"]["strategyBuilderPackage"],
+        "draft": {
+            "fileName": file_name,
+            "fileId": _hash_id("draft", file_name),
+            "downloadUrl": f"/api/sqx142/ai-wizard/draft-sqx/download/{file_name}",
+            "isZip": bool(valid),
+            "xmlEntry": XML_ENTRY,
+            "manualReviewRequired": True,
+        },
+        "guardrails": [
+            "written_to_sqx_edge_output_only",
+            "no_sqx_user_projects_write",
+            "no_data_db_write",
+            "no_runtime_launch",
+        ],
+    }, ok=bool(valid), error="" if valid else "draft_zip_invalid")
+
+
+def build_ai_wizard_status(project_root: Path, sqx142_root: Path | None = None) -> dict[str, Any]:
+    provider = _provider_config()
+    probe = probe_algowizard_templates(sqx142_root, project_root)
+    output_root = _output_root(project_root)
+    draft_count = 0
+    if output_root.is_dir():
+        draft_count = len([path for path in output_root.glob("*.sqx") if path.is_file()])
+    return _base_response({
+        "provider": {
+            "id": provider.provider_id,
+            "ollama": {"default": provider.provider_id == "ollama", "model": provider.ollama_model},
+            "openai": {
+                "enabled": provider.openai_enabled,
+                "configured": bool(os.environ.get("OPENAI_API_KEY")),
+                "model": provider.openai_model if provider.openai_enabled else "",
+            },
+        },
+        "readiness": {
+            "templatesReady": bool(probe.get("ok")),
+            "draftOutputReady": True,
+            "supportedArchetypes": list(SUPPORTED_ARCHETYPES),
+            "draftCount": draft_count,
+        },
+        "probe": probe["data"],
+        "limits": [
+            "local_operator_only",
+            "manual_algowizard_review_required",
+            "no_sqx_runtime_launch",
+            "no_data_db_write",
+            "no_144_internals",
+        ],
+    }, ok=bool(probe.get("ok")), blockers=probe.get("blockers", []), error=probe.get("error", ""))
+
+
+def resolve_draft_download(project_root: Path, file_name: str, output_dir: Path | None = None) -> Path | None:
+    raw = str(file_name or "")
+    safe = Path(raw).name
+    if raw != safe:
+        return None
+    if not safe.endswith(".sqx"):
+        return None
+    output_root = _output_root(project_root, output_dir).resolve()
+    candidate = (output_root / safe).resolve()
+    try:
+        candidate.relative_to(output_root)
+    except ValueError:
+        return None
+    return candidate if candidate.is_file() else None
+
+
+def _base_response_v2(
+    data: dict[str, Any] | None = None,
+    *,
+    ok: bool = True,
+    error: str = "",
+    blockers: list[str] | None = None,
+    warnings: list[str] | None = None,
+) -> dict[str, Any]:
+    payload = _base_response(data, ok=ok, error=error, blockers=blockers, warnings=warnings)
+    payload["version"] = AI_WIZARD_AI2_VERSION
+    payload["mode"] = "algo_wizard_ai_studio"
+    return payload
+
+
+def _now_iso() -> str:
+    return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+
+
+def _safe_id(prefix: str) -> str:
+    return f"{prefix}_{uuid4().hex[:16]}"
+
+
+def _ai2_db_path(project_root: Path, db_path: Path | None = None) -> Path:
+    path = Path(db_path or (Path(project_root) / SESSION_DB_RELATIVE))
+    if not path.is_absolute():
+        path = Path(project_root) / path
+    path = path.resolve()
+    local_root = (Path(project_root) / ".local").resolve()
+    try:
+        path.relative_to(local_root)
+    except ValueError as exc:
+        raise ValueError("ai_wizard_db_outside_local_root") from exc
+    return path
+
+
+def _connect_ai2_db(project_root: Path, db_path: Path | None = None) -> sqlite3.Connection:
+    path = _ai2_db_path(project_root, db_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    con = sqlite3.connect(path)
+    con.row_factory = sqlite3.Row
+    con.executescript(
+        """
+        CREATE TABLE IF NOT EXISTS sessions (
+            session_id TEXT PRIMARY KEY,
+            title TEXT NOT NULL,
+            status TEXT NOT NULL,
+            created_at TEXT NOT NULL,
+            updated_at TEXT NOT NULL,
+            prompt_hash TEXT NOT NULL DEFAULT '',
+            prompt_summary TEXT NOT NULL DEFAULT '',
+            ast_json TEXT NOT NULL DEFAULT '{}',
+            validation_json TEXT NOT NULL DEFAULT '{}'
+        );
+        CREATE TABLE IF NOT EXISTS interactions (
+            interaction_id TEXT PRIMARY KEY,
+            session_id TEXT NOT NULL,
+            role TEXT NOT NULL,
+            prompt_hash TEXT NOT NULL DEFAULT '',
+            summary TEXT NOT NULL DEFAULT '',
+            created_at TEXT NOT NULL,
+            FOREIGN KEY(session_id) REFERENCES sessions(session_id)
+        );
+        CREATE TABLE IF NOT EXISTS spec_revisions (
+            revision_id TEXT PRIMARY KEY,
+            session_id TEXT NOT NULL,
+            ast_json TEXT NOT NULL,
+            validation_json TEXT NOT NULL,
+            created_at TEXT NOT NULL,
+            FOREIGN KEY(session_id) REFERENCES sessions(session_id)
+        );
+        CREATE TABLE IF NOT EXISTS drafts (
+            draft_id TEXT PRIMARY KEY,
+            session_id TEXT NOT NULL,
+            file_name TEXT NOT NULL,
+            file_hash TEXT NOT NULL,
+            ast_json TEXT NOT NULL,
+            created_at TEXT NOT NULL,
+            FOREIGN KEY(session_id) REFERENCES sessions(session_id)
+        );
+        CREATE TABLE IF NOT EXISTS audit_events (
+            audit_id TEXT PRIMARY KEY,
+            session_id TEXT NOT NULL DEFAULT '',
+            event_type TEXT NOT NULL,
+            details_json TEXT NOT NULL DEFAULT '{}',
+            created_at TEXT NOT NULL
+        );
+        CREATE TABLE IF NOT EXISTS catalog_snapshots (
+            catalog_id TEXT PRIMARY KEY,
+            source_hash TEXT NOT NULL,
+            payload_json TEXT NOT NULL,
+            created_at TEXT NOT NULL
+        );
+        """
+    )
+    return con
+
+
+def _json_dump(value: Any) -> str:
+    return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+
+
+def _json_load(value: str | None, fallback: Any) -> Any:
+    try:
+        return json.loads(value or "")
+    except (TypeError, ValueError):
+        return fallback
+
+
+def _redacted_prompt_summary(prompt: str) -> str:
+    text = _clean_text(prompt, limit=220)
+    asset = _detect_asset(text)
+    timeframe = _detect_timeframe(text)
+    blocks = _detect_ai2_blocks(text)[:5]
+    archetype = _detect_archetype(text) or "custom_aw"
+    parts = [" + ".join(blocks), archetype, asset, timeframe]
+    return " | ".join(part for part in parts if part)[:180]
+
+
+def _source_ref(value: str) -> str:
+    return _hash_id("src", value)
+
+
+def _parse_xml_safely(text: str, wrapper: str | None = None) -> ET.Element | None:
+    try:
+        return ET.fromstring(text)
+    except ET.ParseError:
+        if not wrapper:
+            return None
+    try:
+        return ET.fromstring(f"<{wrapper}>{text}</{wrapper}>")
+    except ET.ParseError:
+        return None
+
+
+def _read_text_if_safe(path: Path, max_chars: int = 2_000_000) -> tuple[str, str]:
+    try:
+        data = path.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return "", ""
+    if len(data) > max_chars:
+        data = data[:max_chars]
+    return data, hashlib.sha256(data.encode("utf-8", errors="replace")).hexdigest()[:16]
+
+
+def _parse_values(values: str | None) -> list[dict[str, str]]:
+    parsed: list[dict[str, str]] = []
+    for raw in str(values or "").split(","):
+        part = raw.strip()
+        if not part:
+            continue
+        if "=" in part:
+            label, value = part.split("=", 1)
+            parsed.append({"label": label.strip()[:80], "value": value.strip()[:80]})
+        else:
+            parsed.append({"label": part[:80], "value": part[:80]})
+    return parsed[:80]
+
+
+def _param_payload(node: ET.Element) -> dict[str, Any]:
+    return {
+        "key": str(node.get("key") or "")[:80],
+        "name": str(node.get("name") or "")[:120],
+        "type": str(node.get("type") or "")[:40],
+        "controlType": str(node.get("controlType") or "")[:60],
+        "defaultValue": str(node.get("defaultValue") or "")[:120],
+        "minValue": str(node.get("minValue") or "")[:40],
+        "maxValue": str(node.get("maxValue") or "")[:40],
+        "step": str(node.get("step") or "")[:40],
+        "values": _parse_values(node.get("values")),
+    }
+
+
+def _collect_parameter_sets(sqx142_root: Path, warnings: list[str]) -> dict[str, Any]:
+    rel = Path("internal") / "ctemplate" / "parameterSets.xml"
+    path = sqx142_root / rel
+    text, digest = _read_text_if_safe(path)
+    root = _parse_xml_safely(text, "parameterSets") if text else None
+    sets: list[dict[str, Any]] = []
+    if root is None:
+        warnings.append("parameter_sets_unavailable")
+    else:
+        for set_node in root.findall("set"):
+            params: list[dict[str, Any]] = []
+            for param in set_node.findall(".//param"):
+                params.append(_param_payload(param))
+            sets.append({
+                "id": str(set_node.get("name") or "")[:100],
+                "paramCount": len(params),
+                "params": params[:40],
+            })
+    return {
+        "sourceRef": _source_ref(str(rel).replace("\\", "/")),
+        "sourceHash": digest,
+        "count": len(sets),
+        "paramCount": sum(int(item.get("paramCount") or 0) for item in sets),
+        "items": sets[:160],
+    }
+
+
+def _collect_conditions(sqx142_root: Path, warnings: list[str]) -> dict[str, Any]:
+    rel = Path("internal") / "ctemplate" / "conditions.xml"
+    path = sqx142_root / rel
+    text, digest = _read_text_if_safe(path)
+    root = _parse_xml_safely(text) if text else None
+    categories: list[dict[str, Any]] = []
+    items: list[dict[str, Any]] = []
+    if root is None:
+        warnings.append("conditions_unavailable")
+    else:
+        for cat in root.findall("category"):
+            cat_name = str(cat.get("name") or "")[:120]
+            cat_items = [node for node in cat.findall("item") if node.get("key")]
+            categories.append({
+                "name": cat_name,
+                "key": str(cat.get("key") or "")[:80],
+                "customIndicatorCategory": str(cat.get("ci") or "").lower() == "true",
+                "itemCount": len(cat_items),
+            })
+            for node in cat_items:
+                items.append({
+                    "id": str(node.get("key") or "")[:100],
+                    "name": str(node.get("name") or "")[:140],
+                    "category": cat_name,
+                    "returnType": str(node.get("returnType") or "")[:40],
+                    "parameterSet": str(node.get("parameterSet") or "")[:100],
+                    "displayTemplate": str(node.get("display") or "")[:220],
+                    "engine": str(node.get("inEngine") or "")[:80],
+                    "source": "conditions.xml",
+                })
+    return {
+        "sourceRef": _source_ref(str(rel).replace("\\", "/")),
+        "sourceHash": digest,
+        "categories": categories,
+        "items": items,
+        "count": len(items),
+    }
+
+
+def _collect_wizard(sqx142_root: Path, warnings: list[str]) -> dict[str, Any]:
+    rel = Path("internal") / "ctemplate" / "wizard.xml"
+    path = sqx142_root / rel
+    text, digest = _read_text_if_safe(path)
+    root = _parse_xml_safely(text) if text else None
+    steps: list[dict[str, Any]] = []
+    blocks: dict[str, dict[str, Any]] = {}
+    comparisons: dict[str, dict[str, Any]] = {}
+    if root is None:
+        warnings.append("wizard_xml_unavailable")
+    else:
+        for step in root.findall("./Steps/Step"):
+            step_id = str(step.get("type") or step.get("caption") or "")[:80]
+            block_items = []
+            comparison_items = []
+            for node in step.findall("./Blocks/Item"):
+                key = str(node.get("key") or "")[:100]
+                if not key:
+                    continue
+                payload = {
+                    "id": key,
+                    "displayTemplate": str(node.get("display") or "")[:220],
+                    "returnType": str(node.get("returnType") or "price")[:40],
+                    "source": "wizard.xml",
+                }
+                blocks[key] = payload
+                block_items.append(key)
+            for node in step.findall("./Comparisons/Item"):
+                key = str(node.get("key") or "")[:100]
+                if not key:
+                    continue
+                payload = {
+                    "id": key,
+                    "displayTemplate": str(node.get("display") or "")[:220],
+                    "returnType": str(node.get("returnType") or "boolean")[:40],
+                    "source": "wizard.xml",
+                }
+                comparisons[key] = payload
+                comparison_items.append(key)
+            steps.append({
+                "caption": str(step.get("caption") or "")[:120],
+                "type": step_id,
+                "blockCount": len(block_items),
+                "comparisonCount": len(comparison_items),
+                "blocks": block_items[:60],
+                "comparisons": comparison_items[:40],
+            })
+    return {
+        "sourceRef": _source_ref(str(rel).replace("\\", "/")),
+        "sourceHash": digest,
+        "steps": steps,
+        "blocks": sorted(blocks.values(), key=lambda item: item["id"]),
+        "comparisons": sorted(comparisons.values(), key=lambda item: item["id"]),
+        "blockCount": len(blocks),
+        "comparisonCount": len(comparisons),
+    }
+
+
+def _collect_examples(sqx142_root: Path, warnings: list[str]) -> dict[str, Any]:
+    root = sqx142_root / "internal" / "web" / "AlgoWizard" / "examples"
+    items: list[dict[str, Any]] = []
+    if not root.is_dir():
+        warnings.append("algowizard_examples_unavailable")
+    else:
+        for path in sorted(root.glob("*.sqx")):
+            entry_count = 0
+            has_xml = False
+            is_zip = zipfile.is_zipfile(path)
+            if is_zip:
+                try:
+                    with zipfile.ZipFile(path, "r") as archive:
+                        names = archive.namelist()
+                        entry_count = len(names)
+                        has_xml = XML_ENTRY in names
+                except (OSError, zipfile.BadZipFile):
+                    is_zip = False
+            items.append({
+                "exampleRef": _hash_id("aw_example", path.name),
+                "isZip": bool(is_zip),
+                "hasStrategyPortfolioXml": bool(has_xml),
+                "entryCount": entry_count,
+                "sizeClass": "large" if path.stat().st_size > 1_000_000 else "small",
+            })
+    return {"count": len(items), "items": items[:80]}
+
+
+def _collect_snippet_families(sqx142_root: Path) -> dict[str, Any]:
+    code_root = sqx142_root / "internal" / "extend" / "Code"
+    families: list[dict[str, Any]] = []
+    if code_root.is_dir():
+        for family in sorted([item for item in code_root.iterdir() if item.is_dir()]):
+            blocks_dir = family / "blocks"
+            files = list(blocks_dir.glob("*")) if blocks_dir.is_dir() else []
+            ids = sorted({path.stem for path in files if path.is_file()})[:120]
+            families.append({
+                "family": family.name[:80],
+                "blockCount": len([path for path in files if path.is_file()]),
+                "sampleIds": ids[:20],
+                "sampleHash": hashlib.sha256(",".join(ids).encode("utf-8", errors="replace")).hexdigest()[:16],
+            })
+    return {"familyCount": len(families), "families": families[:40]}
+
+
+def _collect_custom_indicators(sqx142_root: Path) -> dict[str, Any]:
+    root = sqx142_root / "custom_indicators"
+    by_platform: dict[str, int] = {}
+    sample_ids: list[str] = []
+    if root.is_dir():
+        for path in root.rglob("*"):
+            if not path.is_file():
+                continue
+            if path.suffix.lower() not in {".mq4", ".mq5", ".java", ".jfx", ".txt"}:
+                continue
+            rel_parts = path.relative_to(root).parts
+            platform = rel_parts[0] if rel_parts else "unknown"
+            by_platform[platform] = by_platform.get(platform, 0) + 1
+            if len(sample_ids) < 40:
+                sample_ids.append(path.stem[:80])
+    return {
+        "count": sum(by_platform.values()),
+        "platforms": [{"platform": key, "count": by_platform[key]} for key in sorted(by_platform)],
+        "sampleIds": sorted(set(sample_ids))[:40],
+    }
+
+
+def _collect_blocksettings(project_root: Path) -> dict[str, Any]:
+    manifest = Path(project_root) / "backend" / "sqx-edge-tool" / "config" / "blocksettings_manifest.json"
+    resources = Path(project_root) / "backend" / "sqx-edge-tool" / "resources" / "blocksettings"
+    items: list[dict[str, Any]] = []
+    if manifest.is_file():
+        try:
+            payload = json.loads(manifest.read_text(encoding="utf-8"))
+            raw_items = payload.get("entries") or payload.get("items") or payload.get("blocksettings") or []
+            if isinstance(raw_items, list):
+                for item in raw_items[:120]:
+                    if isinstance(item, dict):
+                        name = str(item.get("id") or item.get("name") or item.get("file") or "")[:120]
+                        if name:
+                            items.append({"id": _hash_id("bs", name), "name": name})
+        except (OSError, ValueError, TypeError):
+            items = []
+    if not items and resources.is_dir():
+        for path in sorted(resources.glob("*.sqb")):
+            items.append({"id": _hash_id("bs", path.name), "name": path.name[:120]})
+    return {"count": len(items), "items": items[:120]}
+
+
+def build_ai_wizard_capability_catalog(
+    project_root: Path,
+    sqx142_root: Path | None = None,
+    *,
+    persist: bool = False,
+    db_path: Path | None = None,
+) -> dict[str, Any]:
+    warnings: list[str] = []
+    root = _resolve_sqx142_root(project_root, sqx142_root)
+    hot_safe = {
+        "sqxProcessState": "may_be_open",
+        "userDataPolicy": "pending_stable_snapshot",
+        "userProjectsPolicy": "pending_stable_snapshot",
+        "writesToSqxRoot": False,
+    }
+    parameter_sets = _collect_parameter_sets(root, warnings)
+    conditions = _collect_conditions(root, warnings)
+    wizard = _collect_wizard(root, warnings)
+    examples = _collect_examples(root, warnings)
+    snippets = _collect_snippet_families(root)
+    custom_indicators = _collect_custom_indicators(root)
+    blocksettings = _collect_blocksettings(project_root)
+    source_hash = hashlib.sha256(_json_dump({
+        "parameterSets": parameter_sets.get("sourceHash"),
+        "conditions": conditions.get("sourceHash"),
+        "wizard": wizard.get("sourceHash"),
+        "examples": examples.get("count"),
+        "snippets": snippets.get("familyCount"),
+        "customIndicators": custom_indicators.get("count"),
+        "blockSettings": blocksettings.get("count"),
+    }).encode("utf-8", errors="replace")).hexdigest()[:16]
+    catalog = {
+        "type": CATALOG_TYPE,
+        "version": AI_WIZARD_AI2_VERSION,
+        "catalogId": _hash_id("catalog", source_hash),
+        "sourceHash": source_hash,
+        "generatedAt": _now_iso(),
+        "scope": "algowizard_only",
+        "accessPolicy": "read_only_allowlist_sanitized",
+        "hotSafe": hot_safe,
+        "counts": {
+            "conditionItems": conditions.get("count", 0),
+            "wizardBlocks": wizard.get("blockCount", 0),
+            "wizardComparisons": wizard.get("comparisonCount", 0),
+            "parameterSets": parameter_sets.get("count", 0),
+            "parameterCount": parameter_sets.get("paramCount", 0),
+            "examples": examples.get("count", 0),
+            "snippetFamilies": snippets.get("familyCount", 0),
+            "customIndicators": custom_indicators.get("count", 0),
+            "blockSettings": blocksettings.get("count", 0),
+        },
+        "conditions": conditions,
+        "wizard": wizard,
+        "parameterSets": parameter_sets,
+        "examples": examples,
+        "snippetFamilies": snippets,
+        "customIndicators": custom_indicators,
+        "blockSettings": blocksettings,
+        "compilerSupport": {
+            "draftablePatterns": ["ema_cross"],
+            "blockedFallback": "blocked_not_draftable_yet",
+            "manualReviewRequired": True,
+        },
+    }
+    if persist:
+        with _connect_ai2_db(project_root, db_path) as con:
+            con.execute(
+                "INSERT OR REPLACE INTO catalog_snapshots(catalog_id, source_hash, payload_json, created_at) VALUES (?, ?, ?, ?)",
+                (catalog["catalogId"], source_hash, _json_dump(catalog), catalog["generatedAt"]),
+            )
+            con.execute(
+                "INSERT INTO audit_events(audit_id, event_type, details_json, created_at) VALUES (?, ?, ?, ?)",
+                (_safe_id("audit"), "catalog_refresh", _json_dump({"catalogId": catalog["catalogId"], "sourceHash": source_hash}), _now_iso()),
+            )
+    return _base_response_v2({"catalog": catalog}, warnings=warnings)
+
+
+def _catalog_key_sets(catalog: dict[str, Any]) -> dict[str, set[str]]:
+    data = catalog.get("data", {}).get("catalog", catalog)
+    wizard = data.get("wizard") if isinstance(data.get("wizard"), dict) else {}
+    conditions = data.get("conditions") if isinstance(data.get("conditions"), dict) else {}
+    return {
+        "blocks": {str(item.get("id")) for item in wizard.get("blocks", []) if isinstance(item, dict) and item.get("id")},
+        "comparisons": {str(item.get("id")) for item in wizard.get("comparisons", []) if isinstance(item, dict) and item.get("id")},
+        "conditions": {str(item.get("id")) for item in conditions.get("items", []) if isinstance(item, dict) and item.get("id")},
+    }
+
+
+def _value_node(kind: str, params: dict[str, Any] | None = None) -> dict[str, Any]:
+    return {"kind": "value", "blockId": kind, "params": params or {}}
+
+
+def _condition_node(comparison: str, left: dict[str, Any], right: dict[str, Any]) -> dict[str, Any]:
+    return {"kind": "comparison", "operatorId": comparison, "left": left, "right": right}
+
+
+def _default_risk(prompt: str) -> dict[str, Any]:
+    lowered = prompt.casefold()
+    sl = 50 if any(token in lowered for token in ("sl", "stop", "stop loss")) else 0
+    tp = 70 if any(token in lowered for token in ("tp", "take profit", "profit target")) else 0
+    return {
+        "stopLossPips": sl,
+        "takeProfitPips": tp,
+        "trailing": "none",
+        "moneyManagement": {"type": "FixedSize", "size": 0.1},
+        "manualReviewRequired": True,
+    }
+
+
+def _detect_ai2_blocks(prompt: str) -> list[str]:
+    lowered = prompt.casefold()
+    ordered = [
+        ("EMA", ("ema", "exponential moving average", "media exponencial")),
+        ("SMA", ("sma", "moving average", "media movil", "media móvil")),
+        ("RSI", ("rsi", "relative strength")),
+        ("BollingerBands", ("bollinger", "bbands", "bb ")),
+        ("Stochastic", ("stochastic", "estocastico", "estocástico")),
+        ("MACD", ("macd",)),
+        ("CCI", ("cci", "commodity channel")),
+        ("ADX", ("adx",)),
+    ]
+    blocks: list[str] = []
+    for block_id, tokens in ordered:
+        if any(token in lowered for token in tokens):
+            blocks.append(block_id)
+    if not blocks and _detect_archetype(prompt) == "breakout":
+        blocks.extend(["High", "Low"])
+    return blocks or ["EMA"]
+
+
+def _ast_from_prompt(prompt: str, catalog: dict[str, Any]) -> dict[str, Any]:
+    asset = _detect_asset(prompt)
+    timeframe = _detect_timeframe(prompt)
+    direction = _detect_direction(prompt)
+    blocks = _detect_ai2_blocks(prompt)
+    conditions_long: list[dict[str, Any]] = []
+    conditions_short: list[dict[str, Any]] = []
+    if "EMA" in blocks and ("cross" in prompt.casefold() or "cruce" in prompt.casefold() or len(blocks) == 1):
+        fast = _value_node("EMA", {"Period": 14, "Shift": 1, "ComputedFrom": "Close"})
+        slow = _value_node("EMA", {"Period": 50, "Shift": 1, "ComputedFrom": "Close"})
+        conditions_long.append(_condition_node("CrossesAbove", fast, slow))
+        conditions_short.append(_condition_node("CrossesBelow", fast, slow))
+    if "RSI" in blocks:
+        rsi = _value_node("RSI", {"Period": 14, "Shift": 1})
+        conditions_long.append(_condition_node("IsLower", rsi, _value_node("Number", {"Number": 30})))
+        conditions_short.append(_condition_node("IsGreater", rsi, _value_node("Number", {"Number": 70})))
+    if "BollingerBands" in blocks:
+        close = _value_node("Close", {"Shift": 1})
+        lower = _value_node("BollingerBands", {"Period": 20, "Deviation": 2, "Line": "Lower", "Shift": 1})
+        upper = _value_node("BollingerBands", {"Period": 20, "Deviation": 2, "Line": "Upper", "Shift": 1})
+        conditions_long.append(_condition_node("IsLower", close, lower))
+        conditions_short.append(_condition_node("IsGreater", close, upper))
+    if "Stochastic" in blocks:
+        stoch = _value_node("Stochastic", {"KPeriod": 9, "DPeriod": 3, "Slowing": 3, "Mode": "SlowD", "Shift": 1})
+        conditions_long.append(_condition_node("IsLower", stoch, _value_node("Number", {"Number": 20})))
+        conditions_short.append(_condition_node("IsGreater", stoch, _value_node("Number", {"Number": 80})))
+    if "MACD" in blocks:
+        macd = _value_node("MACD", {"Fast": 12, "Slow": 26, "Smooth": 9, "Output": "Main", "Shift": 1})
+        zero = _value_node("Number", {"Number": 0})
+        conditions_long.append(_condition_node("CrossesAbove", macd, zero))
+        conditions_short.append(_condition_node("CrossesBelow", macd, zero))
+    if "CCI" in blocks:
+        cci = _value_node("CCI", {"Period": 14, "Shift": 1})
+        conditions_long.append(_condition_node("IsLower", cci, _value_node("Number", {"Number": -100})))
+        conditions_short.append(_condition_node("IsGreater", cci, _value_node("Number", {"Number": 100})))
+    if "ADX" in blocks:
+        adx = _value_node("ADX", {"Period": 14, "Shift": 1})
+        conditions_long.append(_condition_node("IsGreater", adx, _value_node("Number", {"Number": 20})))
+        conditions_short.append(_condition_node("IsGreater", adx, _value_node("Number", {"Number": 20})))
+    if "High" in blocks or "Low" in blocks:
+        close = _value_node("Close", {"Shift": 1})
+        conditions_long.append(_condition_node("IsGreater", close, _value_node("High", {"Shift": 2})))
+        conditions_short.append(_condition_node("IsLower", close, _value_node("Low", {"Shift": 2})))
+    return {
+        "type": AST_TYPE,
+        "version": AI_WIZARD_AI2_VERSION,
+        "status": "draftable_candidate",
+        "asset": asset,
+        "timeframe": timeframe,
+        "direction": direction,
+        "strategyName": _safe_file_stem(f"SQXEdgeAI2_{asset}_{timeframe}_{'_'.join(blocks[:4])}"),
+        "scope": "algowizard_only",
+        "rules": {
+            "longEntry": {"logic": "AND", "conditions": conditions_long},
+            "shortEntry": {"logic": "AND", "conditions": conditions_short if direction != "long_only" else []},
+            "longExit": {"logic": "manual_review", "conditions": []},
+            "shortExit": {"logic": "manual_review", "conditions": []},
+        },
+        "actions": {
+            "entry": {"orderType": "EnterAtMarket", "allowDuplicateTrades": False},
+            "risk": _default_risk(prompt),
+        },
+        "catalogRefs": {
+            "blockIds": blocks,
+            "comparisonIds": sorted({cond["operatorId"] for cond in conditions_long + conditions_short}),
+        },
+        "compiler": {
+            "draftable": len(set(blocks)) == 1 and blocks[0] == "EMA" and bool(conditions_long),
+            "templateClass": "ema_cross" if len(set(blocks)) == 1 and blocks[0] == "EMA" else "",
+        },
+    }
+
+
+def validate_ai_wizard_ast(ast: dict[str, Any], catalog: dict[str, Any]) -> dict[str, Any]:
+    blockers: list[str] = []
+    warnings: list[str] = []
+    keys = _catalog_key_sets(catalog)
+    if not isinstance(ast, dict) or ast.get("type") != AST_TYPE:
+        blockers.append("ast_type_invalid")
+    if ast.get("scope") != "algowizard_only":
+        blockers.append("scope_not_algowizard")
+    catalog_refs = ast.get("catalogRefs") if isinstance(ast.get("catalogRefs"), dict) else {}
+    for block_id in catalog_refs.get("blockIds", []):
+        if block_id not in keys["blocks"]:
+            blockers.append(f"unknown_block:{block_id}")
+    for comparison_id in catalog_refs.get("comparisonIds", []):
+        if comparison_id not in keys["comparisons"] and comparison_id not in keys["conditions"]:
+            blockers.append(f"unknown_comparison:{comparison_id}")
+    risk = ast.get("actions", {}).get("risk", {}) if isinstance(ast.get("actions"), dict) else {}
+    for key in ("stopLossPips", "takeProfitPips"):
+        value = risk.get(key, 0)
+        if not isinstance(value, (int, float)) or value < 0 or value > 100000:
+            blockers.append(f"risk_param_out_of_range:{key}")
+    compiler = ast.get("compiler", {}) if isinstance(ast.get("compiler"), dict) else {}
+    if not compiler.get("draftable"):
+        warnings.append("blocked_not_draftable_yet")
+    return {
+        "ok": not blockers,
+        "status": "valid" if not blockers else "blocked",
+        "blockers": blockers,
+        "warnings": warnings,
+        "manualReviewRequired": True,
+        "privacy": _privacy(),
+    }
+
+
+def build_ai_wizard_ast_from_prompt(
+    payload: dict[str, Any] | None,
+    *,
+    project_root: Path,
+    sqx142_root: Path | None = None,
+) -> dict[str, Any]:
+    payload = payload or {}
+    prompt = _clean_text(payload.get("prompt") or payload.get("message") or payload.get("idea"))
+    if not prompt:
+        return _base_response_v2(ok=False, error="prompt_required", blockers=["prompt_required"])
+    if _contains_private_or_path_text(prompt):
+        return _base_response_v2(ok=False, error="prompt_not_public_safe", blockers=["private_or_forbidden_text_detected"])
+    if any(term in prompt.casefold() for term in ("full editor", "custom java", "java snippet", "engine plugin")):
+        return _base_response_v2(ok=False, error="blocked_full_editor_scope", blockers=["blocked_full_editor_scope"])
+    catalog_report = build_ai_wizard_capability_catalog(project_root, sqx142_root)
+    catalog = catalog_report["data"]["catalog"]
+    ast = _ast_from_prompt(prompt, catalog)
+    validation = validate_ai_wizard_ast(ast, catalog)
+    return _base_response_v2({
+        "status": "ready" if validation["ok"] else "blocked",
+        "ast": ast,
+        "validation": validation,
+        "catalogSummary": catalog.get("counts", {}),
+        "nextStep": "Edit structured parameters or generate a draft if compiler support is available.",
+    }, ok=validation["ok"], blockers=validation["blockers"], warnings=validation["warnings"])
+
+
+def _session_public(row: sqlite3.Row) -> dict[str, Any]:
+    ast = _json_load(row["ast_json"], {})
+    validation = _json_load(row["validation_json"], {})
+    return {
+        "sessionId": row["session_id"],
+        "title": row["title"],
+        "status": row["status"],
+        "createdAt": row["created_at"],
+        "updatedAt": row["updated_at"],
+        "promptHash": row["prompt_hash"],
+        "promptSummary": row["prompt_summary"],
+        "ast": ast,
+        "validation": validation,
+    }
+
+
+def list_ai_wizard_sessions(project_root: Path, *, db_path: Path | None = None, limit: int = 20) -> dict[str, Any]:
+    with _connect_ai2_db(project_root, db_path) as con:
+        rows = con.execute(
+            "SELECT * FROM sessions ORDER BY updated_at DESC LIMIT ?",
+            (max(1, min(int(limit or 20), 100)),),
+        ).fetchall()
+    return _base_response_v2({"sessions": [_session_public(row) for row in rows], "storage": "local_sqlite_redacted"})
+
+
+def create_ai_wizard_session(project_root: Path, payload: dict[str, Any] | None = None, *, db_path: Path | None = None) -> dict[str, Any]:
+    payload = payload or {}
+    prompt = _clean_text(payload.get("prompt") or payload.get("message") or payload.get("idea"))
+    title_idea = _clean_text(payload.get("title") or "")
+    idea_text = prompt or title_idea
+    ast_report = build_ai_wizard_ast_from_prompt({"prompt": idea_text}, project_root=project_root)
+    if not ast_report.get("ok") and ast_report.get("error") in {"prompt_not_public_safe", "blocked_full_editor_scope"}:
+        return ast_report
+    ast = ast_report.get("data", {}).get("ast", {})
+    validation = ast_report.get("data", {}).get("validation", {"ok": False, "blockers": ["prompt_required"]})
+    session_id = _safe_id("aws")
+    now = _now_iso()
+    prompt_hash = _hash_id("prompt", prompt) if prompt else ""
+    summary = _redacted_prompt_summary(idea_text) if idea_text else ""
+    title = summary or "AI Wizard session"
+    with _connect_ai2_db(project_root, db_path) as con:
+        con.execute(
+            "INSERT INTO sessions(session_id, title, status, created_at, updated_at, prompt_hash, prompt_summary, ast_json, validation_json) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (session_id, title, "active", now, now, prompt_hash, summary, _json_dump(ast), _json_dump(validation)),
+        )
+        if prompt:
+            con.execute(
+                "INSERT INTO interactions(interaction_id, session_id, role, prompt_hash, summary, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+                (_safe_id("msg"), session_id, "operator", prompt_hash, summary, now),
+            )
+        con.execute(
+            "INSERT INTO spec_revisions(revision_id, session_id, ast_json, validation_json, created_at) VALUES (?, ?, ?, ?, ?)",
+            (_safe_id("rev"), session_id, _json_dump(ast), _json_dump(validation), now),
+        )
+        row = con.execute("SELECT * FROM sessions WHERE session_id = ?", (session_id,)).fetchone()
+    return _base_response_v2({"session": _session_public(row), "created": True}, ok=bool(ast_report.get("ok")), blockers=ast_report.get("blockers", []), warnings=ast_report.get("warnings", []), error=ast_report.get("error", ""))
+
+
+def get_ai_wizard_session(project_root: Path, session_id: str, *, db_path: Path | None = None) -> dict[str, Any]:
+    with _connect_ai2_db(project_root, db_path) as con:
+        row = con.execute("SELECT * FROM sessions WHERE session_id = ?", (session_id,)).fetchone()
+        if not row:
+            return _base_response_v2(ok=False, error="session_not_found", blockers=["session_not_found"])
+        interactions = con.execute(
+            "SELECT role, prompt_hash, summary, created_at FROM interactions WHERE session_id = ? ORDER BY created_at ASC LIMIT 80",
+            (session_id,),
+        ).fetchall()
+        revisions = con.execute(
+            "SELECT revision_id, created_at, validation_json FROM spec_revisions WHERE session_id = ? ORDER BY created_at DESC LIMIT 20",
+            (session_id,),
+        ).fetchall()
+        drafts = con.execute(
+            "SELECT draft_id, file_name, file_hash, created_at FROM drafts WHERE session_id = ? ORDER BY created_at DESC LIMIT 20",
+            (session_id,),
+        ).fetchall()
+    return _base_response_v2({
+        "session": _session_public(row),
+        "interactions": [dict(item) for item in interactions],
+        "revisions": [{"revisionId": item["revision_id"], "createdAt": item["created_at"], "validation": _json_load(item["validation_json"], {})} for item in revisions],
+        "drafts": [{"draftId": item["draft_id"], "fileName": item["file_name"], "fileHash": item["file_hash"], "createdAt": item["created_at"]} for item in drafts],
+    })
+
+
+def add_ai_wizard_message(project_root: Path, session_id: str, payload: dict[str, Any] | None = None, *, db_path: Path | None = None) -> dict[str, Any]:
+    payload = payload or {}
+    prompt = _clean_text(payload.get("prompt") or payload.get("message") or payload.get("idea"))
+    if not prompt:
+        return _base_response_v2(ok=False, error="prompt_required", blockers=["prompt_required"])
+    ast_report = build_ai_wizard_ast_from_prompt({"prompt": prompt}, project_root=project_root)
+    if not ast_report.get("ok") and ast_report.get("error") in {"prompt_not_public_safe", "blocked_full_editor_scope"}:
+        return ast_report
+    ast = ast_report.get("data", {}).get("ast", {})
+    validation = ast_report.get("data", {}).get("validation", {})
+    now = _now_iso()
+    prompt_hash = _hash_id("prompt", prompt)
+    summary = _redacted_prompt_summary(prompt)
+    with _connect_ai2_db(project_root, db_path) as con:
+        row = con.execute("SELECT * FROM sessions WHERE session_id = ?", (session_id,)).fetchone()
+        if not row:
+            return _base_response_v2(ok=False, error="session_not_found", blockers=["session_not_found"])
+        con.execute(
+            "INSERT INTO interactions(interaction_id, session_id, role, prompt_hash, summary, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+            (_safe_id("msg"), session_id, "operator", prompt_hash, summary, now),
+        )
+        con.execute(
+            "INSERT INTO spec_revisions(revision_id, session_id, ast_json, validation_json, created_at) VALUES (?, ?, ?, ?, ?)",
+            (_safe_id("rev"), session_id, _json_dump(ast), _json_dump(validation), now),
+        )
+        con.execute(
+            "UPDATE sessions SET updated_at = ?, prompt_hash = ?, prompt_summary = ?, ast_json = ?, validation_json = ? WHERE session_id = ?",
+            (now, prompt_hash, summary, _json_dump(ast), _json_dump(validation), session_id),
+        )
+    return get_ai_wizard_session(project_root, session_id, db_path=db_path)
+
+
+def patch_ai_wizard_session_spec(project_root: Path, session_id: str, payload: dict[str, Any] | None = None, *, db_path: Path | None = None) -> dict[str, Any]:
+    payload = payload or {}
+    ast = payload.get("ast") if isinstance(payload.get("ast"), dict) else payload.get("spec")
+    if not isinstance(ast, dict):
+        return _base_response_v2(ok=False, error="ast_required", blockers=["ast_required"])
+    catalog = build_ai_wizard_capability_catalog(project_root)["data"]["catalog"]
+    validation = validate_ai_wizard_ast(ast, catalog)
+    now = _now_iso()
+    with _connect_ai2_db(project_root, db_path) as con:
+        row = con.execute("SELECT * FROM sessions WHERE session_id = ?", (session_id,)).fetchone()
+        if not row:
+            return _base_response_v2(ok=False, error="session_not_found", blockers=["session_not_found"])
+        con.execute(
+            "INSERT INTO spec_revisions(revision_id, session_id, ast_json, validation_json, created_at) VALUES (?, ?, ?, ?, ?)",
+            (_safe_id("rev"), session_id, _json_dump(ast), _json_dump(validation), now),
+        )
+        con.execute(
+            "UPDATE sessions SET updated_at = ?, ast_json = ?, validation_json = ? WHERE session_id = ?",
+            (now, _json_dump(ast), _json_dump(validation), session_id),
+        )
+    return get_ai_wizard_session(project_root, session_id, db_path=db_path)
+
+
+def create_ai_wizard_session_draft(project_root: Path, session_id: str, *, db_path: Path | None = None) -> dict[str, Any]:
+    with _connect_ai2_db(project_root, db_path) as con:
+        row = con.execute("SELECT * FROM sessions WHERE session_id = ?", (session_id,)).fetchone()
+        if not row:
+            return _base_response_v2(ok=False, error="session_not_found", blockers=["session_not_found"])
+        ast = _json_load(row["ast_json"], {})
+        validation = _json_load(row["validation_json"], {})
+    if not validation.get("ok"):
+        return _base_response_v2({"validation": validation, "ast": ast}, ok=False, error="ast_invalid", blockers=validation.get("blockers", ["ast_invalid"]))
+    compiler = ast.get("compiler", {}) if isinstance(ast.get("compiler"), dict) else {}
+    if not compiler.get("draftable"):
+        return _base_response_v2(
+            {"validation": validation, "ast": ast, "nextStep": "Use the structured plan now; draft compiler support for this block mix is not proven yet."},
+            ok=False,
+            error="blocked_not_draftable_yet",
+            blockers=["blocked_not_draftable_yet"],
+            warnings=validation.get("warnings", []),
+        )
+    prompt = f"EMA cross trend-following {ast.get('asset', 'EURUSD')} {ast.get('timeframe', 'H1')} with SL/TP"
+    draft_report = generate_draft_sqx({"prompt": prompt}, project_root=project_root)
+    if not draft_report.get("ok"):
+        return draft_report
+    draft = draft_report["data"]["draft"]
+    path = resolve_draft_download(project_root, draft["fileName"])
+    file_hash = ""
+    if path and path.is_file():
+        file_hash = hashlib.sha256(path.read_bytes()).hexdigest()[:16]
+    draft_id = _safe_id("awd")
+    now = _now_iso()
+    with _connect_ai2_db(project_root, db_path) as con:
+        con.execute(
+            "INSERT INTO drafts(draft_id, session_id, file_name, file_hash, ast_json, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+            (draft_id, session_id, draft["fileName"], file_hash, _json_dump(ast), now),
+        )
+    draft["draftId"] = draft_id
+    draft["downloadUrl"] = f"/api/sqx142/ai-wizard/drafts/{draft_id}/download"
+    draft["fileHash"] = file_hash
+    return _base_response_v2({"draft": draft, "ast": ast, "validation": validation, "guardrails": draft_report["data"].get("guardrails", [])})
+
+
+def resolve_ai_wizard_draft_download(project_root: Path, draft_id: str, *, db_path: Path | None = None) -> Path | None:
+    with _connect_ai2_db(project_root, db_path) as con:
+        row = con.execute("SELECT file_name FROM drafts WHERE draft_id = ?", (draft_id,)).fetchone()
+    if not row:
+        return None
+    return resolve_draft_download(project_root, str(row["file_name"]))

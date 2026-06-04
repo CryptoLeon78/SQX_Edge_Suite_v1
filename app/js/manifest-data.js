@@ -27,7 +27,7 @@ window.SQX_MANIFEST = {
       },
       {
         "id": "views",
-        "label": "SQX Views",
+        "label": "View CORR1",
         "icon": "V",
         "hiddenInPrimary": true
       },
@@ -990,6 +990,7 @@ window.SQX_MANIFEST = {
       "pipelineState": "sqx_pipeline_state_v1",
       "strategiesUser": "sqx_strategies_user_v1",
       "strategiesDeleted": "sqx_strategies_deleted_v1",
+      "sqxReadinessStatus": "sqx_readiness_status_v1",
       "workflowChecklist": "sqx_workflow_checklist_v1",
       "edgeFactoryState": "sqx_edge_factory_state_v1",
       "viewCreatorPresets": "sqx_view_creator_presets_v1",
@@ -12747,11 +12748,11 @@ window.SQX_MANIFEST = {
         "tier": "pro"
       },
       "view_creator.core": {
-        "label": "SQX View Creator EGT Core",
+        "label": "View CORR1",
         "tier": "free"
       },
       "view_creator.full": {
-        "label": "SQX View Creator completo",
+        "label": "View CORR1 completo",
         "tier": "pro"
       },
       "backups.advanced": {

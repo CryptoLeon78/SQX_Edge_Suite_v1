@@ -1,0 +1,113 @@
+{
+  "schema": "sqx-edge.sqx-readiness-manifest-v2",
+  "version": 2,
+  "label": "SQX Edge Readiness QXPRO Correlation-Only",
+  "requiredChecklist": [
+    "sqx_root_selected",
+    "sqx_version_compatible",
+    "data_db_found",
+    "brokers_validated",
+    "curated_assets_validated",
+    "snippets_ready",
+    "correlation_view_ready",
+    "portable_source_acknowledged",
+    "sensitive_files_excluded"
+  ],
+  "brokerProfiles": [
+    {
+      "id": "darwinex",
+      "label": "SQX Edge / Darwinex",
+      "brokerId": 4,
+      "postfix": "_darwinex",
+      "timezone": "EETUS",
+      "precision": "TICK"
+    },
+    {
+      "id": "dukascopy_oos",
+      "label": "Dukascopy OOS",
+      "brokerId": 3,
+      "postfix": "_dukascopy",
+      "timezone": "EETUS",
+      "precision": "TICK",
+      "sourceId": 2
+    }
+  ],
+  "periods": {
+    "BUILD_C1": ["2017.10.02", "2023.01.01"],
+    "RETEST_0_C1": ["2017.10.02", "2025.01.01"],
+    "RETEST_1_C1": ["2010.01.01", "2017.10.02"],
+    "ROBUSTNESS_C1": ["2017.10.02", "2023.12.31"],
+    "ROBUSTNESS_C2": ["2017.10.02", "2023.12.31"],
+    "FOWARD_C1": ["2025.01.01", "2026.04.08"]
+  },
+  "curatedAssets": [
+    {
+      "asset": "EURUSD",
+      "timeframes": ["M15", "M30", "H1", "H4", "D1"],
+      "dataManagerNames": ["EURUSD", "EURUSD_darwinex", "EURUSD_dukascopy"],
+      "reference": {"tickSize": 0.0001, "tickStep": 0.00001, "pointValue": 100000, "defaultSpread": 1.0, "dataType": 3}
+    },
+    {
+      "asset": "GBPUSD",
+      "timeframes": ["M15", "M30", "H1", "H4", "D1"],
+      "dataManagerNames": ["GBPUSD", "GBPUSD_darwinex", "GBPUSD_dukascopy"],
+      "reference": {"tickSize": 0.0001, "tickStep": 0.00001, "pointValue": 100000, "defaultSpread": 2.5, "dataType": 3}
+    },
+    {
+      "asset": "USDJPY",
+      "timeframes": ["M15", "H1", "H4", "D1"],
+      "dataManagerNames": ["USDJPY", "USDJPY_darwinex", "USDJPY_dukascopy"],
+      "reference": {"tickSize": 0.01, "tickStep": 0.001, "pointValue": 1000, "defaultSpread": 3.0, "dataType": 3}
+    },
+    {
+      "asset": "AUDCAD",
+      "timeframes": ["M15", "M30", "H1", "H4"],
+      "dataManagerNames": ["AUDCAD", "AUDCAD_darwinex", "AUDCAD_dukascopy"],
+      "reference": {"tickSize": 0.0001, "tickStep": 0.00001, "pointValue": 100000, "defaultSpread": 2.0, "dataType": 3}
+    },
+    {
+      "asset": "XAUUSD",
+      "timeframes": ["M15", "M30", "H1", "H4"],
+      "dataManagerNames": ["XAUUSD", "XAUUSD_darwinex", "XAUUSD_dukascopy"],
+      "reference": {"tickSize": 0.01, "tickStep": 0.01, "pointValue": 100, "defaultSpread": 30.0, "dataType": 3}
+    }
+  ],
+  "requiredSnippets": [
+    "user/extend/Snippets/SQ/CustomAnalysis/SQXEdgeCorrelationTagger.java",
+    "user/extend/Snippets/SQ/Columns/Databanks/SQXEdgeCorrDecision.java",
+    "user/extend/Snippets/SQ/Columns/Databanks/SQXEdgeCorrRank.java",
+    "user/extend/Snippets/SQ/Columns/Databanks/SQXEdgeCorrScore.java",
+    "user/extend/Snippets/SQ/Columns/Databanks/SQXEdgeMaxCorr.java",
+    "user/extend/Snippets/SQ/Columns/Databanks/SQXEdgeCorrStatus.java",
+    "user/extend/Snippets/SQ/Columns/Databanks/SQXEdgeNearestWinner.java"
+  ],
+  "requiredViews": [
+    "user/settings/views/databanks/SQX EDGE CORRELATION REVIEW.vw"
+  ],
+  "blockedPackagePatterns": [
+    ".git",
+    ".local",
+    ".local_cache_backups",
+    ".local_code_backups",
+    "temp",
+    "artifacts",
+    "cache",
+    "backup",
+    "user/data/data.db",
+    "user/projects",
+    "license",
+    "activation",
+    "crack",
+    "jars",
+    "plugins/internal",
+    "token",
+    "secret"
+  ],
+  "privacy": {
+    "dataDbCopied": false,
+    "rawLocalPathsInPublicOutput": false,
+    "licenseOrActivationIncluded": false,
+    "portableSourceMustBeAuthorized": true,
+    "privateOperatorTransferOnly": true
+  }
+}

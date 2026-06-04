@@ -60,39 +60,44 @@
   };
   var VIEWS_HANDOFF_PACKS = {
     robustness: {
-      label: 'Robustness',
-      preset: 'robustness',
-      yearCount: 9,
+      label: 'View CORR1',
+      preset: 'sqx-edge-correlation-review',
+      yearCount: 1,
       sampleStart: 21,
-      groupMode: 'by_year'
+      includeTotal: false,
+      groupMode: 'plain'
     },
     'risk-capital-review': {
-      label: 'Risk Review',
-      preset: 'risk',
-      yearCount: 5,
+      label: 'View CORR1',
+      preset: 'sqx-edge-correlation-review',
+      yearCount: 1,
       sampleStart: 21,
-      groupMode: 'by_metric'
+      includeTotal: false,
+      groupMode: 'plain'
     },
     'asset-family-review': {
-      label: 'Asset Family Review',
-      preset: 'robustness',
-      yearCount: 9,
+      label: 'View CORR1',
+      preset: 'sqx-edge-correlation-review',
+      yearCount: 1,
       sampleStart: 21,
-      groupMode: 'by_year'
+      includeTotal: false,
+      groupMode: 'plain'
     },
     'pro-setup-assist': {
-      label: 'Pro Setup Review',
-      preset: 'risk',
-      yearCount: 7,
+      label: 'View CORR1',
+      preset: 'sqx-edge-correlation-review',
+      yearCount: 1,
       sampleStart: 21,
-      groupMode: 'by_year'
+      includeTotal: false,
+      groupMode: 'plain'
     },
     'free-core-validation': {
-      label: 'Core Validation',
-      preset: 'egt-core',
-      yearCount: 9,
+      label: 'View CORR1',
+      preset: 'sqx-edge-correlation-review',
+      yearCount: 1,
       sampleStart: 21,
-      groupMode: 'by_year'
+      includeTotal: false,
+      groupMode: 'plain'
     }
   };
 
@@ -149,7 +154,7 @@
     { id: 'review', label: 'Manual review confirmed', blocked: 'Confirm manual review.' },
     { id: 'package', label: 'Package exportable', blocked: 'Resolve package gate.' },
     { id: 'project_generator', label: 'Project Generator handoff available', blocked: 'Package must be exportable.' },
-    { id: 'sqx_views', label: 'SQX Views validation available', blocked: 'Package must be exportable.' },
+    { id: 'sqx_views', label: 'View CORR1 handoff available', blocked: 'Package must be exportable.' },
     { id: 'operator', label: 'Operator runs StrategyQuant manually', blocked: 'Use the prepared handoffs manually.' }
   ];
 
@@ -799,6 +804,7 @@
         viewName: ['SB', asset, timeframe, pack.label].join(' '),
         yearCount: pack.yearCount,
         sampleStart: pack.sampleStart,
+        includeTotal: pack.includeTotal,
         groupMode: pack.groupMode,
         validation_pack_id: validationPackId,
         asset: asset,
@@ -903,7 +909,7 @@
         manual_next_steps: [
           'Review Project Generator fields before pressing Generar custom.',
           'Review preset name before pressing Guardar preset.',
-          'Review SQX Views columns before pressing Descargar .vw or Guardar preset.',
+          'Review View CORR1 columns before pressing Descargar .vw.',
           'Choose a .sqx folder before pressing Escanear and Procesar seleccion in Strategy Cleaner.',
           'Run StrategyQuant validation manually before making any trading claim.'
         ],
@@ -998,11 +1004,11 @@
       },
       {
         id: 'sqx_views_review',
-        label: 'Open SQX Views validation review',
+        label: 'Open View CORR1 review',
         status: handoffMap.sqx_views ? destinationReady : 'blocked',
         owner: 'operator',
-        action: 'Press Enviar a SQX Views, review columns and download or save the template manually.',
-        note: handoffMap.sqx_views ? destinationNote : 'SQX Views handoff missing.'
+        action: 'Press Enviar a View CORR1, review columns and download the template manually.',
+        note: handoffMap.sqx_views ? destinationNote : 'View CORR1 handoff missing.'
       },
       {
         id: 'strategy_cleaner_review',
@@ -1288,7 +1294,7 @@
         support_questions: [
           'Has the operator confirmed the manual review gate?',
           'Which destination step is blocked or pending?',
-          'Were Project Generator, SQX Views and Strategy Cleaner actions executed manually?',
+          'Were Project Generator, View CORR1 and Strategy Cleaner actions executed manually?',
           'Has StrategyQuant validation been run before any trading or performance claim?'
         ],
         attachment_manifest: [
@@ -1373,7 +1379,7 @@
         label: 'Identify blocked or pending destination step',
         status: blockedDestination ? 'pending' : 'done',
         owner: 'operator',
-        action: 'Use support questions and section manifest to locate the pending Project Generator, SQX Views, Cleaner or StrategyQuant step.'
+        action: 'Use support questions and section manifest to locate the pending Project Generator, View CORR1, Cleaner or StrategyQuant step.'
       },
       {
         id: 'safe_attachments_checked',
@@ -1544,7 +1550,7 @@
       evidenceEntry('strategy_builder_package', 'Strategy Builder package', payload, true),
       evidenceEntry('project_generator_prefill', 'Project Generator prefill', handoffs.project_generator_prefill, true),
       evidenceEntry('project_generator_preset_draft', 'Project Generator preset draft', handoffs.project_generator_preset_draft, true),
-      evidenceEntry('sqx_views', 'SQX Views validation handoff', handoffs.sqx_views, true),
+      evidenceEntry('sqx_views', 'View CORR1 handoff', handoffs.sqx_views, true),
       evidenceEntry('strategy_cleaner', 'Strategy Cleaner draft', handoffs.strategy_cleaner, true),
       evidenceEntry('buyer_handoff_pack', 'Buyer handoff pack', pack, true),
       evidenceEntry('buyer_pack_import_review', 'Buyer pack import review', review, false),

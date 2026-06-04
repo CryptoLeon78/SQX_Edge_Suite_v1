@@ -17,6 +17,7 @@ REMOTE_STATE_KEYS: dict[str, str] = {
     "pipelineState": "sqx_pipeline_state_v1",
     "strategiesUser": "sqx_strategies_user_v1",
     "strategiesDeleted": "sqx_strategies_deleted_v1",
+    "sqxReadinessStatus": "sqx_readiness_status_v1",
     "viewCreatorPresets": "sqx_view_creator_presets_v1",
     "edgeFactoryState": "sqx_edge_factory_state_v1",
 }

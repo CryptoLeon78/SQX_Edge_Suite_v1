@@ -300,7 +300,7 @@ Persistent planning note for the next SQX Edge phases.
 4. Phase SB4: harden Strategy Builder handoff import/export and decide whether it remains a tab or becomes a compact workflow panel. Done; see `docs/SB4_STRATEGY_BUILDER_IMPORT_EXPORT.md`.
 5. Phase SB5: add Strategy Builder to Project Generator prefill bridge without auto-running generation. Done; see `docs/SB5_STRATEGY_BUILDER_PROJECT_GENERATOR_PREFILL.md`.
 6. Phase SB6: add Strategy Builder review checklist and Project Generator save-as-preset handoff without auto-saving. Done; see `docs/SB6_STRATEGY_BUILDER_PRESET_HANDOFF.md`.
-7. Phase SB7: add Strategy Builder SQX Views validation-pack handoff without auto-saving templates. Done; see `docs/SB7_STRATEGY_BUILDER_VIEWS_HANDOFF.md`.
+7. Phase SB7: add Strategy Builder View CORR1 handoff without auto-saving templates. Done; see `docs/SB7_STRATEGY_BUILDER_VIEWS_HANDOFF.md`.
 8. Phase SB8: add Strategy Builder handoff audit trail and buyer workflow polish. Done; see `docs/SB8_STRATEGY_BUILDER_AUDIT_WORKFLOW.md`.
 9. Phase SB9: add Strategy Builder Strategy Cleaner draft handoff. Done; see `docs/SB9_STRATEGY_BUILDER_CLEANER_HANDOFF.md`.
 10. Phase SB10: add Strategy Builder unified buyer handoff pack. Done; see `docs/SB10_STRATEGY_BUILDER_BUYER_HANDOFF_PACK.md`.
@@ -457,16 +457,16 @@ Persistent planning note for the next SQX Edge phases.
 
 ## SQX View Creator Track
 
-1. Phase V1: integrate the annual SQX `.vw` creator as a native dashboard tab with EGT Core preset, XML preview and portable download. Done.
+1. Phase V1: integrate the SQX `.vw` creator as a native dashboard utility. Historical EGT Core scope is superseded by View CORR1.
 2. Phase V2: add saved view presets and reusable operator templates in localStorage. Done.
-3. Phase V3: add JSON export/import packs for saved SQX Views presets. Done.
+3. Phase V3: add JSON export/import packs for saved View CORR1 presets. Done.
 4. Phase V4: add optional handoff links from Workflow/Estrategias and richer saved-template guidance. Done.
 5. Phase V5: close the native SQX View Creator integration, archive the staging prototype in backup and remove the local staging folder. Done.
-6. Phase V6: add buyer-ready SQX View template examples for first review, robustness, risk and full audit, with load/save/export flow. Done.
-7. Phase V7: expand SQX Views packs by buyer profile, asset family or validation workflow if the View Creator track continues. Done.
-8. Phase V8: add asset-family or validation-workflow packs if SQX Views continues. Done.
-9. Phase V9: add SQX Views import preview or pack comparison if this track continues. Done.
-10. Phase V10: add SQX Views pack comparison if this track continues.
+6. Phase V6: buyer-ready examples for first review, robustness, risk and full audit are historical and superseded by the single CORR1 contract.
+7. Phase V7: profile, asset-family and validation workflow packs are retired from readiness.
+8. Phase V8: asset-family or validation-workflow packs are retired from readiness.
+9. Phase V9: View CORR1 import preview remains for user presets. Done.
+10. Phase V10: do not expand SQX Views packs unless CORR1 requirements change explicitly.
 
 ## Release Track
 

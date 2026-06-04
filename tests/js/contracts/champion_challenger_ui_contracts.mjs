@@ -13,7 +13,7 @@ assert.ok(html.includes('Ranking operativo'), 'Champion vs Challenger should kee
 assert.ok(html.includes('Entrega y siguiente acción'), 'Champion vs Challenger should expose delivery step');
 assert.ok(html.includes('Exportar resumen'), 'Champion vs Challenger should keep safe review export CTA');
 assert.ok(html.includes('Volver a Estrategias'), 'Champion vs Challenger should hand back to strategies');
-assert.ok(html.includes('Abrir SQX Views'), 'Champion vs Challenger should hand back to SQX Views');
+assert.ok(html.includes('Abrir View CORR1'), 'Champion vs Challenger should hand back to View CORR1');
 assert.ok(!html.includes('id="cvc-handoff-btn"'), 'retired Strategy Builder handoff button must not be visible');
 assert.ok(!html.includes('Strategy Validation Board'), 'old English CVC hero eyebrow should be retired');
 

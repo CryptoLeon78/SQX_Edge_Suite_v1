@@ -162,7 +162,7 @@ def apply_profile(project_root: Path, root142: Path, root143: Path, profile_id: 
             "before": before,
         }
 
-    backup_dir = root142.parent / "SQX_142_Crack_local_backups" / f"sqx142_perf_profile_before_{stamp()}"
+    backup_dir = root142.parent / "SQX142_ROOT_local_backups" / f"sqx142_perf_profile_before_{stamp()}"
     config_files = [root142 / name for name in RUNTIME_CONFIG_FILES]
     backup_actions = backup_files(root142, backup_dir, config_files, apply=apply)
     desired = config_text_for_profile(profile_id)
@@ -195,7 +195,7 @@ def create_views(project_root: Path, root142: Path, root143: Path, *, apply: boo
     view_root = root142 / "user" / "settings" / "views" / "databanks"
     view_root.mkdir(parents=True, exist_ok=True) if apply else None
     payloads = performance_view_payloads()
-    backup_dir = root142.parent / "SQX_142_Crack_local_backups" / f"sqx142_perf_views_before_{stamp()}"
+    backup_dir = root142.parent / "SQX142_ROOT_local_backups" / f"sqx142_perf_views_before_{stamp()}"
     actions: list[dict[str, Any]] = []
     existing_to_backup: list[Path] = []
     for name, xml in payloads.items():
@@ -314,7 +314,7 @@ def performance_clone_hygiene(
     include_paths: bool,
 ) -> dict[str, Any]:
     projects_root = root142 / "user" / "projects"
-    archive_root = root142.parent / "SQX_142_Crack_local_backups" / "archived_perf_projects" / stamp()
+    archive_root = root142.parent / "SQX142_ROOT_local_backups" / "archived_perf_projects" / stamp()
     clones = sorted(
         [path for path in projects_root.glob("_PERFQ_*") if path.is_dir()],
         key=lambda path: path.stat().st_mtime,
@@ -331,7 +331,7 @@ def performance_clone_hygiene(
         "archiveRoot": str(archive_root) if include_paths or apply else archive_root.name,
         "rules": [
             "Dry-run by default.",
-            "Applies by moving old _PERFQ_* projects to SQX_142_Crack_local_backups, never deleting them.",
+            "Applies by moving old _PERFQ_* projects to SQX142_ROOT_local_backups, never deleting them.",
             "Newest clones are kept active for post-promotion smoke/rollback context.",
             "SQX must be closed before moving project folders.",
         ],
@@ -405,7 +405,7 @@ def performance_clone_hygiene(
 
 
 def _archived_perf_projects_root(root142: Path) -> Path:
-    return root142.parent / "SQX_142_Crack_local_backups" / "archived_perf_projects"
+    return root142.parent / "SQX142_ROOT_local_backups" / "archived_perf_projects"
 
 
 def _public_path(path: Path, *, include_paths: bool) -> str:
@@ -425,7 +425,7 @@ def restore_performance_clone(
 ) -> dict[str, Any]:
     projects_root = root142 / "user" / "projects"
     archive_parent = _archived_perf_projects_root(root142)
-    replacement_root = root142.parent / "SQX_142_Crack_local_backups" / "active_perf_project_replaced" / stamp()
+    replacement_root = root142.parent / "SQX142_ROOT_local_backups" / "active_perf_project_replaced" / stamp()
     payload: dict[str, Any] = {
         "ok": False,
         "version": "sqx142-performance-clone-restore-v1",
@@ -1020,7 +1020,7 @@ def _old_log_candidates(root142: Path, *, keep_days: int) -> tuple[datetime, lis
 def archive_old_logs(project_root: Path, root142: Path, *, keep_days: int, apply: bool) -> dict[str, Any]:
     cutoff, candidates = _old_log_candidates(root142, keep_days=keep_days)
     total_bytes = sum(path.stat().st_size for path in candidates if path.is_file())
-    archive_root = root142.parent / "SQX_142_Crack_local_backups" / "archived_logs"
+    archive_root = root142.parent / "SQX142_ROOT_local_backups" / "archived_logs"
     archive_name = f"sqx142_logs_before_{cutoff.strftime('%Y%m%d')}_{stamp()}.zip"
     archive_path = archive_root / archive_name
     payload: dict[str, Any] = {
@@ -2595,7 +2595,7 @@ def create_mc2_spread_variant(
         try:
             shutil.copytree(source, target)
             payload["target"]["exists"] = target.is_dir()
-            backup_dir = root142.parent / "SQX_142_Crack_local_backups" / f"sqx142_mc2_spread_variant_before_{stamp()}"
+            backup_dir = root142.parent / "SQX142_ROOT_local_backups" / f"sqx142_mc2_spread_variant_before_{stamp()}"
             payload["patch"] = _patch_mc2_spread(target / "project.cfx", spread_min, spread_max, backup_dir, apply=True)
             payload["archivedOldOutputs"] = _archive_variant_databanks(target, ["MC2", "Sequential"], "mc2_spread_variant")
             payload["afterDiagnostic"] = mc2_spread_diagnostic(
@@ -2675,7 +2675,7 @@ def promote_mc2_spread_to_base(
     log_limit: int,
 ) -> dict[str, Any]:
     target = resolve_sqx_project(root142, sqx_project, project_name)
-    backup_dir = root142.parent / "SQX_142_Crack_local_backups" / f"sqx142_mc2_spread_promotion_before_{stamp()}"
+    backup_dir = root142.parent / "SQX142_ROOT_local_backups" / f"sqx142_mc2_spread_promotion_before_{stamp()}"
     evidence_summary = _read_evidence_summary(project_root, source_evidence)
     payload: dict[str, Any] = {
         "ok": False,
@@ -2841,7 +2841,7 @@ def rollback_mc2_spread_promotion(
         written = write_evidence(project_root, f"mc2_spread_promotion_rollback_blocked_{stamp()}.json", payload)
         payload["evidence"] = {"written": True, "filename": written.name, "localPathReturned": False}
         return payload
-    rollback_backup_dir = root142.parent / "SQX_142_Crack_local_backups" / f"sqx142_mc2_spread_rollback_before_{stamp()}"
+    rollback_backup_dir = root142.parent / "SQX142_ROOT_local_backups" / f"sqx142_mc2_spread_rollback_before_{stamp()}"
     rollback_backup_dir.mkdir(parents=True, exist_ok=True)
     current_backup = rollback_backup_dir / "project.cfx"
     shutil.copy2(target_cfx, current_backup)
@@ -3691,7 +3691,7 @@ def prepare_queue_step(
         write_evidence(project_root, f"queue_step_prepare_failed_{stamp()}.json", payload)
         return payload
 
-    backup_dir = root142.parent / "SQX_142_Crack_local_backups" / f"sqx142_queue_step_before_{stamp()}"
+    backup_dir = root142.parent / "SQX142_ROOT_local_backups" / f"sqx142_queue_step_before_{stamp()}"
     active_result = _set_project_active_task(target / "project.cfx", str(selected.get("title", task_title)), backup_dir, apply=apply)
     payload["activeTaskUpdate"] = active_result
     recommended_profile = str(selected.get("recommendedProfile") or "baseline_143_safe")
@@ -4852,7 +4852,7 @@ def prepare_project_mc_views(
         payload["message"] = "Dry-run only. Re-run with --apply to update project.cfx config.xml view assignments."
         return payload
 
-    backup_dir = root142.parent / "SQX_142_Crack_local_backups" / f"sqx142_mc_project_views_before_{stamp()}"
+    backup_dir = root142.parent / "SQX142_ROOT_local_backups" / f"sqx142_mc_project_views_before_{stamp()}"
     backup_dir.mkdir(parents=True, exist_ok=True)
     backup = backup_dir / project_cfx.name
     shutil.copy2(project_cfx, backup)
@@ -5000,7 +5000,7 @@ def phase5_databank_view_guard(
         written = write_evidence(project_root, f"phase5_databank_view_guard_blocked_{stamp()}.json", payload)
         payload["evidence"] = {"written": True, "filename": written.name, "localPathReturned": bool(include_paths)}
         return payload
-    backup_dir = root142.parent / "SQX_142_Crack_local_backups" / f"sqx142_phase5_views_before_{stamp()}"
+    backup_dir = root142.parent / "SQX142_ROOT_local_backups" / f"sqx142_phase5_views_before_{stamp()}"
     backup_dir.mkdir(parents=True, exist_ok=True)
     if project_cfx.is_file():
         shutil.copy2(project_cfx, backup_dir / "project.cfx")

@@ -217,7 +217,7 @@ REMOTE-PERSIST1A workspace state persistence:
 - `GET /api/remote/state/bootstrap` loads allowed dashboard state for the active workspace.
 - `POST /api/remote/state/save` persists only allowed keys inside the active workspace and writes a workspace audit event.
 - `GET /api/remote/state/status` reports public-safe state persistence readiness without returning local paths.
-- `app/js/modules/remote-state.js` bridges browser cache to workspace state for Plan Mining, Pipeline State, Strategy Control and SQX Views presets: `sqx_plan_user_v1`, `sqx_pipeline_state_v1`, `sqx_strategies_user_v1`, `sqx_strategies_deleted_v1` and `sqx_view_creator_presets_v1`.
+- `app/js/modules/remote-state.js` bridges browser cache to workspace state for Plan Mining, Pipeline State, Strategy Control and View CORR1 presets: `sqx_plan_user_v1`, `sqx_pipeline_state_v1`, `sqx_strategies_user_v1`, `sqx_strategies_deleted_v1` and `sqx_view_creator_presets_v1`.
 - Browser `localStorage` remains a compatibility cache in remote mode; it is not the multi-user source of truth.
 
 REMOTE-PERSIST1B workspace outputs:
@@ -246,12 +246,12 @@ REMOTE-PERSIST1D Control Panel workspace backups:
 - The backend filters snapshot payloads to the allowed dashboard state keys before writing.
 - `app/js/modules/state-backup.js` includes credentials in state backup calls, labels workspace snapshots and resyncs restored keys through `SQX.remoteState.saveSnapshot(...)`.
 
-REMOTE-PERSIST1E SQX Views workspace presets:
+REMOTE-PERSIST1E SQX Views workspace presets (current View CORR1 workspace presets):
 
-- `docs/REMOTE_PERSIST1E_SQX_VIEWS_PRESETS.md` owns the persistence contract for SQX Views user presets.
+- `docs/REMOTE_PERSIST1E_SQX_VIEWS_PRESETS.md` owns the persistence contract for View CORR1 user presets.
 - `sqx_view_creator_presets_v1` is now an allowed `remote-workspace-state-v1` key in `backend/sqx-edge-tool/core/remote_workspace_state.py`.
 - `app/js/modules/view-creator.js` keeps its existing synchronous local cache API, then triggers a remote save with source `sqx-views-presets` whenever presets are saved, imported or deleted.
-- Remote bootstrap restores SQX Views presets into `localStorage` before the tab renders; `localStorage` remains a cache, not the multi-user source of truth.
+- Remote bootstrap restores View CORR1 presets into `localStorage` before the tab renders; `localStorage` remains a cache, not the multi-user source of truth.
 
 REMOTE-5 remote Pro UX surface:
 
@@ -434,6 +434,7 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 8. `js/modules/modal-registry.js`
 9. `js/modules/state-backup.js`
 10. `js/modules/remote-state.js`
+11. `js/modules/sqx-readiness.js`
 11. `js/modules/license.js`
 12. `js/modules/ui.js`
 13. `js/modules/formatters.js`
@@ -484,8 +485,9 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 - Focused modules attach stable contracts under `window.SQX`.
 - `modal-registry.js` loads before state backup and dashboard actions so critical decisions can use a traceable shared modal instead of blind native prompts.
 - `remote-state.js` loads after storage/state backup and before dashboard so remote workspaces can bootstrap Plan Mining and Strategy Control state while local mode continues to use browser storage.
+- `sqx-readiness.js` loads after remote-state and before license/UI modules so the mandatory local SQX checklist can gate SQX-dependent browser actions early.
 - `champion-challenger-regime.js` loads after `datasets.js` because it adapts first-party historical and score evidence.
-- `strategy-builder-core.js` and `strategy-builder.js` load after Champion vs Challenger so the Builder can consume the reduced J6 handoff shape without coupling to raw CSV; SQX Views handoff is resolved at click time through the later `view-creator.js` runtime contract.
+- `strategy-builder-core.js` and `strategy-builder.js` load after Champion vs Challenger so the Builder can consume the reduced J6 handoff shape without coupling to raw CSV; View CORR1 handoff is resolved at click time through the later `view-creator.js` runtime contract.
 - `vendor/jszip.min.js` loads before Template Maker because local/offline `.sqx` parsing and C2 export cannot depend on a CDN.
 - `exit-policy.js` loads before Template Maker so C2 generation can detect, disable or randomize SQX exit methods through one global policy.
 - `template-maker-worker-client.js` loads before Template Maker so the core can delegate CSV parsing, `.sqx` ZIP/hash/XML extraction and diversity cache warmup to `app/js/workers/template-maker-worker.js` when a browser Worker is available, while falling back to the main thread in file mode or unsupported browsers.
@@ -506,6 +508,7 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 | `modules/storage.js` | Local state persistence, safe JSON access, strategy state. |
 | `modules/modal-registry.js` | Registry of active modals, user-visible trace helpers and the shared decision modal for critical reset/delete/import/restore actions. |
 | `modules/state-backup.js` | Dashboard local-state snapshot and restore UI against the local backup API, limited to non-sensitive localStorage keys. |
+| `modules/sqx-readiness.js` | Mandatory SQX Edge Readiness checklist, checker-report import, browser/manual status persistence and UI gating for SQX-dependent actions. |
 | `modules/ui.js` | Shared DOM/UI helpers and tab helpers. |
 | `modules/formatters.js` | Display formatting, escaping, labels, badges. |
 | `modules/champion-challenger-core.js` | Pure CSV parsing, alias resolution, Champion vs Challenger comparison, OOS stability/timeline helpers, direction detection and edge archetype classification. |
@@ -513,8 +516,8 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 | `modules/datasets.js` | Normalized access to asset, score and manifest datasets. |
 | `modules/champion-challenger-regime.js` | First-party Regime/EGT evidence adapter for Champion vs Challenger using historical and score datasets, including `short_only`, `OK_MEAN_REVERT` and volatility coherence. |
 | `modules/champion-challenger.js` | Native dashboard UI facade for `tab-cvc`, delegating parsing, scoring, contextual evidence, safe JSON export and internal handoff contracts without local persistence. |
-| `modules/strategy-builder-core.js` | Pure read-only Strategy Builder package builder for local `sqx-edge.strategy-builder-package` previews, import validation, re-review gating, review summaries, buyer workflow summaries, visible audit entries, Project Generator prefill/preset draft mapping, SQX Views validation-pack handoff mapping, Strategy Cleaner draft mapping, unified buyer handoff packs, buyer pack import reviews, guided buyer session checklists, redacted buyer session summaries, printable operator notes, local support-case bundles and support resolution checklists. |
-| `modules/strategy-builder.js` | Native dashboard UI facade for `tab-strategybuilder`, building local previews plus gated JSON import/export, visible review checklist, session-only handoff audit trail, Project Generator custom/preset prefill, SQX Views handoff, Strategy Cleaner draft handoff, preview-only buyer packs, buyer pack import reviews, buyer session checklists, local redacted buyer summary exports, printable operator notes, support-case bundles and support resolution checklists without backend calls or generated trading logic. |
+| `modules/strategy-builder-core.js` | Pure read-only Strategy Builder package builder for local `sqx-edge.strategy-builder-package` previews, import validation, re-review gating, review summaries, buyer workflow summaries, visible audit entries, Project Generator prefill/preset draft mapping, View CORR1 handoff mapping, Strategy Cleaner draft mapping, unified buyer handoff packs, buyer pack import reviews, guided buyer session checklists, redacted buyer session summaries, printable operator notes, local support-case bundles and support resolution checklists. |
+| `modules/strategy-builder.js` | Native dashboard UI facade for `tab-strategybuilder`, building local previews plus gated JSON import/export, visible review checklist, session-only handoff audit trail, Project Generator custom/preset prefill, View CORR1 handoff, Strategy Cleaner draft handoff, preview-only buyer packs, buyer pack import reviews, buyer session checklists, local redacted buyer summary exports, printable operator notes, support-case bundles and support resolution checklists without backend calls or generated trading logic. |
 | `modules/renderers.js` | Reusable HTML rendering helpers for dashboard lists/tables. |
 | `modules/charts.js` | Chart and visual summary helpers. |
 | `modules/strategies.js` | Strategy UI contracts, deletion/import state, strategy metadata. |
@@ -530,7 +533,7 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 | `modules/edge-factory.js` | Desktop-first Edge Factory state model, 8-stage methodology contract, workspace-scoped persistence key and Portfolio Lab MVP ranking/diversity helpers. |
 | `modules/edge-factory-ui.js` | Edge Factory UI shell, advanced tools drawer, stage completion wiring, handoffs to hidden tools and Portfolio Lab browser export. |
 | `modules/agent-guide.js` | Operator-only local AI dock for Edge Factory, mediated through Flask `/api/agent/*`, with session-only state and confirmed allowlisted UI commands. |
-| `modules/view-creator.js` | Native SQX `.vw` generator for annual Databank views, EGT/Robustez/Template Maker/CVC Decision Cert presets, saved local presets, JSON preset packs with import preview, workflow handoffs and XML downloads. This is the maintained replacement for the archived Tkinter staging prototype. |
+| `modules/view-creator.js` | Native SQX `.vw` generator reduced to the active View CORR1 utility: `SQX EDGE CORRELATION REVIEW` for Template Maker C2/CORR1, saved user presets, JSON preset packs with import preview, workflow handoffs and XML downloads. Legacy EGT/Robustez/CVC/Risk/Full audit templates are not readiness views. |
 | `modules/project-generator-core.js` | Project Generator shared helpers and API primitives. |
 | `modules/project-generator-config.js` | Project Generator config read/write helpers, enriched starter custom profiles, profile-family packs, local custom preset persistence, import preview and portable custom preset JSON packs. |
 | `modules/project-generator-dom.js` | Project Generator DOM helpers, config inputs, custom project inputs, settings panel and log output. |

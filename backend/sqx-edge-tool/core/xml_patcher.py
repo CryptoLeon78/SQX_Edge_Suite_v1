@@ -549,6 +549,17 @@ def patch_dates(
     return n
 
 
+def patch_main_test_values_dates(root: ET.Element, enabled: bool = True) -> int:
+    """Mark whether SQX automatic retests should honor the explicit date range."""
+    wanted = "true" if enabled else "false"
+    n = 0
+    for node in root.findall(".//MainTestValues"):
+        if node.get("dates") != wanted:
+            node.set("dates", wanted)
+            n += 1
+    return n
+
+
 def clean_external_paths(root: ET.Element) -> int:
     """
     Quita referencias absolutas del PC original.

@@ -76,6 +76,7 @@ class FakeDocument {
     this.elements = new Map();
     this.tabs = [];
     this.panels = [];
+    this.documentElement = { dataset: {} };
   }
   add(element) {
     this.elements.set(element.id, element);
@@ -113,6 +114,15 @@ class FakeDocument {
     return this.querySelectorAll(selector)[0] || null;
   }
   querySelectorAll(selector) {
+    if (selector.includes(',')) {
+      const found = [];
+      selector.split(',').map(part => part.trim()).forEach(part => {
+        this.querySelectorAll(part).forEach(el => {
+          if (!found.includes(el)) found.push(el);
+        });
+      });
+      return found;
+    }
     if (selector === '.tab') return this.tabs;
     if (selector === '.tab-content') return this.panels;
     if (selector === '.subtab') {
@@ -138,6 +148,16 @@ class FakeDocument {
     }
     if (selector === '[data-workflow-subtab-target]') {
       return Array.from(this.elements.values()).filter(el => el.dataset.workflowSubtabTarget);
+    }
+    if (selector === '[data-sqx-readiness-check]') {
+      return Array.from(this.elements.values()).filter(el => el.dataset.sqxReadinessCheck);
+    }
+    if (selector === '[data-sqx-readiness-requires]') {
+      return Array.from(this.elements.values()).filter(el => el.dataset.sqxReadinessRequires);
+    }
+    if (selector.startsWith('#')) {
+      const el = this.getElementById(selector.slice(1));
+      return el ? [el] : [];
     }
     const checkPrefix = selector.match(/^input\[type="checkbox"\]\[data-check\^="([^"]+)"\]$/);
     if (checkPrefix) {

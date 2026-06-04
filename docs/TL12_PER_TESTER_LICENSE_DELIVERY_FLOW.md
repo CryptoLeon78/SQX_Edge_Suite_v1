@@ -7,15 +7,21 @@ TL12 issues one signed tester license per approved pilot tester while keeping pr
 ## Current Issuance
 
 - Signing key: local-only `license_keys/`, ignored by Git.
-- Signed licenses: local-only `licenses_private/tester_pilot_20260512/`, ignored by Git.
+- Signed licenses: local-only `licenses_private/tester_pilot_no_expiry_20260531/`, ignored by Git.
 - License count: 6 approved pilot testers.
 - Plan: `pro_tester_15`.
-- Window: 2026-05-12 to 2026-05-27.
+- Window: no local expiry for approved pilot testers; access is governed by private delivery, support policy, revocation and future replacement, not by a baked-in expiration date.
 - Machine policy: 1 supported machine per tester.
 - Distribution channel: `tester_pilot`.
 - Redistribution flag: `false`.
 
 The committed repository contains only the public verification key in `backend/sqx-edge-tool/config/product_manifest.json`. The private key and signed tester license files must never be committed, zipped into the common portal asset or pasted into public channels.
+
+## Current Operational Result
+
+On 2026-05-31 the operator set approved tester licenses to have no baked-in local expiration. The local issuer supports `--no-expires` only for `pro_tester_15`, and the 6 private tester licenses were reissued without `expires_at`, validated against the committed public key, kept machine limit 1 and kept redistribution blocked.
+
+The generic tester ZIP was regenerated as `SQX_Edge_Tool_Portable_Tester_20260531_222855.zip` with SHA256 `D2678EE3B902D475DDD0A0CFA71B1C0131E17B9F6BC8779040DF4641108139A4`. Distribution audit passed, the ZIP contains no embedded `config/license.json`, no private key material and no `license_signed_*.json`, the portal asset prepare/proof returned `GO_TESTER_LICENSE_GATED_DELIVERY_PATH_READY_NO_DEPLOY`, and a local temp import smoke returned `pro_active` without exposing raw emails, signed license JSON or private keys.
 
 ## Tester Delivery Flow
 
@@ -35,7 +41,7 @@ The textarea paste path remains available as fallback, but the file import path 
 
 Before replacing the Cloudflare asset, run these checks locally:
 
-1. Validate every local tester license against the committed public key.
+1. Validate every local tester license against the committed public key and confirm approved tester licenses do not carry `expires_at`.
 2. Regenerate the tester ZIP after the public key update.
 3. Confirm the ZIP contains no `config/license.json`, no private key material and no `license_signed_*.json`.
 4. Prepare the portal asset locally and run the real-tool-delivery proof.

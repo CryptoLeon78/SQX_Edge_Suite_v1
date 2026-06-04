@@ -1,11 +1,13 @@
 {
   "version": 1,
-  "updated": "2026-05-31",
+  "updated": "2026-06-02",
   "purpose": "Canonical public-safe state markers used by automated docs consistency tests.",
   "coreFiles": [
     "README.md",
     "docs/PUBLIC_ROADMAP.md",
     "docs/PROJECT_GOVERNANCE.md",
+    "docs/SQX142_AW_AI1_AI_WIZARD.md",
+    "docs/SQX142_AW_AI2_AI_STUDIO.md",
     "docs/UX_NAV_TAB_OPTIMIZATION_PLAN.md",
     "docs/maintenance/SQX142_PROJECT_RESOURCE_REPAIR_RUNBOOK.md",
     "docs/SQX142_OWN_FEATURES_CORRELATION_MANUAL_CONFIRMATION.md",
@@ -21,6 +23,239 @@
     "docs/SQX142_PORTFOLIO_CORR2_LOCAL_CUSTOM_PROJECT_INTEGRATION.md"
   ],
   "rules": [
+    {
+      "id": "sqx_readiness_private_qxpro_corr1_gate",
+      "description": "Private QXPRO readiness packaging must use the sanitized operator-only source and CORR1-only view readiness.",
+      "required": {
+        "CHANGELOG.md": [
+          "SQX Readiness Private QXPRO Kit",
+          "sqx-edge.sqx-readiness-manifest-v2",
+          "correlation_view_ready",
+          "SQX_Edge_Preparacion_Kit_PRIVADO_QXPRO_v1.zip",
+          "SQX_142_Codex_QXPRO",
+          "NO REDISTRIBUIR"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Current phase built: SQX Readiness Private QXPRO Kit",
+          "SqxPrivateSourceRoot <private-source>",
+          "SQX Readiness Private QXPRO Gate",
+          "View CORR1 Readiness Gate",
+          "legacy `viewsReady` reports may map to `correlation_view_ready`"
+        ],
+        "backend/sqx-edge-tool/config/sqx_readiness_manifest.json": [
+          "sqx-edge.sqx-readiness-manifest-v2",
+          "correlation_view_ready",
+          "SQX EDGE CORRELATION REVIEW.vw",
+          "privateOperatorTransferOnly"
+        ],
+        "tools/sqx_readiness_kit.ps1": [
+          "PrivateOperatorTransfer",
+          "SQX_142_Codex_QXPRO",
+          "05_SQX_142_Codex_QXPRO_Privado",
+          "05_SQX_142_Codex_QXPRO_Privado/SQX_142_Codex_QXPRO",
+          "portable_authorization_manifest.json",
+          "runtimeAllowlistApplied",
+          "bootstrapDataAllowlistApplied",
+          "privateBootstrapDataIncluded",
+          "historicalDataIncluded",
+          "user/data/data.db",
+          "user/data/History",
+          "licenseOrActivationStateIncluded",
+          "internal/libs/activation.jar",
+          "license.db",
+          "trust tokens",
+          "private_operator_only",
+          "Private operator transfer requires -SqxPrivateSourceRoot",
+          "Private SQX source root cannot contain Crack"
+        ],
+        "app/js/modules/view-creator.js": [
+          "SQX EDGE CORRELATION REVIEW",
+          "sqx-edge-correlation-review",
+          "buildTemplateMakerCertView",
+          "buyerReadyTemplates"
+        ],
+        "app/js/modules/sqx-readiness.js": [
+          "correlation_view_ready",
+          "viewsReady"
+        ]
+      },
+      "forbidden": {
+        "backend/sqx-edge-tool/config/sqx_readiness_manifest.json": [
+          "EGT Core",
+          "CVC Decision Cert",
+          "Risk",
+          "Full audit"
+        ],
+        "app/js/modules/view-creator.js": [
+          "CVC Decision Cert",
+          "full-audit-handoff",
+          "risk-capital-review",
+          "robustness-pack-screen",
+          "egt-first-review"
+        ]
+      }
+    },
+    {
+      "id": "sqx142_aw_ai1_ai_wizard_gate",
+      "description": "AI Wizard for AlgoWizard 142 must remain a local-only SQX Edge-owned overlay/backend with conservative draft SQX generation and no 144 internals or SQX runtime execution.",
+      "required": {
+        "README.md": [
+          "SQX142-AW-AI1 AI Wizard Propio",
+          "sqx142-ai-wizard-v1",
+          "/api/sqx142/ai-wizard/*",
+          "OpenAI opcional desactivado",
+          "sin SQX runtime"
+        ],
+        "CHANGELOG.md": [
+          "2026-06-01 - SQX142-AW-AI1 AI Wizard Propio",
+          "sqx142-ai-wizard-v1",
+          "sqx-edge.ai-wizard-strategy-spec",
+          "no SQX runtime launch"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Current phase completed: SQX142-AW-AI1",
+          "tools/sqx142_ai_wizard_overlay.ps1",
+          "no provider calls from browser"
+        ],
+        "docs/SQX142_AW_AI1_AI_WIZARD.md": [
+          "sqx142-ai-wizard-v1",
+          "implemented_v1_pending_manual_sqx_roundtrip",
+          "No SQX runtime launch",
+          "No `run_project`"
+        ],
+        "backend/sqx-edge-tool/core/sqx142_ai_wizard.py": [
+          "AI_WIZARD_VERSION = \"sqx142-ai-wizard-v1\"",
+          "SPEC_TYPE = \"sqx-edge.ai-wizard-strategy-spec\"",
+          "PACKAGE_TYPE = \"sqx-edge.strategy-builder-package\"",
+          "blocked_unsupported_rule",
+          "no_sqx_runtime_launch",
+          "SQX_AI_WIZARD_OPENAI_ENABLED"
+        ],
+        "backend/sqx-edge-tool/api/server.py": [
+          "/api/sqx142/ai-wizard/status",
+          "/api/sqx142/ai-wizard/plan",
+          "/api/sqx142/ai-wizard/draft-sqx",
+          "_require_sqx142_local_operator(AI_WIZARD_VERSION)"
+        ],
+        "tools/sqx142_ai_wizard_overlay.ps1": [
+          "SQX142_ROOT",
+          "sqx_process_running",
+          "New-Backup"
+        ],
+        "integrations/sqx142/ai_wizard_overlay/sqx-edge-aiwizard.js": [
+          "safeApiBase",
+          "Provider directo desde navegador: blocked",
+          "draftButton.disabled = state.busy || !hasValidSession()"
+        ],
+        "tests/js/contracts/sqx142_aw_ai1_contracts.mjs": [
+          "sqx142 aw ai1 contracts ok",
+          "safeApiBase",
+          "no_sqx_runtime_launch"
+        ]
+      },
+      "forbidden": {
+        "README.md": [
+          "AI Wizard guarantees profitability",
+          "AI Wizard risk zero"
+        ],
+        "docs/SQX142_AW_AI1_AI_WIZARD.md": [
+          "copy 144 internals",
+          "run_project enabled",
+          "risk zero"
+        ],
+        "tools/sqx142_ai_wizard_overlay.ps1": [
+          "Crack",
+          "Start-Process"
+        ],
+        "integrations/sqx142/ai_wizard_overlay/sqx-edge-aiwizard.js": [
+          "OPENAI_API_KEY",
+          "api_key"
+        ]
+      }
+    },
+    {
+      "id": "sqx142_aw_ai2_ai_studio_gate",
+      "description": "AlgoWizard AI Studio must use a sanitized SQX142 capability catalog, validated AST, redacted SQLite sessions and local-only overlay/API, with install/manual roundtrip deferred while SQX is open.",
+      "required": {
+        "README.md": [
+          "SQX142-AW-AI2 AlgoWizard AI Studio",
+          "sqx142-ai-wizard-studio-v2",
+          "sqx-edge.ai-wizard-capability-catalog-v1",
+          "sqx-edge.ai-wizard-strategy-ast-v1",
+          "pending install/manual roundtrip while SQX open"
+        ],
+        "CHANGELOG.md": [
+          "2026-06-02 - SQX142-AW-AI2 AlgoWizard AI Studio",
+          "sqx142-ai-wizard-studio-v2",
+          "blocked_not_draftable_yet",
+          "source is built and tested"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Current phase built: SQX142-AW-AI2",
+          "Session Studio SQLite",
+          "built_pending_install_and_manual_roundtrip",
+          "SQX open was observed"
+        ],
+        "docs/SQX142_AW_AI2_AI_STUDIO.md": [
+          "built_pending_install_and_manual_roundtrip",
+          "sqx-edge.ai-wizard-capability-catalog-v1",
+          "sqx-edge.ai-wizard-strategy-ast-v1",
+          "blocked_not_draftable_yet",
+          "No SQX runtime launch"
+        ],
+        "backend/sqx-edge-tool/core/sqx142_ai_wizard.py": [
+          "AI_WIZARD_AI2_VERSION = \"sqx142-ai-wizard-studio-v2\"",
+          "CATALOG_TYPE = \"sqx-edge.ai-wizard-capability-catalog-v1\"",
+          "AST_TYPE = \"sqx-edge.ai-wizard-strategy-ast-v1\"",
+          "SESSION_DB_RELATIVE = Path(\".local\") / \"sqx142_ai_wizard\" / \"ai_wizard.sqlite\"",
+          "build_ai_wizard_capability_catalog",
+          "create_ai_wizard_session_draft",
+          "resolve_ai_wizard_draft_download"
+        ],
+        "backend/sqx-edge-tool/api/server.py": [
+          "/api/sqx142/ai-wizard/catalog",
+          "/api/sqx142/ai-wizard/sessions",
+          "/api/sqx142/ai-wizard/drafts/<draft_id>/download",
+          "_require_sqx142_local_operator(AI_WIZARD_AI2_VERSION)"
+        ],
+        "tools/sqx142_ai_wizard_overlay.ps1": [
+          "$Version = 'sqx142-ai-wizard-overlay-v2'",
+          "sqx_process_running",
+          "New-Backup"
+        ],
+        "integrations/sqx142/ai_wizard_overlay/sqx-edge-aiwizard.js": [
+          "sqx142-ai-wizard-overlay-v2",
+          "sqx-edge-aiwizard-sessions",
+          "sqx-edge-aiwizard-catalog",
+          "sqx-edge-aiwizard-params",
+          "Provider directo desde navegador: blocked"
+        ],
+        "backend/sqx-edge-tool/test_sqx142_ai_wizard_studio.py": [
+          "test_ai2_catalog_is_sanitized_and_counts_fake_sources",
+          "test_ai2_sessions_persist_redacted_state_and_block_private_prompt",
+          "test_ai2_draft_generation_uses_session_and_downloads_by_draft_id"
+        ],
+        "tests/js/contracts/sqx142_aw_ai2_contracts.mjs": [
+          "sqx142 aw ai2 contracts ok",
+          "raw_catalog_request_blocked",
+          "data-sqx-aiwizard-session-id"
+        ]
+      },
+      "forbidden": {
+        "docs/SQX142_AW_AI2_AI_STUDIO.md": [
+          "Full Editor completo v1",
+          "raw XML in UI",
+          "copy 144 internals",
+          "risk zero"
+        ],
+        "integrations/sqx142/ai_wizard_overlay/sqx-edge-aiwizard.js": [
+          "OPENAI_API_KEY",
+          "api_key",
+          "localStorage",
+          "sessionStorage"
+        ]
+      }
+    },
     {
       "id": "sqx142_usdjpy_h1_capa2_candidate_cohort_parking_gate",
       "description": "A real USDJPY H1 Capa2 result may be parked as an accepted single-asset candidate cohort, but Portfolio Master stays deferred until broader multi-asset or multi-cohort context exists.",
@@ -108,7 +343,7 @@
         ],
         "tests/js/contracts/view_creator_contracts.mjs": [
           "sqx-edge-correlation-review",
-          "Correlation review helper should match the active CORR1 C2 contract"
+          "Template Maker helper should match CORR1 columns"
         ]
       },
       "forbidden": {
@@ -513,42 +748,60 @@
     },
     {
       "id": "remote_current_gate",
-      "description": "REMOTE docs must agree that REMOTE-RILIS-STANDBY is active after REMOTE-PG-SESSION-FIX, with REMOTE-8G deferred until the standby retest closes.",
+      "description": "REMOTE docs must agree that REMOTE-RILIS-STANDBY is closed, REMOTE-8G/8H/8I/8J returned GO, and REMOTE-8K monitoring is the next gated movement.",
       "required": {
         "README.md": [
-          "REMOTE-RILIS-STANDBY queda activo",
-          "REMOTE-PG-SESSION-FIX esta aplicado",
-          "TESTER-RILIS pendiente de retest",
-          "Siguiente paso recomendado: esperar el retest de TESTER-RILIS"
+          "REMOTE-RILIS-STANDBY queda cerrado por confirmacion del operador",
+          "REMOTE-PG-SESSION-FIX queda aplicado",
+          "GO_REMOTE8G_TINY_COHORT_DECISION_REVIEW_READY",
+          "GO_REMOTE8H_NEXT_CONTROLLED_MOVEMENT_PACKAGE_READY",
+          "GO_REMOTE8I_NEXT_CONTROLLED_MOVEMENT_EXECUTION_APPROVED",
+          "GO_REMOTE8J_NEXT_CONTROLLED_MOVEMENT_MANUAL_EXECUTION_RECORDED",
+          "Siguiente paso recomendado: preparar REMOTE-8K Post Execution Monitoring"
         ],
         "docs/PUBLIC_ROADMAP.md": [
-          "REMOTE-RILIS-STANDBY keeps a post-fix browser retest pending",
-          "a post-fix browser retest is in standby",
-          "Close the standby browser retest after the Project Generator remote-session redirect fix",
-          "Resume REMOTE-8G decision review only after the standby retest is confirmed"
+          "REMOTE-RILIS-STANDBY browser/custom-project retest was closed by operator confirmation",
+          "REMOTE-8G selected preparation of one next controlled movement package",
+          "REMOTE-8H prepared a one-user controlled package",
+          "REMOTE-8I approved creating the manual execution record",
+          "REMOTE-8J recorded TESTER-ESTHER's successful private access",
+          "Run REMOTE-8K monitoring"
         ],
         "docs/PROJECT_GOVERNANCE.md": [
           "Current phase completed: REMOTE-PG-SESSION-FIX",
-          "Current implementation phase: REMOTE-RILIS-STANDBY",
-          "TESTER-RILIS cannot retest until tomorrow",
-          "current blocker is TESTER-RILIS standby retest"
+          "Current phase completed: REMOTE-RILIS-STANDBY",
+          "Current phase completed: REMOTE-8G - Tiny Cohort Decision Review",
+          "Current phase completed: REMOTE-8H - Next Controlled Movement Package",
+          "Current phase completed: REMOTE-8I - Next Controlled Movement Execution Approval",
+          "Current phase completed: REMOTE-8J - Next Controlled Movement Manual Execution Record",
+          "Next implementation phase: REMOTE-8K Post Execution Monitoring"
         ]
       },
       "forbidden": {
         "README.md": [
           "REMOTE-8C sigue siendo el GO obligatorio",
           "continuar REMOTE-8C hasta cerrar la ventana limpia",
-          "REMOTE-8G es la decision obligatoria"
+          "TESTER-RILIS pendiente de retest",
+          "Siguiente paso recomendado: preparar REMOTE-8G Decision Review",
+          "Siguiente paso recomendado: preparar REMOTE-8H Next Controlled Movement Package",
+          "Siguiente paso recomendado: preparar REMOTE-8I Execution Approval"
         ],
         "docs/PUBLIC_ROADMAP.md": [
           "REMOTE-8 controlled pilot with one paid/internal user end to end",
           "Expand the controlled pilot to 3-5 users only after REMOTE-8",
-          "REMOTE-8G decision review for the clean tiny cohort closeout"
+          "Close the standby browser retest after the Project Generator remote-session redirect fix",
+          "Prepare REMOTE-8G decision review",
+          "Prepare REMOTE-8H next controlled movement package",
+          "Prepare REMOTE-8I execution approval"
         ],
         "docs/PROJECT_GOVERNANCE.md": [
           "expansion remains blocked until REMOTE-8C observation is clean",
           "multi-user expansion remains blocked by REMOTE-8C observation/support gates",
-          "Current implementation phase: REMOTE-8G tiny cohort decision review"
+          "current blocker is TESTER-RILIS standby retest",
+          "TESTER-RILIS cannot retest until tomorrow",
+          "Next implementation phase: REMOTE-8G tiny cohort decision review",
+          "Next implementation phase: REMOTE-8H Next Controlled Movement Package",
+          "Next implementation phase: REMOTE-8I Next Controlled Movement Execution Approval"
         ]
       }
     },
@@ -607,7 +860,7 @@
       "description": "The public roadmap date must not lag the current sync anchor.",
       "required": {
         "docs/PUBLIC_ROADMAP.md": [
-          "Last updated: 2026-05-21."
+          "Last updated: 2026-05-31."
         ],
         "CHANGELOG.md": [
           "2026-05-21 - REMOTE-AI-TESTER1 Authenticated Tester AI Pilot",
@@ -9172,11 +9425,11 @@
     },
     {
       "id": "sqx142_own_features3_correlation_manual_confirmation_gate",
-      "description": "SQX142 Correlation Pack manual confirmation must stay lab-only, operator-confirmed and non-mutating from scripts.",
+      "description": "SQX142 Correlation Pack manual confirmation must stay lab-only, non-mutating from scripts and closed by FEATURES4/5 clean-path validation rather than left pending on the legacy carrier.",
       "required": {
         "README.md": [
-          "SQX142-OWN-FEATURES3 Correlation Pack Manual Confirmation queda preparado",
-          "preflight_ready_pending_operator_ui_confirmation",
+          "SQX142-OWN-FEATURES3 Correlation Pack Manual Confirmation queda cerrado como `superseded_by_features4_features5_clean_path`",
+          "confirmacion operativa ya la satisfacen FEATURES4/5 sobre ruta limpia fresca",
           "tools\\sqx142_own_features_correlation_manual_confirmation.ps1",
           "SQX Edge Correlation Tagger",
           "SQXEdgeCorrelationTagger",
@@ -9184,9 +9437,10 @@
           "correlation_decisions.csv` con 86 filas"
         ],
         "docs/PROJECT_GOVERNANCE.md": [
-          "Current phase prepared: SQX142-OWN-FEATURES3 - Correlation Pack Manual Confirmation",
+          "Current phase completed/superseded: SQX142-OWN-FEATURES3 - Correlation Pack Manual Confirmation",
           "Correlation Manual Confirmation Gate",
-          "preflight_ready_pending_operator_ui_confirmation",
+          "superseded_by_features4_features5_clean_path",
+          "FEATURES4/5 validated the Correlation Pack on a fresh clean path",
           "tools/sqx142_own_features_correlation_manual_confirmation.ps1",
           "SQX Edge Correlation Tagger",
           "SQXEdgeCorrelationTagger",
@@ -9194,8 +9448,9 @@
         ],
         "docs/SQX142_OWN_FEATURES_CORRELATION_MANUAL_CONFIRMATION.md": [
           "SQX142-OWN-FEATURES3 Correlation Pack Manual Confirmation",
-          "preflight_ready_pending_operator_ui_confirmation",
+          "superseded_by_features4_features5_clean_path",
           "sqx142-own-features3-correlation-manual-confirmation-v1",
+          "FEATURES3 is no longer an open blocker",
           "SQX Edge Correlation Tagger",
           "SQXEdgeCorrelationTagger",
           "SQX EDGE CORRELATION REVIEW",
@@ -9204,6 +9459,7 @@
         ],
         "CHANGELOG.md": [
           "2026-05-27 - SQX142-OWN-FEATURES3 Correlation Pack Manual Confirmation",
+          "superseded_by_features4_features5_clean_path",
           "docs/SQX142_OWN_FEATURES_CORRELATION_MANUAL_CONFIRMATION.md",
           "tools/sqx142_own_features_correlation_manual_confirmation.ps1",
           "status/checklist",

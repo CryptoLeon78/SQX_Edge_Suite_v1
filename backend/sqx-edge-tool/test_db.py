@@ -41,7 +41,8 @@ class DbCostResolutionTestCase(unittest.TestCase):
         self.assertIn("spread", costs)
 
     def test_resolve_costs_prefers_sqx142_broker_specific_symbol_when_available(self):
-        db_path = Path(r"C:/BOTS/Versiones/SQX_142_Crack/user/data/data.db")
+        cfg = load_config()
+        db_path = Path(cfg.get("sqx_data_db") or "")
         if not db_path.is_file():
             self.skipTest("SQX 142 local diagnostic data.db no disponible")
 

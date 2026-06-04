@@ -36,34 +36,6 @@
     'ExitIndicators',
     'PriceIndicators'
   ];
-  var CVC_DECISION_REQUIRED_METRICS = [
-    'Net profit',
-    '# of trades',
-    'Profit factor',
-    'CAGR/Max DD %',
-    'Max DD %',
-    'Worst Year Profit',
-    'Entry indicators',
-    'Avg. Bars in Trade',
-    'Avg. Trades Per Month'
-  ];
-  var CVC_DECISION_CERT_CLASSES = [
-    'Symbol',
-    'TimeFrame',
-    'Fitness',
-    'EntryIndicators',
-    'NetProfit',
-    'NumberOfTrades',
-    'ProfitFactor',
-    'AnnualPctReturnDDRatio',
-    'DrawdownPct',
-    'WorstYearProfit',
-    'AvgBarsInTrade',
-    'AvgTradesPerMonth',
-    'RecoveryFactor',
-    'Stability'
-  ];
-
   var CATEGORY_LABELS = {
     fixed: 'Identificacion / contexto',
     core: 'Core EGT / Regimen',
@@ -185,59 +157,16 @@
   });
 
   var PRESETS = {
-    'egt-core': function(metric) { return metric.selectedDefault; },
-    robustness: function(metric) {
-      return metric.category === 'fixed' && metric.selectedDefault ||
-        ['AnnualPctReturnDDRatio', 'NetProfit', 'NumberOfTrades', 'ProfitFactor', 'DrawdownPct', 'SharpeRatio', 'SortinoRatio', 'CalmarRatio', 'RecoveryFactor', 'Stability', 'ProfitableMonthsPct', 'WorstYearProfit', 'StagnationPct'].indexOf(metric.className) >= 0;
-    },
-    risk: function(metric) {
-      return metric.category === 'fixed' && metric.selectedDefault ||
-        ['DrawdownPct', 'Drawdown', 'AvgDrawdown', 'AvgPctDrawdown', 'MaxNewHighDuration', 'UlcerIndex', 'UlcerPerformanceIndex', 'VaR_Hobbiecode', 'CVaR_Hobbiecode', 'StandardDev', 'ZScore', 'ZProbability'].indexOf(metric.className) >= 0;
-    },
     'sqx-edge-correlation-review': function(metric) {
       return SQX_EDGE_CORRELATION_REVIEW_CLASSES.indexOf(metric.className) >= 0;
     },
     'template-maker-cert': function(metric) {
       return SQX_EDGE_CORRELATION_REVIEW_CLASSES.indexOf(metric.className) >= 0;
     },
-    'cvc-decision-cert': function(metric) {
-      return CVC_DECISION_CERT_CLASSES.indexOf(metric.className) >= 0;
-    },
-    'full-audit': function(metric) { return metric.category !== 'fixed' || metric.selectedDefault; },
     clear: function(metric) { return metric.category === 'fixed' && metric.selectedDefault; }
   };
 
   var BUYER_READY_TEMPLATE_DEFINITIONS = [
-    {
-      id: 'egt-first-review',
-      name: 'EGT Core',
-      tier: 'free',
-      priority: 'obligatoria',
-      preset: 'egt-core',
-      description: 'View obligatoria para la primera lectura anual del edge, regimen y base de comparacion.',
-      objective: 'Primera lectura obligatoria del edge: rentabilidad, volumen de trades y ratio Ret/DD por bloque OOS.',
-      when: 'Antes de Mining 1 y en cada revision inicial del databank.',
-      nextAction: 'Descarga la .vw, importala en SQX y decide si el edge merece pasar a Robustez.',
-      metricTags: ['PF', 'Trades', 'Ret/DD', 'Net Profit'],
-      oosTag: '9oos',
-      oosOptions: [1, 2, 3, 7, 9],
-      config: { viewName: 'EGT Core', yearCount: 9, sampleStart: 21, includeTotal: true, groupMode: 'by_year' }
-    },
-    {
-      id: 'robustness-pack-screen',
-      name: 'Robustez',
-      tier: 'pro',
-      priority: 'obligatoria',
-      preset: 'robustness',
-      description: 'View obligatoria para revisar estabilidad, años malos, stagnation y ratios antes de portfolio.',
-      objective: 'Control obligatorio de estabilidad: TICK REAL, MC, SPP, WFM, años malos y ratios de supervivencia.',
-      when: 'Despues de EGT Core, antes de aceptar una estrategia para portfolio o entrega.',
-      nextAction: 'Revisa estabilidad y años malos; si aguanta, pasa a Risk o Full audit segun el caso.',
-      metricTags: ['TICK REAL', 'MC', 'SPP', 'WFM'],
-      oosTag: '9oos',
-      oosOptions: [1, 2, 3, 7, 9],
-      config: { viewName: 'Robustez', yearCount: 9, sampleStart: 21, includeTotal: true, groupMode: 'by_metric' }
-    },
     {
       id: 'sqx-edge-correlation-review',
       name: 'SQX EDGE CORRELATION REVIEW',
@@ -252,56 +181,11 @@
       oosTag: 'corr1',
       oosOptions: [1],
       config: { viewName: 'SQX EDGE CORRELATION REVIEW', yearCount: 1, sampleStart: 21, includeTotal: false, groupMode: 'plain' }
-    },
-    {
-      id: 'cvc-decision-cert',
-      name: 'CVC Decision Cert',
-      tier: 'free',
-      priority: 'obligatoria',
-      preset: 'cvc-decision-cert',
-      description: 'View obligatoria para exportar Champion, Challengers y OOS con las columnas que decide Champion vs Challenger.',
-      objective: 'Contrato oficial CVC: direccion, arquetipo, OOS, volatilidad y score final sin depender de columnas ocultas.',
-      when: 'Antes de comparar finalistas en Champion vs Challenger.',
-      nextAction: 'Exporta Champion, Challengers y OOS con esta view antes de tomar la decision final.',
-      metricTags: ['CVC', 'OOS', 'Arquetipo', 'Volatilidad', 'Short'],
-      oosTag: '9oos',
-      oosOptions: [1, 2, 3, 7, 9],
-      config: { viewName: 'CVC Decision Cert', yearCount: 9, sampleStart: 21, includeTotal: true, groupMode: 'by_metric' }
-    },
-    {
-      id: 'risk-capital-review',
-      name: 'Risk',
-      tier: 'pro',
-      priority: 'recomendable',
-      preset: 'risk',
-      description: 'View recomendable para drawdown, dispersion, rachas negativas y stress previo a entrega.',
-      objective: 'Revision de riesgo operativo: drawdown, VaR/CVaR, Z-Score, dispersion y rachas negativas.',
-      when: 'Antes de entregar una estrategia o cuando el riesgo decide si se descarta.',
-      nextAction: 'Confirma que el riesgo encaja con el perfil objetivo antes de exportar resultados.',
-      metricTags: ['VaR', 'CVaR', 'Z-Score', 'Drawdown'],
-      oosTag: '7oos',
-      oosOptions: [1, 2, 3, 7, 9],
-      config: { viewName: 'Risk', yearCount: 7, sampleStart: 23, includeTotal: true, groupMode: 'by_year' }
-    },
-    {
-      id: 'full-audit-handoff',
-      name: 'Full audit',
-      tier: 'pro',
-      priority: 'recomendable',
-      preset: 'full-audit',
-      description: 'View recomendable para auditoria completa y CSV posterior cuando una tanda merece investigacion.',
-      objective: 'Vista amplia para auditoria final, documentacion de decisiones y CSV completo.',
-      when: 'Cuando una tanda ya supero filtros iniciales y merece revision profunda.',
-      nextAction: 'Exporta CSV desde SQX con esta view para documentar la decision final.',
-      metricTags: ['PF', 'R Exp', 'CAGR/DD', 'Stagnation'],
-      oosTag: '9oos',
-      oosOptions: [1, 2, 3, 7, 9],
-      config: { viewName: 'Full audit', yearCount: 9, sampleStart: 21, includeTotal: true, groupMode: 'by_metric' }
     }
   ];
 
   var metricState = {};
-  var activeTemplateId = 'egt-first-review';
+  var activeTemplateId = 'sqx-edge-correlation-review';
   METRICS.forEach(function(metric) {
     metricState[metric.className] = {
       selected: !!metric.selectedDefault,
@@ -458,9 +342,9 @@
 
   function buildViewXml(options) {
     var opts = options || {};
-    var viewName = String(opts.viewName || 'EGT - Anual').trim() || 'EGT - Anual';
+    var viewName = String(opts.viewName || 'SQX EDGE CORRELATION REVIEW').trim() || 'SQX EDGE CORRELATION REVIEW';
     var selected = hydrateMetricSelection(opts.selected || opts.metrics || []);
-    var yearCount = sanitizeInt(opts.yearCount, 9, 1, 30);
+    var yearCount = sanitizeInt(opts.yearCount, 1, 1, 30);
     var sampleStart = sanitizeInt(opts.sampleStart, 21, 0, 126);
     var includeTotal = opts.includeTotal !== false;
     var groupMode = opts.groupMode === 'plain' ? 'plain' : (opts.groupMode === 'by_metric' ? 'by_metric' : 'by_year');
@@ -492,8 +376,8 @@
   function serializeConfig(options) {
     var opts = options || optionsFromDom();
     return {
-      viewName: String(opts.viewName || 'EGT - Anual').trim() || 'EGT - Anual',
-      yearCount: sanitizeInt(opts.yearCount, 9, 1, 30),
+      viewName: String(opts.viewName || 'SQX EDGE CORRELATION REVIEW').trim() || 'SQX EDGE CORRELATION REVIEW',
+      yearCount: sanitizeInt(opts.yearCount, 1, 1, 30),
       sampleStart: sanitizeInt(opts.sampleStart, 21, 0, 126),
       includeTotal: opts.includeTotal !== false,
       groupMode: opts.groupMode === 'plain' ? 'plain' : (opts.groupMode === 'by_metric' ? 'by_metric' : 'by_year'),
@@ -517,8 +401,8 @@
       };
     }).filter(Boolean) : [];
     return {
-      viewName: String(cfg.viewName || 'EGT - Anual').trim() || 'EGT - Anual',
-      yearCount: sanitizeInt(cfg.yearCount, 9, 1, 30),
+      viewName: String(cfg.viewName || 'SQX EDGE CORRELATION REVIEW').trim() || 'SQX EDGE CORRELATION REVIEW',
+      yearCount: sanitizeInt(cfg.yearCount, 1, 1, 30),
       sampleStart: sanitizeInt(cfg.sampleStart, 21, 0, 126),
       includeTotal: cfg.includeTotal !== false,
       groupMode: cfg.groupMode === 'plain' ? 'plain' : (cfg.groupMode === 'by_metric' ? 'by_metric' : 'by_year'),
@@ -550,7 +434,7 @@
   }
 
   function configFromPresetName(presetName, config) {
-    var selector = PRESETS[presetName] || PRESETS['egt-core'];
+    var selector = PRESETS[presetName] || PRESETS['sqx-edge-correlation-review'];
     var cfg = config || {};
     return normalizeConfig({
       viewName: cfg.viewName,
@@ -573,7 +457,7 @@
       name: definition.name,
       tier: definition.tier || 'pro',
       priority: definition.priority || 'recomendable',
-      preset: definition.preset || 'egt-core',
+      preset: definition.preset || 'sqx-edge-correlation-review',
       description: definition.description || '',
       objective: definition.objective || definition.description || '',
       when: definition.when || '',
@@ -612,7 +496,7 @@
     var sampleEnd = cfg.sampleStart + cfg.yearCount - 1;
     return cfg.yearCount + ' OOS · bloques SQX ' + cfg.sampleStart + '..' + sampleEnd
       + (cfg.includeTotal ? ' + Total consolidado' : '')
-      + ' · ' + (cfg.groupMode === 'by_metric' ? 'orden por métrica' : 'orden por año');
+      + ' · ' + (cfg.groupMode === 'plain' ? 'orden plano CORR1' : (cfg.groupMode === 'by_metric' ? 'orden por métrica' : 'orden por año'));
   }
 
   function updateGuideCards() {
@@ -691,21 +575,6 @@
     return TEMPLATE_MAKER_REQUIRED_METRICS.slice();
   }
 
-  function buildCvcDecisionCertView() {
-    var template = findBuyerReadyTemplate('cvc-decision-cert');
-    return buildViewXml(template ? template.config : configFromPresetName('cvc-decision-cert', {
-      viewName: 'CVC Decision Cert',
-      yearCount: 9,
-      sampleStart: 21,
-      includeTotal: true,
-      groupMode: 'by_metric'
-    }));
-  }
-
-  function getCvcDecisionRequiredMetrics() {
-    return CVC_DECISION_REQUIRED_METRICS.slice();
-  }
-
   function parsePresetPackage(payload) {
     var data = typeof payload === 'string' ? safeJsonParse(payload, null) : payload;
     if (!data) return [];
@@ -755,7 +624,7 @@
 
   function presetImportPreviewSummary(preview) {
     var data = preview || {};
-    if (!data.incomingCount) return 'Preview: el pack no contiene presets SQX Views validos.';
+    if (!data.incomingCount) return 'Preview: el pack no contiene presets View CORR1 validos.';
     return 'Preview: ' + data.incomingCount + (data.incomingCount === 1 ? ' preset' : ' presets')
       + ' · ' + data.newCount + ' nuevos'
       + ' · ' + data.duplicateCount + ' reemplazos'
@@ -765,7 +634,7 @@
 
   function presetImportPreviewHtml(preview) {
     var data = preview || {};
-    if (!data.incomingCount) return '<div class="views-template-desc">El pack no contiene presets SQX Views validos.</div>';
+    if (!data.incomingCount) return '<div class="views-template-desc">El pack no contiene presets View CORR1 validos.</div>';
     var rows = data.incoming.slice(0, 8).map(function(preset) {
       var cfg = normalizeConfig(preset.config);
       var duplicate = data.duplicateIds.indexOf(preset.id) >= 0;
@@ -811,11 +680,11 @@
 
   function applyConfig(savedConfig) {
     var cfg = savedConfig || {};
-    if (byId('vc-view-name')) byId('vc-view-name').value = cfg.viewName || 'EGT - Anual';
-    if (byId('vc-year-count')) byId('vc-year-count').value = sanitizeInt(cfg.yearCount, 9, 1, 30);
+    if (byId('vc-view-name')) byId('vc-view-name').value = cfg.viewName || 'SQX EDGE CORRELATION REVIEW';
+    if (byId('vc-year-count')) byId('vc-year-count').value = sanitizeInt(cfg.yearCount, 1, 1, 30);
     if (byId('vc-sample-start')) byId('vc-sample-start').value = sanitizeInt(cfg.sampleStart, 21, 0, 126);
     if (byId('vc-include-total')) byId('vc-include-total').checked = cfg.includeTotal !== false;
-    if (byId('vc-group-mode')) byId('vc-group-mode').value = cfg.groupMode === 'by_metric' ? 'by_metric' : 'by_year';
+    if (byId('vc-group-mode')) byId('vc-group-mode').value = cfg.groupMode === 'plain' ? 'plain' : (cfg.groupMode === 'by_metric' ? 'by_metric' : 'by_year');
     if (byId('vc-search')) byId('vc-search').value = '';
     METRICS.forEach(function(metric) {
       setMetric(metric.className, false, metric.annualDefault);
@@ -833,23 +702,23 @@
 
   function optionsFromDom() {
     return {
-      viewName: byId('vc-view-name') ? byId('vc-view-name').value : 'EGT - Anual',
-      yearCount: byId('vc-year-count') ? byId('vc-year-count').value : 9,
+      viewName: byId('vc-view-name') ? byId('vc-view-name').value : 'SQX EDGE CORRELATION REVIEW',
+      yearCount: byId('vc-year-count') ? byId('vc-year-count').value : 1,
       sampleStart: byId('vc-sample-start') ? byId('vc-sample-start').value : 21,
-      includeTotal: byId('vc-include-total') ? byId('vc-include-total').checked : true,
-      groupMode: byId('vc-group-mode') ? byId('vc-group-mode').value : 'by_year',
+      includeTotal: byId('vc-include-total') ? byId('vc-include-total').checked : false,
+      groupMode: byId('vc-group-mode') ? byId('vc-group-mode').value : 'plain',
       selected: selectedMetrics()
     };
   }
 
   function previewLines(options) {
     var opts = options || {};
-    var yearCount = sanitizeInt(opts.yearCount, 9, 1, 30);
+    var yearCount = sanitizeInt(opts.yearCount, 1, 1, 30);
     var sampleStart = sanitizeInt(opts.sampleStart, 21, 0, 126);
     var selected = opts.selected || [];
     var columns = columnSpecs(selected, yearCount, sampleStart, opts.includeTotal !== false, opts.groupMode);
     var lines = [
-      "Vista: '" + (opts.viewName || 'EGT - Anual') + "'",
+      "Vista: '" + (opts.viewName || 'SQX EDGE CORRELATION REVIEW') + "'",
       'Bloques OOS: ' + sampleStart + '..' + (sampleStart + yearCount - 1) + (opts.includeTotal !== false ? ' + Total consolidado' : ''),
       'Metricas: ' + selected.length + ' | Columnas: ' + columns.length,
       '------------------------------------------------------------'
@@ -907,10 +776,10 @@
     var yearCount = sanitizeInt(options.yearCount, 9, 1, 30);
     var sampleStart = sanitizeInt(options.sampleStart, 21, 0, 126);
     var sampleEnd = sampleStart + yearCount - 1;
-    setText('vc-summary-view', options.viewName || 'EGT - Anual');
+    setText('vc-summary-view', options.viewName || 'SQX EDGE CORRELATION REVIEW');
     setText('vc-summary-oos', yearCount + (yearCount === 1 ? ' bloque' : ' bloques'));
     setText('vc-summary-sample', sampleStart + '..' + sampleEnd);
-    setText('vc-summary-order', options.groupMode === 'by_metric' ? 'Por métrica' : 'Por año');
+    setText('vc-summary-order', options.groupMode === 'plain' ? 'Plano CORR1' : (options.groupMode === 'by_metric' ? 'Por métrica' : 'Por año'));
     setText('vc-summary-total', options.includeTotal !== false ? 'Incluido' : 'Sin total');
   }
 
@@ -926,8 +795,8 @@
     if (byId('vc-selected-count')) byId('vc-selected-count').textContent = String(selected.length);
     if (byId('vc-column-count')) byId('vc-column-count').textContent = String(columnCount);
     if (byId('vc-year-range')) byId('vc-year-range').textContent = sampleStart + '..' + (sampleStart + yearCount - 1);
-    if (byId('vc-preview-title')) byId('vc-preview-title').textContent = opts.viewName || 'EGT - Anual';
-    if (byId('vc-mode-label')) byId('vc-mode-label').textContent = opts.groupMode === 'by_metric' ? 'Agrupado por métrica' : 'Agrupado por año';
+    if (byId('vc-preview-title')) byId('vc-preview-title').textContent = opts.viewName || 'SQX EDGE CORRELATION REVIEW';
+    if (byId('vc-mode-label')) byId('vc-mode-label').textContent = opts.groupMode === 'plain' ? 'Plano CORR1' : (opts.groupMode === 'by_metric' ? 'Agrupado por métrica' : 'Agrupado por año');
     updateConfigSummary(opts);
     setStatus(columnCount + ' columnas preparadas para descargar.', 'ok');
     return opts;
@@ -1031,10 +900,10 @@
 
   function applyPreset(name) {
     var hasFull = hasFullAccess();
-    var preset = PRESETS[name] || PRESETS['egt-core'];
-    if (!hasFull && name !== 'egt-core' && name !== 'sqx-edge-correlation-review' && name !== 'template-maker-cert' && name !== 'clear') {
+    var preset = PRESETS[name] || PRESETS['sqx-edge-correlation-review'];
+    if (!hasFull && name !== 'sqx-edge-correlation-review' && name !== 'template-maker-cert' && name !== 'clear') {
       setStatus('El catalogo completo requiere SQX Edge Pro.', 'warn');
-      name = 'egt-core';
+      name = 'sqx-edge-correlation-review';
       preset = PRESETS[name];
     }
     METRICS.forEach(function(metric) {
@@ -1056,19 +925,21 @@
 
   function openHandoff(options) {
     var opts = options || {};
-    var preset = opts.preset || opts.handoff || 'egt-core';
+    var preset = opts.preset || opts.handoff || 'sqx-edge-correlation-review';
     if (SQX.ui && SQX.ui.activateTabById) SQX.ui.activateTabById('views', global.document);
     setFieldValue('vc-view-name', opts.viewName || opts.name);
-    setFieldValue('vc-year-count', opts.yearCount || opts.years);
-    setFieldValue('vc-sample-start', opts.sampleStart);
-    if (opts.groupMode) setFieldValue('vc-group-mode', opts.groupMode);
+    setFieldValue('vc-year-count', opts.yearCount || opts.years || (preset === 'sqx-edge-correlation-review' ? 1 : null));
+    setFieldValue('vc-sample-start', opts.sampleStart || (preset === 'sqx-edge-correlation-review' ? 21 : null));
+    if (opts.includeTotal !== undefined && byId('vc-include-total')) byId('vc-include-total').checked = opts.includeTotal !== false;
+    if (opts.includeTotal === undefined && preset === 'sqx-edge-correlation-review' && byId('vc-include-total')) byId('vc-include-total').checked = false;
+    if (opts.groupMode || preset === 'sqx-edge-correlation-review') setFieldValue('vc-group-mode', opts.groupMode || 'plain');
     applyPreset(preset);
     setActiveViewGuide((findBuyerReadyTemplateByPreset(preset) || {}).id, 'Handoff cargado');
     var shell = global.document.querySelector('.views-shell');
     if (shell && shell.scrollIntoView) shell.scrollIntoView({ behavior: 'smooth', block: 'start' });
     var preview = updatePreview();
     setStatus('Handoff cargado: ' + (opts.viewName || opts.name || preset) + '.', 'ok');
-    if (global.addHomeTrace) global.addHomeTrace('SQX Views', 'Handoff ' + preset + ' preparado', 'ok');
+    if (global.addHomeTrace) global.addHomeTrace('View CORR1', 'Handoff ' + preset + ' preparado', 'ok');
     return preview;
   }
 
@@ -1150,7 +1021,7 @@
     applyConfig(template.config);
     setActiveViewGuide(template.id, 'View cargada');
     setStatus('View cargada: ' + template.name + '. ' + (template.nextAction || ''), 'ok');
-    if (global.addHomeTrace) global.addHomeTrace('SQX Views', 'View ' + template.name + ' cargada', 'ok');
+    if (global.addHomeTrace) global.addHomeTrace('View CORR1', 'View ' + template.name + ' cargada', 'ok');
     return template;
   }
 
@@ -1329,9 +1200,9 @@
     renderBuyerReadyTemplates();
     renderSavedPresets();
     var note = byId('vc-license-note');
-    if (note) note.textContent = hasFullAccess() ? 'Catálogo completo habilitado.' : 'Preset EGT Core activo. Las views avanzadas requieren licencia.';
+    if (note) note.textContent = 'View CORR1 activa.';
     updatePreview();
-    setActiveViewGuide(activeTemplateId, 'View recomendada para empezar');
+    setActiveViewGuide(activeTemplateId, 'Contrato activo CORR1');
   }
 
   SQX.viewCreator = SQX.viewCreator || {
@@ -1344,14 +1215,12 @@
     downloadView: downloadView,
     bindHandoffLinks: bindHandoffLinks,
     buildBuyerReadyTemplatePack: buildBuyerReadyTemplatePack,
-    buildCvcDecisionCertView: buildCvcDecisionCertView,
     buildTemplateMakerCertView: buildTemplateMakerCertView,
     buildPresetPackage: buildPresetPackage,
     buyerReadyTemplates: getBuyerReadyTemplates,
     importPresetPackage: importPresetPackage,
     importPresetPackageFromText: importPresetPackageFromText,
     getSavedPresets: getSavedPresets,
-    getCvcDecisionRequiredMetrics: getCvcDecisionRequiredMetrics,
     getTemplateMakerRequiredMetrics: getTemplateMakerRequiredMetrics,
     groupedMetrics: groupedMetrics,
     init: init,

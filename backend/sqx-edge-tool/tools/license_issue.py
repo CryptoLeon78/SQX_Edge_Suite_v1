@@ -43,9 +43,14 @@ def default_license_id(today: date) -> str:
 def build_license_payload(args: argparse.Namespace, today: date | None = None) -> dict:
     current = today or date.today()
     issued_at = _parse_date(args.issued_at, "issued-at") or current
-    expires_at = _parse_date(args.expires_at, "expires-at")
+    no_expires = bool(getattr(args, "no_expires", False))
+    if no_expires and args.expires_at:
+        raise ValueError("--no-expires cannot be combined with --expires-at")
+    if no_expires and args.duration_days is not None:
+        raise ValueError("--no-expires cannot be combined with --duration-days")
+    expires_at = None if no_expires else _parse_date(args.expires_at, "expires-at")
     duration_days = args.duration_days
-    if expires_at is None:
+    if expires_at is None and not no_expires:
         if duration_days is None:
             duration_days = DEFAULT_PLAN_DAYS.get(args.plan, 31)
         expires_at = issued_at + timedelta(days=int(duration_days))
@@ -56,11 +61,12 @@ def build_license_payload(args: argparse.Namespace, today: date | None = None) -
         "customer_name": args.customer_name.strip(),
         "plan": args.plan,
         "issued_at": issued_at.isoformat(),
-        "expires_at": expires_at.isoformat(),
         "machine_limit": int(args.machine_limit),
         "support_level": args.support_level,
         "source": "manual_issuer_v1",
     }
+    if expires_at is not None:
+        payload["expires_at"] = expires_at.isoformat()
 
     optional_fields = {
         "customer_email": args.customer_email,
@@ -90,6 +96,8 @@ def issue_license(args: argparse.Namespace, today: date | None = None) -> dict:
         raise ValueError("customer-name is required")
     if int(args.machine_limit) < 1:
         raise ValueError("machine-limit must be at least 1")
+    if getattr(args, "no_expires", False) and args.plan != "pro_tester_15":
+        raise ValueError("--no-expires is only allowed for approved tester licenses")
     if args.duration_days is not None and int(args.duration_days) < 1:
         raise ValueError("duration-days must be at least 1")
     if args.grace_days is not None and int(args.grace_days) < 0:
@@ -116,6 +124,7 @@ def main() -> int:
     parser.add_argument("--issued-at", default="", help="Issue date as YYYY-MM-DD. Defaults to today.")
     parser.add_argument("--expires-at", default="", help="Expiration date as YYYY-MM-DD.")
     parser.add_argument("--duration-days", type=int, default=None, help="Expiration offset when --expires-at is omitted.")
+    parser.add_argument("--no-expires", action="store_true", help="Omit expires_at. Allowed only for approved tester licenses.")
     parser.add_argument("--machine-limit", type=int, default=1, help="Allowed machine count for support policy.")
     parser.add_argument("--support-level", default="standard", choices=["none", "standard", "priority"])
     parser.add_argument("--grace-days", type=int, default=None, help="Optional per-license grace days.")
@@ -130,7 +139,7 @@ def main() -> int:
     print(f"License id: {signed.get('license_id')}")
     print(f"Customer: {signed.get('customer_name')}")
     print(f"Plan: {signed.get('plan')}")
-    print(f"Expires at: {signed.get('expires_at')}")
+    print(f"Expires at: {signed.get('expires_at') or 'none'}")
     print(f"Public key id: {signed.get('public_key_id')}")
     return 0
 

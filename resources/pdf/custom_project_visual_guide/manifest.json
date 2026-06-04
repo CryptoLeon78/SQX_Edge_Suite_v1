@@ -1,0 +1,105 @@
+{
+  "version": "custom-project-visual-guide-v1",
+  "title": "PDF Guia Visual SQX Custom Project",
+  "screenshots": [
+    {
+      "id": "task-flow",
+      "file": "01_task_flow.png",
+      "title": "Flujo de tareas del custom project",
+      "sqxZone": "Custom Projects > panel izquierdo de tareas",
+      "risk": "Tareas ausentes, desordenadas o inactivas despues de importar/exportar el custom.",
+      "expectedValues": "Build, RETEST 0, RETEST 1, TICK REAL, MC, MC 2, Sequential, Monkey Test, Synthetic, SPP, WFM y Forward visibles y en orden.",
+      "required": true
+    },
+    {
+      "id": "build-data",
+      "file": "02_build_data_setup.png",
+      "title": "Build - Data y Setup",
+      "sqxZone": "Build task > Data / What to build",
+      "risk": "Activo, timeframe, direccion, blocksetting o periodo de construccion incorrectos.",
+      "expectedValues": "Simbolo principal del usuario, timeframe correcto, Build C1/C2 y periodo de referencia segun generator_profiles.json.",
+      "required": true
+    },
+    {
+      "id": "retest0",
+      "file": "03_retest0_input_output_oos.png",
+      "title": "RETEST 0 - Input, Output y OOS",
+      "sqxZone": "RETEST 0 > Data / Databanks / Out of sample",
+      "risk": "RETEST 0 leyendo o escribiendo en databank equivocado o con OOS cambiado.",
+      "expectedValues": "Input desde Results o databank previo esperado, Output RETEST 0, OOS 2023.01.01 -> 2025.01.01 cuando aplique.",
+      "required": true
+    },
+    {
+      "id": "retest1-dukascopy",
+      "file": "04_retest1_dukascopy_oos2.png",
+      "title": "RETEST 1 / OOS2 - Dukascopy historico",
+      "sqxZone": "RETEST 1 > Data / Resources",
+      "risk": "Dukascopy sustituido por broker destino, source mal heredado o recurso incoherente.",
+      "expectedValues": "Source 2 Dukascopy, periodo 2010.01.01 -> 2017.10.02 o rango acotado por datos reales, timezone EETUS y precision TICK.",
+      "required": true
+    },
+    {
+      "id": "robustness-chain",
+      "file": "05_robustness_chain.png",
+      "title": "Cadena de robustez",
+      "sqxZone": "TICK REAL / MC / MC 2 / Sequential / Monkey Test / Synthetic / SPP / WFM / Forward",
+      "risk": "Saltos de databank o tareas de robustez con precision, input u output incorrectos.",
+      "expectedValues": "Tareas de robustez activas, Input/Output encadenados y precision segun contrato metodologico.",
+      "required": true
+    },
+    {
+      "id": "databanks",
+      "file": "06_databanks_counts.png",
+      "title": "Databanks y conteos visibles",
+      "sqxZone": "Custom project > panel de databanks",
+      "risk": "Databanks con nombres legacy, conteos inesperados o exceso de estrategias en memoria.",
+      "expectedValues": "Results, RETEST 0, retest 1, TICK, MC, MC2, Sequential, Monkey Test, Synthetic, SPP, WFM y Forward cuando correspondan.",
+      "required": true
+    },
+    {
+      "id": "data-manager-main-symbol",
+      "file": "07_data_manager_main_symbol.png",
+      "title": "Data Manager - simbolo principal",
+      "sqxZone": "Data Manager > Symbols",
+      "risk": "El custom referencia un simbolo que no existe en la maquina del usuario.",
+      "expectedValues": "Simbolo exacto del perfil destino, broker/source correctos, timezone EETUS y precision TICK.",
+      "required": true
+    },
+    {
+      "id": "data-manager-dukascopy",
+      "file": "08_data_manager_dukascopy_symbol.png",
+      "title": "Data Manager - simbolo Dukascopy",
+      "sqxZone": "Data Manager > Symbols / Dukascopy",
+      "risk": "Retest 1/OOS2 sin datos historicos suficientes o con source/broker incompatible.",
+      "expectedValues": "Simbolo *_dukascopy o equivalente, source Dukascopy y cobertura historica suficiente para Retest 1/OOS2.",
+      "required": true
+    },
+    {
+      "id": "ranking-custom-analysis",
+      "file": "09_ranking_custom_analysis.png",
+      "title": "Ranking, Custom Analysis y DeleteFailedStrategies",
+      "sqxZone": "Task > Ranking / Custom Analysis",
+      "risk": "Filtro activo no deseado, Custom Analysis equivocado o borrado de evidencia por error.",
+      "expectedValues": "Metodo y filtro alineados con la tarea; DeleteFailedStrategies revisado antes de ejecutar.",
+      "required": true
+    },
+    {
+      "id": "crosschecks-sessions",
+      "file": "10_crosschecks_sessions.png",
+      "title": "CrossChecks y sesiones",
+      "sqxZone": "Task > CrossChecks / Trading options / Sessions",
+      "risk": "Sesiones antiguas, CrossChecks activos por accidente o MarketOpenSession distinto de No Session.",
+      "expectedValues": "No Session donde corresponda; CrossChecks activos/inactivos segun la tarea, no por herencia accidental.",
+      "required": true
+    },
+    {
+      "id": "resource-resolver",
+      "file": "11_resource_resolver_clean.png",
+      "title": "Resolver de recursos sin errores rojos",
+      "sqxZone": "Pantalla de carga/importacion del custom project",
+      "risk": "Recursos no resueltos, broker ids ausentes, custom blocks diferentes o placeholders SQ Equity Data.",
+      "expectedValues": "Custom abre sin errores rojos; si hay warning Dukascopy, debe corresponder al Retest 1/OOS2 protegido.",
+      "required": true
+    }
+  ]
+}

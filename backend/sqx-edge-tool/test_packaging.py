@@ -141,6 +141,9 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn('".open-next"', text)
         self.assertIn('".wrangler"', text)
         self.assertIn('".local"', text)
+        self.assertIn('"app - copia"', text)
+        self.assertIn('"material de diagnostico"', text)
+        self.assertIn('"Presentaciones Proyecto"', text)
         self.assertIn('"analysis_output"', text)
         self.assertIn("RELEASE_SQX_EDGE", text)
         self.assertIn("license\\.json", text)
@@ -606,6 +609,9 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             ".open-next",
             ".wrangler",
             ".local",
+            "app - copia",
+            "material de diagnostico",
+            "Presentaciones Proyecto",
             "backups",
             "Get-FileHash",
             "SQX_distribution_audit.txt",

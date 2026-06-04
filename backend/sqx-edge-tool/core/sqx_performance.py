@@ -294,6 +294,22 @@ def _dir_stats(path: Path, *, max_files: int = 25_000) -> dict[str, Any]:
     return stats
 
 
+def _safe_disk_usage_root(root: Path) -> str:
+    candidates = [root if root.exists() else None, Path.cwd()]
+    for candidate in candidates:
+        if candidate is None:
+            continue
+        target = candidate.anchor or str(candidate)
+        if not target:
+            continue
+        try:
+            shutil.disk_usage(target)
+            return target
+        except OSError:
+            continue
+    return "."
+
+
 def _resource_snapshot(root: Path) -> dict[str, Any]:
     memory: dict[str, Any] = {}
     cpu: dict[str, Any] = {}
@@ -325,7 +341,7 @@ def _resource_snapshot(root: Path) -> dict[str, Any]:
             }
         except (OSError, subprocess.TimeoutExpired, json.JSONDecodeError, ValueError):
             pass
-    usage = shutil.disk_usage(root.anchor or str(root))
+    usage = shutil.disk_usage(_safe_disk_usage_root(root))
     disk = {
         "totalBytes": usage.total,
         "freeBytes": usage.free,
