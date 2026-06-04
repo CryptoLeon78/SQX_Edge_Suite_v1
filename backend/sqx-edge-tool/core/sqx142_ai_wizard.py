@@ -19,6 +19,7 @@ from .sqx_compatibility import SQX142_DEFAULT_ROOT
 AI_WIZARD_VERSION = "sqx142-ai-wizard-v1"
 AI_WIZARD_AI2_VERSION = "sqx142-ai-wizard-studio-v2"
 AI_WIZARD_AI3_COMPILER_VERSION = "sqx142-aw-ai3-universal-prompt-compiler-v1"
+AI_WIZARD_AI3_CATALOG_VERSION = "sqx142-aw-ai3-expanded-catalog-v1"
 SPEC_TYPE = "sqx-edge.ai-wizard-strategy-spec"
 CATALOG_TYPE = "sqx-edge.ai-wizard-capability-catalog-v1"
 AST_TYPE = "sqx-edge.ai-wizard-strategy-ast-v1"
@@ -215,6 +216,13 @@ def _normalize_hint_list(value: Any, *, limit: int = 12) -> list[str]:
     return list(dict.fromkeys(items))
 
 
+def _catalog_semantic_items(catalog: dict[str, Any]) -> list[dict[str, Any]]:
+    data = catalog.get("data", {}).get("catalog", catalog)
+    semantic = data.get("semanticCatalog") if isinstance(data.get("semanticCatalog"), dict) else {}
+    items = semantic.get("items") if isinstance(semantic.get("items"), list) else []
+    return [item for item in items if isinstance(item, dict)]
+
+
 def _catalog_prompt_summary(catalog: dict[str, Any]) -> dict[str, Any]:
     keys = _catalog_key_sets(catalog)
     data = catalog.get("data", {}).get("catalog", catalog)
@@ -233,6 +241,18 @@ def _catalog_prompt_summary(catalog: dict[str, Any]) -> dict[str, Any]:
         "blocks": sorted(keys["blocks"])[:80],
         "comparisons": sorted(keys["comparisons"] | keys["conditions"])[:120],
         "conditions": safe_conditions,
+        "semanticCatalog": [
+            {
+                "id": str(item.get("id") or "")[:100],
+                "label": str(item.get("label") or "")[:120],
+                "kind": str(item.get("kind") or "")[:40],
+                "category": str(item.get("category") or "")[:80],
+                "returnType": str(item.get("returnType") or "")[:40],
+                "aliases": [str(alias)[:60] for alias in item.get("aliases", [])[:8] if alias],
+                "compilerSupport": str(item.get("compilerSupport") or "")[:80],
+            }
+            for item in _catalog_semantic_items(catalog)[:120]
+        ],
         "supports": {
             "ohlc": all(item in keys["blocks"] for item in ("Open", "Close", "High", "Low")),
             "atr": _catalog_has_atr_support(catalog),
@@ -1014,6 +1034,69 @@ def _param_payload(node: ET.Element) -> dict[str, Any]:
     }
 
 
+def _split_catalog_words(value: Any) -> list[str]:
+    text = str(value or "")
+    text = re.sub(r"([a-z0-9])([A-Z])", r"\1 \2", text)
+    text = re.sub(r"[_#@()[\]{}.,:;\\/+-]+", " ", text)
+    text = re.sub(r"\s+", " ", text).strip()
+    return [part for part in text.split(" ") if part]
+
+
+def _catalog_aliases(*values: Any, limit: int = 10) -> list[str]:
+    aliases: list[str] = []
+    stopwords = {
+        "a", "an", "and", "at", "by", "de", "del", "el", "en", "is", "la", "of", "or", "the",
+        "to", "y", "con", "sin", "than", "level", "bar",
+    }
+    for value in values:
+        raw = str(value or "").strip()
+        if not raw:
+            continue
+        compact = re.sub(r"\s+", " ", raw)[:100]
+        words = _split_catalog_words(raw)
+        phrase = " ".join(words)[:100]
+        for alias in (compact, phrase):
+            cleaned = re.sub(r"[^A-Za-z0-9 ._+-]+", "", alias).strip()
+            if len(cleaned) >= 2 and cleaned.casefold() not in stopwords:
+                aliases.append(cleaned)
+        for word in words:
+            normalized = re.sub(r"[^A-Za-z0-9+-]+", "", word).strip()
+            if len(normalized) >= 3 and normalized.casefold() not in stopwords:
+                aliases.append(normalized)
+    deduped: list[str] = []
+    seen: set[str] = set()
+    for alias in aliases:
+        key = alias.casefold()
+        if key in seen:
+            continue
+        seen.add(key)
+        deduped.append(alias[:80])
+        if len(deduped) >= limit:
+            break
+    return deduped
+
+
+def _semantic_prompt_seed(item: dict[str, Any]) -> str:
+    label = str(item.get("label") or item.get("id") or "AlgoWizard condition")
+    category = str(item.get("category") or "").strip()
+    if category and category.casefold() not in label.casefold():
+        return f"{category} {label}".strip()[:140]
+    return label[:140]
+
+
+def _collect_xml_item_keys(xml_bytes: bytes) -> set[str]:
+    keys: set[str] = set()
+    try:
+        root = ET.fromstring(xml_bytes)
+    except ET.ParseError:
+        return keys
+    for node in root.findall(".//Item"):
+        key = str(node.get("key") or "").strip()
+        if key:
+            keys.add(key[:100])
+    return keys
+
+
 def _collect_parameter_sets(sqx142_root: Path, warnings: list[str]) -> dict[str, Any]:
     rel = Path("internal") / "ctemplate" / "parameterSets.xml"
     path = sqx142_root / rel
@@ -1141,12 +1224,14 @@ def _collect_wizard(sqx142_root: Path, warnings: list[str]) -> dict[str, Any]:
 def _collect_examples(sqx142_root: Path, warnings: list[str]) -> dict[str, Any]:
     root = sqx142_root / "internal" / "web" / "AlgoWizard" / "examples"
     items: list[dict[str, Any]] = []
+    feature_ids: set[str] = set()
     if not root.is_dir():
         warnings.append("algowizard_examples_unavailable")
     else:
         for path in sorted(root.glob("*.sqx")):
             entry_count = 0
             has_xml = False
+            example_features: set[str] = set()
             is_zip = zipfile.is_zipfile(path)
             if is_zip:
                 try:
@@ -1154,6 +1239,13 @@ def _collect_examples(sqx142_root: Path, warnings: list[str]) -> dict[str, Any]:
                         names = archive.namelist()
                         entry_count = len(names)
                         has_xml = XML_ENTRY in names
+                        if has_xml:
+                            info = archive.getinfo(XML_ENTRY)
+                            if info.file_size <= 2_000_000:
+                                example_features = _collect_xml_item_keys(archive.read(XML_ENTRY))
+                                feature_ids.update(example_features)
+                            elif "algowizard_example_xml_too_large" not in warnings:
+                                warnings.append("algowizard_example_xml_too_large")
                 except (OSError, zipfile.BadZipFile):
                     is_zip = False
             items.append({
@@ -1161,9 +1253,17 @@ def _collect_examples(sqx142_root: Path, warnings: list[str]) -> dict[str, Any]:
                 "isZip": bool(is_zip),
                 "hasStrategyPortfolioXml": bool(has_xml),
                 "entryCount": entry_count,
+                "featureRefs": sorted(example_features)[:60],
                 "sizeClass": "large" if path.stat().st_size > 1_000_000 else "small",
             })
-    return {"count": len(items), "items": items[:80]}
+    feature_hash = hashlib.sha256(",".join(sorted(feature_ids)).encode("utf-8", errors="replace")).hexdigest()[:16]
+    return {
+        "count": len(items),
+        "featureCount": len(feature_ids),
+        "featureHash": feature_hash,
+        "featureIds": sorted(feature_ids)[:220],
+        "items": items[:80],
+    }
 
 
 def _collect_snippet_families(sqx142_root: Path) -> dict[str, Any]:
@@ -1227,6 +1327,83 @@ def _collect_blocksettings(project_root: Path) -> dict[str, Any]:
     return {"count": len(items), "items": items[:120]}
 
 
+def _build_semantic_catalog(
+    wizard: dict[str, Any],
+    conditions: dict[str, Any],
+    examples: dict[str, Any],
+) -> dict[str, Any]:
+    items: list[dict[str, Any]] = []
+    by_category: dict[str, int] = {}
+
+    for block in wizard.get("blocks", []) if isinstance(wizard.get("blocks"), list) else []:
+        if not isinstance(block, dict) or not block.get("id"):
+            continue
+        item = {
+            "id": str(block.get("id") or "")[:100],
+            "label": str(block.get("id") or "")[:120],
+            "kind": "wizard_block",
+            "category": "Wizard block",
+            "returnType": str(block.get("returnType") or "")[:40],
+            "aliases": _catalog_aliases(block.get("id"), block.get("displayTemplate")),
+            "compilerSupport": "catalog_ref_only",
+            "promptSeed": str(block.get("id") or "")[:120],
+        }
+        items.append(item)
+        by_category[item["category"]] = by_category.get(item["category"], 0) + 1
+
+    for condition in conditions.get("items", []) if isinstance(conditions.get("items"), list) else []:
+        if not isinstance(condition, dict) or not condition.get("id"):
+            continue
+        label = str(condition.get("name") or condition.get("id") or "")[:120]
+        category = str(condition.get("category") or "Condition")[:80]
+        item = {
+            "id": str(condition.get("id") or "")[:100],
+            "label": label,
+            "kind": "condition_item",
+            "category": category,
+            "returnType": str(condition.get("returnType") or "")[:40],
+            "aliases": _catalog_aliases(condition.get("id"), label, category, condition.get("displayTemplate")),
+            "compilerSupport": "planning_only_not_draftable",
+        }
+        item["promptSeed"] = _semantic_prompt_seed(item)
+        items.append(item)
+        by_category[category] = by_category.get(category, 0) + 1
+
+    for feature_id in examples.get("featureIds", []) if isinstance(examples.get("featureIds"), list) else []:
+        feature = str(feature_id or "")[:100]
+        if not feature or any(item.get("id") == feature for item in items):
+            continue
+        item = {
+            "id": feature,
+            "label": feature,
+            "kind": "example_feature",
+            "category": "Example feature",
+            "returnType": "",
+            "aliases": _catalog_aliases(feature),
+            "compilerSupport": "observed_in_examples_planning_only",
+            "promptSeed": feature,
+        }
+        items.append(item)
+        by_category[item["category"]] = by_category.get(item["category"], 0) + 1
+
+    items = sorted(items, key=lambda item: (str(item.get("category") or ""), str(item.get("id") or "")))
+    alias_count = sum(len(item.get("aliases", [])) for item in items)
+    return {
+        "type": "sqx-edge.ai-wizard-semantic-catalog-v1",
+        "version": AI_WIZARD_AI3_CATALOG_VERSION,
+        "policy": "expanded_planning_catalog_not_universal_sqx_generation",
+        "compilerBoundary": "semantic_items_do_not_make_draftable_without_compiler_family",
+        "itemCount": len(items),
+        "aliasCount": alias_count,
+        "familyCount": len(by_category),
+        "families": [
+            {"category": category, "itemCount": by_category[category]}
+            for category in sorted(by_category)
+        ],
+        "items": items[:260],
+    }
+
+
 def build_ai_wizard_capability_catalog(
     project_root: Path,
     sqx142_root: Path | None = None,
@@ -1249,14 +1426,17 @@ def build_ai_wizard_capability_catalog(
     snippets = _collect_snippet_families(root)
     custom_indicators = _collect_custom_indicators(root)
     blocksettings = _collect_blocksettings(project_root)
+    semantic_catalog = _build_semantic_catalog(wizard, conditions, examples)
     source_hash = hashlib.sha256(_json_dump({
         "parameterSets": parameter_sets.get("sourceHash"),
         "conditions": conditions.get("sourceHash"),
         "wizard": wizard.get("sourceHash"),
         "examples": examples.get("count"),
+        "exampleFeatures": examples.get("featureHash"),
         "snippets": snippets.get("familyCount"),
         "customIndicators": custom_indicators.get("count"),
         "blockSettings": blocksettings.get("count"),
+        "semanticCatalog": semantic_catalog.get("itemCount"),
     }).encode("utf-8", errors="replace")).hexdigest()[:16]
     catalog = {
         "type": CATALOG_TYPE,
@@ -1274,14 +1454,19 @@ def build_ai_wizard_capability_catalog(
             "parameterSets": parameter_sets.get("count", 0),
             "parameterCount": parameter_sets.get("paramCount", 0),
             "examples": examples.get("count", 0),
+            "exampleFeatureIds": examples.get("featureCount", 0),
             "snippetFamilies": snippets.get("familyCount", 0),
             "customIndicators": custom_indicators.get("count", 0),
             "blockSettings": blocksettings.get("count", 0),
+            "semanticItems": semantic_catalog.get("itemCount", 0),
+            "semanticFamilies": semantic_catalog.get("familyCount", 0),
+            "semanticAliases": semantic_catalog.get("aliasCount", 0),
         },
         "conditions": conditions,
         "wizard": wizard,
         "parameterSets": parameter_sets,
         "examples": examples,
+        "semanticCatalog": semantic_catalog,
         "snippetFamilies": snippets,
         "customIndicators": custom_indicators,
         "blockSettings": blocksettings,
@@ -1311,10 +1496,14 @@ def _catalog_key_sets(catalog: dict[str, Any]) -> dict[str, set[str]]:
     data = catalog.get("data", {}).get("catalog", catalog)
     wizard = data.get("wizard") if isinstance(data.get("wizard"), dict) else {}
     conditions = data.get("conditions") if isinstance(data.get("conditions"), dict) else {}
+    semantic = data.get("semanticCatalog") if isinstance(data.get("semanticCatalog"), dict) else {}
+    examples = data.get("examples") if isinstance(data.get("examples"), dict) else {}
     return {
         "blocks": {str(item.get("id")) for item in wizard.get("blocks", []) if isinstance(item, dict) and item.get("id")},
         "comparisons": {str(item.get("id")) for item in wizard.get("comparisons", []) if isinstance(item, dict) and item.get("id")},
         "conditions": {str(item.get("id")) for item in conditions.get("items", []) if isinstance(item, dict) and item.get("id")},
+        "semantic": {str(item.get("id")) for item in semantic.get("items", []) if isinstance(item, dict) and item.get("id")},
+        "exampleFeatures": {str(item) for item in examples.get("featureIds", []) if item},
     }
 
 
@@ -1327,24 +1516,11 @@ def _condition_node(comparison: str, left: dict[str, Any], right: dict[str, Any]
 
 
 def _catalog_has_atr_support(catalog: dict[str, Any]) -> bool:
-    data = catalog.get("data", {}).get("catalog", catalog)
     keys = _catalog_key_sets(catalog)
-    if "ATR" in keys["blocks"] or "talib_ATR" in keys["blocks"]:
+    if "ATR" in keys["blocks"] or "talib_ATR" in keys["blocks"] or "talib_ATR" in keys["exampleFeatures"]:
         return True
-    for section_name in ("conditions", "wizard"):
-        section = data.get(section_name) if isinstance(data.get(section_name), dict) else {}
-        containers = []
-        if section_name == "wizard":
-            containers.extend(section.get("blocks", []) if isinstance(section.get("blocks"), list) else [])
-            containers.extend(section.get("comparisons", []) if isinstance(section.get("comparisons"), list) else [])
-        else:
-            containers.extend(section.get("items", []) if isinstance(section.get("items"), list) else [])
-        for item in containers:
-            if not isinstance(item, dict):
-                continue
-            searchable = " ".join(str(value) for value in item.values())
-            if "atr" in searchable.casefold() or "average true range" in searchable.casefold():
-                return True
+    if "ATR" in keys["conditions"] or "talib_ATR" in keys["conditions"] or "ATR" in keys["semantic"]:
+        return True
     return False
 
 
@@ -1569,6 +1745,89 @@ def _detect_ai2_blocks(prompt: str, model_interpretation: dict[str, Any] | None 
     return blocks
 
 
+def _semantic_alias_score(prompt_lower: str, alias: str, *, weight: int = 1) -> int:
+    text = str(alias or "").strip().casefold()
+    if len(text) < 3:
+        return 0
+    words = [
+        word
+        for word in _split_catalog_words(text)
+        if len(word) >= 3 and word.casefold() not in {"and", "bar", "con", "del", "is", "level", "the", "with"}
+    ]
+    if re.fullmatch(r"[a-z0-9+-]{2,}", text):
+        generic = {
+            "above", "band", "below", "change", "changes", "closes", "cross", "crosses", "direction",
+            "falling", "higher", "level", "lower", "opens", "rising", "upper", "value",
+        }
+        if text in generic:
+            return 0
+        return weight if re.search(rf"(?<![a-z0-9]){re.escape(text)}(?![a-z0-9])", prompt_lower) else 0
+    if len(words) >= 2 and all(re.search(rf"(?<![a-z0-9]){re.escape(word.casefold())}(?![a-z0-9])", prompt_lower) for word in words):
+        return weight
+    return weight if text in prompt_lower else 0
+
+
+def _semantic_alias_matches(prompt_lower: str, alias: str) -> bool:
+    return _semantic_alias_score(prompt_lower, alias) > 0
+
+
+def _detect_semantic_refs(
+    prompt: str,
+    catalog: dict[str, Any],
+    model_interpretation: dict[str, Any] | None = None,
+) -> list[str]:
+    prompt_lower = prompt.casefold()
+    model_terms = {
+        item.casefold()
+        for item in (
+            _normalize_hint_list(model_interpretation.get("blocks")) + _normalize_hint_list(model_interpretation.get("filters"))
+            if isinstance(model_interpretation, dict)
+            else []
+        )
+    }
+    refs: list[str] = []
+    scored_refs: list[tuple[int, str]] = []
+    semantic_items = _catalog_semantic_items(catalog)
+    mentioned_categories = {
+        str(item.get("category") or "")
+        for item in semantic_items
+        if item.get("category") and _semantic_alias_score(prompt_lower, str(item.get("category") or ""), weight=1) > 0
+    }
+    for item in semantic_items:
+        item_id = str(item.get("id") or "")
+        if not item_id:
+            continue
+        category = str(item.get("category") or "")
+        if (
+            mentioned_categories
+            and category
+            and category not in mentioned_categories
+            and str(item.get("kind") or "") == "condition_item"
+        ):
+            continue
+        category_aliases = {alias.casefold() for alias in _catalog_aliases(category, limit=8)}
+        score = 0
+        item_score = 0
+        aliases = [str(alias) for alias in item.get("aliases", []) if alias and str(alias).casefold() not in category_aliases]
+        category_score = _semantic_alias_score(prompt_lower, category, weight=4)
+        score += _semantic_alias_score(prompt_lower, item_id, weight=5)
+        score += _semantic_alias_score(prompt_lower, str(item.get("label") or ""), weight=3)
+        for alias in aliases:
+            score += _semantic_alias_score(prompt_lower, alias, weight=1)
+        item_score = score
+        score += category_score if item_score else 0
+        matched_model = any(term and any(term == alias.casefold() for alias in aliases) for term in model_terms)
+        if matched_model:
+            score += 5
+        if item_score >= 3 or (matched_model and score >= 5):
+            scored_refs.append((score, item_id))
+    for _, item_id in sorted(scored_refs, key=lambda pair: (-pair[0], pair[1])):
+        refs.append(item_id)
+        if len(refs) >= 24:
+            break
+    return list(dict.fromkeys(refs))
+
+
 def _risk_from_prompt_and_model(prompt: str, model_interpretation: dict[str, Any] | None = None) -> dict[str, Any]:
     risk = _default_risk(prompt)
     model_risk = model_interpretation.get("risk") if isinstance(model_interpretation, dict) and isinstance(model_interpretation.get("risk"), dict) else {}
@@ -1613,6 +1872,7 @@ def _ast_from_prompt(prompt: str, catalog: dict[str, Any], model_interpretation:
     blocks = _detect_ai2_blocks(prompt, model_interpretation)
     candle_pattern = _candle_pattern_from_prompt_and_model(prompt, model_interpretation)
     filters = _detect_ai2_filters(prompt, catalog)
+    semantic_refs = _detect_semantic_refs(prompt, catalog, model_interpretation)
     if model_interpretation.get("source") == "ollama_ast":
         model_filters = {item.casefold() for item in _normalize_hint_list(model_interpretation.get("filters"))}
         if "atr" in model_filters and not any(item.get("blockId") == "ATR" for item in filters):
@@ -1675,7 +1935,7 @@ def _ast_from_prompt(prompt: str, catalog: dict[str, Any], model_interpretation:
         compiler_blockers.append("blocked_unsupported_filter")
     if not draftable:
         compiler_blockers.append("blocked_not_draftable_yet")
-    understood = bool(blocks or candle_pattern or filters or conditions_long or conditions_short)
+    understood = bool(blocks or candle_pattern or filters or semantic_refs or conditions_long or conditions_short)
     name_tokens: list[str] = []
     if candle_pattern:
         name_tokens.append("CandlePattern")
@@ -1721,6 +1981,7 @@ def _ast_from_prompt(prompt: str, catalog: dict[str, Any], model_interpretation:
         },
         "catalogRefs": {
             "blockIds": [block_id for block_id in blocks if block_id in _catalog_key_sets(catalog)["blocks"]],
+            "semanticIds": [item_id for item_id in semantic_refs if item_id in _catalog_key_sets(catalog)["semantic"]],
             "comparisonIds": sorted({cond["operatorId"] for cond in conditions_long + conditions_short}),
         },
         "compiler": {
@@ -1749,6 +2010,9 @@ def validate_ai_wizard_ast(ast: dict[str, Any], catalog: dict[str, Any]) -> dict
     for block_id in catalog_refs.get("blockIds", []):
         if block_id not in keys["blocks"]:
             blockers.append(f"unknown_block:{block_id}")
+    for semantic_id in catalog_refs.get("semanticIds", []):
+        if semantic_id not in keys["semantic"]:
+            blockers.append(f"unknown_semantic_item:{semantic_id}")
     for comparison_id in catalog_refs.get("comparisonIds", []):
         if comparison_id not in keys["comparisons"] and comparison_id not in keys["conditions"]:
             blockers.append(f"unknown_comparison:{comparison_id}")

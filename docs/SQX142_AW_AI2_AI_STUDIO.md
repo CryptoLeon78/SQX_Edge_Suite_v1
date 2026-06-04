@@ -20,7 +20,9 @@ Instalacion UX1 del 2026-06-04 tras cierre manual de SQX: `tools/sqx142_ai_wizar
 
 Prompt Truthfulness Patch del 2026-06-04: el operador mostro que un prompt natural en espanol para `tres velas rojas`, `vela martillo`, entrada en segunda vela verde, `SP500`, `H1`, largo, filtro `ATR`, `Stop=100` y `TP=200` podia derivar hacia un bot no pedido. AI2 ahora elimina el fallback inseguro a `EMA`, reconoce `SP500 -> US500`, `largo -> long_only`, SL/TP numericos, secuencia de velas/martillo y filtro ATR. Si la logica reconocida no tiene compilador probado, queda como plan editable con `compiler.draftable=false`, `blocked_unsupported_candle_pattern`, `blocked_unsupported_filter` y `blocked_not_draftable_yet`; el overlay desactiva `Generar .sqx` y muestra `Plan entendido, .sqx bloqueado`. Instalacion: overlay con backup `sqx142_ai_wizard_overlay_20260604_190508` y backend local reiniciado en `127.0.0.1:5050`.
 
-AI3 Universal Prompt Compiler del 2026-06-04: el mismo caso de velas/ATR pasa a `compiler.draftable=true` solo para la familia verificada `candle_atr_sequence`. El backend puede pedir AST a Ollama local mediado por Flask y cae al parser seguro si el modelo no esta disponible o devuelve algo invalido. No hay llamada de proveedor desde navegador, no se persisten prompt raw ni respuesta raw, y el draft conserva las entradas del ZIP plantilla parcheando solo `strategy_Portfolio.xml`. Estado: `built_pending_install_and_manual_roundtrip`.
+AI3 Universal Prompt Compiler del 2026-06-04: el mismo caso de velas/ATR pasa a `compiler.draftable=true` solo para la familia verificada `candle_atr_sequence`. El backend puede pedir AST a Ollama local mediado por Flask y cae al parser seguro si el modelo no esta disponible o devuelve algo invalido. No hay llamada de proveedor desde navegador, no se persisten prompt raw ni respuesta raw, y el draft conserva las entradas del ZIP plantilla parcheando solo `strategy_Portfolio.xml`. Estado: `compiler_built_roundtrip_reported_catalog_expansion_active`.
+
+AI3 Catalog Expansion del 2026-06-04: tras roundtrip manual reportado por el operador, el siguiente salto de nivel aumenta catalogo y explicabilidad. `sqx142-aw-ai3-expanded-catalog-v1` crea `semanticCatalog` sobre bloques Wizard, condiciones AlgoWizard y features observadas en ejemplos `.sqx`; el overlay muestra `Catalogo AlgoWizard ampliado`. Los nuevos `catalogRefs.semanticIds` ayudan a entender Keltner/ADX/RSI/Bollinger y otras familias, pero siguen siendo plan-only salvo compilador probado.
 
 ## Entrega
 
@@ -44,7 +46,7 @@ AI3 Universal Prompt Compiler del 2026-06-04: el mismo caso de velas/ATR pasa a 
 - `AI2.5 Draft Compiler`: genera `.sqx` solo para AST validado y compilable; los demas planes validos quedan como plan editable bloqueado con razon precisa.
 - `AI2.6 Overlay UX`: historial, reabrir/forkear sesiones, catalog browser, chips de indicadores/operadores, editor de parametros y panel de bloqueos util.
 - `AI2.7 Manual Roundtrip`: pendiente hasta SQX cerrado; requiere abrir draft en AlgoWizard y confirmar editabilidad.
-- `AI3.0 Universal Prompt Compiler`: interprete local modelo -> AST con fallback seguro y compilador `candle_atr_sequence`; status `built_pending_install_and_manual_roundtrip`.
+- `AI3.0 Universal Prompt Compiler`: interprete local modelo -> AST con fallback seguro y compilador `candle_atr_sequence`; status `compiler_built_roundtrip_reported_catalog_expansion_active`.
 
 ## APIs Local-Only
 
@@ -184,4 +186,4 @@ Manual pendiente con SQX cerrado:
 - privacy: `raw_prompt_persisted=false`, `raw_provider_response_persisted=false`
 - compiler family: `candle_atr_sequence`
 - safe draft: ZIP entries preserved, only `strategy_Portfolio.xml` patched
-- status: `built_pending_install_and_manual_roundtrip`
+- status: `compiler_built_roundtrip_reported_catalog_expansion_active`

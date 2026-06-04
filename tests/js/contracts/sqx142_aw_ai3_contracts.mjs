@@ -11,8 +11,11 @@ const doc = fs.existsSync(path.join(repoRoot, 'docs/SQX142_AW_AI3_UNIVERSAL_PROM
   : '';
 
 assert.match(core, /AI_WIZARD_AI3_COMPILER_VERSION = "sqx142-aw-ai3-universal-prompt-compiler-v1"/);
+assert.match(core, /AI_WIZARD_AI3_CATALOG_VERSION = "sqx142-aw-ai3-expanded-catalog-v1"/);
 assert.match(core, /AI_WIZARD_INTERPRETER_SCHEMA/);
 assert.match(core, /_try_local_model_interpretation/);
+assert.match(core, /_build_semantic_catalog/);
+assert.match(core, /_collect_xml_item_keys/);
 assert.match(core, /OllamaClient\(OllamaConfig/);
 assert.match(core, /auto_start=False/);
 assert.match(core, /rawPromptPersisted": False/);
@@ -22,6 +25,12 @@ assert.match(core, /universalPromptIntake": True/);
 assert.match(core, /universalSqxGeneration": False/);
 
 assert.match(core, /"candle_atr_sequence"/);
+assert.match(core, /"expanded_planning_catalog_not_universal_sqx_generation"/);
+assert.match(core, /"semanticCatalog": semantic_catalog/);
+assert.match(core, /"semanticIds"/);
+assert.match(core, /unknown_semantic_item/);
+assert.match(core, /mentioned_categories/);
+assert.match(core, /file_size <= 2_000_000/);
 assert.match(core, /generate_ai_wizard_draft_from_ast/);
 assert.match(core, /_patch_candle_atr_strategy_xml/);
 assert.match(core, /_copy_sqx_with_patched_xml/);
@@ -35,10 +44,20 @@ assert.match(core, /_xml_price_value\("Close", shift\)/);
 assert.match(core, /_xml_price_value\("Open", shift\)/);
 
 assert.match(studioTest, /test_ai3_spanish_candle_prompt_compiles_traceable_draft/);
+assert.match(studioTest, /test_ai3_expanded_catalog_understands_condition_items_without_draft/);
 assert.match(studioTest, /test_ai3_local_model_interpreter_feeds_ast_without_persisting_raw/);
+assert.match(studioTest, /create_ai_wizard_session_draft/);
+assert.match(studioTest, /blocked_not_draftable_yet/);
 assert.match(studioTest, /SQX Edge AI3 Universal Prompt Compiler draft/);
 assert.match(studioTest, /fake-local-model/);
 
+assert.match(overlayJs, /Catalogo AlgoWizard ampliado/);
+assert.match(overlayJs, /semanticCatalog/);
+assert.match(overlayJs, /items semanticos/);
+assert.match(overlayJs, /features de ejemplos/);
+assert.match(overlayJs, /familias probadas/);
+assert.match(overlayJs, /promptSeed/);
+assert.match(overlayJs, /data-sqx-aiwizard-prompt/);
 assert.doesNotMatch(overlayJs, /127\.0\.0\.1:11434|localhost:11434|ollama\/api/i);
 assert.doesNotMatch(overlayJs, /OPENAI_API_KEY|Authorization|Bearer|token=/i);
 
@@ -47,6 +66,7 @@ if (doc) {
   assert.match(doc, /sqx142-aw-ai3-universal-prompt-compiler-v1/);
   assert.match(doc, /universal_prompt_intake_not_universal_sqx_generation/);
   assert.match(doc, /allowlisted_catalog_only/);
+  assert.match(doc, /sqx142-aw-ai3-expanded-catalog-v1/);
   assert.match(doc, /candle_atr_sequence/);
   assert.match(doc, /raw_prompt_persisted=false/);
   assert.match(doc, /raw_provider_response_persisted=false/);

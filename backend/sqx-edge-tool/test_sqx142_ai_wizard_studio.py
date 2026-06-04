@@ -7,6 +7,7 @@ from unittest.mock import patch
 from api import server
 from core.sqx142_ai_wizard import (
     AI_WIZARD_AI2_VERSION,
+    AI_WIZARD_AI3_CATALOG_VERSION,
     AI_WIZARD_AI3_COMPILER_VERSION,
     AST_TYPE,
     CATALOG_TYPE,
@@ -97,6 +98,9 @@ def _write_fake_sqx_root(tmp_path: Path) -> Path:
           <category name="Moving Average" key="IndyComparisons">
             <item key="MARising" name="Moving Average is rising" returnType="boolean" parameterSet="CCIParamSet1" display="_TYPE_ Moving Average(_PERIOD_) is rising"/>
           </category>
+          <category name="Keltner Channel" key="IndyComparisons">
+            <item key="KCUpperRising" name="Upper band is rising" returnType="boolean" parameterSet="CCIParamSet1" display="Keltner Channel(_MA_PERIOD_, _ATR_PERIOD_, _MULTIPLIER_).Upper is rising"/>
+          </category>
           <category name="Comparisons" key="IndyComparisons">
             <item key="IsGreater" name="Is Greater" returnType="boolean" parameterSet="ValuesSet" display="#Left# &gt; #Right#"/>
             <item key="IsLower" name="Is Lower" returnType="boolean" parameterSet="ValuesSet" display="#Left# &lt; #Right#"/>
@@ -154,7 +158,14 @@ def test_ai2_catalog_is_sanitized_and_counts_fake_sources(tmp_path):
     assert catalog["counts"]["wizardBlocks"] >= 12
     assert catalog["counts"]["parameterSets"] == 2
     assert catalog["counts"]["examples"] == 4
+    assert catalog["counts"]["semanticItems"] >= catalog["counts"]["wizardBlocks"] + catalog["counts"]["conditionItems"]
+    assert catalog["counts"]["semanticFamilies"] >= 3
+    assert catalog["semanticCatalog"]["version"] == AI_WIZARD_AI3_CATALOG_VERSION
+    assert catalog["semanticCatalog"]["policy"] == "expanded_planning_catalog_not_universal_sqx_generation"
+    semantic_ids = {item["id"] for item in catalog["semanticCatalog"]["items"]}
+    assert {"MARising", "KCUpperRising", "EnterAtMarket"}.issubset(semantic_ids)
     assert catalog["examples"]["items"][0]["hasStrategyPortfolioXml"] is True
+    assert catalog["examples"]["featureCount"] >= 3
     assert "name" not in catalog["examples"]["items"][0]
     assert report["privacy"]["raw_xml_returned"] is False
     _assert_public_safe(report)
@@ -176,6 +187,35 @@ def test_ai2_ast_validates_common_algowizard_blocks(tmp_path):
     assert report["data"]["validation"]["ok"] is True
     assert "blocked_not_draftable_yet" in report["warnings"]
     _assert_public_safe(report)
+
+
+def test_ai3_expanded_catalog_understands_condition_items_without_draft(tmp_path):
+    sqx_root = _write_fake_sqx_root(tmp_path)
+    db_path = tmp_path / ".local" / "sqx142_ai_wizard" / "ai_wizard.sqlite"
+    prompt = "Keltner Channel upper band rising EURUSD H1 with SL/TP"
+    with patch.dict(os.environ, {"SQX142_ROOT": str(sqx_root)}):
+        report = build_ai_wizard_ast_from_prompt(
+            {"prompt": prompt},
+            project_root=tmp_path,
+        )
+        created = create_ai_wizard_session(tmp_path, {"prompt": prompt}, db_path=db_path)
+        draft = create_ai_wizard_session_draft(tmp_path, created["data"]["session"]["sessionId"], db_path=db_path)
+
+    assert report["ok"] is True
+    ast = report["data"]["ast"]
+    assert "KCUpperRising" in ast["catalogRefs"]["semanticIds"]
+    assert not any(item in ast["catalogRefs"]["semanticIds"] for item in ("KCLowerFalling", "KCUpperFalling"))
+    assert ast["promptUnderstanding"]["recognized"] is True
+    assert ast["compiler"]["draftable"] is False
+    assert ast["compiler"]["universalPromptIntake"] is True
+    assert "blocked_not_draftable_yet" in report["warnings"]
+    assert created["ok"] is True
+    assert draft["ok"] is False
+    assert draft["error"] == "blocked_not_draftable_yet"
+    assert "blocked_not_draftable_yet" in draft["blockers"]
+    assert "draft" not in draft.get("data", {})
+    _assert_public_safe(report)
+    _assert_public_safe(draft)
 
 
 def test_ai3_spanish_candle_prompt_compiles_traceable_draft(tmp_path):

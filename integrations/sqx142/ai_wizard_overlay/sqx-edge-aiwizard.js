@@ -83,6 +83,7 @@
       prompt_not_understood: "No he podido convertir esa idea en un plan AlgoWizard fiable.",
       blocked_unsupported_candle_pattern: "He entendido el patron de velas, pero aun no hay compilador .sqx seguro para esa logica.",
       blocked_unsupported_filter: "He entendido el filtro, pero aun no esta conectado a un generador .sqx seguro.",
+      blocked_unsupported_compiler_family: "He entendido la familia, pero aun no hay generador .sqx seguro para ella.",
       blocked_not_draftable_yet: "Este tipo de bot aun no tiene generador .sqx seguro.",
       param_invalid: "Ajusta SL/TP con numeros entre 0 y 100000."
     };
@@ -234,22 +235,35 @@
     if (!node) return;
     var catalog = state.catalog && state.catalog.data ? state.catalog.data.catalog : null;
     if (!catalog) {
-      node.innerHTML = "<strong>Bloques avanzados disponibles</strong><p class=\"sqx-edge-aiwizard-muted\">Cargando catalogo AlgoWizard...</p>";
+      node.innerHTML = "<strong>Catalogo AlgoWizard ampliado</strong><p class=\"sqx-edge-aiwizard-muted\">Cargando catalogo AlgoWizard...</p>";
       return;
     }
     var counts = catalog.counts || {};
-    var blocks = (((catalog.wizard || {}).blocks) || []).slice(0, 18);
+    var semantic = catalog.semanticCatalog || {};
+    var families = (semantic.families || []).slice(0, 10);
+    var items = (semantic.items || []).slice(0, 36);
     node.innerHTML =
-      "<strong>Bloques avanzados disponibles</strong><p class=\"sqx-edge-aiwizard-muted\">Referencia para usuarios avanzados. Pulsa un bloque para convertirlo en idea inicial.</p>" +
+      "<strong>Catalogo AlgoWizard ampliado</strong><p class=\"sqx-edge-aiwizard-muted\">Referencia avanzada para interpretar ideas. Pulsar un item lo convierte en idea inicial; generar .sqx sigue limitado a familias probadas.</p>" +
       "<div class=\"sqx-edge-aiwizard-catalog-stats\">" +
       "<span>" + escapeHtml(counts.wizardBlocks || 0) + " bloques</span>" +
       "<span>" + escapeHtml(counts.conditionItems || 0) + " condiciones</span>" +
-      "<span>" + escapeHtml(counts.parameterSets || 0) + " parametros</span>" +
+      "<span>" + escapeHtml(counts.exampleFeatureIds || 0) + " features de ejemplos</span>" +
+      "<span>" + escapeHtml(counts.semanticItems || 0) + " items semanticos</span>" +
+      "<span>" + escapeHtml(counts.semanticFamilies || 0) + " familias</span>" +
+      "</div>" +
+      "<div class=\"sqx-edge-aiwizard-catalog-families\">" +
+      families.map(function(family) {
+        return "<span>" + escapeHtml(family.category || "Familia") + " · " + escapeHtml(family.itemCount || 0) + "</span>";
+      }).join("") +
       "</div>" +
       "<div class=\"sqx-edge-aiwizard-catalog-grid\">" +
-      blocks.map(function(block) {
-        return "<button type=\"button\" class=\"sqx-edge-aiwizard-catalog-item\" data-sqx-aiwizard-archetype=\"" + escapeHtml(block.id) + "\">" +
-          "<b>" + escapeHtml(block.id) + "</b><small>" + escapeHtml(block.returnType || "value") + "</small></button>";
+      items.map(function(item) {
+        var prompt = (item.promptSeed || item.label || item.id || "AlgoWizard condition") + " EURUSD H1 with SL/TP";
+        var support = item.compilerSupport || "planning_only";
+        return "<button type=\"button\" class=\"sqx-edge-aiwizard-catalog-item\" data-sqx-aiwizard-prompt=\"" + escapeHtml(prompt) + "\">" +
+          "<b>" + escapeHtml(item.label || item.id) + "</b>" +
+          "<small>" + escapeHtml((item.category || item.kind || "Catalogo") + " · " + (item.returnType || "ref")) + "</small>" +
+          "<em>" + escapeHtml(support) + "</em></button>";
       }).join("") +
       "</div>";
   }

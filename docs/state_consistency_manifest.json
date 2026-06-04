@@ -1240,16 +1240,24 @@
       "description": "AI3 must provide universal prompt intake into a validated AST, while only proven compiler families may emit SQX drafts. The first verified family is candle_atr_sequence for candle/ATR prompts, with local-only model interpretation and no raw prompt/provider-response persistence.",
       "required": {
         "README.md": [
+          "SQX142-AW-AI3 Catalog Expansion",
+          "sqx142-aw-ai3-expanded-catalog-v1",
+          "operator_manual_roundtrip_completed_catalog_level_up_active",
           "SQX142-AW-AI3 Universal Prompt Compiler",
           "sqx142-aw-ai3-universal-prompt-compiler-v1",
           "prompt libre como entrada universal gobernada",
           "candle_atr_sequence",
-          "built_pending_install_and_manual_roundtrip",
+          "compiler_built_roundtrip_reported_catalog_expansion_active",
           "sin SQX runtime launch",
           "sin `data.db`",
           "sin `user/projects`"
         ],
         "CHANGELOG.md": [
+          "2026-06-04 - SQX142-AW-AI3 Catalog Expansion",
+          "sqx142-aw-ai3-expanded-catalog-v1",
+          "sanitized semantic catalog",
+          "feature IDs observed inside example `.sqx` files",
+          "expanded catalog improves prompt interpretation and planning only",
           "2026-06-04 - SQX142-AW-AI3 Universal Prompt Compiler",
           "universal prompt intake routed to validated AlgoWizard AST",
           "local Ollama -> AST interpretation",
@@ -1258,27 +1266,41 @@
           "blocked_unsupported_compiler_family"
         ],
         "docs/PROJECT_GOVERNANCE.md": [
-          "Current local phase built: SQX142-AW-AI3",
+          "Current local phase active: SQX142-AW-AI3 - Catalog Expansion",
+          "operator_manual_roundtrip_completed_catalog_level_up_active",
+          "sqx142-aw-ai3-expanded-catalog-v1",
+          "sanitized semantic catalog",
+          "Current local phase built and active: SQX142-AW-AI3",
           "docs/SQX142_AW_AI3_UNIVERSAL_PROMPT_COMPILER.md",
           "sqx142-aw-ai3-universal-prompt-compiler-v1",
           "local model -> AST interpretation",
           "candle_atr_sequence",
-          "built_pending_install_and_manual_roundtrip"
+          "compiler_built_roundtrip_reported_catalog_expansion_active"
         ],
         "docs/SQX142_AW_AI2_AI_STUDIO.md": [
+          "AI3 Catalog Expansion",
+          "semanticCatalog",
+          "Catalogo AlgoWizard ampliado",
+          "catalogRefs.semanticIds",
           "AI3 Universal Prompt Compiler",
           "sqx142-aw-ai3-universal-prompt-compiler-v1",
           "universal_prompt_intake_not_universal_sqx_generation",
           "candle_atr_sequence",
           "raw_prompt_persisted=false",
           "raw_provider_response_persisted=false",
-          "built_pending_install_and_manual_roundtrip"
+          "compiler_built_roundtrip_reported_catalog_expansion_active"
         ],
         "docs/SQX142_AW_AI3_UNIVERSAL_PROMPT_COMPILER.md": [
           "SQX142-AW-AI3 Universal Prompt Compiler",
           "sqx142-aw-ai3-universal-prompt-compiler-v1",
+          "sqx142-aw-ai3-expanded-catalog-v1",
+          "operator_manual_roundtrip_completed_catalog_level_up_active",
           "universal_prompt_intake_not_universal_sqx_generation",
           "allowlisted_catalog_only",
+          "semanticCatalog.items",
+          "examples.featureIds",
+          "catalogRefs.semanticIds",
+          "expanded catalog no implica universal `.sqx` generation",
           "compiler.draftable=true only for proven compiler families",
           "unsupportedNaturalLanguageFallback=false",
           "blocked_not_draftable_yet",
@@ -1294,30 +1316,52 @@
         ],
         "backend/sqx-edge-tool/core/sqx142_ai_wizard.py": [
           "AI_WIZARD_AI3_COMPILER_VERSION = \"sqx142-aw-ai3-universal-prompt-compiler-v1\"",
+          "AI_WIZARD_AI3_CATALOG_VERSION = \"sqx142-aw-ai3-expanded-catalog-v1\"",
           "AI_WIZARD_INTERPRETER_SCHEMA",
           "def _try_local_model_interpretation",
+          "def _build_semantic_catalog",
+          "def _collect_xml_item_keys",
           "OllamaClient(OllamaConfig",
           "auto_start=False",
           "rawPromptPersisted\": False",
           "rawResponsePersisted\": False",
           "externalApiCalled\": False",
           "\"candle_atr_sequence\"",
+          "\"semanticCatalog\": semantic_catalog",
+          "\"semanticIds\"",
+          "unknown_semantic_item",
+          "mentioned_categories",
+          "file_size <= 2_000_000",
           "def generate_ai_wizard_draft_from_ast",
           "\"zip_entries_preserved\""
         ],
         "backend/sqx-edge-tool/test_sqx142_ai_wizard_studio.py": [
           "test_ai3_spanish_candle_prompt_compiles_traceable_draft",
+          "test_ai3_expanded_catalog_understands_condition_items_without_draft",
           "test_ai3_local_model_interpreter_feeds_ast_without_persisting_raw",
+          "create_ai_wizard_session_draft",
+          "blocked_not_draftable_yet",
           "SQX Edge AI3 Universal Prompt Compiler draft",
           "fake-local-model"
         ],
         "tests/js/contracts/sqx142_aw_ai3_contracts.mjs": [
           "sqx142 aw ai3 contracts ok",
           "AI_WIZARD_AI3_COMPILER_VERSION",
+          "AI_WIZARD_AI3_CATALOG_VERSION",
+          "semanticCatalog",
           "candle_atr_sequence",
           "rawPromptPersisted",
           "rawResponsePersisted",
           "127\\.0\\.0\\.1:11434"
+        ],
+        "integrations/sqx142/ai_wizard_overlay/sqx-edge-aiwizard.js": [
+          "Catalogo AlgoWizard ampliado",
+          "semanticCatalog",
+          "promptSeed",
+          "data-sqx-aiwizard-prompt",
+          "items semanticos",
+          "features de ejemplos",
+          "familias probadas"
         ],
         "tests/js/module_contracts.mjs": [
           "sqx142_aw_ai3_contracts.mjs"

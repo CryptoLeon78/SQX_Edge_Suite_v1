@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-06-04 - SQX142-AW-AI3 Catalog Expansion
+
+- Records operator manual AI3 roundtrip as performed and starts the level-up pass focused on catalog coverage.
+- Adds `sqx142-aw-ai3-expanded-catalog-v1`: a sanitized semantic catalog combining Wizard blocks, AlgoWizard condition items and feature IDs observed inside example `.sqx` files.
+- Exposes semantic families/items in the AlgoWizard overlay so advanced users can start from conditions such as Keltner/ADX/RSI/Bollinger families, while unsupported families remain plan-only.
+- Tightens ATR availability detection to real Wizard/condition/example feature evidence instead of broad text matching.
+- Installs the expanded overlay with backup `sqx142_ai_wizard_overlay_20260604_200549`, reloads the local backend and verifies the HTTP catalog reports `semanticItems=165`, `semanticFamilies=17`, `exampleFeatureIds=49`, `semanticAliases=1286` with privacy OK.
+- Preserves boundaries: expanded catalog improves prompt interpretation and planning only; it does not make new `.sqx` compiler families draftable without fixtures, contracts, tests and manual roundtrip.
+
 ## 2026-06-04 - SQX142-AW-AI3 Universal Prompt Compiler
 
 - Adds `sqx142-aw-ai3-universal-prompt-compiler-v1`: universal prompt intake routed to validated AlgoWizard AST, not universal `.sqx` generation.
