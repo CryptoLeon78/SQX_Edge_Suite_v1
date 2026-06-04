@@ -1,6 +1,6 @@
 # SQX144 Lab Intake Roadmap
 
-Estado: `SQX144-COMPAT7 Results Plugin Manual Visual Confirmation` bloqueado por license gate antes de Results; siguiente bloque recomendado `SQX144-COMPAT7B Results Plugin Visual Confirmation After Operator License`.
+Estado: `SQX144-FULL-PROMOTE1 Host Promotion Gate` activo. `SQX144-COMPAT7 Results Plugin Manual Visual Confirmation` queda como bloqueo historico del lab anterior; la nueva build licenciada Full permite retomar la confirmacion por `SQX144-COMPAT7B` despues del preflight.
 
 Este documento gobierna la evaluacion de StrategyQuant X Build 144 (`v.144.2938`, May 2026) como candidato local para SQX Edge Suite. Build 144 no sustituye a SQX 142 ni cambia la cadena Capa1/Capa2 hasta que cada frente pase evidencia aislada, reversible y public-safe.
 
@@ -15,6 +15,35 @@ Fuentes publicas oficiales:
 Fuente local candidata:
 
 - Build 144 local instalada por el operador, tratada como evidencia privada/local-only.
+- Build SQX 144 Full licenciada por el operador, perfil local `sqx144_full`, tratada como host primario candidato con SQX 142 como fallback hasta pasar gates.
+
+## SQX144-FULL-PROMOTE1 - Host Promotion Gate
+
+Objetivo:
+
+- Promover `SQX_144_Full` como host primario candidato de SQX Edge Suite sin copiar internals propietarios.
+- Mantener SQX 142 como fallback operativo hasta completar preflight, switch local y confirmacion manual.
+- Registrar la decision en `docs/SQX144_FULL_PROMOTION_GATE.md` con marker `sqx144-full-promotion-gate-v1`.
+
+Alcance:
+
+- Gate read-only con `tools/sqx144_full_host_gate.ps1 status|preflight`.
+- Validacion de ejecutable, `user/data/data.db`, `user/projects`, `user/extend/ResultsPlugins` y cero procesos SQX relevantes.
+- Metadata minima en backend para detectar `sqx144_full` en `autodetect-sqx` y `validate-sqx-path`.
+- Configuracion local ignorada puede apuntar a SQX 144 Full solo despues de backup local y preflight limpio.
+
+Bloqueado:
+
+- Engine/binarios/runtime/internal/jars de 144 en repo o copiados a SQX 142.
+- Licencia, activacion, bypass, tokens, cookies, secretos, `data.db`, databanks, logs o Migration Tool.
+- Project runs, MT5 import, MCP writes, `data.db` writes, `user/projects` mutation, databank mutation, forced pass y claims de rentabilidad/riesgo cero.
+
+Resultado 2026-06-04:
+
+- Decision `promote_candidate_with_sqx142_fallback`.
+- Preflight read-only: `sqx144_full_host_gate_passed`, shape completo, cero procesos relevantes, sin runtime start, sin copia, sin Migration Tool y sin escritura sobre SQX.
+- Configuracion local ignorada actualizada a `sqx_host_profile=sqx144_full` tras backup en `.local/sqx144_full_promotion/`.
+- Siguiente comprobacion manual: `SQX144-COMPAT7B Results Plugin Visual Confirmation After Operator License`.
 
 ## Objetivo
 

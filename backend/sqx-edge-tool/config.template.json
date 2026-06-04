@@ -3,6 +3,7 @@
   "sqx_path": "",
   "sqx_data_db": "",
   "sqx_projects_dir": "",
+  "sqx_host_profile": "",
   "template_capa1": "templates/Capa1_Long.cfx",
   "template_capa2": "templates/Capa2_Base.cfx",
   "output_dir": "output",

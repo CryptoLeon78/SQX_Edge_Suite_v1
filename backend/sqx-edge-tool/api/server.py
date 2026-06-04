@@ -1142,8 +1142,12 @@ def autodetect_sqx():
     profile = load_manifest("generator_profiles.json").get("autodetect") or {}
     search_roots = []
     for raw in profile.get("roots") or []:
-        raw_path = str(raw).replace("~", str(home), 1)
+        raw_text = str(raw)
+        raw_path = raw_text.replace("~", str(home), 1) if raw_text.startswith("~") else raw_text
         search_roots.append(Path(raw_path))
+    env_sqx144_root = os.environ.get("SQX144_FULL_ROOT")
+    if env_sqx144_root:
+        search_roots.append(Path(env_sqx144_root))
     # Custom version folders
     for letter in profile.get("driveLetters") or []:
         for v in profile.get("versionFolders") or []:
@@ -1158,17 +1162,39 @@ def autodetect_sqx():
         if not root.exists() or str(root).lower() in seen:
             continue
         seen.add(str(root).lower())
+        if root.is_dir():
+            for sub in root.rglob("StrategyQuantX*.exe"):
+                parent = sub.parent
+                if str(parent).lower() not in seen:
+                    search_roots.append(parent)
         db = root / "user" / "data" / "data.db"
         if db.is_file():
             sqx_exe = root / "StrategyQuantX.exe"
+            host_profile = _sqx_host_profile_for_path(root)
             candidates.append({
                 "sqx_path": str(root).replace("\\", "/"),
                 "data_db": str(db).replace("\\", "/"),
                 "projects_dir": str(root / "user" / "projects").replace("\\", "/"),
-                "version": "142" if "142" in str(root) else ("141" if "141" in str(root) else "?"),
+                "version": host_profile.get("version", "?"),
+                "sqx_host_profile": host_profile.get("profile", "unknown"),
                 "has_exe": sqx_exe.is_file(),
             })
     return jsonify({"ok": True, "found": len(candidates), "candidates": candidates})
+
+
+def _sqx_host_profile_for_path(path_value):
+    normalized = str(path_value).replace("\\", "/").casefold()
+    if "sqx_144_full" in normalized:
+        return {"profile": "sqx144_full", "version": "144"}
+    if "sqx_144" in normalized:
+        return {"profile": "sqx144", "version": "144"}
+    if "sqx_143" in normalized:
+        return {"profile": "sqx143", "version": "143"}
+    if "sqx_142" in normalized:
+        return {"profile": "sqx142", "version": "142"}
+    if "sqx_141" in normalized:
+        return {"profile": "sqx141", "version": "141"}
+    return {"profile": "unknown", "version": "?"}
 
 
 @app.post("/api/validate-sqx-path")
@@ -1182,9 +1208,12 @@ def validate_sqx_path():
     db = base / "user" / "data" / "data.db"
     proj = base / "user" / "projects"
     exe = base / "StrategyQuantX.exe"
+    host_profile = _sqx_host_profile_for_path(base)
     return jsonify({
         "ok": True,
         "valid": db.is_file(),
+        "version": host_profile.get("version", "?"),
+        "sqx_host_profile": host_profile.get("profile", "unknown"),
         "checks": {
             "base_exists": base.is_dir(),
             "data_db_exists": db.is_file(),
@@ -3469,7 +3498,7 @@ def update_config():
     # whitelist de claves editables
     allowed = {"sqx_path", "sqx_data_db", "sqx_projects_dir",
                "template_capa1", "template_capa2", "output_dir", "darwinex_suffix",
-               "asset_aliases", "target_profile", "target_profile_custom"}
+               "asset_aliases", "target_profile", "target_profile_custom", "sqx_host_profile"}
     changes = {k: v for k, v in data.items() if k in allowed}
     cfg.update(changes)
     save_config(cfg)

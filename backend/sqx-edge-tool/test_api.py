@@ -50,6 +50,46 @@ class ApiTestCase(unittest.TestCase):
         self.assertNotIn("output_dir", data)
         self.assertEqual(data["privacy"]["local_paths_returned"], False)
 
+    def test_validate_sqx_path_detects_sqx144_full_profile(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "SQX_144_Full"
+            (root / "user" / "data").mkdir(parents=True)
+            (root / "user" / "projects").mkdir(parents=True)
+            (root / "StrategyQuantX.exe").write_text("", encoding="utf-8")
+            (root / "user" / "data" / "data.db").write_text("", encoding="utf-8")
+
+            response = self.client.post("/api/validate-sqx-path", json={"path": str(root)})
+
+        self.assertEqual(response.status_code, 200)
+        data = self.get_json(response)
+        self.assertTrue(data["valid"])
+        self.assertEqual(data["version"], "144")
+        self.assertEqual(data["sqx_host_profile"], "sqx144_full")
+        self.assertTrue(data["checks"]["exe_exists"])
+
+    def test_autodetect_sqx_includes_sqx144_full_profile(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "SQX_144_Full"
+            (root / "user" / "data").mkdir(parents=True)
+            (root / "user" / "projects").mkdir(parents=True)
+            (root / "StrategyQuantX.exe").write_text("", encoding="utf-8")
+            (root / "user" / "data" / "data.db").write_text("", encoding="utf-8")
+            manifest = {
+                "autodetect": {
+                    "roots": [str(root)],
+                    "driveLetters": [],
+                    "versionFolders": [],
+                }
+            }
+            with patch.object(server, "load_manifest", return_value=manifest):
+                response = self.client.get("/api/autodetect-sqx")
+
+        self.assertEqual(response.status_code, 200)
+        data = self.get_json(response)
+        self.assertEqual(data["found"], 1)
+        self.assertEqual(data["candidates"][0]["version"], "144")
+        self.assertEqual(data["candidates"][0]["sqx_host_profile"], "sqx144_full")
+
     def test_dashboard_api_alias_uses_api_handlers(self):
         response = self.client.get(
             "/dashboard/api/health",

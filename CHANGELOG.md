@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-06-04 - SQX144 Full Host Promotion Gate
+
+- Opens `SQX144-FULL-PROMOTE1 Host Promotion Gate` with `docs/SQX144_FULL_PROMOTION_GATE.md` and marker `sqx144-full-promotion-gate-v1`.
+- Treats the operator-licensed `SQX_144_Full` installation as the primary candidate host, with SQX 142 preserved as fallback until gates pass.
+- Adds `tools/sqx144_full_host_gate.ps1` for read-only `status` and `preflight` checks over executable, `user/data/data.db`, `user/projects`, `user/extend/ResultsPlugins` and relevant process state.
+- Records read-only preflight pass as `sqx144_full_host_gate_passed`, with local ignored config backed up and switched to `sqx_host_profile=sqx144_full`.
+- Extends local host metadata so `validate-sqx-path` and `autodetect-sqx` can identify `sqx144_full` without renaming existing `/api/sqx142/*` endpoints.
+- Preserves boundaries: no engine/binarios/internals 144 copied, no license/activation/bypass handling, no Migration Tool, no project runs, no MT5 import, no `data.db` writes, no `user/projects` mutation, no databank mutation and no profitability or risk-zero claim.
+- Keeps manual Results confirmation pending through `SQX144-COMPAT7B Results Plugin Visual Confirmation After Operator License`.
+
 ## 2026-06-04 - SQX142-AW-AI5 Compiler Candidate Decision Gate
 
 - Adds `docs/SQX142_AW_AI5_COMPILER_CANDIDATE_DECISION_GATE.md` with marker `sqx142-aw-ai5-compiler-candidate-decision-gate-v1`.
