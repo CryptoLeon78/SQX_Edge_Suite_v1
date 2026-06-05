@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-06-05 - SQX144-FULL-UPDATE2 New Directory 144.2953 Promotion Gate
+
+- Adds `docs/SQX144_FULL_UPDATE2_GATE.md` with marker `sqx144-full-update2-gate-v1` after the operator confirmed the official installer blocks selecting the existing `SQX_144_Full` directory.
+- Adds read-only `tools/sqx144_full_update2_gate.ps1 status|preflight` to compare the working licensed/migrated source host with a new-directory 144.2953 candidate, without running the installer, Migration Tool, projects, license handling or config switch.
+- Keeps `SQX_144_Full` as the current working host and SQX 142 as fallback; 144.2953 promotion requires legitimate workspace access, official migration/alignment, Readiness Panel parity, snippet compile cleanliness and a clean preflight.
+
 ## 2026-06-04 - SQX144-FULL-UPDATE1 Controlled Build 144.2953 Update Gate
 
 - Adds `docs/SQX144_FULL_UPDATE1_GATE.md` with marker `sqx144-full-update1-gate-v1`.

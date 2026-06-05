@@ -1,6 +1,6 @@
 # SQX144 Lab Intake Roadmap
 
-Estado: `SQX144-FULL-PROMOTE1 Host Promotion Gate` activo con `operator_migration_completed_snippets_compile_passed` y `SQX144-FULL-UPDATE1` cerrado como `blocked_updated_host_requires_license_activation_and_migration_alignment`. `SQX144-COMPAT7 Results Plugin Manual Visual Confirmation` queda como bloqueo historico del lab anterior; la build licenciada Full permite retomar la confirmacion por `SQX144-COMPAT7B` despues del preflight y la adaptacion de snippets migrados.
+Estado: `SQX144-FULL-PROMOTE1 Host Promotion Gate` activo con `operator_migration_completed_snippets_compile_passed`, `SQX144-FULL-UPDATE1` cerrado como `blocked_updated_host_requires_license_activation_and_migration_alignment` y `SQX144-FULL-UPDATE2` activo como ruta de promocion 144.2953 por carpeta nueva. `SQX144-COMPAT7 Results Plugin Manual Visual Confirmation` queda como bloqueo historico del lab anterior; la build licenciada Full permite retomar la confirmacion por `SQX144-COMPAT7B` despues del preflight y la adaptacion de snippets migrados.
 
 Este documento gobierna la evaluacion de StrategyQuant X Build 144 (`v.144.2938`, May 2026) como candidato local para SQX Edge Suite. Build 144 no sustituye a SQX 142 ni cambia la cadena Capa1/Capa2 hasta que cada frente pase evidencia aislada, reversible y public-safe.
 
@@ -18,6 +18,7 @@ Fuente local candidata:
 - Build SQX 144 Full licenciada por el operador, perfil local `sqx144_full`, tratada como host primario candidato con SQX 142 como fallback hasta pasar gates.
 - Migration Tool oficial ejecutada por el operador el 2026-06-04 sobre SQX 144 Full para importar SQX 142 Codex; resultado local `operator_migration_completed_snippets_compile_passed`, sin salida privada versionada en el repo.
 - Build 144.2953 localizada como host actualizado separado por `SQX144-FULL-UPDATE1`; version confirmada pero no promovida por licencia/alineacion de migracion pendiente.
+- El operador confirmo que el instalador oficial no permite elegir el directorio existente `SQX_144_Full`; `SQX144-FULL-UPDATE2` gobierna la ruta alternativa: instalar 144.2953 en carpeta nueva, activar/abrir workspace legitimamente, alinear por Migration Tool oficial o export/import documentado y promover solo tras preflight limpio.
 
 ## SQX144-FULL-PROMOTE1 - Host Promotion Gate
 
@@ -67,6 +68,22 @@ Resultado 2026-06-04:
 - No-promote: el host actualizado llega a pantalla de licencia antes del workspace, no observa compilacion de snippets y no contiene la alineacion migrada ni `SQX Edge Readiness Panel`.
 - Configuracion local ignorada: sin cambio; sigue apuntando al host SQX 144 Full migrado/licenciado anterior.
 - Fronteras preservadas: sin copia de licencia/activacion/bypass, sin engine/binarios/internals al repo, sin Migration Tool automatizada por Codex, sin proyectos, sin MT5 import, sin `data.db` writes y sin `user/projects` mutation.
+
+## SQX144-FULL-UPDATE2 - New Directory 144.2953 Promotion Gate
+
+Objetivo:
+
+- Beneficiarse de Build 144.2953 sin forzar una actualizacion in-place que el instalador oficial bloquea.
+- Mantener `SQX_144_Full` como fuente operativa licenciada/migrada y SQX 142 como fallback.
+- Promover solo una carpeta nueva 144.2953 que pase licencia/workspace, alineacion oficial de migracion, panel, snippets y shape migrado.
+
+Resultado inicial 2026-06-05:
+
+- Documento de gate: `docs/SQX144_FULL_UPDATE2_GATE.md`.
+- Marker: `sqx144-full-update2-gate-v1`.
+- Herramienta read-only: `tools/sqx144_full_update2_gate.ps1 status|preflight`.
+- Decision inicial: `blocked_candidate_license_and_official_migration_alignment_pending`.
+- El script no ejecuta instalador, no automatiza Migration Tool, no copia licencia/activacion/bypass, no muta `hosts`, no lanza proyectos, no escribe `data.db`/`user/projects` y no cambia configuracion local.
 
 ## Objetivo
 
