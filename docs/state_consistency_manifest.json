@@ -18666,6 +18666,85 @@
           "externalNetworkRequired=true"
         ]
       }
+    },
+    {
+      "id": "discipline_root1_thread_bootstrap_v1",
+      "description": "Operational discipline must be rooted across threads through local gbrain, canonical discipline, governance, manifest and explicit gate/scope/test framing before mutations.",
+      "required": {
+        "docs/DISCIPLINA_OPERATIVA.md": [
+          "discipline-root1-thread-bootstrap-v1",
+          "Bootstrap Obligatorio De Cada Hilo",
+          "LOCAL_GBRAIN1",
+          "tools/local_gbrain.ps1 search",
+          "docs/DISCIPLINA_OPERATIVA.md",
+          "docs/PROJECT_GOVERNANCE.md",
+          "docs/state_consistency_manifest.json",
+          "README.md",
+          "CHANGELOG.md",
+          "fase activa",
+          "gate aplicable",
+          "alcance de mutacion",
+          "verificacion minima",
+          "Mutaciones gobernadas",
+          "LOCAL_MEMORY_OUTBOX",
+          "no como bloqueo"
+        ],
+        "AGENTS.md": [
+          "docs/DISCIPLINA_OPERATIVA.md",
+          "discipline-root1-thread-bootstrap-v1",
+          "local gbrain first",
+          "phase/gate/scope/boundary/test framing"
+        ],
+        "docs/LOCAL_AI_AGENT_ROADMAP.md": [
+          "Phase DISCIPLINE_ROOT1 - Thread Bootstrap Discipline",
+          "discipline-root1-thread-bootstrap-v1",
+          "LOCAL_GBRAIN1",
+          "docs/DISCIPLINA_OPERATIVA.md",
+          "governance/manifest/README/CHANGELOG",
+          "antes de cambios no triviales"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Current operational discipline root: DISCIPLINE_ROOT1",
+          "discipline-root1-thread-bootstrap-v1",
+          "Every non-trivial new thread, resume, compaction or context switch starts from LOCAL_GBRAIN1",
+          "phase/gate/scope/privacy/test frame before any mutation"
+        ],
+        "docs/DOCS_CANONICAL_INDEX.md": [
+          "docs/DISCIPLINA_OPERATIVA.md",
+          "discipline-root1-thread-bootstrap-v1",
+          "mandatory per-thread bootstrap and mutation discipline"
+        ],
+        "README.md": [
+          "DISCIPLINE_ROOT1",
+          "discipline-root1-thread-bootstrap-v1",
+          "cada hilo, reanudacion o compactacion no trivial",
+          "fase/gate/alcance/limites/verificacion"
+        ],
+        "CHANGELOG.md": [
+          "2026-06-10 - DISCIPLINE_ROOT1 Thread Bootstrap Discipline",
+          "discipline-root1-thread-bootstrap-v1",
+          "rooted across future Codex threads",
+          "No SQX runtime"
+        ]
+      },
+      "forbidden": {
+        "docs/DISCIPLINA_OPERATIVA.md": [
+          "skip discipline bootstrap",
+          "saltarse bootstrap de disciplina",
+          "mutar sin gate",
+          "LOCAL_GBRAIN1 opcional antes de contexto"
+        ],
+        "AGENTS.md": [
+          "skip discipline bootstrap",
+          "saltarse bootstrap de disciplina",
+          "mutar sin gate"
+        ],
+        "README.md": [
+          "skip discipline bootstrap",
+          "saltarse bootstrap de disciplina",
+          "mutar sin gate"
+        ]
+      }
     }
   ]
 }

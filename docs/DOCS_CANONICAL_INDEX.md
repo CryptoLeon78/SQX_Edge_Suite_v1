@@ -18,12 +18,13 @@ Use this order when a task depends on project state, phase status, architecture,
 
 1. Local gbrain (`sqx-edge-local-gbrain-v1`) via `tools/local_gbrain.ps1 search|query|get-page` for durable local project memory.
 2. External Mem/gbrain page `projects/sqx-edge-suite-v1` only as an optional mirror/supplement when available.
-3. `docs/PROJECT_GOVERNANCE.md` for live operational state, gates, blockers and current next step.
-4. `docs/RESTRUCTURING_GOVERNANCE.md` for A64-A69 restructuring phase state.
-5. `docs/DOCS_CANONICAL_INDEX.md` for docs canonicalization and historical/reference policy.
-6. `docs/state_consistency_manifest.json` for machine-checked markers that must not drift.
-7. `README.md` and `CHANGELOG.md` for public/current operator-facing summaries.
-8. Domain docs named by the current governance entry for the specific feature, gate or runbook.
+3. `docs/DISCIPLINA_OPERATIVA.md` for `discipline-root1-thread-bootstrap-v1`, the mandatory per-thread bootstrap and mutation discipline.
+4. `docs/PROJECT_GOVERNANCE.md` for live operational state, gates, blockers and current next step.
+5. `docs/RESTRUCTURING_GOVERNANCE.md` for A64-A69 restructuring phase state.
+6. `docs/DOCS_CANONICAL_INDEX.md` for docs canonicalization and historical/reference policy.
+7. `docs/state_consistency_manifest.json` for machine-checked markers that must not drift.
+8. `README.md` and `CHANGELOG.md` for public/current operator-facing summaries.
+9. Domain docs named by the current governance entry for the specific feature, gate or runbook.
 
 If these sources disagree, the newer live governance entry and state manifest win over older phase closeouts. Preserve the older document as history; update the canonical pointer or manifest in a later small phase.
 

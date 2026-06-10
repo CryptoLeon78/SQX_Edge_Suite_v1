@@ -2,6 +2,23 @@
 
 Este documento define el estándar de trabajo obligatorio para todos los miembros del equipo (CryptoLeon78 y jlivanmaseda-maker) en el repositorio `SQX_Institutional_Core`.
 
+## 0. Bootstrap Obligatorio De Cada Hilo
+
+Marker: `discipline-root1-thread-bootstrap-v1`
+
+Esta disciplina aplica a cada hilo nuevo, reanudacion, compactacion automatica o cambio de contexto significativo en SQX Edge Suite / SQX Institutional Core.
+
+Antes de responder o ejecutar trabajo no trivial, el agente/orquestador debe completar este bootstrap:
+
+1.  **Memoria local primero**: consultar `LOCAL_GBRAIN1` con `tools/local_gbrain.ps1 search`; usar `query` o `get-page` si aparece un slug relevante. Mem/gbrain externo queda como espejo opcional, no como bloqueo.
+2.  **Disciplina canonica**: leer este documento canonico `docs/DISCIPLINA_OPERATIVA.md` cuando la tarea implique cambios, gates, remotos, PRs, ejecucion SQX, metodologia o decisiones duraderas.
+3.  **Gobernanza viva**: leer `docs/PROJECT_GOVERNANCE.md`, `docs/state_consistency_manifest.json`, `README.md` actual y los anchors recientes de `CHANGELOG.md` antes de cambios no triviales.
+4.  **Declarar el marco**: identificar fase activa, gate aplicable, host SQX, alcance de mutacion, limites privados y verificacion minima antes de editar o ejecutar.
+5.  **Mutaciones gobernadas**: no mutar SQX host, `data.db`, `user/projects`, databanks, tareas, remotos comerciales, permisos, licencias, Migration Tool ni ejecuciones SQX sin gate vigente y aprobacion explicita cuando aplique.
+6.  **Trazabilidad duradera**: guardar decisiones, proceso reutilizable y cierres de fase en local gbrain o `LOCAL_MEMORY_OUTBOX`; no depender de cuota externa de Mem/gbrain.
+
+Este bootstrap es parte de la disciplina operativa, no una preferencia. Si falta contexto, se debe parar y reconstruirlo desde memoria local y docs canonicos antes de actuar.
+
 ## 1. Sincronización Continua y Commits Atómicos
 
 A partir de la implementación del Núcleo Institucional, se establece la siguiente regla de oro para el desarrollo:

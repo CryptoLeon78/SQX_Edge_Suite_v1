@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-06-10 - DISCIPLINE_ROOT1 Thread Bootstrap Discipline
+
+- Marker: `discipline-root1-thread-bootstrap-v1`.
+- Updates canonical `docs/DISCIPLINA_OPERATIVA.md` so every non-trivial thread, resume, compaction or context switch starts from LOCAL_GBRAIN1, operational discipline, project governance, state manifest, README/CHANGELOG anchors and an explicit phase/gate/scope/privacy/test frame.
+- Updates `AGENTS.md`, `docs/LOCAL_AI_AGENT_ROADMAP.md`, `docs/DOCS_CANONICAL_INDEX.md`, `README.md`, `docs/PROJECT_GOVERNANCE.md` and `docs/state_consistency_manifest.json` so the discipline is rooted across future Codex threads.
+- Reinforces that mutations remain gated by phase, backup/diff/tests and explicit operator approval when required.
+- No SQX runtime, no host project/databank/task mutation, no `data.db`, no `user/projects`, no Migration Tool and no remote permission changes.
+
 ## 2026-06-10 - LOCAL_GBRAIN1 Local Memory Layer
 
 - Marker: `sqx-edge-local-gbrain-v1`.

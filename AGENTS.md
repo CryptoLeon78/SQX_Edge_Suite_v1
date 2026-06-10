@@ -33,6 +33,7 @@ Write-back rules:
 
 SQX Edge Suite active bootstrap:
 
+- Read `docs/DISCIPLINA_OPERATIVA.md` first for non-trivial work and apply marker `discipline-root1-thread-bootstrap-v1`: local gbrain first, discipline/governance docs next, then explicit phase/gate/scope/boundary/test framing before mutations.
 - Read `docs/PROJECT_GOVERNANCE.md`, `docs/state_consistency_manifest.json`, `README.md` current state and recent `CHANGELOG.md` anchors before non-trivial work.
 - Current host baseline: SQX144 Full is the confirmed primary local host with profile `sqx144_full`.
 - SQX142 Codex/QXPRO is preserved as authorized local diagnostic/methodology material, but it is no longer the active fallback for the current project.
