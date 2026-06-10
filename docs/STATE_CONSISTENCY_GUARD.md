@@ -17,6 +17,9 @@ aligned.
 
 Current guarded state:
 
+- G10 Agent And Subagent Refresh is completed with marker `g10-agent-subagent-refresh-v1`; workspace AGENTS, local Codex AGENTS/skills, local agent profiles and governance start from SQX144 Full primary.
+- SQX host posture guards: SQX144 Full / `sqx144_full` confirmed primary; SQX142 Codex/QXPRO preserved local diagnostic/methodology material, not active fallback; SQX143 historical/removed locally; SQX144 144.2953 remains `SQX144-FULL-UPDATE2` no-promote.
+- G9/G10 guards keep subagent runtime orchestrator-owned, bounded to read/inspect/propose/safe static checks by default, and SQX144 rollback metadata uses `rollbackExceptionHostProfile`, `legacyFallbackHostProfile` and `activeFallback=false` rather than treating SQX142 as an active fallback.
 - Remote gate: REMOTE-RILIS-STANDBY is active.
 - Clean anchors: REMOTE-8C and REMOTE-8F-CLOSE, with REMOTE-PG-SESSION-FIX applied.
 - Next remote action: wait for TESTER-RILIS retest before reopening REMOTE-8G.

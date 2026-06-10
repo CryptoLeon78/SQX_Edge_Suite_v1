@@ -14,7 +14,7 @@ Este bloque registra la actualizacion a Build 144.2953 como gate controlado. La 
 - Build confirmado por log local saneado: `SQX version: 144.2953`.
 - Decision: `blocked_license_activation_pending_and_migration_alignment`.
 - Configuracion local: se conserva apuntando al host SQX 144 Full migrado/licenciado anterior.
-- Fallback: SQX 142 sigue disponible como rollback operativo.
+- Rollback: SQX 142 ya no es fallback operativo activo; reselectarlo seria una excepcion manual desde backup/config local si el operador lo aprueba.
 
 ## Hallazgos
 

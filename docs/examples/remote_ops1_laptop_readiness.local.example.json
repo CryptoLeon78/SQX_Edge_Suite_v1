@@ -17,9 +17,9 @@
     "cloudflareAccountId": "replace-with-private-account-id",
     "cloudflareTunnelId": "replace-with-private-tunnel-id",
     "cloudflareAccessAppId": "replace-with-private-access-app-id",
-    "localWorkspaceRoot": "C:/replace/private/workspaces",
-    "sqxPath": "C:/replace/private/SQX",
-    "sqxDataDb": "C:/replace/private/SQX/user/settings/data.db",
+    "localWorkspaceRoot": "<private local workspaces root>",
+    "sqxPath": "<private local SQX root>",
+    "sqxDataDb": "<private local SQX data.db path>",
     "operatorEmail": "operator@example.invalid"
   },
   "checks": {

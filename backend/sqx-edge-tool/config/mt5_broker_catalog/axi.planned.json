@@ -1,0 +1,39 @@
+{
+  "version": "sqx144-mt5-auto3-broker-catalog-resolver-v1",
+  "brokerKey": "axi",
+  "status": "planned_discovery_required",
+  "host": "sqx144_full",
+  "spreadPolicy": "p90",
+  "sqxBroker": {
+    "expectedBrokerId": null,
+    "expectedSourceId": null,
+    "nameMatchers": [
+      "Axi",
+      "AxiTrader"
+    ],
+    "postfix": null,
+    "timezonePolicy": "discover_before_create_or_import",
+    "allowBrokerCreate": false
+  },
+  "symbolMapping": {
+    "assetCase": "upper",
+    "mt5SymbolTemplate": null,
+    "sqxInstrumentTemplate": null,
+    "sqxDataSymbolTemplate": null,
+    "selectedSymbolAliases": []
+  },
+  "importRoutes": {
+    "preferred": "native_datamanager_mt5_import",
+    "preferredNativeEndpoint": "dataSourceMt5Api/importData",
+    "fallback": "bridge_csv_file_mass_import",
+    "directDbHistoryInsertAllowed": false
+  },
+  "guards": {
+    "readOnlyCatalogResolver": true,
+    "requiresDiscovery": true,
+    "allowInstrumentCreatePlan": false,
+    "allowHistoryImportPlan": false,
+    "allowImportExecution": false,
+    "requiresExactApprovalForMutation": true
+  }
+}

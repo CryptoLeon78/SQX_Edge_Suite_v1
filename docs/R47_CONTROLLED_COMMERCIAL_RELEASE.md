@@ -57,7 +57,7 @@ This candidate is not yet suitable for:
 For a basic user, delivery should stay simple:
 
 1. Send the ZIP plus the buyer onboarding note.
-2. Ask the buyer to extract it into a normal folder such as `C:\SQX_Edge`.
+2. Ask the buyer to extract it into a normal private folder outside the repo.
 3. Ask the buyer to double click `START_SQX_EDGE.bat`.
 4. Send the signed license JSON separately when Pro activation is needed.
 5. Keep support and refund/pause boundaries explicit.

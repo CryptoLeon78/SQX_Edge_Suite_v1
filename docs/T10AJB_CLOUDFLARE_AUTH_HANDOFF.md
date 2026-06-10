@@ -25,7 +25,7 @@ No Cloudflare authentication is available to Codex in this workspace, and no `CL
 Option A: browser login, run locally by Ivan:
 
 ```powershell
-cd C:\BOTS\SCRIPTS\SQX_Edge_Suite_v1\templates\SQX_Edge_Tester_Portal
+cd <private repo root>\templates\SQX_Edge_Tester_Portal
 npm exec --yes wrangler@latest -- login
 npm exec --yes wrangler@latest -- whoami
 ```

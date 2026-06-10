@@ -1,8 +1,13 @@
 # SQX144 Results Plugin Manual Visual Confirmation
 
-Estado: `SQX144-COMPAT7 Results Plugin Manual Visual Confirmation` bloqueado por license gate antes de Results.
+Estado: `SQX144-COMPAT7 Results Plugin Manual Visual Confirmation` bloqueado por license gate antes de Results; superseded por `sqx144-results-confirmation-closeout-v1` el 2026-06-06.
 
 Este bloque intento abrir SQX 144 lab para confirmar manualmente que `SQX Edge Readiness Panel` aparece y se ve bien dentro de Results. La app abrio, pero quedo en pantalla de licencia antes de entrar al workspace. No se introdujo licencia, no se intento bypass y no se accedio al tab Results.
+
+El bloqueo historico queda cerrado para el host SQX144 Full actual por
+`docs/SQX144_RESULTS_CONFIRMATION_CLOSEOUT.md`: el operador confirmo el
+2026-06-06 que SQX144 Full esta OK para el flujo actual, sin registrar evidencia
+privada ni copiar material de licencia al repo.
 
 ## Resultado
 
@@ -40,9 +45,9 @@ La instalacion minima de COMPAT6 sigue presente en SQX 144 lab:
 
 No se confirma todavia que SQX lo liste dentro de Results porque el workspace no fue accesible.
 
-## Siguiente Bloque
+## Cierre Posterior
 
-`SQX144-COMPAT7B Results Plugin Visual Confirmation After Operator License` puede ejecutarse cuando el operador abra una sesion valida de SQX 144 lab o proporcione confirmacion local de licencia en esa build.
+`SQX144-COMPAT7B Results Plugin Visual Confirmation After Operator License` queda satisfecho por confirmacion del operador para SQX144 Full. Cualquier nueva comprobacion visual queda como revalidacion manual, no como fallback activo de SQX142.
 
 Criterios:
 

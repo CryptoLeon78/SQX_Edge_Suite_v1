@@ -12,8 +12,10 @@ from .config_loader import ROOT, config_path
 
 
 RESOURCE_DIR = ROOT / "resources" / "blocksettings"
+PROJECT_ROOT = ROOT.parents[1]
 MANIFEST_NAME = "blocksettings_manifest.json"
 INTRADAY_TIMEFRAMES = {"M5", "M15", "M30", "H1"}
+LOCAL_CANDIDATE_PARTS = (".local", "blocksettings_ai", "candidates")
 
 
 def _normalize_token(value: str | None) -> str:
@@ -99,6 +101,43 @@ def resolve_blocksetting_entry(
 
 
 def blocksetting_file(entry: dict[str, Any]) -> Path:
+    local_path = entry.get("localPath")
+    if local_path:
+        if entry.get("sourceScope") != "local_candidate" or entry.get("promotionState") != "local_candidate":
+            raise ValueError("Local BlockSetting candidate must be an approved local_candidate")
+        path = Path(str(local_path)).expanduser().resolve(strict=False)
+        candidate_root = Path(str(entry.get("candidateRoot") or (PROJECT_ROOT / ".local" / "blocksettings_ai" / "candidates"))).expanduser().resolve(strict=False)
+        try:
+            path.relative_to(candidate_root)
+        except ValueError:
+            raise ValueError("Local BlockSetting candidate must live under the approved candidate root") from None
+        root_parts = tuple(part.lower() for part in candidate_root.parts)
+        root_marker = tuple(part.lower() for part in LOCAL_CANDIDATE_PARTS)
+        root_marker_ok = any(
+            root_parts[index:index + len(root_marker)] == root_marker
+            for index in range(0, max(len(root_parts) - len(root_marker) + 1, 0))
+        )
+        if not root_marker_ok:
+            raise ValueError("Local BlockSetting candidate root must be .local/blocksettings_ai/candidates")
+        canonical_id = str(entry.get("canonicalId") or "")
+        filename = str(entry.get("filename") or "")
+        if not canonical_id.startswith("BSAI_") or not filename.startswith("BSAI_") or path.name != filename:
+            raise ValueError("Local BlockSetting candidate filename must use the BSAI namespace")
+        if canonical_id in entries_by_id() or filename in {str(item.get("filename")) for item in entries_by_id().values()}:
+            raise ValueError("Local BlockSetting candidate must not impersonate an official BlockSetting")
+        lowered_parts = tuple(part.lower() for part in path.parts)
+        local_marker = tuple(part.lower() for part in LOCAL_CANDIDATE_PARTS)
+        marker_ok = any(
+            lowered_parts[index:index + len(local_marker)] == local_marker
+            for index in range(0, max(len(lowered_parts) - len(local_marker) + 1, 0))
+        )
+        if not marker_ok:
+            raise ValueError("Local BlockSetting candidate must live under .local/blocksettings_ai/candidates")
+        if path.suffix.lower() != ".sqb":
+            raise ValueError("Local BlockSetting candidate must be a .sqb file")
+        if not path.is_file():
+            raise FileNotFoundError(f"Local BlockSetting candidate not found: {path}")
+        return path
     filename = entry.get("filename")
     if not filename:
         raise ValueError("BlockSetting entry has no filename")
@@ -131,7 +170,7 @@ def apply_blocksetting_to_xml(root: ET.Element, entry: dict[str, Any]) -> bool:
 
 
 def blocksetting_trace(entry: dict[str, Any]) -> dict[str, Any]:
-    return {
+    trace = {
         "canonicalId": entry.get("canonicalId"),
         "filename": entry.get("filename"),
         "family": entry.get("family"),
@@ -143,3 +182,16 @@ def blocksetting_trace(entry: dict[str, Any]) -> dict[str, Any]:
         "sha256Short": entry.get("sha256Short"),
         "sqxVersion": entry.get("sqxVersion"),
     }
+    for key in (
+        "origin",
+        "sourceScope",
+        "baseCanonicalId",
+        "baseVariant",
+        "baseSha256",
+        "candidateRevision",
+        "sourceVersionPolicy",
+        "promotionState",
+    ):
+        if key in entry:
+            trace[key] = entry.get(key)
+    return trace

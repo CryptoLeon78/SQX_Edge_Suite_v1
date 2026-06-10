@@ -2982,8 +2982,8 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for pattern in (
             "REMOTE-RILIS-STANDBY",
-            "anti-sharing still pending",
-            "narrow/mobile viewport crop",
+            "standby browser/custom-load blocker",
+            "operator confirmed that TESTER-RILIS has access",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, governance)
@@ -3394,8 +3394,8 @@ class DashboardStaticTestCase(unittest.TestCase):
             "REMOTE-8F-CLOSE - active tiny cohort monitoring clean",
             "GO_REMOTE8F_TINY_COHORT_MONITORING_CLEAN",
             "active cohort is `4/4 ready`",
-            "Current implementation phase: REMOTE-RILIS-STANDBY",
-            "TESTER-RILIS cannot retest until tomorrow",
+            "Historical remote anchor: REMOTE-RILIS-STANDBY",
+            "Current phase completed: REMOTE-RILIS-STANDBY",
             "Current phase completed: REMOTE-8H cycle bridge",
             "Current implementation phase: REMOTE-8H private package evidence",
             "Tiny Cohort Monitoring Gate",
@@ -16204,10 +16204,10 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for pattern in (
             "Estado interno: WFCO-1 Edge Factory Shell esta aplicado",
-            "Siguiente paso recomendado: esperar el retest de TESTER-RILIS",
+            "REMOTE-RILIS-STANDBY queda cerrado por confirmacion del operador el 2026-05-31",
             "Estado comercial: REMOTE-0 inicia el giro oficial a acceso web Pro",
-            "REMOTE-PG-SESSION-FIX esta aplicado",
-            "TESTER-RILIS pendiente de retest",
+            "REMOTE-PG-SESSION-FIX queda aplicado",
+            "TESTER-RILIS accede sin problema",
             "Distribucion principal: enlace unico comercial `https://sqxedgesuite.org/`",
             "URL de acceso comunicable: `https://sqxedgesuite.org/`",
             "Fallback interno conservado: `dist/SQX_Edge_Tool_Portable_Tester_20260512_184709.zip`",
@@ -18173,7 +18173,7 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for pattern in (
             "Current completed phase: TL1 - Tester Launch Candidate.",
-            "Next recommended phase: operator fills private TL1 evidence and runs `proof:tester-launch-candidate`",
+            "Next: complete and rerun REMOTE-8K Post Execution Monitoring; complete the SQX142-AW-AI2 human AlgoWizard roundtrip.",
             "Phase T10at: private tester URL share approval gate without Git URL/email leak",
             "Phase T10au: private first tester smoke gate without Git URL/email leak",
         ):
@@ -18331,7 +18331,7 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for pattern in (
             "Current completed phase: TL1 - Tester Launch Candidate.",
-            "Next recommended phase: operator fills private TL1 evidence and runs `proof:tester-launch-candidate`",
+            "Next: complete and rerun REMOTE-8K Post Execution Monitoring; complete the SQX142-AW-AI2 human AlgoWizard roundtrip.",
             "Phase T10au: private first tester smoke gate without Git URL/email leak",
             "Phase T10av: private tester cohort expansion gate without Git URL/email leak",
         ):
@@ -18490,7 +18490,7 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for pattern in (
             "Current completed phase: TL1 - Tester Launch Candidate.",
-            "Next recommended phase: operator fills private TL1 evidence and runs `proof:tester-launch-candidate`",
+            "Next: complete and rerun REMOTE-8K Post Execution Monitoring; complete the SQX142-AW-AI2 human AlgoWizard roundtrip.",
             "Phase T10av: private tester cohort expansion gate without Git URL/email leak",
             "Phase T10aw: private tester feedback intake gate without Git URL/email leak",
         ):
@@ -18650,7 +18650,7 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for pattern in (
             "Current completed phase: TL1 - Tester Launch Candidate.",
-            "Next recommended phase: operator fills private TL1 evidence and runs `proof:tester-launch-candidate`",
+            "Next: complete and rerun REMOTE-8K Post Execution Monitoring; complete the SQX142-AW-AI2 human AlgoWizard roundtrip.",
             "Phase T10aw: private tester feedback intake gate without Git URL/email leak",
             "Phase T10ax: private tester feedback triage gate without Git URL/email leak",
         ):
@@ -18811,7 +18811,7 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for pattern in (
             "Current completed phase: TL1 - Tester Launch Candidate.",
-            "Next recommended phase: operator fills private TL1 evidence and runs `proof:tester-launch-candidate`",
+            "Next: complete and rerun REMOTE-8K Post Execution Monitoring; complete the SQX142-AW-AI2 human AlgoWizard roundtrip.",
             "Phase T10ax: private tester feedback triage gate without Git URL/email leak",
             "Phase T10ay: private tester action plan gate without Git URL/email leak",
         ):
@@ -18971,7 +18971,7 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for pattern in (
             "Current completed phase: TL1 - Tester Launch Candidate.",
-            "Next recommended phase: operator fills private TL1 evidence and runs `proof:tester-launch-candidate`",
+            "Next: complete and rerun REMOTE-8K Post Execution Monitoring; complete the SQX142-AW-AI2 human AlgoWizard roundtrip.",
             "Phase T10ay: private tester action plan gate without Git URL/email leak",
             "Phase T10az: private tester action execution gate without Git URL/email leak",
         ):
@@ -19133,7 +19133,7 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for pattern in (
             "Current completed phase: TL1 - Tester Launch Candidate.",
-            "Next recommended phase: operator fills private TL1 evidence and runs `proof:tester-launch-candidate`",
+            "Next: complete and rerun REMOTE-8K Post Execution Monitoring; complete the SQX142-AW-AI2 human AlgoWizard roundtrip.",
             "Phase T10az: private tester action execution gate without Git URL/email leak",
             "Phase T10ba: private tester result validation gate without Git URL/email leak",
         ):
@@ -19296,7 +19296,7 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for pattern in (
             "Current completed phase: TL1 - Tester Launch Candidate.",
-            "Next recommended phase: operator fills private TL1 evidence and runs `proof:tester-launch-candidate`",
+            "Next: complete and rerun REMOTE-8K Post Execution Monitoring; complete the SQX142-AW-AI2 human AlgoWizard roundtrip.",
             "Phase T10ba: private tester result validation gate without Git URL/email leak",
             "Phase T10bb: private tester iteration decision gate without Git URL/email leak",
         ):
@@ -19471,7 +19471,7 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for pattern in (
             "Current completed phase: TL1 - Tester Launch Candidate.",
-            "Next recommended phase: operator fills private TL1 evidence and runs `proof:tester-launch-candidate`",
+            "Next: complete and rerun REMOTE-8K Post Execution Monitoring; complete the SQX142-AW-AI2 human AlgoWizard roundtrip.",
             "Phase T10bb: private tester iteration decision gate without Git URL/email leak",
             "Phase T10bc: private tester next iteration gate without Git URL/email leak",
         ):
@@ -19649,7 +19649,7 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for pattern in (
             "Current completed phase: TL1 - Tester Launch Candidate.",
-            "Next recommended phase: operator fills private TL1 evidence and runs `proof:tester-launch-candidate`",
+            "Next: complete and rerun REMOTE-8K Post Execution Monitoring; complete the SQX142-AW-AI2 human AlgoWizard roundtrip.",
             "Phase T10bc: private tester next iteration gate without Git URL/email leak",
             "Phase T10bd: private tester next iteration execution gate without Git URL/email leak",
         ):
@@ -19811,7 +19811,7 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for pattern in (
             "Current completed phase: TL1 - Tester Launch Candidate.",
-            "Next recommended phase: operator fills private TL1 evidence and runs `proof:tester-launch-candidate`",
+            "Next: complete and rerun REMOTE-8K Post Execution Monitoring; complete the SQX142-AW-AI2 human AlgoWizard roundtrip.",
             "Phase T10bd: private tester next iteration execution gate without Git URL/email leak. Paused in favor of TL1 macro launch candidate.",
             "Phase TL1: tester launch candidate. Done as single macro go/no-go",
             "Next real action: fill ignored private TL1 evidence",

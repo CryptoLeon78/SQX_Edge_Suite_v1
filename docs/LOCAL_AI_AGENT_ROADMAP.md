@@ -14,6 +14,8 @@
 - Phase G8-SQX-ACADEMIC-LOPEZ1 - consulta academica SQX: aplicada como skill/perfil local-only para MC, OOS, data snooping y backtest overfitting antes de Fase 6 `MC`.
 - Phase G9 - Per-Message Subagents And Session Bootstrap: aplicado como disciplina operativa interna para evaluar subagentes/skills en cada mensaje y arrancar cada sesion/chat con un reporte breve de fase, frentes abiertos, gates y riesgos.
 - Phase G9R - Parallel Subagent Runtime Bootstrap: aplicado como endurecimiento runtime para cargar Multi-agent tools via `tool_search` cuando el operador pide G9/subagentes/paralelo, lanzar subagentes independientes en paralelo real y dejar handoff breve local si su resultado afecta el siguiente paso.
+- Phase G10 - Agent And Subagent Refresh: aplicado tras el cierre SQX144 Full y limpieza local; actualiza AGENTS del workspace, AGENTS global de Codex, skills SQX instaladas y perfiles del agente local para arrancar con SQX144 Full como primario confirmado, SQX142 Codex/QXPRO conservado como material local no-fallback y SQX143 como historico eliminado localmente.
+- Phase BS-AI1 - BlockSettings Generator: aplicado como `bs-ai-blocksettings-generator-v1` para operador local SQX144; expone catalogo, sesiones, plan, `save-candidate` y `generate-project` via Flask, genera candidatos `BSAI_*` bajo `.local/blocksettings_ai/candidates/`, preserva oficiales v6/v7, mantiene `BS_Filtros_v6` / `BS_Filtros_v6_D1` como defaults y exige `explicitBaseCanonicalId` para `BS_Filtros_v7_*`.
 
 ## Contrato V1
 
@@ -31,6 +33,7 @@ Reglas:
 - El usuario remoto autenticado no recibe la capability `sqx142_compat_help` ni el estado `/api/sqx142/compat/status`.
 - El usuario remoto autenticado no recibe la capability `sqx142_performance_help` ni el estado `/api/sqx142/performance/status`.
 - El monitor Backend/Tunnel/Ollama es local-only para el creador/operador que levanta los servers.
+- BS-AI1 usa Flask como frontera local para `/api/blocksettings/ai/*`; el overlay SQX144 no llama directamente a Ollama ni recibe rutas locales, XML crudo o secretos.
 - Preguntas como `que eres capaz de hacer?` usan una respuesta fija de capacidades, independiente de Ollama y de la etapa activa.
 - Preguntas locales sobre SQX 142, build 143, build 144, backport o compatibilidad usan `fixed_sqx142_compat` y el ledger antes que una respuesta libre del LLM.
 - Preguntas locales sobre rendimiento, minados, retests, MonteCarlo, databanks o perfiles JVM usan `fixed_sqx142_performance` y `docs/SQX142_PERFORMANCE_ROADMAP.md` antes que una respuesta libre del LLM.
@@ -39,6 +42,7 @@ Reglas:
 - `SQX Test Guardian` y `SQX Docs Curator` son perspectivas internas para lectura, planificacion, dry-run y revision; no son ejecutores autonomos de mutaciones.
 - `SQX Academic Lopez` es una perspectiva interna de lectura/criterio; no ejecuta cambios, no decide permisos y no sustituye confirmacion metodologica del operador.
 - Cada mensaje del operador evalua perfiles/subagentes disponibles y activa los adecuados cuando aportan valor verificable; si todos aportan trabajo independiente, se pueden activar todos los disponibles bajo control del orquestador.
+- Bootstrap G10: antes de activar perfiles SQX, el agente debe asumir `sqx144_full` como host primario confirmado, SQX142 Codex/QXPRO como diagnostico/metodologia local no-fallback, SQX143 como historico sin instalacion local activa y 144.2953 como carril separado `SQX144-FULL-UPDATE2`.
 - Si el operador pide G9, subagentes, delegacion o trabajo en paralelo y las Multi-agent tools no estan expuestas en la sesion, el orquestador debe cargarlas primero con `tool_search`; no debe afirmar paralelismo de subagentes si solo ha leido skills o docs.
 - Los subagentes independientes se lanzan en la misma ronda siempre que haya cortes separados de seguridad, docs, metodologia, tests o lectura; Codex continua el trabajo local no solapado mientras corren y no espera por reflejo salvo que el siguiente paso dependa de ellos.
 - El bootstrap de nueva sesion/chat resume estado del proyecto, fase activa, siguiente bloque exacto, frentes abiertos, gates aplicables y limites de privacidad antes de ejecutar trabajo no trivial.
@@ -56,6 +60,7 @@ Prohibido en V1:
 ## Implementacion
 
 - Backend: `backend/sqx-edge-tool/core/agent/`.
+- BS-AI1 backend: `backend/sqx-edge-tool/core/blocksettings_ai_generator.py`.
 - Config: `backend/sqx-edge-tool/config/agent_profiles.json`.
 - Endpoints:
   - `GET /api/agent/status`
@@ -64,9 +69,16 @@ Prohibido en V1:
   - `POST /api/agent/confirm`
   - `POST /api/agent/execute`
   - `POST /api/agent/translate-source-code`
+  - `GET /api/blocksettings/ai/catalog`
+  - `POST /api/blocksettings/ai/sessions`
+  - `POST /api/blocksettings/ai/sessions/<id>/plan`
+  - `POST /api/blocksettings/ai/sessions/<id>/save-candidate`
+  - `POST /api/blocksettings/ai/sessions/<id>/generate-project`
+  - `GET /api/blocksettings/ai/download/<artifact_id>`
   - `GET /api/sqx142/compat/status` local-only para operador
   - `GET /api/sqx142/performance/status` local-only para operador
 - Frontend: `app/js/modules/agent-guide.js`.
+- BS-AI1 SQX144 overlay: `integrations/sqx144/blocksettings_ai_overlay/` installed only through `tools/sqx144_blocksettings_ai_overlay.ps1` with SQX closed, backup and explicit `-Apply`.
 - UI principal: dock dentro de Edge Factory, no nuevo tab.
 - Resumen: panel compacto en Control Panel.
 - Bandeja local: `.local/agent_inbox/incoming`, `processed`, `summaries`.
@@ -108,7 +120,7 @@ Perfiles de etapa Edge Factory:
 - `capa2-generate`: generacion Capa 2.
 - `capa2-analyze`: revision Capa 2.
 - `portfolio`: shortlist diversa.
-- `sqx142-compat`: estado local SQX 142/143/144, runtime, procesos, ledger y limites de backport.
+- `sqx142-compat`: estado local SQX144/SQX142 historico, runtime, procesos, ledger y limites de backport; SQX143 es historico si no existe instalacion local.
 - `sqx142-performance`: perfil JVM activo, disco, procesos, views de rendimiento, evidencias clave, Live Guard, recomendacion activa y reglas de calidad sin ejecutar cambios.
 - `sqx-c1-config`: estado C1-CONFIG1, ledger local, promocion selectiva y salto controlado hacia `RETEST 0`.
 - `sqx-test-guardian`: matriz de checks, riesgos de regresion, dry-runs seguros y limites de no-mutacion.

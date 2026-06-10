@@ -60,6 +60,15 @@ from core.blocksettings import (
     load_blocksettings_manifest,
     resolve_blocksetting_entry,
 )
+from core.blocksettings_ai_generator import (
+    BS_AI_VERSION,
+    build_bsai_catalog,
+    create_bsai_session,
+    generate_bsai_project_pair,
+    plan_bsai_session,
+    resolve_bsai_download,
+    save_bsai_candidate,
+)
 from core.sqx_db import SqxDb
 from core.strategy_cleaner import (
     extract_metadata, list_sqx_directory, clean_exit_after_bars,
@@ -171,6 +180,14 @@ from core.sqx142_copy_only_migration_checklist import (
     build_copy_only_migration_checklist,
     export_copy_only_migration_checklist_csv,
 )
+from core import sqx144_mt5_auto2_datamanager as mt5_auto2
+from core import sqx144_mt5_auto3_broker_catalog as mt5_auto3
+from core import sqx144_mt5_auto6_metadata_stability as mt5_auto6
+from core import sqx144_mt5_auto7_dukascopy_metadata_mirror as mt5_auto7
+from core import sqx144_mt5_auto9_health_watchdog as mt5_auto9
+from core import sqx144_mt5_auto10_internal_runner as mt5_auto10
+from core import sqx144_mt5_auto11_ea_attach_runner as mt5_auto11
+from core import sqx144_mt5_bridge as mt5_bridge
 from core.sqx142_ai_wizard import (
     AI_WIZARD_AI2_VERSION,
     AI_WIZARD_VERSION,
@@ -771,6 +788,89 @@ def resolve_output_dir(cfg: dict) -> str:
     return val
 
 
+BSAI_CLIENT_PATH_FIELDS = {
+    "path",
+    "paths",
+    "output",
+    "output_dir",
+    "outputDir",
+    "dbPath",
+    "db_path",
+    "sqxRoot",
+    "sqxPath",
+    "sqx_path",
+    "sqxDataDb",
+    "sqx_data_db",
+    "sqxProjectsDir",
+    "sqx_projects_dir",
+    "fileName",
+    "filename",
+    "template",
+    "templates",
+    "templatePath",
+    "template_path",
+    "template_capa1",
+    "template_capa2",
+    "templateCapa1",
+    "templateCapa2",
+    "template_c1",
+    "template_c2",
+}
+
+
+def _path_inside(path: Path, root: Path) -> bool:
+    try:
+        path.resolve(strict=False).relative_to(root.resolve(strict=False))
+        return True
+    except ValueError:
+        return False
+
+
+def _bsai_sensitive_roots(cfg: dict) -> list[Path]:
+    roots: list[Path] = []
+    for key in ("sqx_path", "sqx_projects_dir"):
+        raw = str((cfg or {}).get(key) or "").strip()
+        if raw:
+            roots.append(Path(raw))
+    db_path = str((cfg or {}).get("sqx_data_db") or "").strip()
+    if db_path:
+        roots.append(Path(db_path))
+        roots.append(Path(db_path).parent)
+    sqx_root = str((cfg or {}).get("sqx_path") or "").strip()
+    if sqx_root:
+        roots.extend([
+            Path(sqx_root) / "user",
+            Path(sqx_root) / "user" / "projects",
+            Path(sqx_root) / "user" / "data",
+            Path(sqx_root) / "user" / "extend",
+        ])
+    return roots
+
+
+def resolve_bsai_template(cfg: dict, capa: int) -> str:
+    template = Path(resolve_template(cfg, capa)).resolve(strict=False)
+    templates_root = (ROOT / "templates").resolve(strict=False)
+    if not _path_inside(template, templates_root):
+        raise ValueError("bsai_template_outside_repo_templates_blocked")
+    return str(template)
+
+
+def resolve_bsai_output_dir(cfg: dict) -> str:
+    raw = str((cfg or {}).get("output_dir") or "output")
+    output = Path(raw)
+    if not output.is_absolute():
+        output = ROOT / output
+    output = output.resolve(strict=False)
+    for sensitive in _bsai_sensitive_roots(cfg or {}):
+        if not str(sensitive).strip():
+            continue
+        sensitive_resolved = sensitive.resolve(strict=False)
+        if _path_inside(output, sensitive_resolved) or _path_inside(sensitive_resolved, output):
+            raise ValueError("bsai_output_dir_blocked")
+    output.mkdir(parents=True, exist_ok=True)
+    return str(output)
+
+
 def _target_profile_payload(data: dict, cfg: dict) -> dict:
     """Build the target SQX profile sent to the CFX generator.
 
@@ -1271,6 +1371,674 @@ def manifest():
 @app.get("/api/blocksettings")
 def api_blocksettings():
     return jsonify({"ok": True, "blocksettings": load_blocksettings_manifest()})
+
+
+@app.get("/api/blocksettings/ai/catalog")
+def api_blocksettings_ai_catalog():
+    error = _require_sqx142_local_operator(BS_AI_VERSION)
+    if error:
+        return error
+    return jsonify(build_bsai_catalog(PROJECT_ROOT))
+
+
+@app.post("/api/blocksettings/ai/sessions")
+def api_blocksettings_ai_sessions_create():
+    error = _require_sqx142_local_operator(BS_AI_VERSION)
+    if error:
+        return error
+    payload = request.get_json(silent=True) or {}
+    if not isinstance(payload, dict):
+        payload = {}
+    report = create_bsai_session(PROJECT_ROOT, payload)
+    return jsonify(report), (201 if report.get("ok") else 400)
+
+
+@app.post("/api/blocksettings/ai/sessions/<session_id>/plan")
+def api_blocksettings_ai_session_plan(session_id: str):
+    error = _require_sqx142_local_operator(BS_AI_VERSION)
+    if error:
+        return error
+    payload = request.get_json(silent=True) or {}
+    if not isinstance(payload, dict):
+        payload = {}
+    report = plan_bsai_session(PROJECT_ROOT, session_id, payload)
+    status_code = 200 if report.get("ok") else (404 if report.get("error") == "bsai_session_not_found" else 400)
+    return jsonify(report), status_code
+
+
+@app.post("/api/blocksettings/ai/sessions/<session_id>/save-candidate")
+def api_blocksettings_ai_session_save_candidate(session_id: str):
+    error = _require_sqx142_local_operator(BS_AI_VERSION)
+    if error:
+        return error
+    payload = request.get_json(silent=True) or {}
+    if not isinstance(payload, dict):
+        payload = {}
+    report = save_bsai_candidate(PROJECT_ROOT, session_id, payload)
+    status_code = 200 if report.get("ok") else (404 if report.get("error") == "bsai_session_not_found" else 400)
+    return jsonify(report), status_code
+
+
+@app.post("/api/blocksettings/ai/sessions/<session_id>/generate-project")
+def api_blocksettings_ai_session_generate_project(session_id: str):
+    error = _require_sqx142_local_operator(BS_AI_VERSION)
+    if error:
+        return error
+    payload = request.get_json(silent=True) or {}
+    if not isinstance(payload, dict):
+        payload = {}
+    blocked_fields = sorted(key for key in BSAI_CLIENT_PATH_FIELDS if key in payload)
+    if blocked_fields:
+        return jsonify({
+            "ok": False,
+            "version": BS_AI_VERSION,
+            "error": "client_path_fields_blocked",
+            "privacy": {"local_paths_returned": False, "tokens_returned": False},
+        }), 400
+    cfg = load_config()
+    try:
+        template_capa1 = resolve_bsai_template(cfg, 1)
+        template_capa2 = resolve_bsai_template(cfg, 2)
+        output_dir = resolve_bsai_output_dir(cfg)
+    except ValueError as exc:
+        return jsonify({
+            "ok": False,
+            "version": BS_AI_VERSION,
+            "error": str(exc),
+            "privacy": {"local_paths_returned": False, "tokens_returned": False},
+        }), 400
+    db_path = cfg.get("sqx_data_db") or None
+    postfix = cfg.get("darwinex_suffix") or DEFAULT_BROKER_POSTFIX
+    target_profile = _target_profile_payload(payload, cfg)
+    report = generate_bsai_project_pair(
+        PROJECT_ROOT,
+        session_id,
+        template_capa1=template_capa1,
+        template_capa2=template_capa2,
+        output_dir=output_dir,
+        sqx_db_path=db_path,
+        broker_postfix=postfix,
+        alias_override=cfg.get("asset_aliases") or {},
+        target_profile=target_profile,
+    )
+    return jsonify(report), (200 if report.get("ok") else 400)
+
+
+@app.get("/api/blocksettings/ai/download/<artifact_id>")
+def api_blocksettings_ai_download(artifact_id: str):
+    error = _require_sqx142_local_operator(BS_AI_VERSION)
+    if error:
+        return error
+    path = resolve_bsai_download(PROJECT_ROOT, artifact_id)
+    if not path:
+        return jsonify({
+            "ok": False,
+            "version": BS_AI_VERSION,
+            "error": "bsai_artifact_not_found",
+            "privacy": {"local_paths_returned": False},
+        }), 404
+    return send_file(path, as_attachment=True, download_name=path.name, mimetype="application/octet-stream")
+
+
+@app.get("/api/sqx144/mt5-auto2/status")
+def api_sqx144_mt5_auto2_status():
+    error = _require_sqx142_local_operator(mt5_auto2.SQX144_MT5_AUTO2_VERSION)
+    if error:
+        return error
+    return jsonify(mt5_auto2.status_payload(PROJECT_ROOT))
+
+
+@app.post("/api/sqx144/mt5-auto2/request")
+def api_sqx144_mt5_auto2_request():
+    error = _require_sqx142_local_operator(mt5_auto2.SQX144_MT5_AUTO2_VERSION)
+    if error:
+        return error
+    payload = request.get_json(silent=True) or {}
+    if not isinstance(payload, dict):
+        payload = {}
+    try:
+        report = mt5_auto2.request_payload(
+            PROJECT_ROOT,
+            symbol=str(payload.get("symbol") or ""),
+            spread_policy=str(payload.get("spreadPolicy") or mt5_bridge.DEFAULT_SPREAD_POLICY),
+            spread_timeframe=str(payload.get("spreadTimeframe") or "M1"),
+            from_year=int(payload.get("fromYear") or 0),
+            to_year=int(payload.get("toYear") or 0),
+            max_bars=int(payload.get("maxBars") or 0),
+        )
+    except mt5_bridge.BridgeError as exc:
+        report = mt5_auto2.error_payload("request", exc)
+    return jsonify(report), (200 if report.get("ok") else 400)
+
+
+@app.post("/api/sqx144/mt5-auto2/validate")
+def api_sqx144_mt5_auto2_validate():
+    error = _require_sqx142_local_operator(mt5_auto2.SQX144_MT5_AUTO2_VERSION)
+    if error:
+        return error
+    payload = request.get_json(silent=True) or {}
+    if not isinstance(payload, dict):
+        payload = {}
+    try:
+        report = mt5_auto2.validate_payload(
+            project_root=PROJECT_ROOT,
+            spread_policy=str(payload.get("spreadPolicy") or mt5_bridge.DEFAULT_SPREAD_POLICY),
+            expected_request_id=str(payload.get("expectedRequestId") or ""),
+            expected_symbol=str(payload.get("expectedSymbol") or ""),
+        )
+    except mt5_bridge.BridgeError as exc:
+        report = mt5_auto2.error_payload("validate", exc)
+    if report.get("status") == "waiting_for_requested_response":
+        return jsonify(report), 200
+    return jsonify(report), (200 if report.get("ok") else 400)
+
+
+@app.get("/api/sqx144/mt5-auto3/status")
+def api_sqx144_mt5_auto3_status():
+    error = _require_sqx142_local_operator(mt5_auto3.SQX144_MT5_AUTO3_VERSION)
+    if error:
+        return error
+    try:
+        report = mt5_auto3.status_payload(PROJECT_ROOT)
+    except mt5_auto3.Auto3Error as exc:
+        report = mt5_auto3.error_payload("status", exc)
+    return jsonify(report), (200 if report.get("ok") else 400)
+
+
+@app.post("/api/sqx144/mt5-auto3/catalog-audit")
+def api_sqx144_mt5_auto3_catalog_audit():
+    error = _require_sqx142_local_operator(mt5_auto3.SQX144_MT5_AUTO3_VERSION)
+    if error:
+        return error
+    payload = request.get_json(silent=True) or {}
+    if not isinstance(payload, dict):
+        payload = {}
+    try:
+        report = mt5_auto3.catalog_audit_payload(
+            PROJECT_ROOT,
+            broker_key=str(payload.get("broker") or payload.get("brokerKey") or mt5_auto3.DEFAULT_BROKER),
+            symbol=str(payload.get("symbol") or "") or None,
+        )
+    except mt5_auto3.Auto3Error as exc:
+        report = mt5_auto3.error_payload("catalog-audit", exc)
+    return jsonify(report), (200 if report.get("ok") else 400)
+
+
+@app.post("/api/sqx144/mt5-auto3/bridge-validate")
+def api_sqx144_mt5_auto3_bridge_validate():
+    error = _require_sqx142_local_operator(mt5_auto3.SQX144_MT5_AUTO3_VERSION)
+    if error:
+        return error
+    payload = request.get_json(silent=True) or {}
+    if not isinstance(payload, dict):
+        payload = {}
+    try:
+        report = mt5_auto3.bridge_validate_payload(
+            PROJECT_ROOT,
+            broker_key=str(payload.get("broker") or payload.get("brokerKey") or mt5_auto3.DEFAULT_BROKER),
+            symbol=str(payload.get("symbol") or ""),
+            spread_policy=str(payload.get("spreadPolicy") or mt5_bridge.DEFAULT_SPREAD_POLICY),
+            expected_request_id=str(payload.get("expectedRequestId") or "") or None,
+        )
+    except (mt5_auto3.Auto3Error, mt5_bridge.BridgeError) as exc:
+        report = mt5_auto3.error_payload("bridge-validate", exc)
+    if report.get("status") == "waiting_for_requested_response":
+        return jsonify(report), 200
+    return jsonify(report), (200 if report.get("ok") else 400)
+
+
+@app.post("/api/sqx144/mt5-auto3/resolve-plan")
+def api_sqx144_mt5_auto3_resolve_plan():
+    error = _require_sqx142_local_operator(mt5_auto3.SQX144_MT5_AUTO3_VERSION)
+    if error:
+        return error
+    payload = request.get_json(silent=True) or {}
+    if not isinstance(payload, dict):
+        payload = {}
+    try:
+        report = mt5_auto3.resolve_plan_payload(
+            PROJECT_ROOT,
+            broker_key=str(payload.get("broker") or payload.get("brokerKey") or mt5_auto3.DEFAULT_BROKER),
+            symbol=str(payload.get("symbol") or ""),
+            spread_policy=str(payload.get("spreadPolicy") or mt5_bridge.DEFAULT_SPREAD_POLICY),
+            with_bridge=bool(payload.get("withBridge")),
+        )
+    except (mt5_auto3.Auto3Error, mt5_bridge.BridgeError) as exc:
+        report = mt5_auto3.error_payload("resolve-plan", exc)
+    return jsonify(report), (200 if report.get("ok") else 400)
+
+
+@app.post("/api/sqx144/mt5-auto3/import-plan")
+def api_sqx144_mt5_auto3_import_plan():
+    error = _require_sqx142_local_operator(mt5_auto3.SQX144_MT5_AUTO3_VERSION)
+    if error:
+        return error
+    payload = request.get_json(silent=True) or {}
+    if not isinstance(payload, dict):
+        payload = {}
+    try:
+        report = mt5_auto3.import_plan_payload(
+            PROJECT_ROOT,
+            broker_key=str(payload.get("broker") or payload.get("brokerKey") or mt5_auto3.DEFAULT_BROKER),
+            symbol=str(payload.get("symbol") or ""),
+            timeframe=str(payload.get("timeframe") or "M1"),
+        )
+    except mt5_auto3.Auto3Error as exc:
+        report = mt5_auto3.error_payload("import-plan", exc)
+    return jsonify(report), (200 if report.get("ok") else 400)
+
+
+@app.get("/api/sqx144/mt5-auto9/status")
+def api_sqx144_mt5_auto9_status():
+    error = _require_sqx142_local_operator(mt5_auto9.SQX144_MT5_AUTO9_VERSION)
+    if error:
+        return error
+    try:
+        report = mt5_auto9.status_payload(PROJECT_ROOT)
+    except (mt5_auto9.Auto9Error, mt5_bridge.BridgeError) as exc:
+        report = mt5_auto9.error_payload("status", exc)
+    return jsonify(report), (200 if report.get("ok") else 400)
+
+
+@app.post("/api/sqx144/mt5-auto9/health")
+def api_sqx144_mt5_auto9_health():
+    error = _require_sqx142_local_operator(mt5_auto9.SQX144_MT5_AUTO9_VERSION)
+    if error:
+        return error
+    payload = request.get_json(silent=True) or {}
+    if not isinstance(payload, dict):
+        payload = {}
+    try:
+        report = mt5_auto9.health_payload(
+            PROJECT_ROOT,
+            expected_request_id=str(payload.get("expectedRequestId") or "") or None,
+            expected_symbol=str(payload.get("expectedSymbol") or "") or None,
+            stale_after_seconds=int(payload.get("staleAfterSeconds") or mt5_bridge.DEFAULT_HEALTH_STALE_AFTER_SECONDS),
+        )
+    except (mt5_auto9.Auto9Error, mt5_bridge.BridgeError) as exc:
+        report = mt5_auto9.error_payload("health", exc)
+    return jsonify(report), (200 if report.get("ok") else 400)
+
+
+@app.post("/api/sqx144/mt5-auto9/automation-plan")
+def api_sqx144_mt5_auto9_automation_plan():
+    error = _require_sqx142_local_operator(mt5_auto9.SQX144_MT5_AUTO9_VERSION)
+    if error:
+        return error
+    try:
+        report = mt5_auto9.automation_plan_payload(PROJECT_ROOT)
+    except (mt5_auto9.Auto9Error, mt5_bridge.BridgeError) as exc:
+        report = mt5_auto9.error_payload("automation-plan", exc)
+    return jsonify(report), (200 if report.get("ok") else 400)
+
+
+@app.get("/api/sqx144/mt5-auto9/approval-template")
+def api_sqx144_mt5_auto9_approval_template():
+    error = _require_sqx142_local_operator(mt5_auto9.SQX144_MT5_AUTO9_VERSION)
+    if error:
+        return error
+    try:
+        report = mt5_auto9.approval_template_payload(PROJECT_ROOT)
+    except (mt5_auto9.Auto9Error, mt5_bridge.BridgeError) as exc:
+        report = mt5_auto9.error_payload("approval-template", exc)
+    return jsonify(report), (200 if report.get("ok") else 400)
+
+
+@app.get("/api/sqx144/mt5-auto10/status")
+def api_sqx144_mt5_auto10_status():
+    error = _require_sqx142_local_operator(mt5_auto10.SQX144_MT5_AUTO10_VERSION)
+    if error:
+        return error
+    try:
+        report = mt5_auto10.status_payload(PROJECT_ROOT)
+    except (mt5_auto10.Auto10Error, mt5_bridge.BridgeError) as exc:
+        report = mt5_auto10.error_payload("status", exc)
+    return jsonify(report), (200 if report.get("ok") else 400)
+
+
+@app.post("/api/sqx144/mt5-auto10/preflight")
+def api_sqx144_mt5_auto10_preflight():
+    error = _require_sqx142_local_operator(mt5_auto10.SQX144_MT5_AUTO10_VERSION)
+    if error:
+        return error
+    payload = request.get_json(silent=True) or {}
+    if not isinstance(payload, dict):
+        payload = {}
+    try:
+        report = mt5_auto10.preflight_payload(
+            PROJECT_ROOT,
+            mt5_root=str(payload.get("mt5Root") or "") or None,
+            mt5_files_dir=str(payload.get("mt5FilesDir") or "") or None,
+            mt5_experts_dir=str(payload.get("mt5ExpertsDir") or "") or None,
+        )
+    except (mt5_auto10.Auto10Error, mt5_bridge.BridgeError) as exc:
+        report = mt5_auto10.error_payload("preflight", exc)
+    return jsonify(report), (200 if report.get("ok") else 400)
+
+
+@app.post("/api/sqx144/mt5-auto10/plan")
+def api_sqx144_mt5_auto10_plan():
+    error = _require_sqx142_local_operator(mt5_auto10.SQX144_MT5_AUTO10_VERSION)
+    if error:
+        return error
+    try:
+        report = mt5_auto10.plan_payload(PROJECT_ROOT)
+    except (mt5_auto10.Auto10Error, mt5_bridge.BridgeError) as exc:
+        report = mt5_auto10.error_payload("plan", exc)
+    return jsonify(report), (200 if report.get("ok") else 400)
+
+
+@app.post("/api/sqx144/mt5-auto10/launch")
+def api_sqx144_mt5_auto10_launch():
+    error = _require_sqx142_local_operator(mt5_auto10.SQX144_MT5_AUTO10_VERSION)
+    if error:
+        return error
+    payload = request.get_json(silent=True) or {}
+    if not isinstance(payload, dict):
+        payload = {}
+    try:
+        report = mt5_auto10.launch_payload(
+            PROJECT_ROOT,
+            approval=str(payload.get("approval") or "") or None,
+            mt5_root=str(payload.get("mt5Root") or "") or None,
+            apply=bool(payload.get("apply")),
+            window_style=str(payload.get("windowStyle") or "minimized"),
+        )
+    except (mt5_auto10.Auto10Error, mt5_bridge.BridgeError) as exc:
+        report = mt5_auto10.error_payload("launch", exc)
+    return jsonify(report), (200 if report.get("ok") else 400)
+
+
+@app.post("/api/sqx144/mt5-auto10/stop")
+def api_sqx144_mt5_auto10_stop():
+    error = _require_sqx142_local_operator(mt5_auto10.SQX144_MT5_AUTO10_VERSION)
+    if error:
+        return error
+    payload = request.get_json(silent=True) or {}
+    if not isinstance(payload, dict):
+        payload = {}
+    try:
+        report = mt5_auto10.stop_payload(PROJECT_ROOT, apply=bool(payload.get("apply")))
+    except (mt5_auto10.Auto10Error, mt5_bridge.BridgeError) as exc:
+        report = mt5_auto10.error_payload("stop", exc)
+    return jsonify(report), (200 if report.get("ok") else 400)
+
+
+@app.post("/api/sqx144/mt5-auto10/verify")
+def api_sqx144_mt5_auto10_verify():
+    error = _require_sqx142_local_operator(mt5_auto10.SQX144_MT5_AUTO10_VERSION)
+    if error:
+        return error
+    payload = request.get_json(silent=True) or {}
+    if not isinstance(payload, dict):
+        payload = {}
+    try:
+        report = mt5_auto10.verify_payload(
+            PROJECT_ROOT,
+            approval=str(payload.get("approval") or "") or None,
+            symbol=str(payload.get("symbol") or mt5_auto10.DEFAULT_SMOKE_SYMBOL),
+            apply=bool(payload.get("apply")),
+            timeout_seconds=int(payload.get("timeoutSeconds") or mt5_auto10.DEFAULT_READY_TIMEOUT_SECONDS),
+        )
+    except (mt5_auto10.Auto10Error, mt5_bridge.BridgeError) as exc:
+        report = mt5_auto10.error_payload("verify", exc)
+    return jsonify(report), (200 if report.get("ok") else 400)
+
+
+@app.get("/api/sqx144/mt5-auto11/status")
+def api_sqx144_mt5_auto11_status():
+    error = _require_sqx142_local_operator(mt5_auto11.SQX144_MT5_AUTO11_VERSION)
+    if error:
+        return error
+    try:
+        report = mt5_auto11.status_payload(PROJECT_ROOT)
+    except (mt5_auto11.Auto11Error, mt5_auto10.Auto10Error, mt5_bridge.BridgeError) as exc:
+        report = mt5_auto11.error_payload("status", exc)
+    return jsonify(report), (200 if report.get("ok") else 400)
+
+
+@app.get("/api/sqx144/mt5-auto11/profile-catalog")
+def api_sqx144_mt5_auto11_profile_catalog():
+    error = _require_sqx142_local_operator(mt5_auto11.SQX144_MT5_AUTO11_VERSION)
+    if error:
+        return error
+    try:
+        report = mt5_auto11.profile_catalog_payload(PROJECT_ROOT)
+    except (mt5_auto11.Auto11Error, mt5_auto10.Auto10Error, mt5_bridge.BridgeError) as exc:
+        report = mt5_auto11.error_payload("profile-catalog", exc)
+    return jsonify(report), (200 if report.get("ok") else 400)
+
+
+@app.post("/api/sqx144/mt5-auto11/preflight")
+def api_sqx144_mt5_auto11_preflight():
+    error = _require_sqx142_local_operator(mt5_auto11.SQX144_MT5_AUTO11_VERSION)
+    if error:
+        return error
+    payload = request.get_json(silent=True) or {}
+    if not isinstance(payload, dict):
+        payload = {}
+    try:
+        report = mt5_auto11.preflight_payload(
+            PROJECT_ROOT,
+            mt5_root=str(payload.get("mt5Root") or "") or None,
+            mt5_files_dir=str(payload.get("mt5FilesDir") or "") or None,
+            mt5_experts_dir=str(payload.get("mt5ExpertsDir") or "") or None,
+        )
+    except (mt5_auto11.Auto11Error, mt5_auto10.Auto10Error, mt5_bridge.BridgeError) as exc:
+        report = mt5_auto11.error_payload("preflight", exc)
+    return jsonify(report), (200 if report.get("ok") else 400)
+
+
+@app.post("/api/sqx144/mt5-auto11/plan")
+def api_sqx144_mt5_auto11_plan():
+    error = _require_sqx142_local_operator(mt5_auto11.SQX144_MT5_AUTO11_VERSION)
+    if error:
+        return error
+    payload = request.get_json(silent=True) or {}
+    if not isinstance(payload, dict):
+        payload = {}
+    try:
+        report = mt5_auto11.plan_payload(
+            PROJECT_ROOT,
+            host=str(payload.get("host") or mt5_auto11.DEFAULT_HOST),
+            mt5_profile=str(payload.get("mt5Profile") or mt5_auto11.DEFAULT_MT5_PROFILE),
+            symbol=str(payload.get("symbol") or mt5_auto11.DEFAULT_SYMBOL),
+            timeframe=str(payload.get("timeframe") or mt5_auto11.DEFAULT_TIMEFRAME),
+        )
+    except (mt5_auto11.Auto11Error, mt5_auto10.Auto10Error, mt5_bridge.BridgeError) as exc:
+        report = mt5_auto11.error_payload("plan", exc)
+    return jsonify(report), (200 if report.get("ok") else 400)
+
+
+@app.post("/api/sqx144/mt5-auto11/attach-plan")
+def api_sqx144_mt5_auto11_attach_plan():
+    error = _require_sqx142_local_operator(mt5_auto11.SQX144_MT5_AUTO11_VERSION)
+    if error:
+        return error
+    payload = request.get_json(silent=True) or {}
+    if not isinstance(payload, dict):
+        payload = {}
+    try:
+        report = mt5_auto11.attach_plan_payload(
+            PROJECT_ROOT,
+            host=str(payload.get("host") or mt5_auto11.DEFAULT_HOST),
+            mt5_profile=str(payload.get("mt5Profile") or mt5_auto11.DEFAULT_MT5_PROFILE),
+            symbol=str(payload.get("symbol") or mt5_auto11.DEFAULT_SYMBOL),
+            timeframe=str(payload.get("timeframe") or mt5_auto11.DEFAULT_TIMEFRAME),
+            approval=str(payload.get("approval") or "") or None,
+            apply=bool(payload.get("apply")),
+            mt5_files_dir=str(payload.get("mt5FilesDir") or "") or None,
+            mt5_experts_dir=str(payload.get("mt5ExpertsDir") or "") or None,
+        )
+    except (mt5_auto11.Auto11Error, mt5_auto10.Auto10Error, mt5_bridge.BridgeError) as exc:
+        report = mt5_auto11.error_payload("attach-plan", exc)
+    return jsonify(report), (200 if report.get("ok") else 400)
+
+
+@app.post("/api/sqx144/mt5-auto11/ui-fallback-plan")
+def api_sqx144_mt5_auto11_ui_fallback_plan():
+    error = _require_sqx142_local_operator(mt5_auto11.SQX144_MT5_AUTO11_VERSION)
+    if error:
+        return error
+    payload = request.get_json(silent=True) or {}
+    if not isinstance(payload, dict):
+        payload = {}
+    try:
+        report = mt5_auto11.ui_fallback_plan_payload(
+            PROJECT_ROOT,
+            host=str(payload.get("host") or mt5_auto11.DEFAULT_HOST),
+            mt5_profile=str(payload.get("mt5Profile") or mt5_auto11.DEFAULT_MT5_PROFILE),
+            symbol=str(payload.get("symbol") or mt5_auto11.DEFAULT_SYMBOL),
+            timeframe=str(payload.get("timeframe") or mt5_auto11.DEFAULT_TIMEFRAME),
+            approval=str(payload.get("approval") or "") or None,
+            apply=bool(payload.get("apply")),
+        )
+    except (mt5_auto11.Auto11Error, mt5_auto10.Auto10Error, mt5_bridge.BridgeError) as exc:
+        report = mt5_auto11.error_payload("ui-fallback-plan", exc)
+    return jsonify(report), (200 if report.get("ok") else 400)
+
+
+@app.get("/api/sqx144/mt5-auto6/status")
+def api_sqx144_mt5_auto6_status():
+    error = _require_sqx142_local_operator(mt5_auto6.SQX144_MT5_AUTO6_VERSION)
+    if error:
+        return error
+    try:
+        report = mt5_auto6.status_payload(PROJECT_ROOT)
+    except mt5_auto6.Auto6Error as exc:
+        report = mt5_auto6.error_payload("status", exc, project_root=PROJECT_ROOT)
+    return jsonify(report), (200 if report.get("ok") else 400)
+
+
+@app.post("/api/sqx144/mt5-auto6/evaluate")
+def api_sqx144_mt5_auto6_evaluate():
+    error = _require_sqx142_local_operator(mt5_auto6.SQX144_MT5_AUTO6_VERSION)
+    if error:
+        return error
+    payload = request.get_json(silent=True) or {}
+    if not isinstance(payload, dict):
+        payload = {}
+    try:
+        report = mt5_auto6.evaluate_payload(
+            PROJECT_ROOT,
+            broker_key=str(payload.get("broker") or payload.get("brokerKey") or mt5_auto6.DEFAULT_BROKER),
+            symbol=str(payload.get("symbol") or ""),
+            spread_policy=str(payload.get("spreadPolicy") or mt5_auto6.DEFAULT_SPREAD_POLICY),
+            expected_request_id=str(payload.get("expectedRequestId") or "") or None,
+        )
+    except (mt5_auto6.Auto6Error, mt5_auto3.Auto3Error, mt5_bridge.BridgeError) as exc:
+        report = mt5_auto6.error_payload("evaluate", exc, project_root=PROJECT_ROOT)
+    return jsonify(report), (200 if report.get("ok") else 400)
+
+
+@app.get("/api/sqx144/mt5-auto7/status")
+def api_sqx144_mt5_auto7_status():
+    error = _require_sqx142_local_operator(mt5_auto7.SQX144_MT5_AUTO7_VERSION)
+    if error:
+        return error
+    try:
+        report = mt5_auto7.status_payload(PROJECT_ROOT)
+    except mt5_auto7.Auto7Error as exc:
+        report = mt5_auto7.error_payload("status", exc, project_root=PROJECT_ROOT)
+    return jsonify(report), (200 if report.get("ok") else 400)
+
+
+@app.post("/api/sqx144/mt5-auto7/audit")
+def api_sqx144_mt5_auto7_audit():
+    error = _require_sqx142_local_operator(mt5_auto7.SQX144_MT5_AUTO7_VERSION)
+    if error:
+        return error
+    payload = request.get_json(silent=True) or {}
+    if not isinstance(payload, dict):
+        payload = {}
+    try:
+        report = mt5_auto7.audit_payload(PROJECT_ROOT, symbol=str(payload.get("symbol") or ""))
+    except mt5_auto7.Auto7Error as exc:
+        report = mt5_auto7.error_payload("audit", exc, project_root=PROJECT_ROOT)
+    return jsonify(report), (200 if report.get("ok") else 400)
+
+
+@app.post("/api/sqx144/mt5-auto7/plan")
+def api_sqx144_mt5_auto7_plan():
+    error = _require_sqx142_local_operator(mt5_auto7.SQX144_MT5_AUTO7_VERSION)
+    if error:
+        return error
+    payload = request.get_json(silent=True) or {}
+    if not isinstance(payload, dict):
+        payload = {}
+    try:
+        report = mt5_auto7.plan_payload(
+            PROJECT_ROOT,
+            symbol=str(payload.get("symbol") or ""),
+            backup_id=str(payload.get("backupId") or "") or None,
+            linked_instrument=str(payload.get("linkedInstrument") or payload.get("dataInstrument") or "") or None,
+        )
+    except mt5_auto7.Auto7Error as exc:
+        report = mt5_auto7.error_payload("plan", exc, project_root=PROJECT_ROOT)
+    return jsonify(report), (200 if report.get("ok") else 400)
+
+
+@app.post("/api/sqx144/mt5-auto7/backup")
+def api_sqx144_mt5_auto7_backup():
+    error = _require_sqx142_local_operator(mt5_auto7.SQX144_MT5_AUTO7_VERSION)
+    if error:
+        return error
+    try:
+        report = mt5_auto7.backup_payload(PROJECT_ROOT)
+    except mt5_auto7.Auto7Error as exc:
+        report = mt5_auto7.error_payload("backup", exc, project_root=PROJECT_ROOT)
+    return jsonify(report), (200 if report.get("ok") else 400)
+
+
+@app.post("/api/sqx144/mt5-auto7/apply")
+def api_sqx144_mt5_auto7_apply():
+    error = _require_sqx142_local_operator(mt5_auto7.SQX144_MT5_AUTO7_VERSION)
+    if error:
+        return error
+    payload = request.get_json(silent=True) or {}
+    if not isinstance(payload, dict):
+        payload = {}
+    try:
+        report = mt5_auto7.apply_payload(
+            PROJECT_ROOT,
+            symbol=str(payload.get("symbol") or ""),
+            backup_id=str(payload.get("backupId") or "") or None,
+            approval=str(payload.get("approval") or "") or None,
+            apply=bool(payload.get("apply")),
+        )
+    except mt5_auto7.Auto7Error as exc:
+        report = mt5_auto7.error_payload("apply", exc, project_root=PROJECT_ROOT)
+    return jsonify(report), (200 if report.get("ok") else 400)
+
+
+@app.post("/api/sqx144/mt5-auto7/verify")
+def api_sqx144_mt5_auto7_verify():
+    error = _require_sqx142_local_operator(mt5_auto7.SQX144_MT5_AUTO7_VERSION)
+    if error:
+        return error
+    payload = request.get_json(silent=True) or {}
+    if not isinstance(payload, dict):
+        payload = {}
+    try:
+        report = mt5_auto7.verify_payload(PROJECT_ROOT, symbol=str(payload.get("symbol") or ""))
+    except mt5_auto7.Auto7Error as exc:
+        report = mt5_auto7.error_payload("verify", exc, project_root=PROJECT_ROOT)
+    return jsonify(report), (200 if report.get("ok") else 400)
+
+
+@app.post("/api/sqx144/mt5-auto7/rollback")
+def api_sqx144_mt5_auto7_rollback():
+    error = _require_sqx142_local_operator(mt5_auto7.SQX144_MT5_AUTO7_VERSION)
+    if error:
+        return error
+    payload = request.get_json(silent=True) or {}
+    if not isinstance(payload, dict):
+        payload = {}
+    try:
+        report = mt5_auto7.rollback_payload(PROJECT_ROOT, backup_id=str(payload.get("backupId") or ""))
+    except mt5_auto7.Auto7Error as exc:
+        report = mt5_auto7.error_payload("rollback", exc, project_root=PROJECT_ROOT)
+    return jsonify(report), (200 if report.get("ok") else 400)
 
 
 def _load_agent_profiles() -> dict:

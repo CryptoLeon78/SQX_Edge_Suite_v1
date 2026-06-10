@@ -25,7 +25,7 @@ Because Wrangler is not authenticated in this workspace, Codex cannot capture re
 Run outside Codex, in a normal terminal/browser session:
 
 ```powershell
-cd C:\BOTS\SCRIPTS\SQX_Edge_Suite_v1\templates\SQX_Edge_Tester_Portal
+cd <private repo root>\templates\SQX_Edge_Tester_Portal
 npm exec --yes wrangler@latest -- login
 npm exec --yes wrangler@latest -- whoami
 Copy-Item cloudflare-shell-evidence.example.json cloudflare-shell-evidence.local.json

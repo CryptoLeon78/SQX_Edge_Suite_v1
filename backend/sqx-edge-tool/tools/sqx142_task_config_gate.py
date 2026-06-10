@@ -16507,6 +16507,7 @@ CAPA2_BUILD_BLOCKS_INDICATOR_TARGET = [
     "Prices.Open",
 ]
 CAPA2_BUILD_DATA_PERIOD_KEY = "BUILD_C1"
+CAPA2_BUILD_CROSSCHECK_PERIOD_KEY = "ROBUSTNESS_C2"
 CAPA2_BUILD_DATA_TEST_PRECISION = "2"
 CAPA2_BUILD_DATA_SESSION = "No Session"
 CAPA2_BUILD_SEED_SYMBOL = "AUDCAD_darwinex"
@@ -19372,7 +19373,7 @@ def capa2_build_crosschecks_summary(root: ET.Element | None) -> dict[str, Any]:
 
 
 def normalize_capa2_build_crosscheck_setups(root: ET.Element, actions: list[dict[str, Any]]) -> None:
-    period = generator_period(CAPA2_BUILD_DATA_PERIOD_KEY)
+    period = generator_period(CAPA2_BUILD_CROSSCHECK_PERIOD_KEY)
     before: list[dict[str, Any]] = []
     after: list[dict[str, Any]] = []
     for setup in root.findall(".//CrossChecks/*/Settings/Setups/Setup"):
@@ -19479,7 +19480,7 @@ def enforce_capa2_build_crosschecks_guard(root: ET.Element, target_name: str) ->
         if int(check.get("activeConditionCount") or 0) != 0:
             issues.append(f"{target_name}: Capa2 Build inactive crosscheck {check.get('id')} still has active acceptance conditions")
 
-    period = generator_period(CAPA2_BUILD_DATA_PERIOD_KEY)
+    period = generator_period(CAPA2_BUILD_CROSSCHECK_PERIOD_KEY)
     for setup in root.findall(".//CrossChecks/*/Settings/Setups/Setup"):
         expected_attrs = {
             "dateFrom": period[0],
@@ -19543,7 +19544,7 @@ def record_capa2_build_crosschecks_answers(project_root: Path, report: dict[str,
             "hiddenMethods": "disabled",
             "hiddenAcceptanceConditions": "disabled",
             "nestedSetupSeed": {
-                "period": CAPA2_BUILD_DATA_PERIOD_KEY,
+                "period": CAPA2_BUILD_CROSSCHECK_PERIOD_KEY,
                 "symbol": CAPA2_BUILD_SEED_SYMBOL,
                 "timeframe": CAPA2_BUILD_SEED_TIMEFRAME,
                 "spread": CAPA2_BUILD_SEED_SPREAD,
@@ -19606,7 +19607,7 @@ def update_capa2_build_crosschecks_target_in_cfx(cfx: Path, backup_root: Path, a
     payload["targetValues"] = {
         "parent": CAPA2_BUILD_CROSSCHECK_PARENT_TARGET,
         "activeChecks": [],
-        "nestedSetupPeriod": CAPA2_BUILD_DATA_PERIOD_KEY,
+        "nestedSetupPeriod": CAPA2_BUILD_CROSSCHECK_PERIOD_KEY,
         "nestedSetupChartSeed": {
             "symbol": CAPA2_BUILD_SEED_SYMBOL,
             "timeframe": CAPA2_BUILD_SEED_TIMEFRAME,
@@ -19679,7 +19680,7 @@ def promote_capa2_build_crosschecks_target(root142: Path, project_root: Path, ta
             "parent": "CrossChecks use=false and evaluateAll=false.",
             "activeChecks": "none",
             "cleanup": "Hidden methods and acceptance conditions inside inactive checks are disabled.",
-            "nestedSetup": "Existing nested setup is normalized to BUILD/AUDCAD_darwinex/H1 spread 2.0 seed.",
+            "nestedSetup": "Existing nested setup is normalized to ROBUSTNESS_C2/AUDCAD_darwinex/H1 spread 2.0 seed.",
             "naturalResults": "No SQX run, no smoke, no optimization and no forced Results=passed.",
             "nextPhase": CAPA2_BUILD_CROSSCHECKS_NEXT,
         },

@@ -1,10 +1,823 @@
 # Changelog
 
+## 2026-06-10 - BS-AI20 Decision Gate
+
+- Marker: `bs-ai20-decision-gate-v1`.
+- Adds `backend/sqx-edge-tool/core/bsai20_decision_gate.py`, `tools/sqx144_bsai20_decision_gate.ps1 status|decide|decision-template`, Python tests and a JS contract.
+- Executes `tools/sqx144_bsai20_decision_gate.ps1 decide`.
+- Writes sanitized local evidence `bsai20_decision_gate_decide_20260610_201532.json`.
+- Decision is `archive_branch_and_open_asset_broker_instrument_review_no_capa2` with status `decision_archive_branch_open_asset_broker_instrument_review_no_capa2`.
+- Target branch remains `BSAI16_AUDCAD_H1_L_TICKR65_F120_Capa1_v001`.
+- Latest BS-AI19 input remains `Results=1321`, `RETEST 0=112`, `retest 1=14`, `TICK=0`, `Forward=0`; `retest 1` survivors are learning evidence only.
+- Archives the branch as `methodology_archive_only_no_host_project_move`.
+- Selects `BS-AI21 asset/broker/instrument configuration review` as the next gate.
+- Defers any new preregistered Capa1 until BS-AI21 is complete or explicitly waived in a later approved methodology gate.
+- No Capa2, No Start, No import, No forced pass, no host project move, no filter relaxation, no `data.db`, no `user/projects`, no databank mutation and no Migration Tool.
+- Mem/gbrain is quota-blocked, so the durable note is queued in LOCAL_MEMORY_OUTBOX as `outboxId=35`; current pending state is `pendingCount=35`.
+
+## 2026-06-10 - BS-AI19 Post-Run Read-Only Review
+
+- Marker: `bs-ai19-post-run-readonly-review-v1`.
+- Adds `backend/sqx-edge-tool/core/bsai19_post_run_readonly_review.py`, `tools/sqx144_bsai19_post_run_readonly_review.ps1 status|review|decision-template`, Python tests and a JS contract.
+- Executes `tools/sqx144_bsai19_post_run_readonly_review.ps1 review`.
+- Writes sanitized local evidence `bsai19_post_run_readonly_review_review_20260610_194339.json`.
+- Decision is `post_run_review_no_capa2_tick_forward_empty` with status `post_run_readonly_review_completed_no_capa2`.
+- Sanitized databanks show `Results=1321`, `RETEST 0=112`, `retest 1=14`, `TICK=0`, `Forward=0`.
+- Audits 14 `retest 1` survivors read-only: observed pre-real-tick trades 265-360, median 295, `NetProfitIS` 3440.5601-6314.8599, no direct PF embedded and no after-real-tick metrics because `TICK=0`.
+- Confirms the BS-AI16 TICK REAL rule remains `NumberOfTrades >= 120`, `RetestWithHigherPrecision` `NumberOfTrades >= 65%`, `ProfitFactor >= 1.3`, `WinningPct >= 50`, `ReturnDDRatio >= 4`.
+- No Capa2, no Start, no Stop, no import, no filter relaxation, no forced pass states, no `taskmanager/openProject`, no `loadAsIs`, no Add missing symbols, no `data.db`, no `user/projects`, no databank mutation and no Migration Tool.
+- Mem/gbrain is quota-blocked, so the durable note is queued in LOCAL_MEMORY_OUTBOX as `outboxId=34`; current pending state is `pendingCount=34`.
+- Recommended next gate is BS-AI20: archive the branch, design a new preregistered Capa1 experiment or open the dedicated asset/broker/instrument configuration review.
+
+## 2026-06-10 - BS-AI18 Repeat Monitor Idle Criterion
+
+- Repeats BS-AI18 with `tools/sqx144_bsai18_capa1_monitor_gate.ps1 monitor -ObserveSeconds 60 -PollSeconds 15`.
+- Writes sanitized local evidence `bsai18_capa1_monitor_gate_monitor_20260610_192852.json`.
+- Remote endpoint stays limited to `taskmanager/listProjects`; result is `remote_access_unavailable`.
+- Local sanitized databanks show `Results=1321`, `RETEST 0=112`, `retest 1=14`, `TICK=0`, `Forward=0`.
+- Capa1 `project.cfx` hash status remains `ok`.
+- Latest SQX log is stale over 15 minutes and does not change during the monitor window.
+- A separate read-only process check finds no SQX/Java/StrategyQuant process; only MT5 is visible.
+- Decision is `monitor_blocked_review_required_no_capa2`; clean real TICK/Forward is still `false`.
+- No Capa2, no Start, no Stop, no import, no `taskmanager/openProject`, no `loadAsIs`, no Add missing symbols, no `data.db`, no `user/projects`, no databank mutation and no Migration Tool.
+- BS-AI19 is now allowed by the idle criterion as the next read-only review gate, but it was not executed in this step.
+
+## 2026-06-10 - SQX144-MT5 AUTO6 Repeat Observation And EURGBP Second Pair Smoke
+
+- Repeats the safe AUTO2/AUTO3/AUTO6 observation path for `USDJPY_Darwinex` without apply.
+- USDJPY repeat request `sqx_auto2_USDJPY_Darwinex_20260610_191729` validates `bridge_response_validated` / `bridge_validate_ready` and returns `DEFAULTSPREAD=1.6`, `POINTVALUE=622.944284`, `spreadSamples=4234681`, `yearCount=14`.
+- The repeated USDJPY candidate differs from the earlier `DEFAULTSPREAD=5.0` observation, so AUTO6 keeps `stability_policy_not_satisfied` / `metadata_stability_observe_no_apply` with `repeat_observation_window_not_satisfied`.
+- Tests a second governed pair, `EURGBP_Darwinex`, after AUTO3 confirms `ready_existing` / target `EURGBP_darwinex`.
+- EURGBP request `sqx_auto2_EURGBP_Darwinex_20260610_191736` validates end-to-end and returns `DEFAULTSPREAD=0.7`, `POINTVALUE=133731.0`, `spreadSamples=902086`, `yearCount=3`.
+- EURGBP AUTO6 decision is `stability_broker_contract_review_required` / `blocked_broker_contract_review` because `POINTVALUE 129882.0 -> 133731.0` is `relativeDeltaPct=2.963459`, reason `pointvalue_delta_requires_broker_contract_review`.
+- Both observations keep `applyAllowed=false`; no `data.db`, no history import, no SQX projects/databanks/tasks, no SQX task run, no Migration Tool, no orders and no SQX144 144.2953 promotion.
+
+## 2026-06-10 - SQX144-MT5 Post-AUTO11 Bridge Observation Held By AUTO6
+
+- Exercises the now-ready AUTO11 bridge through the governed AUTO2/AUTO3/AUTO6 read-only chain for `USDJPY_Darwinex`.
+- AUTO2 writes only MT5 request `sqx_auto2_USDJPY_Darwinex_20260610_184934` and validates `bridge_response_validated`.
+- MT5 bridge response uses `spreadPolicy=p90` and proposes `DEFAULTSPREAD=5.0`, `POINTVALUE=623.15779`, `spreadSamples=2755271`, `yearCount=10`.
+- AUTO3 returns `bridge_validate_ready`, `catalogDecision=ready_existing`, target `USDJPY_darwinex`, and `decision=metadata_diff_only`.
+- Observed drift versus SQX baseline: `DEFAULTSPREAD 0.7 -> 5.0` and `POINTVALUE 624.93 -> 623.15779`.
+- AUTO6 returns `stability_policy_not_satisfied` / `metadata_stability_observe_no_apply` with `repeat_observation_window_not_satisfied`, `matchingObservationCount=2`, `matchingObservationWindowHours=0.0`.
+- No metadata apply is authorized; the next operational step is repeated bridge observation until the AUTO6 rule can prove or reject stability (`3` matches over `24` hours before any future `eligible_metadata_update` gate).
+- Preserves boundaries: no `data.db`, no history import, no SQX projects/databanks/tasks, no SQX task run, no Migration Tool, no orders and no SQX144 144.2953 promotion.
+
+## 2026-06-10 - SQX144-MT5-AUTO11 UI Fallback Apply Bridge Ready
+
+- Applies the separate AUTO11 visible UI fallback gate for `sqx144_full + darwinex + USDJPY_Darwinex + M1` and returns `auto11_ui_fallback_completed_bridge_ready`.
+- Records status marker `auto11_ui_fallback_apply_visible_operator_control_completed`.
+- Uses the already-open standard Darwinex MT5 session under visible operator control, attaches `SQXInfoBridge` on active `USDJPY,H1`, and confirms `automated trading is enabled`.
+- AUTO11 heartbeat writes `requestId=sqx_auto11_ui_USDJPY_Darwinex_20260610_183515` and validates `mt5_bridge_ready_latest_matches_request`, `mt5Symbol=USDJPY`, `status=ok`.
+- AUTO10 verify also passes as `auto10_verify_bridge_ready` with `requestId=sqx_auto10_USDJPY_Darwinex_20260610_183446`.
+- Preserves boundaries: no new MT5 launch, no orders, no `data.db`, no history import, no SQX projects/databanks/tasks and no Migration Tool; `runsMt5Ea=true` only for the bridge EA.
+- Queues durable memory fallback note `outboxId=33`; current local memory pending state is `pendingCount=33`.
+
+## 2026-06-10 - SQX144-MT5-AUTO11 Profile Writer Apply Existing MT5 Needs Fallback
+
+- Applies the exact AUTO11 attach writer gate for `sqx144_full + darwinex + USDJPY_Darwinex + M1` and returns `auto11_attach_profile_writer_completed_existing_mt5_requires_verify_or_ui_fallback`.
+- Writes governed MT5 assets only: `profileName=SQX_AUTO11_BRIDGE_darwinex_USDJPY_Darwinex_M1`, `SQX_AUTO11_SQXInfoBridge.tpl`, `chart01.chr`, `order.wnd` and startup config.
+- Records hashes: `templateSha256/chartSha256=9402D18BFA300A313F6E04A921CB0D3189377E9070165AA88054A18ACB7CCEFE`; `startupConfigSha256=928A615FE93AC103D060FD9E7DDD1EE5D4C3710A3183E692329E530DA4EC48EB`; `localPathsReturned=false`.
+- AUTO10 verify after the writer apply writes `requestId=sqx_auto10_USDJPY_Darwinex_20260610_180543` and times out as `auto10_verify_bridge_timeout` / `mt5_bridge_ea_no_responde` because the already-open MT5 session did not load the new profile in-place.
+- Next action requires the separate UI fallback gate or a future governed profile/config relaunch gate; no UI automation was executed in this step.
+- Preserves boundaries: no extra MT5 launch by AUTO11, no EA run, no orders, no `data.db`, no history import, no SQX projects/databanks/tasks and no Migration Tool.
+- Queues durable memory fallback note `outboxId=32`; current local memory pending state is `pendingCount=32`.
+
+## 2026-06-10 - SQX144-MT5-AUTO11 Profile Writer Apply Implemented
+
+- Promotes AUTO11 from source-ready plan to gated profile writer implementation with status `auto11_attach_profile_writer_implemented_no_apply_no_ui_fallback_no_db_no_projects_no_databanks_no_tasks_no_history_import_no_migration_tool`.
+- `attach-plan -Apply` now requires the exact attach gate and writes only governed MT5 profile assets: `SQX_AUTO11_SQXInfoBridge.tpl`, `chart01.chr`, `order.wnd` and startup config for the selected `host + mt5Profile + symbol + timeframe`.
+- Updates wrapper `tools/sqx144_mt5_auto11_ea_attach_runner.ps1 status|profile-catalog|preflight|plan|attach-plan|ui-fallback-plan|approval-template` and endpoint `/api/sqx144/mt5-auto11/ui-fallback-plan`.
+- Public payloads return file names and SHA256 hashes only; `privacy.localPathsReturned=false` remains enforced.
+- Adds `ui-fallback-plan` as a separate, visible/operator-controlled fallback gate; the profile writer gate does not authorize UI automation.
+- Preserves boundaries: no live MT5 launch in this implementation block, no EA run, no orders, no `data.db`, no history import, no SQX projects/databanks/tasks and no Migration Tool.
+- Queues durable memory fallback note `outboxId=31`; current local memory pending state is `pendingCount=31`.
+
+## 2026-06-10 - SQX144-MT5-AUTO11 Generic EA Attach Runner Source Ready
+
+- Opens AUTO11 with marker `sqx144-mt5-auto11-ea-attach-runner-v1` and status `auto11_ea_attach_runner_source_ready_no_attach_no_launch_no_run_no_db_no_projects_no_databanks_no_tasks_no_history_import_no_migration_tool`.
+- Responds to the operator request to automate the manual `SQXInfoBridge` attach step for any governed `host + mt5Profile + symbol + timeframe` pair.
+- Adds `backend/sqx-edge-tool/core/sqx144_mt5_auto11_ea_attach_runner.py`, wrapper `tools/sqx144_mt5_auto11_ea_attach_runner.ps1 status|profile-catalog|preflight|plan|attach-plan|approval-template`, docs, endpoints `/api/sqx144/mt5-auto11/status`, `/profile-catalog`, `/preflight`, `/plan` and `/attach-plan`, Python tests and JS contracts.
+- Preferred path is `template_profile_autoload_then_auto10_heartbeat_verify`; `*_dukascopy` remains `AUTO7 mirror/no-MT5`.
+- Future attach apply requires exact gate `APRUEBO SQX144 MT5 AUTO11 EA ATTACH RUNNER APPLY host=sqx144_full mt5=darwinex symbol=USDJPY_Darwinex timeframe=M1 hidden_or_minimized no_db_no_projects_no_databanks_no_tasks no_history_import no_migration_tool`.
+- Current source-ready boundary: `attachAllowedByGate=false`, `writesMt5Profile=false`, `writesMt5Template=false`, `runsMt5Ea=false`, `launchesMt5=false`, `writesDataDb=false`, `historyImportAllowed=false`, no projects/databanks/tasks, no Migration Tool and no orders.
+- Queues durable memory fallback note `outboxId=30`; current local memory pending state is `pendingCount=30`.
+
+## 2026-06-10 - SQX144-MT5-AUTO10 Correct Darwinex Launch Needs EA Attach
+
+- Relaunches AUTO10 after the route correction and confirms the target is the standard Darwinex MT5 terminal: `managedPidIsTargetTerminal=true`, `targetTerminalProcessRunning=true`, `targetProcessCount=1`, `otherTerminalProcessCount=0`.
+- Smoke verify writes request id `sqx_auto10_USDJPY_Darwinex_20260610_171523` and times out as `auto10_verify_bridge_timeout` with bridge health `mt5_bridge_ea_no_responde`.
+- File/log evidence shows the request file is fresh, `SQXInfoBridge.latest.json` is still stale from 2026-06-09, and there is no 2026-06-10 MQL5 Experts log entry for `SQXInfoBridge`.
+- Next step is manual `SQXInfoBridge` EA attach/enable in the correct Darwinex MT5 session, then rerun AUTO10 verify.
+- Preserves boundaries: no `data.db`, no history import, no projects/databanks/tasks, no SQX task, no Migration Tool and no order placement.
+- Queues durable memory fallback note `outboxId=29`; current local memory pending state is `pendingCount=29`.
+
+## 2026-06-10 - SQX144-MT5-AUTO10 Launch Aborted Wrong Terminal Route Corrected
+
+- Applies the exact AUTO10 launch gate but aborts the run after the operator flags that the launched MT5 was not the correct Darwinex terminal.
+- First launch returned `auto10_launch_started_managed_mt5_process` with `launchesMt5=true`, `windowStyle=minimized` and `managedPidRecorded=true`.
+- Smoke verify wrote request id `sqx_auto10_USDJPY_Darwinex_20260610_165721` and timed out as `auto10_verify_bridge_timeout` with bridge health `mt5_bridge_ea_no_responde`.
+- Stops only the wrong launched `terminal64.exe`, removes the stale AUTO10 managed PID record, and verifies `terminal64ProcessCount=0`, `metaeditor64ProcessCount=0`.
+- Patches AUTO10 so the default terminal route is the standard Darwinex MT5 install, not BEPB; process detection is now `targetTerminalProcessRunning` / `targetProcessCount` aware, and launch records `managedPidIsTargetTerminal` after launcher PID handoff.
+- No relaunch was executed after the correction; fresh heartbeat remains unconfirmed.
+- Preserves boundaries: no `data.db`, no history import, no projects/databanks/tasks, no SQX task, no Migration Tool and no order placement.
+- Queues durable memory fallback note `outboxId=28`; current local memory pending state is `pendingCount=28`.
+
+## 2026-06-10 - SQX144-MT5-AUTO10 Internal MT5 Runner Install Applied
+
+- Applies AUTO10 install after exact approval `APRUEBO SQX144 MT5 AUTO10 INTERNAL RUNNER INSTALL host=sqx144_full mt5=darwinex no_db_no_projects_no_databanks_no_tasks no_history_import no_migration_tool`.
+- Creates local ignored backup `auto10_install_20260610_184357`.
+- `tools/sqx144_mt5_auto10_internal_runner.ps1 install-source -Apply` returned `auto10_install_source_completed`.
+- `copiedBridgeSource=false` because installed `SQXInfoBridge.mq5` already matched repo source; `compiledBridgeSource=true`; `compile.returnCode=0`.
+- Installed `SQXInfoBridge.mq5` SHA256 `DB8FBB56697710CE333CD94F5EC87D37705DA9E2E0C3AEA3A81721C2C898B897`.
+- Installed `SQXInfoBridge.ex5` SHA256 `43E4BC74069C44B88C8F92D1B7D72809B0A387F1C324487C7E81FBB5AA54F693`.
+- Post-install preflight returned `auto10_preflight_ready_no_launch`, blockers `[]`, warnings `[]`, `sourceHashMatchesInstalled=true`, `processCount=0`.
+- Post-install process check stayed `terminal64ProcessCount=0` and `metaeditor64ProcessCount=0`.
+- No launch gate was supplied: no MT5 launch, no EA run, no smoke request, no heartbeat verify, no `data.db`, no history import, no projects/databanks/tasks and no Migration Tool.
+- Queues durable memory fallback note `outboxId=27`; current local memory pending state is `pendingCount=27`.
+
+## 2026-06-10 - SQX144-MT5-AUTO10 Internal MT5 Runner Source Ready
+
+- Opens AUTO10 as source-ready/design with marker `sqx144-mt5-auto10-internal-mt5-runner-v1` and status `auto10_internal_mt5_runner_source_ready_no_install_no_launch_no_db_no_projects_no_databanks_no_tasks_no_history_import_no_migration_tool`.
+- Adds `docs/SQX144_MT5_AUTO10_INTERNAL_MT5_RUNNER.md`, `backend/sqx-edge-tool/core/sqx144_mt5_auto10_internal_runner.py`, wrapper `tools/sqx144_mt5_auto10_internal_runner.ps1 status|discover|preflight|plan|install-source|launch|stop|verify|approval-template`, backend endpoints `/api/sqx144/mt5-auto10/status`, `/preflight`, `/plan`, `/launch`, `/stop` and `/verify`, Python unit tests and JS static contracts.
+- Records exact future gates for install and launch: `APRUEBO SQX144 MT5 AUTO10 INTERNAL RUNNER INSTALL host=sqx144_full mt5=darwinex no_db_no_projects_no_databanks_no_tasks no_history_import no_migration_tool` and `APRUEBO SQX144 MT5 AUTO10 INTERNAL RUNNER LAUNCH host=sqx144_full mt5=darwinex hidden_or_minimized no_db_no_projects_no_databanks_no_tasks no_history_import no_migration_tool`.
+- Keeps AUTO10 dry in this step: no bridge install, no compile, no MT5 launch, no EA run, no smoke request, no `data.db`, no history import, no projects, no databanks, no SQX tasks and no Migration Tool.
+- Preserves AUTO7 routing for `*_dukascopy` rows: they must not use AUTO10 or MT5.
+- Queues durable memory fallback note `outboxId=26`; current local memory pending state is `pendingCount=26`.
+
+## 2026-06-10 - SQX144-MT5-AUTO8 Native Save Visual Apply Confirmed
+
+- Adds native-save visual apply closeout marker `sqx144-mt5-auto8-native-save-visual-apply-closeout-v1`.
+- Records operator visual confirmation statuses `auto8_native_save_apply_visual_confirmed_nzdjpy_dukascopy` and `auto8_native_save_apply_noop_confirmed_nzdjpy_dukascopy`.
+- Smoke sample: exactly one checked row `NZDJPY_dukascopy` first showed `Listo para aplicar en Data Manager.` with AUTO7 mirror `dukascopy_copies_darwinex_sibling_metadata`, source `NZDJPY_darwinex`, target `NZDJPY_dukascopy`, `DEFAULTSPREAD=2.6`, `POINTVALUE=653.44102`, `TICKSIZE=0.01` and `TICKSTEP=0.001`.
+- After pressing `Aplicar cambios`, the Data Manager panel showed `aplicado_en_data_manager`, `Apply=Cambios aplicados en Data Manager.`, plan `auto7_duka_mirror_c7f99cd22c7e1ec0`, fields `DEFAULTSPREAD,POINTVALUE,SWAP`, and SQX showed toast `Success` / `Instrument modified`.
+- Repeating MT5 Bridge on the same checked `NZDJPY_dukascopy` row showed `Sin cambios en Data Manager.` and left `Aplicar cambios` disabled.
+- Confirms the live AUTO8 button uses native Data Manager Save for the AUTO7 Dukascopy mirror path while SQX is open; this is not the legacy direct-DB AUTO7 apply path.
+- Queues durable memory fallback notes `outboxId=24` and `outboxId=25`; current local memory pending state is `pendingCount=25`.
+- No Codex direct `data.db` write, history import, project, databank, task, MT5 launch/EA run or Migration Tool action was executed for this visual confirmation.
+
+## 2026-06-10 - SQX144-MT5-AUTO9D Data Symbol Priority Visual Smoke Confirmed
+
+- Adds visual closeout marker `sqx144-mt5-auto9d-visual-smoke-closeout-v1`.
+- Records operator visual confirmation status `auto9_datamanager_data_symbol_priority_operator_visual_confirmed_two_dukascopy_samples`.
+- Smoke sample 1: `AUDCAD_dukascopy` resolved as instrument `AUDCAD_dukascopy`, mirror `dukascopy_copies_darwinex_sibling_metadata`, source `AUDCAD_darwinex`, target `AUDCAD_dukascopy`, and visual status `Listo para aplicar en Data Manager.`.
+- Smoke sample 2: `EURGBP_dukascopy` resolved as instrument `EURGBP_dukascopy`, mirror `dukascopy_copies_darwinex_sibling_metadata`, source `EURGBP_darwinex`, target `EURGBP_dukascopy`, and visual status `Listo para aplicar en Data Manager.`.
+- Confirms AUTO9D avoids bare underlying fallback and routes exactly-one-checkbox Dukascopy rows to AUTO7 mirror/no-MT5 path.
+- Queues durable memory fallback note `outboxId=23`; current local memory pending state is `pendingCount=23`.
+- No code, DB, project, databank, task, apply/import, MT5 launch/EA run or Migration Tool action was executed for this visual confirmation.
+
+## 2026-06-10 - SQX144-MT5-AUTO9D Data Symbol Priority Installed
+
+- Installs AUTO9D after exact approval `APRUEBO SQX144 MT5 AUTO9D DATAMANAGER DATA SYMBOL PRIORITY INSTALL host=sqx144_full no_db_no_projects_no_databanks_no_tasks no_apply_no_import no_mt5 no_migration_tool`.
+- Records installed status `auto9_datamanager_data_symbol_priority_installed_verified_no_db_no_projects_no_databanks_no_tasks_no_apply_no_import_no_mt5_no_migration_tool`, preserving source-ready status `auto9_datamanager_data_symbol_priority_source_ready_no_install_no_db_no_projects_no_databanks_no_tasks_no_apply_no_import_no_mt5_no_migration_tool`.
+- Creates backup `sqx144_mt5_auto2_button_20260610_160204` and keeps asset version `sqx144-mt5-auto9d-datamanager-data-symbol-priority-v1`.
+- Post-install status reports `sourceHasAuto9DataSymbolPriority=true`, `targetHasAuto9DataSymbolPriority=true`, `targetHasAuto9VisualEsSelection=true`, `targetHasAuto9CheckedRowSelection=true`, `targetHasAuto9SingleClickUx=true`, `targetHasAuto9HealthWatchdog=true`, `targetHasAuto8NativeSave=true`, `targetHasAuto8UxStatus=true`, `targetHasAuto7=true`, `targetHasAuto7DataSymbolGuard=true`, `targetHasAuto6=true`, `targetHasSelectionGuard=true`, `includeCount=2`, `processCount=0`, `blockers=[]` and `warnings=[]`.
+- Active host hashes: JS `50719D3E00031D8AB331926EAC8B2BD7DF9CDF3FD40A1E3B9AAE5B59D2A44A61`, CSS `6BBF4C59EFD50D7330850DD1B90F5F52315FC7FD8CFDCAACD8DD685019C38A80`, SQMANAGER index `738AF9A830A640AF64FAA15F49D74CC1044AC673D6A037D349B4ED3E56212267`.
+- The installed bridge still trusts exactly one checkbox row, but now prefers suffixed Data Manager symbols so `AUDCAD_dukascopy` wins over linked `AUDCAD_Darwinex` and bare `AUDCAD`, routing Dukascopy rows to the AUTO7 no-MT5 mirror path.
+- Queues durable memory fallback note `outboxId=22`; current local memory pending state is `pendingCount=22`.
+- Preserves boundaries: no `data.db`, projects, databanks, tasks, apply/import, MT5 launch/EA run or Migration Tool action.
+
+## 2026-06-10 - SQX144-MT5-AUTO9D Data Symbol Priority Source Ready
+
+- Opens AUTO9D after operator smoke showed checkbox-only selection and Spanish warnings work, but a single checked `*_dukascopy` row can still resolve as bare underlying (`AUDCAD`) and route through Darwinex/MT5 instead of AUTO7 mirror.
+- Adds marker `sqx144-mt5-auto9d-datamanager-data-symbol-priority-v1`, overlay export `AUTO9_DATA_SYMBOL_PRIORITY_VERSION`, and source-ready status `auto9_datamanager_data_symbol_priority_source_ready_no_install_no_db_no_projects_no_databanks_no_tasks_no_apply_no_import_no_mt5_no_migration_tool`.
+- Adds `candidateFromDataRowText` and same-row geometry aggregation so suffixed Data Manager symbols win over bare underlying symbols; non-Darwinex data symbols such as `AUDCAD_dukascopy` are preferred over linked `AUDCAD_Darwinex` while preserving the linked instrument for mirror comparison.
+- Updates `tools/sqx144_mt5_auto2_data_manager_button_bridge.ps1 status|plan` to report `sourceHasAuto9DataSymbolPriority=true`, `targetHasAuto9DataSymbolPriority=false`, asset version `sqx144-mt5-auto9d-datamanager-data-symbol-priority-v1`, and approval template `APRUEBO SQX144 MT5 AUTO9D DATAMANAGER DATA SYMBOL PRIORITY INSTALL host=sqx144_full no_db_no_projects_no_databanks_no_tasks no_apply_no_import no_mt5 no_migration_tool`.
+- Queues durable memory fallback note `outboxId=21`; current local memory pending state is `pendingCount=21`.
+- No host install was executed in this source-ready step; no `data.db`, projects, databanks, tasks, apply/import, MT5 launch/EA run or Migration Tool action.
+
+## 2026-06-10 - SQX144-MT5-AUTO9C Visual Spanish Selection Installed
+
+- Installs AUTO9C UX ES after exact approval `APRUEBO SQX144 MT5 AUTO9C UX ES SELECTION INSTALL host=sqx144_full no_db_no_projects_no_databanks_no_tasks no_apply_no_import no_mt5 no_migration_tool`.
+- Records installed status `auto9_datamanager_visual_es_selection_installed_verified_no_db_no_projects_no_databanks_no_tasks_no_apply_no_import_no_mt5_no_migration_tool`, preserving source-ready status `auto9_datamanager_visual_es_selection_source_ready_no_install_no_db_no_projects_no_databanks_no_tasks_no_apply_no_import_no_mt5_no_migration_tool`.
+- Creates backup `sqx144_mt5_auto2_button_20260610_141114` and keeps asset version `sqx144-mt5-auto9c-visual-es-selection-v1`.
+- Post-install status reports `targetHasAuto9VisualEsSelection=true`, `sourceHasAuto9VisualEsSelection=true`, `targetHasAuto9CheckedRowSelection=true`, `targetHasAuto9SingleClickUx=true`, `targetHasAuto9HealthWatchdog=true`, `targetHasAuto8NativeSave=true`, `targetHasAuto8UxStatus=true`, `targetHasAuto7=true`, `targetHasAuto7DataSymbolGuard=true`, `targetHasAuto6=true`, `targetHasSelectionGuard=true`, `includeCount=2`, `processCount=0`, `blockers=[]` and `warnings=[]`.
+- Active host hashes: JS `769A70357BAB8D7CCC9A46B6CDDBBE82BB86458C0D412C50FCCACF7C475AE402`, CSS `6BBF4C59EFD50D7330850DD1B90F5F52315FC7FD8CFDCAACD8DD685019C38A80`, SQMANAGER index `6520618AE2E3667DB0C64C08E0E1875ED745B9EBC5FF9A8BD9E9E91D657E2357`.
+- The panel now shows Spanish operator text through `visualMessage` while preserving internal status codes, and the checked-row resolver uses ancestor plus same-row geometry fallback to avoid `checked_row_symbol_not_found` when SQX separates checkbox and instrument-cell DOM panes.
+- Preserves boundaries: no `data.db`, projects, databanks, tasks, apply/import, MT5 launch/EA run or Migration Tool action.
+
+## 2026-06-10 - SQX144-MT5-AUTO9C Visual Spanish Selection Source Ready
+
+- Opens a source-ready AUTO9C UX patch after operator smoke showed a single checked row can still render `checked_row_symbol_not_found` when SQX separates the checkbox pane from the instrument cell text.
+- Adds marker `sqx144-mt5-auto9c-visual-es-selection-v1` and source-ready status `auto9_datamanager_visual_es_selection_source_ready_no_install_no_db_no_projects_no_databanks_no_tasks_no_apply_no_import_no_mt5_no_migration_tool`.
+- Keeps internal status codes unchanged but adds display-only Spanish panel mapping through `visualMessage`.
+- Extends checked-row symbol resolution with nearby ancestor text and same-row visual-cell geometry fallback, preserving exactly-one-checkbox authority.
+- Updates the install wrapper to report `sourceHasAuto9VisualEsSelection=true`, `targetHasAuto9VisualEsSelection=false`, cache asset version `sqx144-mt5-auto9c-visual-es-selection-v1`, and approval template `APRUEBO SQX144 MT5 AUTO9C UX ES SELECTION INSTALL host=sqx144_full no_db_no_projects_no_databanks_no_tasks no_apply_no_import no_mt5 no_migration_tool`.
+- No host install was executed in this source-ready step; no `data.db`, projects, databanks, tasks, apply/import, MT5 launch/EA run or Migration Tool action.
+
+## 2026-06-10 - SQX144-MT5-AUTO9C Data Manager Checkbox-Only Selection Installed
+
+- Installs AUTO9C after exact approval `APRUEBO SQX144 MT5 AUTO9C DATAMANAGER CHECKBOX ONLY SELECTION INSTALL host=sqx144_full no_db_no_projects_no_databanks_no_tasks no_apply_no_import no_mt5 no_migration_tool`.
+- Records installed status `auto9_datamanager_checkbox_only_selection_installed_verified_no_db_no_projects_no_databanks_no_tasks_no_apply_no_import_no_mt5_no_migration_tool`.
+- Creates backup `sqx144_mt5_auto2_button_20260610_123721`.
+- Bumps the SQMANAGER overlay cache key to asset version `sqx144-mt5-auto9c-datamanager-checked-row-selection-v1`.
+- Post-install status reports `targetHasAuto9CheckedRowSelection=true`, `sourceHasAuto9CheckedRowSelection=true`, `targetHasAuto9SingleClickUx=true`, `targetHasAuto9HealthWatchdog=true`, `targetHasAuto8NativeSave=true`, `targetHasAuto8UxStatus=true`, `targetHasAuto7=true`, `targetHasAuto6=true`, `targetHasSelectionGuard=true`, `includeCount=2`, `processCount=0`, `blockers=[]` and `warnings=[]`.
+- Active host hashes: JS `2E27AE2E741DC22DBBD45B6F449B7CB4FA98EAA769F4310B8C148D5201ED8ACE`, CSS `6BBF4C59EFD50D7330850DD1B90F5F52315FC7FD8CFDCAACD8DD685019C38A80`, SQMANAGER index `31E8BD06FC7C979A349FED46A8EFA5F49089DB9BA625B9F75659623E4D32A735`.
+- The installed bridge trusts only exactly one checked Data Manager row; zero checked rows, multiple checked rows or explicit target mismatch perform no request and no apply.
+- Verification passed: AUTO8 native save apply contract OK, AUTO9 health/checked-row contract OK, pytest `7 passed, 13394 subtests passed`.
+- Preserves boundaries: no `data.db`, projects, databanks, tasks, apply/import, MT5 launch/EA run or Migration Tool action.
+
+## 2026-06-10 - SQX144-MT5-AUTO9C Data Manager Checkbox-Only Selection Source Ready
+
+- Opens AUTO9C after the operator clarified SQX Data Manager has three independent selection surfaces: checkbox, single-click visual row/cell selection and double-click edit dialog.
+- Records source-ready status `auto9_datamanager_checkbox_only_selection_source_ready_no_install_no_db_no_projects_no_databanks_no_tasks_no_apply_no_import_no_mt5_no_migration_tool`.
+- Adds future installed status `auto9_datamanager_checkbox_only_selection_installed_verified_no_db_no_projects_no_databanks_no_tasks_no_apply_no_import_no_mt5_no_migration_tool`.
+- Adds marker `sqx144-mt5-auto9c-datamanager-checked-row-selection-v1` and overlay export `AUTO9_CHECKED_ROW_SELECTION_VERSION`.
+- Makes exactly one checked Data Manager row (`input[type='checkbox']:checked`) the only MT5 bridge action authority.
+- Adds `checkedRowSelectionState`, `checked_row_required_for_mt5_bridge` and `multiple_checked_rows_blocked_for_mt5_bridge`; zero checked rows, two or more checked rows and explicit target mismatch perform no request and no apply.
+- Keeps `selectedSymbolFromCheckedRows` as compatibility under the checkbox resolver, while single-click blue row selection, double-click edit dialog context, modal-derived targets, Angular selection payloads and stale `state.lastSymbol` are non-authoritative.
+- Updates `tools/sqx144_mt5_auto2_data_manager_button_bridge.ps1 status|plan` so it reports `sourceHasAuto9CheckedRowSelection=true`, `targetHasAuto9CheckedRowSelection=false`, asset version `sqx144-mt5-auto9c-datamanager-checked-row-selection-v1`, and approval template `APRUEBO SQX144 MT5 AUTO9C DATAMANAGER CHECKBOX ONLY SELECTION INSTALL host=sqx144_full no_db_no_projects_no_databanks_no_tasks no_apply_no_import no_mt5 no_migration_tool`.
+- No host install was executed in this source-ready step; no `data.db`, projects, databanks, tasks, apply/import, MT5 launch/EA run or Migration Tool action.
+
+## 2026-06-10 - SQX144-MT5-AUTO9B Data Manager Single Click UX Installed
+
+- Installs AUTO9B after exact approval `APRUEBO SQX144 MT5 AUTO9B DATAMANAGER SINGLE CLICK UX INSTALL host=sqx144_full no_db_no_projects_no_databanks_no_tasks no_apply_no_import no_mt5 no_migration_tool`.
+- Records installed status `auto9_datamanager_single_click_ux_installed_verified_no_db_no_projects_no_databanks_no_tasks_no_apply_no_import_no_mt5_no_migration_tool`.
+- Creates backup `sqx144_mt5_auto2_button_20260610_110008`.
+- Bumps the SQMANAGER overlay cache key to asset version `sqx144-mt5-auto9-datamanager-single-click-ux-v1`.
+- Post-install status reports `targetHasAuto9SingleClickUx=true`, `sourceHasAuto9SingleClickUx=true`, `targetHasAuto9HealthWatchdog=true`, `targetHasAuto8NativeSave=true`, `targetHasAuto8UxStatus=true`, `targetHasAuto7=true`, `targetHasAuto6=true`, `targetHasSelectionGuard=true`, `includeCount=2`, `processCount=0`, `blockers=[]` and `warnings=[]`.
+- Active host hashes: JS `8AD7D8A75C245663277F22347EFB2313CAE0D2C039F16B20EBD22612BAF6E3C1`, CSS `6BBF4C59EFD50D7330850DD1B90F5F52315FC7FD8CFDCAACD8DD685019C38A80`, SQMANAGER index `8CA0DCB5CEF3AF7CE611414692147D4355DF5A026BA6FECB844DDBE4F7BE6D6E`.
+- Preserves first-click selection behavior from source-ready: checked-row detection, capture-phase `pointerdown`/`click`, `0/75/200ms` selection settle, no stale `state.lastSymbol` toolbar fallback and explicit `selected_symbol_not_found`.
+- Queues durable memory fallback note `outboxId=20`; current local memory pending state is now superseded by AUTO9D at `pendingCount=21`.
+- Preserves boundaries: no `data.db`, projects, databanks, tasks, apply/import, MT5 launch/EA run or Migration Tool action.
+
+## 2026-06-10 - SQX144-MT5-AUTO9B Data Manager Single Click UX Source Ready
+
+- Opens AUTO9B as source-ready after operator visual smoke confirmed AUTO9 health diagnostics work, but some Darwinex toolbar clicks still require pressing `MT5 bridge` twice.
+- Records source-ready status `auto9_datamanager_single_click_ux_source_ready_no_db_no_projects_no_databanks_no_tasks_no_apply_no_import_no_mt5_no_migration_tool`.
+- Adds marker `sqx144-mt5-auto9-datamanager-single-click-ux-v1` and overlay export `AUTO9_SINGLE_CLICK_UX_VERSION`.
+- Adds checked-row selection detection through `selectedSymbolFromCheckedRows` and `input[type='checkbox']:checked`, so Data Manager rows can resolve even when the selected CSS class lags.
+- Moves the MT5 bridge action fallback to capture-phase `pointerdown`/`click`, settles selection over `0/75/200ms` with `resolviendo_seleccion_data_manager`, and blocks stale toolbar fallback from reusing `state.lastSymbol`.
+- The panel now fails explicitly as `selected_symbol_not_found` when no current symbol can be proven.
+- Updates the install gate so `plan` reports `sourceHasAuto9SingleClickUx=true`, `targetHasAuto9SingleClickUx=false`, asset version `sqx144-mt5-auto9-datamanager-single-click-ux-v1`, and approval template `APRUEBO SQX144 MT5 AUTO9B DATAMANAGER SINGLE CLICK UX INSTALL host=sqx144_full no_db_no_projects_no_databanks_no_tasks no_apply_no_import no_mt5 no_migration_tool`.
+- Future installed status after exact approval: `auto9_datamanager_single_click_ux_installed_verified_no_db_no_projects_no_databanks_no_tasks_no_apply_no_import_no_mt5_no_migration_tool`.
+- No host install was executed in this source-ready step; no `data.db`, projects, databanks, tasks, apply/import, MT5 launch/EA run or Migration Tool action.
+- Queues durable memory fallback note `outboxId=19`; current local memory pending state is `pendingCount=19`.
+
+## 2026-06-10 - SQX144-MT5-AUTO9 Health Watchdog Poll Stop Patch Installed
+
+- Installs the AUTO9 poll-stop overlay patch after the operator visual smoke showed Darwinex symbols with MT5 closed still rendering `waiting_for_mt5_bridge` / `latest_response_request_id_mismatch`.
+- Records installed patch status `auto9_datamanager_health_watchdog_poll_stop_installed_verified_no_db_no_projects_no_databanks_no_tasks_no_apply_no_import_no_mt5_no_migration_tool`.
+- Restarts the stale local backend on `127.0.0.1:5050`; AUTO9 status and AUTO3 bridge validation now return `panelStatus=mt5_bridge_no_responde_o_no_esta_activo`, `severity=bad`, `terminalProcessRunning=false` and `requestNewerThanLatestResponse=true`.
+- Updates the overlay with `AUTO9_HEALTH_POLL_STOP_VERSION`, `shouldStopPollingForBridgeHealth`, and `bridgeHealthUiState` priority before generic busy states.
+- Reuses the existing exact AUTO9 boundary approval `APRUEBO SQX144 MT5 AUTO9 DATAMANAGER HEALTH WATCHDOG INSTALL host=sqx144_full no_db_no_projects_no_databanks_no_tasks no_apply_no_import no_mt5 no_migration_tool`.
+- Creates backup `sqx144_mt5_auto2_button_20260610_094101`.
+- Bumps the SQMANAGER overlay cache key to asset version `sqx144-mt5-auto9-datamanager-health-watchdog-poll-stop-v1`.
+- Post-install status reports `targetHasAuto9HealthWatchdog=true`, `includeCount=2`, `processCount=0`, `blockers=[]` and `warnings=[]`.
+- Active host hashes: JS `705B1A49E6BB2021B86DB37275568AEAD3B2DB5ED836ED200C9F1BFB3D04423B`, CSS `6BBF4C59EFD50D7330850DD1B90F5F52315FC7FD8CFDCAACD8DD685019C38A80`, SQMANAGER index `A50133CC861D326BC1858FDBB76F527572A6BF64DDBF1D432AD9BC322F937326`.
+- Queues durable memory fallback note `outboxId=18`; current local memory pending state is `pendingCount=18`.
+- Preserves boundaries: `healthWatchdogObserveOnly=true`, `autoStartAllowed=false`, `writesDataDb=false`, `writesUserProjects=false`, `mutatesDatabanks=false`, `runsSqxTasks=false`, `launchesMt5=false`, `runsMt5Ea=false`, `usesMigrationTool=false`, `directDbHistoryInsertAllowed=false`, `historyImportAllowed=false`.
+
+## 2026-06-10 - SQX144-MT5-AUTO9 Health Watchdog Installed
+
+- Installs the AUTO9 Data Manager Health Watchdog overlay after exact approval `APRUEBO SQX144 MT5 AUTO9 DATAMANAGER HEALTH WATCHDOG INSTALL host=sqx144_full no_db_no_projects_no_databanks_no_tasks no_apply_no_import no_mt5 no_migration_tool`.
+- Records installed status `auto9_datamanager_health_watchdog_installed_verified_no_db_no_projects_no_databanks_no_tasks_no_apply_no_import_no_mt5_no_migration_tool`.
+- Creates backup `sqx144_mt5_auto2_button_20260610_085714`.
+- Bumps the SQMANAGER overlay cache key to asset version `sqx144-mt5-auto9-datamanager-health-watchdog-v1`.
+- Post-install status reports `targetHasAuto9HealthWatchdog=true`, `sourceHasAuto9HealthWatchdog=true`, `targetHasAuto8UxStatus=true`, `targetHasAuto8NativeSave=true`, `targetHasAuto7=true`, `targetHasAuto6=true`, `targetHasSelectionGuard=true`, `includeCount=2`, `processCount=0`, `blockers=[]` and `warnings=[]`.
+- Active host hashes: JS `073DE642D10BBB665DF8A574C2431CB6E654F81376B197B82D00FBCDEF16E0C9`, CSS `6BBF4C59EFD50D7330850DD1B90F5F52315FC7FD8CFDCAACD8DD685019C38A80`, SQMANAGER index `2CF73D1D4710C9F0AD85C47AEC0A6074E8F8E842DF95C3D2621572EB350B34DD`.
+- Live watchdog status diagnoses the current bridge as `mt5_bridge_no_responde_o_no_esta_activo`: MT5 terminal process not detected, current request is newer than latest response, and latest response is stale/crossed with `symbol_select_failed`.
+- Queued durable memory fallback note `outboxId=17`; local memory pending state at that install was `pendingCount=17`.
+- Preserves boundaries: `healthWatchdogObserveOnly=true`, `autoStartAllowed=false`, `writesDataDb=false`, `writesUserProjects=false`, `mutatesDatabanks=false`, `runsSqxTasks=false`, `launchesMt5=false`, `runsMt5Ea=false`, `usesMigrationTool=false`, `directDbHistoryInsertAllowed=false`, `historyImportAllowed=false`.
+- AUTO10 internal MT5 runner remains planned but blocked behind a separate exact gate.
+
+## 2026-06-10 - SQX144-MT5-AUTO9 Health Watchdog Source Ready
+
+- Opens AUTO9 with markers `sqx144-mt5-auto9-health-watchdog-v1` and `sqx144-mt5-auto9-datamanager-health-watchdog-v1`.
+- Records source-ready statuses `auto9_health_watchdog_source_ready_no_install_no_db_no_projects_no_databanks_no_tasks_no_apply_no_import_no_mt5_no_migration_tool` and `auto9_datamanager_health_watchdog_source_ready_no_install_no_db_no_projects_no_databanks_no_tasks_no_apply_no_import_no_mt5_no_migration_tool`.
+- Adds `bridgeHealth` diagnostics for missing/stale/crossed `SQXInfoBridge.latest.json`, request/response age, MT5 process detection and installed bridge source presence.
+- Updates the Data Manager overlay source so Darwinex waits can show `mt5_bridge_no_responde_o_no_esta_activo`, `mt5_bridge_ea_no_responde`, `mt5_bridge_latest_desfasado`, `Health`, `MT5`, `Request age` and `Latest age`.
+- Adds local endpoints `/api/sqx144/mt5-auto9/status`, `/api/sqx144/mt5-auto9/health`, `/api/sqx144/mt5-auto9/automation-plan` and `/api/sqx144/mt5-auto9/approval-template`.
+- Future install requires exact approval `APRUEBO SQX144 MT5 AUTO9 DATAMANAGER HEALTH WATCHDOG INSTALL host=sqx144_full no_db_no_projects_no_databanks_no_tasks no_apply_no_import no_mt5 no_migration_tool`.
+- AUTO10 is only planned: internal MT5 launch/compile/EA heartbeat remains blocked by a later gate.
+- Queues durable memory fallback note `outboxId=16`; current local memory pending state is `pendingCount=16`.
+- Preserves boundaries: `healthWatchdogObserveOnly=true`, `autoStartAllowed=false`, `writesDataDb=false`, `writesUserProjects=false`, `mutatesDatabanks=false`, `runsSqxTasks=false`, `launchesMt5=false`, `runsMt5Ea=false`, `usesMigrationTool=false`, `directDbHistoryInsertAllowed=false`, `historyImportAllowed=false`.
+
+## 2026-06-10 - SQX144 Electron Cache Refresh Helper
+
+- Adds `tools/sqx144_electron_cache_refresh.ps1 status|plan|refresh` with marker `sqx144-electron-cache-refresh-v1`.
+- The helper is dry-run first; real refresh requires `-Apply` and exact approval `APRUEBO SQX144 ELECTRON CACHE REFRESH host=sqx144_full move_cache_only preserve_local_storage_indexeddb_preferences`.
+- Moves only volatile Electron cache folders under `internal/electron/resources/userData/SQUANT` into `.local_cache_backups\electron_squant_sqx144_<timestamp>`.
+- Preserves `Local Storage`, `IndexedDB`, `WebStorage`, `Preferences`, `Local State`, `data.db`, projects, databanks, tasks, MT5 and Migration Tool boundaries.
+- Adds `docs/maintenance/SQX144_ELECTRON_CACHE_RUNBOOK.md` and JS contract `tests/js/contracts/sqx144_electron_cache_refresh_contracts.mjs`.
+
+## 2026-06-10 - SQX144-MT5-AUTO8 Data Manager UX Status Source Ready
+
+- Adds UX marker `sqx144-mt5-auto8-datamanager-native-save-ux-status-v1` and source-ready status `auto8_datamanager_native_save_ux_status_source_ready_no_install_no_direct_db_no_projects_no_databanks_no_tasks_no_mt5_no_history_import`.
+- Shows `listo_para_aplicar_en_data_manager` when AUTO8 can use native Data Manager Save, and `sin_cambios_en_data_manager` when there are no metadata changes.
+- Disables `Aplicar cambios` for no-op/blocked states and hides legacy offline-gate warnings in ready/no-op mirror states.
+- Future install requires exact approval `APRUEBO SQX144 MT5 AUTO8 DATAMANAGER UX STATUS INSTALL host=sqx144_full no_db_no_projects_no_databanks_no_tasks no_apply_no_import no_mt5 no_migration_tool`.
+
+## 2026-06-10 - SQX144-MT5-AUTO8 Data Manager UX Status Installed
+
+- Installs the AUTO8 UX status overlay in governed `sqx144_full` after exact approval `APRUEBO SQX144 MT5 AUTO8 DATAMANAGER UX STATUS INSTALL host=sqx144_full no_db_no_projects_no_databanks_no_tasks no_apply_no_import no_mt5 no_migration_tool`.
+- Records installed status `auto8_datamanager_native_save_ux_status_installed_verified_no_direct_db_no_projects_no_databanks_no_tasks_no_mt5_no_history_import`.
+- Creates backup `sqx144_mt5_auto2_button_20260610_072846`.
+- Bumps the SQMANAGER overlay cache key to asset version `sqx144-mt5-auto8-datamanager-native-save-ux-status-v1`.
+- Post-install status reports `targetHasAuto8UxStatus=true`, `sourceHasAuto8UxStatus=true`, `targetHasAuto8NativeSave=true`, `sourceHasAuto8NativeSave=true`, `includeCount=2`, `processCount=0`, `blockers=[]` and `warnings=[]`.
+- Active host hashes: JS `E5856E2FD2FACCA182CD8342C57109CB59A54B6F7F62D4C220BC5C088A73FFF6`, CSS `6BBF4C59EFD50D7330850DD1B90F5F52315FC7FD8CFDCAACD8DD685019C38A80`, SQMANAGER index `9369EEF7AD44677982C104D6763570EB1812062C0397AC889F00C5871A13FB9D`.
+- Preserves boundaries: `writesDataDb=false`, `writesUserProjects=false`, `mutatesDatabanks=false`, `runsSqxTasks=false`, `launchesMt5=false`, `runsMt5Ea=false`, `usesMigrationTool=false`, `directDbHistoryInsertAllowed=false`, `historyImportAllowed=false`.
+
+## 2026-06-10 - SQX144-MT5-AUTO8 Data Manager Native Save Apply Installed
+
+- Installs AUTO8 in governed `sqx144_full` after exact approval `APRUEBO SQX144 MT5 AUTO8 DATAMANAGER NATIVE SAVE APPLY INSTALL host=sqx144_full native_save_apply_only no_direct_db no_history_import no_projects_no_databanks_no_tasks no_mt5 no_migration_tool`.
+- Records installed status `auto8_datamanager_native_save_apply_installed_verified_no_direct_db_no_projects_no_databanks_no_tasks_no_mt5_no_history_import`.
+- Creates backup `sqx144_mt5_auto2_button_20260610_055402`.
+- Bumps the SQMANAGER overlay cache key to asset version `sqx144-mt5-auto8-datamanager-native-save-apply-v1`.
+- Post-install status reports `targetHasAuto8NativeSave=true`, `sourceHasAuto8NativeSave=true`, `targetHasAuto7=true`, `targetHasAuto7DataSymbolGuard=true`, `targetHasAuto6=true`, `targetHasSelectionGuard=true`, `includeCount=2`, `processCount=0`, `blockers=[]` and `warnings=[]`.
+- Active host hashes: JS `3AF408D4F4DE8E0DF45AFD080AC878BB878BD3DBC8FE42C75D89666DA98027AF`, CSS `891C395197AE05ACC5ECAAA9CF472F8DA6318409588F98F81596869795D39273`, SQMANAGER index `C63AD05A02EDED23AA70B7F78006D78B552AF37F769456E109798B7EC3C89876`.
+- The installed `Aplicar cambios` button uses native Data Manager Save via `BackendService.getPromise('/instruments/editInstrument', instrumentDetails)`; it does not call local AUTO7/AUTO5 apply endpoints.
+- Preserves boundaries: `directDbWriteAllowed=false`, `directDbHistoryInsertAllowed=false`, `historyImportAllowed=false`, `usesDataSourceHistoryImport=false`, no direct `data.db`, no history import, no projects/databanks/tasks, no MT5 launch/EA and no Migration Tool.
+
+## 2026-06-09 - SQX144-MT5-AUTO8 Data Manager Native Save Apply Source Ready
+
+- Opens AUTO8 with marker `sqx144-mt5-auto8-datamanager-native-save-apply-v1` and status `auto8_datamanager_native_save_apply_source_ready_no_install_no_direct_db_no_projects_no_databanks_no_tasks_no_mt5_no_history_import`.
+- Changes the planned `Aplicar cambios` UX to use the native SQX Data Manager save route `BackendService.getPromise('/instruments/editInstrument', instrumentDetails)` via `applyViaNativeDataManagerSave`, so instrument metadata can be saved while SQX is open once the overlay is installed.
+- Keeps AUTO7 as the Dukascopy mirror planner and AUTO6 as the MT5-derived Darwinex stability gate; AUTO8 only performs the native-save UI step after a ready plan/decision.
+- Adds JS contract `tests/js/contracts/sqx144_mt5_auto8_datamanager_native_save_apply_contracts.mjs` covering native save, no-op plans and the absence of local apply endpoints.
+- Future install still requires exact approval `APRUEBO SQX144 MT5 AUTO8 DATAMANAGER NATIVE SAVE APPLY INSTALL host=sqx144_full native_save_apply_only no_direct_db no_history_import no_projects_no_databanks_no_tasks no_mt5 no_migration_tool`.
+- Preserves boundaries: `nativeDataManagerSaveAllowed=true`, `sqxOpenNativeSaveAllowed=true`, `directDbWriteAllowed=false`, `directDbHistoryInsertAllowed=false`, `historyImportAllowed=false`, `usesDataSourceHistoryImport=false`, no direct `data.db`, no history import, no projects/databanks/tasks, no MT5 launch/EA and no Migration Tool.
+
+## 2026-06-09 - SQX144-MT5-AUTO7 Data Symbol Selection Guard Installed
+
+- Fixes the AUTO7 Data Manager routing bug seen with `DAX40_dukascopy`: the overlay now prefers visible `Data symbol name` values over linked-instrument dropdown values and sends `linkedInstrument` separately.
+- Adds no-op detection for Data tab rows already linked to a Darwinex instrument: `DATA.SYMBOL=<asset>_dukascopy` plus linked `GDAXI_darwinex` returns `plan_ready_noop_data_symbol_uses_darwinex_instrument` instead of reading MT5 or planning a missing `*_dukascopy` instrument.
+- Installs the guarded overlay after the existing exact AUTO7 Data Manager install gate, creating backup `sqx144_mt5_auto2_button_20260609_210550`.
+- Bumps the overlay cache key to asset version `sqx144-mt5-auto7-datamanager-data-symbol-selection-guard-v1`; target JS SHA256 is `4373C90C97F3F1C3645497D50CD6DDC4631851644FADA2D3C06CB4CC6026F638`.
+- Post-install status reports `auto7_datamanager_data_symbol_selection_guard_installed_verified_no_db_no_projects_no_databanks_no_tasks_no_mt5`, `targetHasAuto7=true`, `targetHasAuto7DataSymbolGuard=true`, `targetHasAuto6=true`, `targetHasSelectionGuard=true`, `includeCount=2`, `processCount=0`, `blockers=[]` and `warnings=[]`.
+- Adds regression contract `tests/js/contracts/sqx144_mt5_auto7_datamanager_routing_behavior.mjs` for `DAX40_dukascopy + GDAXI_darwinex` and stale `AUDCAD_dukascopy -> EURCAD_dukascopy` state.
+- Queues durable memory fallback note `outboxId=12`; current local memory pending state is `pendingCount=12`.
+- Preserves boundaries: `writesDataDb=false`, `writesUserProjects=false`, `mutatesDatabanks=false`, `runsSqxTasks=false`, `launchesMt5=false`, `runsMt5Ea=false`, `usesMigrationTool=false`, no metadata apply and no history import.
+
+## 2026-06-09 - SQX144-MT5-AUTO7 Data Manager Dukascopy Mirror Installed
+
+- Installs the AUTO7 Dukascopy mirror routing in the governed SQX144 Full Data Manager overlay after exact approval `APRUEBO SQX144 MT5 AUTO7 DATAMANAGER DUKASCOPY MIRROR INSTALL host=sqx144_full no_db_no_projects_no_databanks_no_tasks no_apply_no_import no_mt5`.
+- Records installed status `auto7_datamanager_dukascopy_mirror_installed_verified_no_db_no_projects_no_databanks_no_tasks_no_mt5`.
+- Creates backup `sqx144_mt5_auto2_button_20260609_203359`.
+- Bumps the overlay cache key to asset version `sqx144-mt5-auto7-dukascopy-metadata-mirror-v1`.
+- Post-install status reports `targetHasAuto7=true`, `sourceHasAuto7=true`, `targetHasAuto6=true`, `targetHasSelectionGuard=true`, `includeCount=2`, `processCount=0`, `blockers=[]` and `warnings=[]`.
+- Preserves boundaries: `writesDataDb=false`, `writesUserProjects=false`, `mutatesDatabanks=false`, `runsSqxTasks=false`, `launchesMt5=false`, `runsMt5Ea=false`, `usesMigrationTool=false`, no metadata apply and no history import.
+
+## 2026-06-09 - SQX144-MT5-AUTO7 Dukascopy Metadata Mirror Source Ready
+
+- Opens `SQX144-MT5-AUTO7` with marker `sqx144-mt5-auto7-dukascopy-metadata-mirror-v1` and status `auto7_dukascopy_metadata_mirror_source_ready_no_apply_no_install`.
+- Records the operator rule: every `*_dukascopy` instrument should copy metadata parameters from its `*_darwinex` sibling and must not read MT5.
+- Adds source-only core `backend/sqx-edge-tool/core/sqx144_mt5_auto7_dukascopy_metadata_mirror.py` and wrapper `tools/sqx144_mt5_auto7_dukascopy_metadata_mirror.ps1 status|audit|plan|backup|apply|verify|rollback`.
+- Adds local endpoints `/api/sqx144/mt5-auto7/status`, `/api/sqx144/mt5-auto7/audit`, `/api/sqx144/mt5-auto7/plan`, `/api/sqx144/mt5-auto7/backup`, `/api/sqx144/mt5-auto7/apply`, `/api/sqx144/mt5-auto7/verify` and `/api/sqx144/mt5-auto7/rollback`.
+- Updates the Data Manager overlay source so symbols ending `_dukascopy` route to AUTO7 `/plan`; AUTO2 does not write MT5 request files, AUTO3 bridge validation and AUTO6 stability are skipped for Dukascopy mirror checks.
+- Adds install-gate recognition for AUTO7 with exact future approval `APRUEBO SQX144 MT5 AUTO7 DATAMANAGER DUKASCOPY MIRROR INSTALL host=sqx144_full no_db_no_projects_no_databanks_no_tasks no_apply_no_import no_mt5`.
+- Keeps AUTO7 source-only: no overlay install into SQX, no `data.db` apply, no history import, no projects, no databanks, no SQX tasks, no MT5 launch/EA and no Migration Tool.
+
+## 2026-06-09 - SQX144-MT5-AUTO6 Data Manager Selection Guard Installed
+
+- Records operator visual smoke after AUTO6 install: `DAX40_darwinex` resolves to `GDAXI_darwinex` and AUTO6 correctly blocks as `blocked_broker_contract_review` / `broker_contract_review_required`.
+- Records the selection bug shown by the `EURGBP_darwinex` modal: the installed overlay could display `WARRANTY` and a stale `DAX40` request.
+- Adds source marker `sqx144-mt5-auto6-datamanager-selection-guard-v1` and installed status `auto6_datamanager_selection_guard_installed_verified_no_db_no_projects_no_databanks_no_tasks`.
+- Updates the overlay source to prefer visible `Edit symbol` modal controls, reject arbitrary uppercase UI words such as `WARRANTY`, clear `lastRequestId` before each new request, and keep one frozen `{symbol, requestId}` context through `bridge-validate` and AUTO6 `evaluate`.
+- Installs the guarded overlay after exact approval `APRUEBO SQX144 MT5 AUTO6 DATAMANAGER STABILITY INSTALL host=sqx144_full no_db_no_projects_no_databanks_no_tasks no_apply_no_import`, creating backup `sqx144_mt5_auto2_button_20260609_191932`.
+- Post-install status reports `sourceHasSelectionGuard=true`, `targetHasSelectionGuard=true`, `targetHasAuto6=true`, `includeCount=2`, `processCount=0` and no blockers.
+- Preserves boundaries: no `data.db`, no projects, no databanks, no tasks, no MT5 launch, no Migration Tool, no metadata apply and no history import.
+
+## 2026-06-09 - SQX144-MT5-AUTO6 Metadata Stability Policy
+
+- Opens `SQX144-MT5-AUTO6` with marker `sqx144-mt5-auto6-metadata-stability-policy-v1` and policy `mt5_metadata_stability_v1`.
+- Adds read-only core `backend/sqx-edge-tool/core/sqx144_mt5_auto6_metadata_stability.py` and wrapper `tools/sqx144_mt5_auto6_metadata_stability_policy.ps1 status|evaluate|decision-template`.
+- Defines `metadata_stability_observe_no_apply`, `stability_insufficient_coverage`, `stability_policy_not_satisfied` and `eligible_metadata_update`.
+- Sets the policy: no automatic latest-value apply; require `spreadPolicy=p90`, `spreadSamples>=100000`, `yearCount>=2`, material thresholds, repeated observations and a future exact gate.
+- Holds the post-visual AUDCAD drift `DEFAULTSPREAD=1.2`, `POINTVALUE=71659.930633`, `samples=531264`, `yearCount=2` as `metadata_stability_observe_no_apply` / `stability_policy_not_satisfied`.
+- Keeps the visually confirmed SQX baseline `DEFAULTSPREAD=1.3`, `POINTVALUE=71753.512334`, `TICKSIZE=0.0001`, `TICKSTEP=0.00001`.
+- AUTO5 now records the AUTO6 stability decision and blocks future metadata apply when `stabilityDecision` is not `eligible_metadata_update`.
+- Adds local read-only endpoints `/api/sqx144/mt5-auto6/status` and `/api/sqx144/mt5-auto6/evaluate`.
+- Updates the Data Manager overlay source to display AUTO6 `Stability policy`, `Stability`, `Future gate`, `Coverage` and policy reasons after AUTO3 bridge validation.
+- Installs the updated Data Manager overlay after exact approval `APRUEBO SQX144 MT5 AUTO6 DATAMANAGER STABILITY INSTALL host=sqx144_full no_db_no_projects_no_databanks_no_tasks no_apply_no_import`.
+- Records installed status `auto6_datamanager_stability_installed_verified_no_db_no_projects_no_databanks_no_tasks`, backup `sqx144_mt5_auto2_button_20260609_183452`, asset version `sqx144-mt5-auto6-datamanager-stability-panel-v1`, `targetHasAuto6=true` and `processCount=0`.
+- Restarts the local backend on `127.0.0.1:5050` after install; live AUTO6 `status` and `evaluate` endpoints respond with `ok=true`, while AUDCAD remains `stability_policy_not_satisfied` / `metadata_stability_observe_no_apply`.
+- Preserves boundaries: `writesDataDb=false`, `writesUserProjects=false`, `mutatesDatabanks=false`, `runsSqxTasks=false`, `usesMigrationTool=false`, `directDbHistoryInsertAllowed=false`, no history import, no projects, no databanks, no tasks and no Migration Tool.
+
+## 2026-06-09 - SQX144-MT5-AUTO5 AUDCAD Visual Closeout
+
+- Records operator visual confirmation `operator_data_manager_visual_confirmed_audcad_values` for `AUDCAD_darwinex`.
+- SQX Data Manager shows `DEFAULTSPREAD=1.3`, `POINTVALUE=71753.512334`, `TICKSIZE=0.0001` and `TICKSTEP=0.00001`.
+- The operator left SQX closed after the visual check.
+- Records a subsequent bridge response as `post_visual_bridge_drift_pending_policy`, not applied: request `sqx_auto2_AUDCAD_Darwinex_20260609_144542`, response hash `3e25c7f7c1a8b5ecc829a2ab77b5eec57d34554402e7f0351aaef5408cb8d865`, `DEFAULTSPREAD=1.2`, `POINTVALUE=71659.930633`, `samples=531264`.
+- Read-only classification for that newer response is `metadata_diff_only` / `verify_pending_diff_or_blocked`; any future mutation requires separate stability policy, backup and exact approval.
+- Preserves boundaries: `no_source_broker_data_history`, `writesUserProjects=false`, `mutatesDatabanks=false`, `runsSqxTasks=false`, `usesMigrationTool=false`, `directDbHistoryInsertAllowed=false`, no history import, no projects, no databanks, no tasks and no Migration Tool.
+
+## 2026-06-09 - SQX144-MT5-AUTO5 AUDCAD Metadata Applied
+
+- Applies `SQX144-MT5-AUTO5` after exact approval `APRUEBO SQX144 MT5 AUTO5 METADATA APPLY host=sqx144_full broker=darwinex instrument=AUDCAD_darwinex plan=auto5_meta_366093d1a4b782c3 backup=sqx144_mt5_auto5_meta_20260609_074111 request=sqx_auto2_AUDCAD_Darwinex_20260609_064421 response=efec3ee2fb53d00e1644a6b96a7b9ea2d0c30022112e743f39df1f10ec5d2b17 spreadPolicy=p90 fields=DEFAULTSPREAD,POINTVALUE no_source_broker_data_history no_projects_no_databanks_no_tasks no_migration_tool`.
+- Records applied status `applied_verified_audcad_after_exact_approval`.
+- Applies only `DEFAULTSPREAD 1.0 -> 1.3` and `POINTVALUE 72157.360772 -> 71753.512334` on `AUDCAD_darwinex`.
+- Leaves `TICKSIZE` and `TICKSTEP` unchanged, preserves `BROKER_ID=4`, and preserves SQX `SOURCE/BROKER/DATA/history` authority.
+- Post-apply result is `apply_completed_offline_instruments_only`; verify reports `verify_passed_all_approved_fields_match`, `quickCheck=ok`, `pendingChanges={}`, AUTO3 `decision=ready_existing` and AUTO3 `metadataDiff={}`.
+- Preserves boundaries: `no_source_broker_data_history`, `writesUserProjects=false`, `mutatesDatabanks=false`, `runsSqxTasks=false`, `usesMigrationTool=false`, `directDbHistoryInsertAllowed=false`, no history import, no projects, no databanks, no tasks and no Migration Tool.
+
+## 2026-06-09 - SQX144-MT5-AUTO5 Bridge Metadata Apply Gate Ready
+
+- Opens `SQX144-MT5-AUTO5` with marker `sqx144-mt5-auto5-metadata-apply-gate-v1` and status `auto5_metadata_apply_gate_ready_bridge_json_no_apply`.
+- Adds core `backend/sqx-edge-tool/core/sqx144_mt5_auto5_metadata_apply.py` and wrapper `tools/sqx144_mt5_auto5_metadata_apply_gate.ps1 status|audit|plan|backup|apply|verify|rollback`.
+- Consumes AUTO3 `bridge_validate_ready` for `AUDCAD_darwinex`, request `sqx_auto2_AUDCAD_Darwinex_20260609_064421`, response hash `efec3ee2fb53d00e1644a6b96a7b9ea2d0c30022112e743f39df1f10ec5d2b17`, `spreadPolicy=p90` and `spreadSamples=123050`.
+- Creates plan `auto5_meta_366093d1a4b782c3` for `DEFAULTSPREAD 1.0 -> 1.3` and `POINTVALUE 72157.360772 -> 71753.512334`; `TICKSIZE` and `TICKSTEP` are no-op.
+- Creates offline backup `sqx144_mt5_auto5_meta_20260609_074111` with `quickCheck=ok`, `INSTRUMENTS=989`, `DATA=54` and `BROKER=12`.
+- Keeps apply blocked until exact approval, known backup, SQX process count zero and `-Apply`.
+- Preserves boundaries: `no_source_broker_data_history`, `writesDataDb=false` except gated `apply -Apply`, `writesUserProjects=false`, `mutatesDatabanks=false`, `runsSqxTasks=false`, `usesMigrationTool=false`, `directDbHistoryInsertAllowed=false`, no history import, no projects, no databanks, no tasks and no Migration Tool.
+- Adds docs, pytest and JS contract `tests/js/contracts/sqx144_mt5_auto5_metadata_apply_contracts.mjs`.
+
+## 2026-06-09 - SQX144-MT5-AUTO4 Data Manager Catalog Triage Source Ready
+
+- Opens `SQX144-MT5-AUTO4` with marker `sqx144-mt5-auto4-datamanager-catalog-triage-v1` and status `auto4_overlay_source_ready_no_install_no_db_no_projects_no_databanks_no_tasks`.
+- Restarts the stale local backend on `127.0.0.1:5050`; AUTO3 endpoints now respond live instead of returning 404.
+- Updates the Data Manager MT5 overlay source to call AUTO3 `catalog-audit` and AUTO3 `resolve-plan` before writing a MT5 request file.
+- Keeps existing AUTO2 `/api/sqx144/mt5-auto2/request` as the only MT5 request writer.
+- Switches response polling to AUTO3 `/api/sqx144/mt5-auto3/bridge-validate` with `expectedRequestId` and selected symbol.
+- Stops before MT5 request on `broker_missing` or `ambiguous_collision`.
+- Exposes catalog decision, broker, plan id and next action in the panel source.
+- Keeps AUTO4 source-only: no install into SQX host was executed.
+- Updates the overlay install gate so AUTO4 source requires exact approval `APRUEBO SQX144 MT5 AUTO4 DATAMANAGER TRIAGE INSTALL host=sqx144_full no_db_no_projects_no_databanks_no_tasks`.
+- Preserves boundaries: `importExecutionAllowed=false`, `directDbHistoryInsertAllowed=false`, `writesDataDb=false`, `writesUserProjects=false`, `mutatesDatabanks=false`, `runsSqxTasks=false`, `usesMigrationTool=false`, `doesNotApplyToSqx=true`, `doesNotApplyInstrumentConfig=true`.
+- Adds docs and JS contract `tests/js/contracts/sqx144_mt5_auto4_datamanager_catalog_triage_contracts.mjs`.
+
+## 2026-06-09 - SQX144-MT5-AUTO4 Data Manager Catalog Triage Installed
+
+- Installs the AUTO4 Data Manager catalog triage overlay after exact approval `APRUEBO SQX144 MT5 AUTO4 DATAMANAGER TRIAGE INSTALL host=sqx144_full no_db_no_projects_no_databanks_no_tasks`.
+- Records active status `auto4_overlay_installed_verified_no_db_no_projects_no_databanks_no_tasks`.
+- Creates backup `sqx144_mt5_auto2_button_20260609_080600`.
+- Installs only SQX web overlay assets: `writesSqxHost=true`, `writesSqxOverlayHost=true`.
+- Active host overlay reports `targetHasAuto4=true`, JS SHA256 `9DB2D802252731284D122409C1C25C35B0934AD7DB81F53977631967D90DE194` and CSS SHA256 `C09D5573B4CEC403EA522E14495F464338F8B8AD34D9A79B277E11EE9314CD06`.
+- Post-install AUTO3 status reports `dataManagerButtonInstalled=true`, and `AUDCAD_darwinex` resolves `ready_existing`.
+- Preserves boundaries: `importExecutionAllowed=false`, `directDbHistoryInsertAllowed=false`, `writesDataDb=false`, `writesUserProjects=false`, `mutatesDatabanks=false`, `runsSqxTasks=false`, `usesMigrationTool=false`, `doesNotApplyToSqx=true`, `doesNotApplyInstrumentConfig=true`.
+
+## 2026-06-08 - SQX144-MT5-AUTO3 Broker Catalog Resolver
+
+- Opens/implements `SQX144-MT5-AUTO3` with marker `sqx144-mt5-auto3-broker-catalog-resolver-v1` and status `opened_broker_catalog_resolver_readonly_design_no_import_no_apply_no_projects_no_databanks_no_tasks`.
+- Adds read-only core `backend/sqx-edge-tool/core/sqx144_mt5_auto3_broker_catalog.py`.
+- Adds wrapper `tools/sqx144_mt5_auto3_broker_catalog.ps1 status|catalog-audit|bridge-validate|resolve-plan|import-plan|approval-template`.
+- Adds broker catalog configs `darwinex.json` and `axi.planned.json` under `backend/sqx-edge-tool/config/mt5_broker_catalog/`.
+- Adds local endpoints `/api/sqx144/mt5-auto3/status`, `/api/sqx144/mt5-auto3/catalog-audit`, `/api/sqx144/mt5-auto3/bridge-validate`, `/api/sqx144/mt5-auto3/resolve-plan` and `/api/sqx144/mt5-auto3/import-plan`.
+- Reads SQX catalog tables `BROKER`, `INSTRUMENTS` and `DATA` only through `sqlite_uri_mode_ro_query_only`.
+- Darwinex is active with expected broker `ID=4`, source `4`, postfix `_darwinex` and spread policy `p90`; Axi is planned with `requiresDiscovery=true` and no invented broker/source IDs.
+- Resolver decisions are `ready_existing`, `metadata_diff_only`, `instrument_missing`, `history_missing`, `broker_missing` and `ambiguous_collision`.
+- Import gate design records preferred future route `native_datamanager_mt5_import` / `DataSourceMt5Api/importData`, fallback `bridge_csv_file_mass_import`, and keeps direct history DB insertion prohibited.
+- Preserves AUTO3 boundaries: `readOnlyCatalogResolver=true`, `importAllowed=false`, `applyAllowed=false`, `importExecutionAllowed=false`, `directDbHistoryInsertAllowed=false`, `writesDataDb=false`, `writesUserProjects=false`, `mutatesDatabanks=false`, `runsSqxTasks=false`, `usesMigrationTool=false`, `doesNotApplyToSqx=true`, `doesNotApplyInstrumentConfig=true`.
+- Adds pytest coverage and JS contract `tests/js/contracts/sqx144_mt5_auto3_broker_catalog_contracts.mjs`.
+- Mem/gbrain/local-memory note state now includes the Data Manager tools inspection note as `outboxId=5`; current `pendingCount=5`.
+
+## 2026-06-08 - SQX144-MT5-AUTO2 Data Manager Button Visibility Patch
+
+- Fixes the AUTO2 visual smoke issue where the first approved install was hooked only through `DataManagerActionInstrument`, so the operator did not see the control from the active `Data` tab / `Data sources` ribbon.
+- Adds `DataManagerActionTools` with `group: "data-source"` and `group1: "instruments-sessions"` plus `sqx-edge-mt5-bridge-data-action`, while keeping `DataManagerActionInstrument` and `SQXEdgeMt5BridgeActionCtrl`.
+- Adds DOM fallback `sqx-edge-mt5-auto2-launcher` for cases where Angular plugin registration is too late for the current screen.
+- Bumps asset cache key to `sqx144-mt5-auto2-data-manager-button-bridge-v1-data-sources-visible`.
+- Reinstalls only Data Manager overlay JS/CSS/include assets after the existing exact approval, with backup `sqx144_mt5_auto2_button_20260608_211725`.
+- Active post-patch JS hash is `37A93F8EAAAC620823481C44110DF50CA6FCE53444952A5348DB7A21356FB1C8`; CSS hash remains `C09D5573B4CEC403EA522E14495F464338F8B8AD34D9A79B277E11EE9314CD06`.
+- Post-patch `status` reports `dataManagerButtonInstalled=true`, `installed=true`, `assetsPresent=true`, `sourcesPresent=true`, `includeCount=2`, `processCount=0`, `hostRootAccepted=true`, `expectedRootName=SQX_144_Full`.
+- Aligns the desktop shortcut to the governed `SQX_144_Full` host after app-vs-browser smoke found a parallel SQX144 install without AUTO2 or applied MT5 metadata. Shortcut backup: `sqx144_shortcut_align_20260608_214950`.
+- Refreshes stale Electron `SQUANT` cache by moving only `Cache` and `Code Cache` into backup `electron_squant_auto2_20260608_215209`; `Local Storage`, `IndexedDB`, `WebStorage` and `Preferences` remain untouched.
+- Preserves AUTO2 boundaries: `writesDataDb=false`, `writesUserProjects=false`, `mutatesDatabanks=false`, `runsSqxTasks=false`, `usesMigrationTool=false`, `doesNotApplyToSqx=true`, `doesNotApplyInstrumentConfig=true`, `latest_response_symbol_mismatch`.
+- Mem/gbrain write remains blocked by the free-tier limit, so durable notes were queued locally as `outboxId=3` for visibility, `outboxId=4` for app-vs-browser alignment and `outboxId=5` for Data Manager tools inspection; current `pendingCount=5`.
+
+## 2026-06-08 - SQX144-MT5-AUTO2 Data Manager Button Bridge Ready
+
+- Promotes `SQX144-MT5-AUTO2` from `opened_button_bridge_readonly_design_no_install` to `auto2_overlay_api_install_gate_ready_no_install` with marker `sqx144-mt5-auto2-data-manager-button-bridge-v1`.
+- Adds core `backend/sqx-edge-tool/core/sqx144_mt5_auto2_datamanager.py` for selected-symbol normalization, AUTO1 bridge request writing and response validation with explicit spread policy.
+- Adds local operator endpoints `/api/sqx144/mt5-auto2/status`, `/api/sqx144/mt5-auto2/request` and `/api/sqx144/mt5-auto2/validate`.
+- Adds Data Manager overlay source under `integrations/sqx144/datamanager_mt5_auto2_overlay/` using `DataManagerActionInstrument`, `SQXEdgeMt5BridgeActionCtrl`, `selectedSymbol` and `proposedSqxFields`.
+- Adds guarded installer `tools/sqx144_mt5_auto2_data_manager_button_bridge.ps1 status|plan|install|rollback`.
+- Keeps the button not installed yet: `dataManagerButtonPlanned=true`, `dataManagerButtonInstalled=false`, `installed=false`, `assetsPresent=false`, `sourcesPresent=true`, `processCount=0`, `hostRootAccepted=true`, `expectedRootName=SQX_144_Full`.
+- `plan` returns no blockers and requires `-Apply` plus exact approval `APRUEBO SQX144 MT5 AUTO2 DATAMANAGER INSTALL host=sqx144_full no_db_no_projects_no_databanks`.
+- A future approved install reports `writesSqxHostOnApply=true` and `writesSqxOverlayHostOnApply=true` only for Data Manager JS/CSS/include assets; it does not apply instrument values.
+- Adds root binding guard `sqx144_full_root_mismatch` and response mismatch guard `latest_response_symbol_mismatch`.
+- Preserves AUTO2 boundaries: `writesDataDb=false`, `writesUserProjects=false`, `mutatesDatabanks=false`, `runsSqxTasks=false`, `usesMigrationTool=false`, `doesNotApplyToSqx=true`, `doesNotApplyInstrumentConfig=true`.
+- Adds Python/API tests and JS contract `tests/js/contracts/sqx144_mt5_auto2_data_manager_button_contracts.mjs`.
+
+## 2026-06-08 - SQX144-MT5-AUTO2 Data Manager Button Bridge Installed
+
+- Installs the AUTO2 Data Manager overlay after exact approval `APRUEBO SQX144 MT5 AUTO2 DATAMANAGER INSTALL host=sqx144_full no_db_no_projects_no_databanks`.
+- Records active status `auto2_overlay_installed_verified_no_db_no_projects_no_databanks`.
+- Creates backup `sqx144_mt5_auto2_button_20260608_204930` with pre-install `SQMANAGER/index.html` hash `4AB98C6620E21195E1B1DB07D2BF2A6D12633A86FCDD09477A4FE32875F4C333`.
+- Installs two includes in `SQMANAGER/index.html`: `includeCount=2`.
+- Installs active overlay assets with JS hash `096FEBDF958056A23053F4B0B6EB572CB90171A3DEA32476AD4AEC20A9246D09` and CSS hash `C09D5573B4CEC403EA522E14495F464338F8B8AD34D9A79B277E11EE9314CD06`.
+- Post-install status reports `dataManagerButtonInstalled=true`, `installed=true`, `assetsPresent=true`, `sourcesPresent=true`, `processCount=0`, `hostRootAccepted=true`, `expectedRootName=SQX_144_Full`.
+- The install wrote only overlay web assets: `writesSqxHost=true`, `writesSqxOverlayHost=true`.
+- Preserves data boundaries: `writesDataDb=false`, `writesUserProjects=false`, `mutatesDatabanks=false`, `runsSqxTasks=false`, `usesMigrationTool=false`, `doesNotApplyToSqx=true`, `doesNotApplyInstrumentConfig=true`.
+- Verification passed with AUTO2 JS contract, AUTO2 Python/API tests and docs-state consistency.
+
+## 2026-06-08 - Local Memory Outbox
+
+- Adds local fallback marker `sqx-edge-local-memory-outbox-v1` with status `local_mem_fallback_queue_ready_pending_sync` while Mem/gbrain write quota is unavailable.
+- Adds `docs/LOCAL_MEMORY_OUTBOX.md`.
+- Adds core `backend/sqx-edge-tool/core/local_memory_outbox.py` and wrapper `tools/local_memory_outbox.ps1 status|enqueue|list|mark-synced`.
+- Stores pending durable notes in ignored SQLite `.local/memory_outbox/memory_outbox.sqlite`.
+- Queues pending notes as `outboxId=1`, `outboxId=2`, `outboxId=3`, `outboxId=4` and `outboxId=5`; current `pendingCount=5`.
+- Sync rule: create or update the Mem/gbrain page later, then mark the local item synced only after the external write succeeds.
+
+## 2026-06-08 - SQX144-MT5-AUTO1 Data Manager MT5 Bridge
+
+- Opens `SQX144-MT5-AUTO1` with marker `sqx144-mt5-auto1-data-manager-bridge-v1` and status `bridge_design_ready_no_db_mutation_separate_gate_required`.
+- Adds `docs/SQX144_MT5_AUTO1_DATA_MANAGER_MT5_BRIDGE.md`.
+- Adds our own MT5 bridge source `integrations/sqx144/mt5_bridge/SQXInfoBridge.mq5`, designed as an EA with `OnTimer()` to receive symbol requests.
+- Adds SQX Edge consumer core `backend/sqx-edge-tool/core/sqx144_mt5_bridge.py` and wrapper `tools/sqx144_mt5_auto1_data_manager_bridge.ps1 status|request-template|write-request|install-source|validate-response`.
+- Defines request file `SQXInfoBridge.request.ini` and response files `SQXInfoBridge.latest.json` / `SQXInfoBridge.response.<requestId>.json`.
+- Calculates MT5 symbol properties and spread percentiles `p50`, `p75`, `p90`, `p95`, `p99` globally and by year over available MT5 bars.
+- Sets `defaultSpreadPolicy=p90`; SQX Edge validation exposes the selected `spreadPolicy` and does not hide the spread choice.
+- Keeps the actual Data Manager button as a later phase: `dataManagerButtonPlanned=true`, `dataManagerButtonInstalled=false`.
+- Preserves SQX safety boundaries: `writesDataDb=false`, `writesUserProjects=false`, `mutatesDatabanks=false`, `runsSqxTasks=false`, `usesMigrationTool=false`.
+- Requires MT5 bridge responses to state all no-mutation flags explicitly; missing or true flags block validation.
+- Keeps `-Apply` path-allowlisted to the configured Darwinex BEPB MT5 directories or ignored `.local/mt5_bridge_auto1` evidence/test paths, and requires `-Overwrite` before replacing an existing `SQXInfoBridge.mq5`.
+- Records the rule: No SQX DB mutation in SQX144-MT5-AUTO1 unless a separate DB mutation gate is opened and approved.
+- Adds Python tests and JS/static contract `tests/js/contracts/sqx144_mt5_auto1_data_manager_bridge_contracts.mjs`.
+- Installs/compiles the bridge in the real MT5 terminal matching the existing SQXInfoScript/XML route and records `real_mt5_response_validated_usdjpy_p90`.
+- Produces `SQXInfoBridge.latest.json` and `SQXInfoBridge.response.sqx_auto1_usdjpy_20260608_194938.json` for `USDJPY_Darwinex`, resolved to `mt5Symbol=USDJPY`.
+- Validates the real response with `spreadPolicy=p90`: `spreadSamples=768790`, `yearCount=3`, `DEFAULTSPREAD=0.7`, `POINTVALUE=624.30546`, `TICKSIZE=0.01`, `TICKSTEP=0.001`, no blockers and no warnings.
+
+## 2026-06-08 - SQX144-MT5-AUTO2 Data Manager Button Bridge Opened
+
+- Opens `SQX144-MT5-AUTO2` with marker `sqx144-mt5-auto2-data-manager-button-bridge-v1` and status `opened_button_bridge_readonly_design_no_install`.
+- Adds `docs/SQX144_MT5_AUTO2_DATA_MANAGER_BUTTON_BRIDGE.md`.
+- Starts AUTO2 from the validated AUTO1 MT5 response: `real_mt5_response_validated_usdjpy_p90`, `requestId=sqx_auto1_usdjpy_20260608_194938`, `USDJPY_Darwinex`, `mt5Symbol=USDJPY`, `DEFAULTSPREAD=0.7`.
+- Keeps the button as planned but not installed yet: `dataManagerButtonPlanned=true`, `dataManagerButtonInstalled=false`.
+- Defines the first button scope as selected-instrument request, MT5 bridge validation and proposal/diff display only.
+- Preserves boundaries: `writesDataDb=false`, `writesUserProjects=false`, `mutatesDatabanks=false`, `runsSqxTasks=false`, `usesMigrationTool=false`, `doesNotApplyToSqx=true`.
+- Blocks direct `data.db` patching, `UPDATE INSTRUMENTS`, `taskmanager/openProject`, `project/start`, `project/stop`, Add missing symbols, unresolved load, databank mutation, Migration Tool and 144.2953 promotion.
+
+## 2026-06-08 - SQX144 MT5 Instrument Parity Gate
+
+- Adds `docs/SQX144_MT5_INSTRUMENT_PARITY_GATE.md` with marker `sqx144-mt5-instrument-parity-gate-v1` and status `implemented_apply_gated_db_offline_usdjpy_pilot_ready`.
+- Adds `backend/sqx-edge-tool/core/sqx144_mt5_instrument_parity.py` and `tools/sqx144_mt5_instrument_parity_gate.ps1 status|audit|plan|backup|apply|verify|rollback`.
+- Consumes existing MT5 `SQXInfoScript` `InstrumentInfo` XML only; it does not launch MT5, run the EA, add a Data Manager button or use Migration Tool.
+- Pilots `USDJPY_Darwinex` normalized to SQX144 Full `USDJPY_darwinex`.
+- Audits/plans through `sqlite_uri_mode_ro_query_only` and applies only approved `INSTRUMENTS` metadata fields: `POINTVALUE`, `TICKSIZE`, `TICKSTEP`, `DEFAULTSPREAD`, `DEFAULTSLIPPAGE`, `SWAP`, `ORDERSIZEMULTIPLIER` and `ORDERSIZESTEP`; empty MT5 commissions do not overwrite SQX commission.
+- Keeps SQX broker/source/history authority unchanged: no `SOURCE`, `BROKER_ID`, `DATA`, `ROWS`, `DATEFROM`, `DATETO`, `user/projects`, databanks, engine files, license files or SQX144 144.2953 config changes.
+- Keeps `apply` offline-only behind zero SQX processes, verified backup, `-Apply` and exact approval phrase naming `host=sqx144_full`, plan id, backup id, XML hash and target instrument.
+- Adds parser/planner/apply/rollback tests and a JS wrapper contract; `writesUserProjects=false`, `mutatesDatabanks=false`, `runsSqxTasks=false`, Migration Tool is not used.
+- Applies the USDJPY pilot after exact operator approval and records `applied_verified_usdjpy_pilot_after_exact_approval`: backup `sqx144_mt5_instr_20260608_163934`, plan `mt5meta_d24e57d537569509`, XML hash `42af1ba0d24211c7a465ace91a0dde429848d3145d3bb148b91ca2d9fba78d23`, target `USDJPY_darwinex`.
+- Applied columns were `DEFAULTSPREAD`, `POINTVALUE` and `SWAP`; `verify` returned `verify_passed_all_approved_fields_match`, `quickCheck=ok`, `processCount=0`, `INSTRUMENTS=989`, `DATA=54` and `BROKER=12`.
+- Records operator visual confirmation `operator_data_manager_visual_confirmed_usdjpy_values`: SQX Data Manager shows `POINTVALUE=624.93`, `DEFAULTSPREAD=0.7`, swap long `5.37`, short `-11.5`, triple swap `WEDNESDAY` and rollout `23:00`.
+- SQX was left open after visual confirmation; no further DB apply, catalog sync or mutation step is allowed until SQX is closed and a new explicit operator gate is given.
+
+## 2026-06-08 - BS-AI18 RetDD TICK REAL Methodology Observation
+
+- Adds `docs/BS_AI18_RETDD_TICK_REAL_METHODOLOGY_OBSERVATION.md` with marker `bs-ai18-retdd-tick-real-methodology-observation-v1` and status `methodology_observation_no_running_project_mutation_no_capa2`.
+- Records the academic/SQX review of `ReturnDDRatio` during the active BS-AI18 Capa1 run.
+- Corrects the premise: the BS-AI16 artifact has an earlier soft RetDD main check at `ReturnDDRatio >= 1.2`, while TICK REAL preserves hard `ReturnDDRatio >= 4`.
+- Treats the issue as asymmetric final quality-gate calibration, not a proven failure cause and not permission to change the active run.
+- Keeps the running project unchanged: no RetDD relaxation, no forced pass, no import, no Start/Stop action and No Capa2.
+- Requires any RetDD policy change to be a future preregistered experiment, with either diagnostic-only RetDD, an explicit RetDD ladder or a stable relative RetDD retention rule.
+
+## 2026-06-07 - BS-AI18 Capa1 Monitor Gate
+
+- Adds `docs/BS_AI18_CAPA1_MONITOR_GATE.md` with marker `bs-ai18-capa1-monitor-gate-v1` and status `monitoring_capa1_bsa16_no_capa2`.
+- Adds `backend/sqx-edge-tool/core/bsai18_capa1_monitor_gate.py` and `tools/sqx144_bsai18_capa1_monitor_gate.ps1 status|monitor|decision-template`.
+- Monitors only `BSAI16_AUDCAD_H1_L_TICKR65_F120_Capa1_v001` after BS-AI17 import/start.
+- Keeps the gate read-only: allowed remote endpoint is `taskmanager/listProjects`; no `taskmanager/openProject`, no `project/start`, no `project/stop`, no `loadAsIs`, no Add missing symbols and No Capa2.
+- Records the first BS-AI18 readback: SQX144 Full alive, remote reachable, Capa1 visible with 65 strategies, `tasks=14`, `databanks=15`, `hasUnresolvedResources=false`, `project.cfx` hash preserved and no local `.sqx` files counted yet in sanitized databank folders.
+- Runs the first read-only monitor evidence `bsai18_capa1_monitor_gate_monitor_20260607_220331.json`: 75 seconds, 4 samples, Capa1 visible with 75 strategies, `RETEST 0=0`, `retest 1=0`, `TICK=0`, `Forward=0`, clean real TICK/Forward `false`.
+- Records a separate read-only CPU sample showing SQX still active despite the stale public log: main process CPU delta was about 697 seconds over 20 seconds wall-clock.
+- Current decision is `continue_monitoring_capa1_active_no_capa2`; clean real TICK/Forward evidence is not ready.
+- Adds `backend/sqx-edge-tool/test_bsai18_capa1_monitor_gate.py` and `tests/js/contracts/bsai18_capa1_monitor_gate_contracts.mjs`.
+- Sets BS-AI19 aside for post-run read-only review when Capa1 is idle or clean real TICK/Forward evidence exists.
+
+## 2026-06-07 - BS-AI17 Controlled Import Start Gate
+
+- Adds `docs/BS_AI17_CONTROLLED_IMPORT_START_GATE.md` with marker `bs-ai17-controlled-capa1-import-start-gate-v1` and approved gate target status `controlled_capa1_import_start_requested_no_capa2`.
+- Adds `backend/sqx-edge-tool/core/bsai17_controlled_import_start_gate.py` and `tools/sqx144_bsai17_controlled_import_start_gate.ps1 status|preflight|launch|import-capa1|start-capa1`.
+- Targets only the BS-AI16 Capa1 artifact `BSAI16_AUDCAD_H1_L_TICKR65_F120_Capa1_v001`; No Capa2 remains mandatory.
+- Records the operator decision to accept the `cross-broker spread warning` for `this trial only`; a `future asset/broker/instrument review` remains required.
+- Guards import through `taskmanager/openProject` with `loadAsIs=false` and Start through `project/start`.
+- Executes the approved gate: launch returned remote ready, preflight wrote `bsai17_controlled_import_start_gate_preflight_20260607_204351.json`, import wrote `bsai17_controlled_import_start_gate_import-capa1_20260607_204409.json`, and Start wrote `bsai17_controlled_import_start_gate_start-capa1_20260607_204623.json`.
+- Import result: `hasResourcesXML=false`, target project visible with `tasks=14`, `databanks=15`, `strategies=0` and `hasUnresolvedResources=false`.
+- Start result: SQX returned `Project execution started.`, Capa1 `project.cfx` hash stayed unchanged, latest SQX log changed, and Capa2 Start requested stayed `false`.
+- Records the post-Start readback caveat: later `status` returned `remote_access_unavailable` / `TimeoutError`, consistent with SQX being busy after Start; BS-AI18 owns monitoring.
+- Blocks `loadAsIs=true`, Add missing symbols, resource-resolution bypass, direct `data.db` patch, direct script-side `user/projects` patch, direct databank mutation, Migration Tool, BSAI promotion, official v6/v7 overwrite and 144.2953 promotion.
+- Adds `backend/sqx-edge-tool/test_bsai17_controlled_import_start_gate.py` and `tests/js/contracts/bsai17_controlled_import_start_gate_contracts.mjs`.
+- Sets the next gate to `BS-AI18 monitor BSAI16 Capa1 run and decide no Capa2 until clean real TICK/Forward`.
+
+## 2026-06-07 - BS-AI16 Capa1 Experiment Pre-Registration Gate
+
+- Adds `docs/BS_AI16_CAPA1_EXPERIMENT_PREREG_GATE.md` with marker `bs-ai16-capa1-experiment-prereg-gate-v1` and status `preregistered_capa1_tick_rule_ready_no_import_no_start`.
+- Adds `backend/sqx-edge-tool/core/bsai16_capa1_experiment_gate.py` and `tools/sqx144_bsai16_capa1_experiment_gate.ps1 status|plan|prepare`.
+- Pre-registers the next Capa1 TICK REAL trade rule as `realTickTrades >= max(absoluteFloor, floor(priorValidationTrades * retentionRatio))`.
+- Selects the default BS-AI16 grid point `retentionRatio=0.65` and `absoluteFloor=120`, represented in SQX as `NumberOfTrades >= 120` plus `RetestWithHigherPrecision` `NumberOfTrades >= 65%` of `main`.
+- Records the operator low-spread hypothesis through `spreadCostSanity`: primary `AUDCAD_darwinex` chart spread `1` matches host catalog `1.0`, so there is no primary under-spread blocker; cross-broker `AUDCAD_dukascopy` chart spread `1` versus alternate instrument default `1.9` remains a methodology warning.
+- Runs `prepare` locally and generates `BSAI16_AUDCAD_H1_L_TICKR65_F120_Capa1_v001.cfx` with evidence `bsai16_capa1_experiment_gate_prepare_20260607_195815.json`; ZIP is valid with `config.xml`, TICK REAL `120/65%`, and PF/Winning/ReturnDD preserved.
+- Keeps the frozen lot `tick_real_pf_failed_trade_threshold_warning_no_capa2` failed for Capa2 and does not reinterpret BS-AI14/BS-AI15 evidence.
+- Adds `backend/sqx-edge-tool/test_bsai16_capa1_experiment_gate.py` and `tests/js/contracts/bsai16_capa1_experiment_prereg_contracts.mjs`.
+- Preserves boundaries: No import, No Start, No Capa2, no `taskmanager/openProject`, no `loadAsIs`, no resource resolution, no Add missing symbols, no direct `data.db` patch, no direct `user/projects` patch, no databank mutation, no Migration Tool, no BSAI promotion, no official v6/v7 overwrite and no 144.2953 promotion.
+- Sets the next gate to `BS-AI17 controlled Capa1 import/start gate after operator approval`.
+
+## 2026-06-07 - BS-AI15 Tick Real Diagnostic
+
+- Adds `docs/BS_AI15_TICK_REAL_DIAGNOSTIC.md` with marker `bs-ai15-tick-real-diagnostic-v1` and status `diagnostic_plan_ready_no_capa2_no_filter_relaxation`.
+- Adds `backend/sqx-edge-tool/core/bsai15_tick_real_diagnostic.py` and `tools/sqx144_bsai15_tick_real_diagnostic.ps1 status|audit|plan`.
+- Records sanitized evidence `bsai15_tick_real_diagnostic_audit_20260607_191116.json` under ignored local evidence.
+- Freezes the BS-AI14 lot as `tick_real_pf_failed_trade_threshold_warning_no_capa2`: `RETEST 0=37`, `retest 1=5`, `TICK=0`, No Capa2 and No filter relaxation.
+- Audits the 5 `retest 1` `.sqx` survivors read-only: observed pre-real-tick trade counts are 300-311, `NetProfitIS` spans 3643.10-5431.03, and DD/stability are recorded only as SQStats proxies.
+- Records the metric caveat that direct pre-TICK `ProfitFactor` and canonical `DrawdownPct` are not embedded as plain metrics in these `retest 1` `.sqx`; the proven first logged TICK REAL blocker remains `Profit factor[Main data] >= 1.30`.
+- Records that TICK REAL contains both `# of trades >= 200` and `RetestWithHigherPrecision` retention comparisons against `main` at 80%, so the next experiment must pre-register the trade-count rule explicitly.
+- Proposes BS-AI16 as `new_capa1_experiment_with_pre_registered_tick_real_trade_rule_no_capa2` using `realTickTrades >= max(absoluteFloor, floor(priorValidationTrades * retentionRatio))`, without reinterpreting the current lot.
+- Adds `backend/sqx-edge-tool/test_bsai15_tick_real_diagnostic.py` and `tests/js/contracts/bsai15_tick_real_diagnostic_contracts.mjs`.
+- Preserves boundaries: no Capa2 Start, no new import, no `taskmanager/openProject`, no `loadAsIs`, no resource resolution, no Add missing symbols, no direct `data.db` patch, no direct `user/projects` patch, no databank deletion, no Migration Tool, no BSAI promotion, no official v6/v7 overwrite and no 144.2953 promotion.
+
+## 2026-06-07 - BS-AI14 Capa1 Monitor Decision
+
+- Adds `docs/BS_AI14_CAPA1_MONITOR_DECISION.md` with marker `bs-ai14-capa1-monitor-decision-v1` and status `monitor_ready_stop_or_review_candidate_no_capa2`.
+- Records the post-stop Capa1 retest conclusion `tick_real_pf_failed_trade_threshold_warning_no_capa2`: `RETEST 0` now has 37 `.sqx`, `retest 1` has 5 `.sqx`, `TICK` has 0 `.sqx`, and `TICK REAL` rejects the 5 survivors at the first logged blocker `Profit factor[Main data] >= 1.30`.
+- Records the methodology warning that SQX does not prove later filters would have passed once the first active filter fails; `# of trades >= 200` remains a probable TICK REAL design issue because it gives no tolerance for real-tick trade-count drift versus simulated-tick Build/retest gates.
+- Decides no Capa2 Start and no filter relaxation to rescue this candidate; any relaxed filter would be a new diagnostic experiment, not a continuation of this validation result.
+- Adds `backend/sqx-edge-tool/core/bsai14_capa1_monitor_gate.py` and `tools/sqx144_bsai14_capa1_monitor_gate.ps1 status|monitor|decision-template`.
+- Captures a read-only BS-AI14 monitor snapshot: Capa1 visible with `tasks=14`, `databanks=15`, `strategies=385`, `hasUnresolvedResources=false`; Capa2 remains `strategies=0`.
+- Confirms Capa1 `project.cfx` hash remains OK and `RETEST 0` contains 3 `.sqx` files.
+- Flags `latest_log_stale_over_10m` and `thin_retest0_survivor_count`, so the recommendation is `stop_or_review_candidate_no_capa2`.
+- Stop requires exact operator approval `APRUEBO STOP BS-AI14 CAPA1 SIN CAPA2`; BS-AI14 itself does not call `project/stop`.
+- Preserves boundaries: no Capa2 Start, no new import, no `taskmanager/openProject`, no `loadAsIs`, no resource resolution, no Add missing symbols, no direct `data.db` patch, no direct `user/projects` patch, no databank deletion, no Migration Tool, no BSAI promotion, no official v6/v7 overwrite and no 144.2953 promotion.
+- Adds `backend/sqx-edge-tool/test_bsai14_capa1_monitor_gate.py`.
+
+## 2026-06-07 - BS-AI13 First Manual Start Gate
+
+- Adds `docs/BS_AI13_FIRST_MANUAL_START_GATE.md` with marker `bs-ai13-first-manual-start-gate-v1` and status `first_start_requested_observed_no_capa2_start`.
+- Adds `backend/sqx-edge-tool/core/bsai_first_start_gate.py` and `tools/sqx144_bsai13_first_start_gate.ps1 status|preflight|start-capa1|stop-capa1`.
+- Runs the explicitly approved first Start gate through SQX local remote access with `project/start` only for `BSAI_AUDCAD_H1_BSAI_Filtros_L2_H1_from_BS_Filtros_v7_H1_r005_L_SQX144DARWINEX_Capa1`.
+- Preflight confirms BS-AI12 OK and both imported projects visible with `tasks=14`, `strategies=0`, `hasUnresolvedResources=false` and `capa2StartAllowed=false`.
+- SQX returns `Project execution started.`; sanitized observation confirms Capa1 started and loaded `AUDCAD_darwinex / H1`.
+- Capa1 `project.cfx` hash remains unchanged, Capa1 databanks remain at `0` files during the observation window, and Capa2 remains unstarted with `strategies=0`.
+- After the operator-reported power outage, status readback returns `remote_access_unavailable`; local snapshot still shows Capa1 with only the generated project log and Capa2 unchanged, so BS-AI14 must begin with a fresh remote status audit.
+- Records sanitized evidence `bsai13_first_manual_start_gate_preflight_20260606_221720.json` and `bsai13_first_manual_start_gate_start-capa1_20260606_221909.json` under ignored local evidence.
+- Preserves boundaries: no Capa2 Start, no new `.cfx` import, no `taskmanager/openProject`, no `loadAsIs`, no resource resolution, no Add missing symbols, no direct `data.db` patch, no direct script-side `user/projects` patch, no Migration Tool, no BSAI promotion, no official v6/v7 overwrite and no 144.2953 promotion.
+- Adds `backend/sqx-edge-tool/test_bsai_first_start_gate.py` and `tests/js/contracts/bsai13_first_manual_start_gate_contracts.mjs`.
+- Sets the next gate to `BS-AI14 monitor Capa1 run and decide Capa2 start`.
+
+## 2026-06-06 - BS-AI12 Imported Project Read-Only Review
+
+- Adds `docs/BS_AI12_IMPORTED_PROJECT_READONLY_REVIEW.md` with marker `bs-ai12-imported-project-readonly-review-v1` and status `imported_project_readonly_review_passed_with_methodology_warnings_no_start`.
+- Adds `backend/sqx-edge-tool/core/bsai_imported_project_review.py` and `tools/sqx144_bsai12_imported_project_review.ps1 status|review` for a read-only review of the two imported SQX144 Full BS-AI projects.
+- Reviews `BSAI_AUDCAD_H1_BSAI_Filtros_L2_H1_from_BS_Filtros_v7_H1_r005_L_SQX144DARWINEX_Capa1` and `BSAI_AUDCAD_H1_BSAI_Filtros_L2_H1_from_BS_Filtros_v7_H1_r005_L_SQX144DARWINEX_Capa2` without import, Start or SQX task execution.
+- Confirms remote visibility with `tasks=14`, `databanks=15`, `strategies=0` and `hasUnresolvedResources=false` for both imported projects.
+- Confirms BlockSettings traces: Capa1 active build uses `BS_Volatilidad_v6_intraday_v6`; Capa2 active build uses `BSAI_Filtros_L2_H1_from_BS_Filtros_v7_H1_r005`; candidate base remains `BS_Filtros_v7_H1` with `promotionState=local_candidate`.
+- Confirms target resources: `targetFailCount=0`, `targetWarnCount=2`, primary `AUDCAD_darwinex` and governed cross-broker `AUDCAD_dukascopy` warnings only.
+- Preserves boundaries: no `taskmanager/openProject`, no `loadAsIs`, no `Start`, no SQX task execution, no resource resolution, no symbol creation, no `data.db` write, no `user/projects` write, no databank mutation, no Migration Tool, no 144.2953 promotion and no official BlockSettings promotion.
+- Adds `backend/sqx-edge-tool/test_bsai_imported_project_review.py` and `tests/js/contracts/bsai12_imported_project_readonly_review_contracts.mjs`.
+- Sets the next gate to `BS-AI13 first manual Start gate requires explicit operator approval`.
+
+## 2026-06-06 - BS-AI11 Remapped Manual Import Gate
+
+- Adds `docs/BS_AI11_REMAPPED_MANUAL_IMPORT_GATE.md` with marker `bs-ai11-remapped-manual-import-gate-v1` and status `remapped_capa1_capa2_imported_visible_no_tasks_started`.
+- Adds `tools/sqx144_bsai11_remapped_import_gate.ps1 status|preflight|snapshot|launch|capture|import-capa1|import-capa2` for the controlled SQX144 Full remapped import gate.
+- Uses local SQX remote access on port `8080` and the same `taskmanager/openProject` endpoint as the `Open existing project` UI flow, with `loadAsIs=false` and no `loadAsIs=true` escalation.
+- Imports both remapped projects: `BSAI_AUDCAD_H1_BSAI_Filtros_L2_H1_from_BS_Filtros_v7_H1_r005_L_SQX144DARWINEX_Capa1` and `..._Capa2`.
+- Confirms both imports return `hasResourcesXML=false`, appear in Custom Projects, report `tasks=14`, `databanks=15`, `strategies=0` and `hasUnresolvedResources=false`.
+- Records snapshots before/after import: host project file count moves from `2156` to `2158` and BSAI match count moves from `0` to `2`; `data.db` hash is unavailable while SQX owns the active file lock.
+- Preserves boundaries: no `Start`, no SQX task execution, no `Load without resolving these issues`, no `Add missing symbols`, no direct `data.db` patch, no direct databank mutation, no Migration Tool, no 144.2953 promotion and no official BlockSettings promotion.
+- Sets the next recommended gate to `BS-AI12 imported project read-only review`.
+- Adds `tests/js/contracts/bsai11_remapped_manual_import_gate_contracts.mjs`.
+
+## 2026-06-06 - BS-AI10 Target Resource Compatibility Gate
+
+- Adds `docs/BS_AI10_TARGET_RESOURCE_COMPATIBILITY_GATE.md` with marker `bs-ai10-target-resource-compatibility-gate-v1` and status `remap_ready_for_manual_import_gate_no_import`.
+- Adds `backend/sqx-edge-tool/core/bsai_resource_compatibility.py` and `tools/sqx144_bsai_resource_compat_gate.ps1 status|audit|remap` for a read-only `sqx144_full` target-resource gate before any further manual `.cfx` import attempt.
+- Confirms the BS-AI9 pair is correctly blocked for `sqx144_full`: primary resources use `AUDCAD` source `0` / broker `-1`, while the real target catalog expects `AUDCAD_darwinex` source `4` / broker `4`.
+- Confirms the target catalog has loaded `AUDCAD_darwinex` and governed OOS `AUDCAD_dukascopy`; the latter remains a methodology warning, not a blocking error.
+- Generates the remapped local pair `BSAI_AUDCAD_H1_BSAI_Filtros_L2_H1_from_BS_Filtros_v7_H1_r005_L_SQX144DARWINEX_Capa1.cfx` and `BSAI_AUDCAD_H1_BSAI_Filtros_L2_H1_from_BS_Filtros_v7_H1_r005_L_SQX144DARWINEX_Capa2.cfx`.
+- Preserves boundaries: no SQX launch, no `.cfx` import, no unresolved resource load, no symbol creation, no `data.db` write, no `user/projects` write, no databank mutation, no SQX task execution and no official BlockSettings promotion.
+- Adds `backend/sqx-edge-tool/test_bsai_resource_compatibility.py` and `tests/js/contracts/bsai10_target_resource_compatibility_contracts.mjs`.
+
+## 2026-06-06 - BS-AI9 Manual Import Execution
+
+- Adds `docs/BS_AI9_MANUAL_IMPORT_EXECUTION.md` with marker `bs-ai9-manual-import-execution-v1` and status `blocked_resource_resolution_modal_no_import_loaded`.
+- Executes the explicitly approved BS-AI8 manual visible attempt in SQX144 Full: Custom Projects -> `Open existing project` -> approved Capa1 `BSAI_AUDCAD_H1_BSAI_Filtros_L2_H1_from_BS_Filtros_v7_H1_r005_L_Capa1.cfx`.
+- Stops at SQX `Resolve project resources`: unresolved symbol `AUDCAD`, source `N/A`, status `Not found`, actions observed `Load without resolving these issues`, `Add missing symbols`, `Close`.
+- Chooses `Close`; does not accept unresolved loading, does not add symbols, does not attempt Capa2 and does not press `Start`.
+- Records post-attempt snapshot checks: `dataDbShaUnchanged=true`, `dataDbSizeUnchanged=true`, `projectsFileCountUnchanged=true`, `noBSAIInHostProjects=true`, `noAUDCADInHostProjects=true`, `databanksDirExistsUnchanged=true`, `tasksDirExistsUnchanged=true`.
+- Adds `tests/js/contracts/bsai9_manual_import_execution_contracts.mjs`.
+- Preserves boundaries: no completed SQX import, no `data.db`, no BSAI/AUDCAD host project, no databank mutation, no SQX tasks, no Migration Tool, no 144.2953 promotion and no official BlockSettings manifest promotion.
+- Sets the next recommended gate to `BS-AI10 target-resource compatibility gate`.
+
+## 2026-06-06 - BS-AI8 First Import Gate
+
+- Adds `docs/BS_AI8_FIRST_IMPORT_GATE.md` with marker `bs-ai8-first-import-gate-v1` and status `checklist_ready_operator_approval_required_no_import`.
+- Adds dry-run-only wrapper `tools\sqx144_bsai_first_import_gate.ps1 status|plan|approval-template`; it has no `apply`, `install`, `import`, `copy`, `write` or `launch` action.
+- Selects the first controlled manual import target as `BSAI_Filtros_L2_H1_from_BS_Filtros_v7_H1_r005`, with Capa1 `BSAI_AUDCAD_H1_BSAI_Filtros_L2_H1_from_BS_Filtros_v7_H1_r005_L_Capa1.cfx` and Capa2 `BSAI_AUDCAD_H1_BSAI_Filtros_L2_H1_from_BS_Filtros_v7_H1_r005_L_Capa2.cfx`.
+- Validates candidate metadata, official manifest non-collision and ZIP `config.xml`; current `plan` returns `ok=true`, `importAllowed=false`, `requiresOperatorApproval=true`, `writesSqxHost=false`, `writesDataDb=false`, `writesUserProjects=false`, `mutatesDatabanks=false`, `runsSqxTasks=false`.
+- Emits exact approval phrase `APRUEBO BS-AI8 IMPORT MANUAL CONTROLADA ... no_auto_import` for the next gate, `BS-AI9 manual import execution after explicit operator approval`.
+- Adds `tests/js/contracts/bsai8_first_import_gate_contracts.mjs` to guard that BS-AI8 remains checklist/approval only.
+- Preserves boundaries: no SQX import, no copy into SQX folders, no `data.db`, no `user/projects`, no databank mutation, no SQX tasks, no Migration Tool and no 144.2953 promotion.
+
+## 2026-06-06 - BS-AI7 Panel Hardening
+
+- Adds `docs/BS_AI7_PANEL_HARDENING.md` with marker `bs-ai7-panel-hardening-v1`.
+- Hardens the SQX144 `BS-AI` panel with `Nueva sesion / Limpiar`, form-signature invalidation, stale session/candidate/project clearing on field changes, and `Generar .cfx` disabled unless `candidateIsCurrent()` is true.
+- Shows active trace labels in the panel: `Candidato activo`, `Base usada`, `Politica`, plus wrapped download blocks labeled `Candidato .sqb`, `Capa1` and `Capa2`.
+- Adds `tests/js/contracts/blocksettings_ai_overlay_hardening_contracts.mjs` and extends the manual smoke contract for the new controls, state guards and complete download labels.
+- Installs the hardened overlay with SQX closed using `tools\sqx144_blocksettings_ai_overlay.ps1 install -Apply`; backup `sqx144_bsai_overlay_20260606_160442`, post-install `processCount=0`.
+- Repeats local API smoke without importing anything into SQX: H1 explicit-v7 generates `BSAI_Filtros_L2_H1_from_BS_Filtros_v7_H1_r003`; D1 blank-base default generates `BSAI_Filtros_L2_D1_from_BS_Filtros_v6_D1_r003`; both produce valid Capa1/Capa2 `.cfx` downloads and keep official BlockSettings hashes unchanged.
+- During visual smoke, fixes a D1 policy-label ambiguity where `BS_Filtros_v6_D1` could be displayed as `v7 explicito`; reinstalls the corrected overlay with backup `sqx144_bsai_overlay_20260606_191153`.
+- Closes visual panel smoke as `operator_panel_hardening_smoke_confirmed_no_import`: H1 explicit-v7 generates `BSAI_Filtros_L2_H1_from_BS_Filtros_v7_H1_r005` with `Base usada BS_Filtros_v7_H1` / `Politica v7 explicito`; D1 blank-base default generates `BSAI_Filtros_L2_D1_from_BS_Filtros_v6_D1_r005` with `Base usada BS_Filtros_v6_D1` / `Politica D1 default v6_D1`.
+- Confirms previous H1 project links disappear on D1 field changes, `Cambios pendientes` appears, and `Generar .cfx` is disabled until a fresh candidate matches the current form.
+- Verifies candidate H1/D1 `.sqb` plus H1/D1 Capa1/Capa2 `.cfx` downloads return HTTP 200 and are ZIP-valid with `config.xml`; preserves boundaries: no SQX import, no `data.db`, no `user/projects`, no databank mutation, no SQX tasks, no Migration Tool and no 144.2953 promotion.
+
+## 2026-06-06 - BS-AI6 Overlay Manual Smoke Gate
+
+- Adds `docs/BS_AI6_OVERLAY_MANUAL_SMOKE_GATE.md` with marker `bs-ai6-overlay-manual-smoke-gate-v1`.
+- Closes status as `operator_panel_smoke_confirmed_download_links_verified_no_import` after the operator opened SQX144 Full and Codex executed only the installed `BS-AI` panel controls.
+- Adds `tests/js/contracts/blocksettings_ai_overlay_manual_smoke_contracts.mjs` to verify installed-panel controls, `apiUrl(item.downloadUrl)` project links, candidate download links and privacy guards for local paths, tokens, secrets, direct Ollama, `data.db` and `user/projects`.
+- Confirms runtime status: `installed=true`, `assetsPresent=true`, `sourcesPresent=true`, `processCount=7`, `blocksettings ai overlay manual smoke contracts ok` and existing overlay contract OK.
+- Confirms the panel is visible in AlgoWizard without local paths, raw XML or secrets, with `No strategies loaded` still visible after the smoke.
+- Generates H1 explicit-v7 candidate `BSAI_Filtros_L2_H1_from_BS_Filtros_v7_H1_r002` from the panel and shows/downloads `BSAI_AUDCAD_H1_BSAI_Filtros_L2_H1_from_BS_Filtros_v7_H1_r002_L_Capa1.cfx` plus `..._Capa2.cfx`.
+- Generates D1 default candidate `BSAI_Filtros_L2_D1_from_BS_Filtros_v6_D1_r002` from the panel and shows/downloads `BSAI_AUDCAD_D1_BSAI_Filtros_L2_D1_from_BS_Filtros_v6_D1_r002_L_Capa1.cfx` plus `..._Capa2.cfx`.
+- Confirms all candidate/project download URLs returned HTTP 200 and the four `.cfx` files are valid ZIPs with `config.xml`.
+- Preserves boundaries: no SQX import, no `data.db`, no `user/projects`, no databank mutation, no SQX task execution, no Migration Tool and no 144.2953 promotion.
+
+## 2026-06-06 - BS-AI5 Project Pair Smoke
+
+- Adds `docs/BS_AI5_PROJECT_PAIR_SMOKE.md` with marker `bs-ai5-project-pair-smoke-v1`.
+- Generates explicit-v7 project pair `BSAI_AUDCAD_H1_BSAI_Filtros_L2_H1_from_BS_Filtros_v7_H1_r001_L_Capa1.cfx` and `BSAI_AUDCAD_H1_BSAI_Filtros_L2_H1_from_BS_Filtros_v7_H1_r001_L_Capa2.cfx`.
+- Confirms explicit-v7 Capa1 remains official `BS_Volatilidad_v6_intraday_v6` and Capa2 uses local candidate `BSAI_Filtros_L2_H1_from_BS_Filtros_v7_H1_r001` based on `BS_Filtros_v7_H1`.
+- Generates D1-default project pair `BSAI_AUDCAD_D1_BSAI_Filtros_L2_D1_from_BS_Filtros_v6_D1_r001_L_Capa1.cfx` and `BSAI_AUDCAD_D1_BSAI_Filtros_L2_D1_from_BS_Filtros_v6_D1_r001_L_Capa2.cfx`.
+- Confirms D1 Capa1 remains official `BS_Volatilidad_v6` and Capa2 uses local candidate `BSAI_Filtros_L2_D1_from_BS_Filtros_v6_D1_r001` based on `BS_Filtros_v6_D1`.
+- Confirms generated `.cfx` files are valid ZIPs with `config.xml`, output downloads return content, official BlockSettings hashes are unchanged and the sensitive SQX snapshot is unchanged.
+- Preserves boundaries: no SQX import, no `data.db`, no `user/projects`, no databank mutation, no SQX task execution, no Migration Tool and no 144.2953 promotion.
+
+## 2026-06-06 - BS-AI4 Version Policy Smoke
+
+- Adds `docs/BS_AI4_VERSION_POLICY_SMOKE.md` with marker `bs-ai4-version-policy-smoke-v1`.
+- Confirms catalog policy remains `capa2Default=BS_Filtros_v6`, `capa2D1Default=BS_Filtros_v6_D1` and `filtersV7=explicitBaseCanonicalId_only`.
+- Confirms `BS_Filtros_v7_H1` requested without `explicitBaseCanonicalId` is blocked with `filters_v7_requires_explicit_base_canonical_id`.
+- Generates explicit-v7 candidate `BSAI_Filtros_L2_H1_from_BS_Filtros_v7_H1_r001.sqb` from official base `BS_Filtros_v7_H1`.
+- Confirms D1 mismatch against `BS_Filtros_v7_H1` is blocked with `explicit_base_timeframe_mismatch`.
+- Generates D1-default candidate `BSAI_Filtros_L2_D1_from_BS_Filtros_v6_D1_r001.sqb` from official base `BS_Filtros_v6_D1`.
+- Confirms candidate ZIPs contain `config.xml`, candidate API downloads return content, official BlockSettings hashes are unchanged and the sensitive SQX snapshot is unchanged.
+- Preserves boundaries: no `.cfx` generation, no SQX import, no `data.db`, no `user/projects`, no databank mutation, no SQX task execution, no Migration Tool and no 144.2953 promotion.
+
+## 2026-06-06 - BS-AI3 Local Candidate Project Smoke
+
+- Adds `docs/BS_AI3_LOCAL_CANDIDATE_PROJECT_SMOKE.md` with marker `bs-ai3-local-candidate-project-smoke-v1`.
+- Runs the local backend BS-AI flow: catalog, session, plan, save-candidate, candidate download and Capa1/Capa2 project generation.
+- Generates candidate `BSAI_Filtros_L2_H1_from_BS_Filtros_v6_r002.sqb` from official base `BS_Filtros_v6`, with `promotionState=local_candidate`.
+- Generates downloadable project pair `BSAI_AUDCAD_H1_BSAI_Filtros_L2_H1_from_BS_Filtros_v6_r002_L_Capa1.cfx` and `BSAI_AUDCAD_H1_BSAI_Filtros_L2_H1_from_BS_Filtros_v6_r002_L_Capa2.cfx`.
+- Confirms Capa1 remains official `BS_Volatilidad_v6_intraday_v6`; Capa2 uses the local BSAI candidate.
+- Confirms official BlockSettings hashes unchanged and sensitive SQX snapshot unchanged.
+- Records that a preliminary `EURUSD` project generation attempt was correctly blocked by the data-range guard; the accepted pass is `AUDCAD H1`.
+- Preserves boundaries: no SQX import, no `data.db`, no `user/projects`, no databank mutation, no SQX task execution, no Migration Tool and no 144.2953 promotion.
+
+## 2026-06-06 - BS-AI2 Visual Smoke Confirmed
+
+- Closes `docs/BS_AI2_SQX144_OVERLAY_INSTALL_GATE.md` as `operator_manual_bsai_overlay_visual_smoke_confirmed`.
+- Records operator confirmation that the SQX144 AlgoWizard `BS-AI` launcher/panel is visually present.
+- Confirms the overlay did not expose local paths, XML or secrets during visual smoke.
+- Confirms SQX was left closed after the smoke; wrapper status still reports `processCount=0`.
+- Keeps boundaries unchanged: no SQX task execution, no `data.db`, no `user/projects`, no databank mutation, no license/activation handling, no Migration Tool and no 144.2953 promotion.
+
+## 2026-06-06 - BS-AI2 SQX144 Overlay Install Gate
+
+- Adds `docs/BS_AI2_SQX144_OVERLAY_INSTALL_GATE.md` with marker `bs-ai2-sqx144-overlay-install-gate-v1`.
+- Installs `sqx144-blocksettings-ai-overlay-v1` into the confirmed SQX144 Full AlgoWizard web surface using `tools/sqx144_blocksettings_ai_overlay.ps1 install -Apply`.
+- Records backup `sqx144_bsai_overlay_20260606_122052`.
+- Verifies status after install: `installed=true`, `assetsPresent=true`, `sourcesPresent=true`, `processCount=0`.
+- Verifies active JS/CSS hashes match repo source and HTML contains one JS include and one CSS include.
+- Opens the operator manual visual smoke step for SQX144 Full/AlgoWizard; this was later closed by the BS-AI2 visual smoke confirmation.
+- Preserves boundaries: no SQX launch from script, no SQX task execution, no `data.db`, no `user/projects`, no databank mutation, no license/activation handling, no Migration Tool and no 144.2953 promotion.
+
+## 2026-06-06 - BS-AI1 BlockSettings Generator
+
+- Adds `docs/BS_AI1_BLOCKSETTINGS_GENERATOR_CONTRACT.md` with marker `bs-ai1-blocksettings-generator-contract-v1`.
+- Adds `backend/sqx-edge-tool/core/blocksettings_ai_generator.py` for sanitized BlockSettings catalog, local sessions, recipe planning, candidate `.sqb` creation and Capa1/Capa2 `.cfx` generation.
+- Extends BlockSettings resolution with an internal approved local candidate override while preserving official manifest resolution and keeping official `.sqb` files outside the BS-AI write path.
+- Adds local/operator-only `/api/blocksettings/ai/*` endpoints for catalog, session, plan, save-candidate, generate-project and candidate download.
+- Blocks browser-supplied path/output/template fields in BS-AI project generation and rejects BS-AI output directories that resolve inside SQX host/data/projects roots.
+- Adds SQX144 overlay sources under `integrations/sqx144/blocksettings_ai_overlay/` and dry-run-first wrapper `tools/sqx144_blocksettings_ai_overlay.ps1 status|plan|install|rollback`.
+- Preserves the versioning policy: Capa2 default stays `BS_Filtros_v6`, D1 stays `BS_Filtros_v6_D1`, and `BS_Filtros_v7_*` requires `explicitBaseCanonicalId`.
+- Preserves boundaries: generated candidates use `BSAI_*` under `.local/blocksettings_ai/candidates/`, no official v6/v7 resource promotion, no SQX runtime launch, no `data.db`, no `user/projects`, no databank mutation and no profitability or risk-zero claim.
+
+## 2026-06-06 - G10 Agent And Subagent Refresh
+
+- Adds `docs/G10_AGENT_SUBAGENT_REFRESH.md` with marker `g10-agent-subagent-refresh-v1`.
+- Adds workspace `AGENTS.md` so the project has a tracked brain-first and SQX active-bootstrap policy.
+- Aligns local Codex global `AGENTS.md` and installed SQX skills with SQX144 Full as confirmed primary host, SQX142 Codex/QXPRO preserved as local non-fallback material and SQX143 historical/removed locally.
+- Updates the local AI agent profile so `sqx142-compat` and `sqx-agent-skills` describe the current SQX144/SQX142/SQX143 posture.
+- Updates SQX144 read-only gate rollback fields so SQX142 is reported as a manual exception rather than an active fallback.
+- Preserves G9/G9R subagent discipline: gbrain first, `tool_search` lazy-load for Multi-agent tools when requested, Codex as orchestrator, mutation gated by phase/backup/diff/tests/confirmation and sanitized `.local/agent_handoffs/` only when material.
+
+## 2026-06-06 - SQX144 Results Confirmation Closeout
+
+- Adds `docs/SQX144_RESULTS_CONFIRMATION_CLOSEOUT.md` with marker `sqx144-results-confirmation-closeout-v1`.
+- Records the operator confirmation that SQX144 Full is OK for the current workflow and closes the Results confirmation.
+- Promotes `SQX_144_Full` / `sqx144_full` from primary candidate to confirmed primary host.
+- Closes SQX142 as active fallback while keeping deletion of SQX142, SQX143 and backups blocked until explicit operator approval.
+- Keeps `SQX144-FULL-UPDATE2` as the separate governed 144.2953 promotion path; this closeout does not promote the 144.2953 candidate.
+
+## 2026-06-06 - SQX144 Custom Project Web-To-Log Audit
+
+- Adds `docs/SQX144_CUSTOM_PROJECT_WEB_TO_LOG_AUDIT.md` with marker `sqx144-custom-project-web-to-log-audit-v1` for the USTEC H1 Momentum custom pair generated from the protected web app and loaded into SQX144 Full.
+- Traces the flow from `/generate-custom` remote workspace outputs to SQX144 project-global logs without copying raw logs, local paths, license payloads or private workspace evidence into the repo.
+- Fixes the SQX144 default-commission load event by making `xml_patcher.patch_commission` create a missing `Commissions` node before applying generated commission values.
+- Adds regression coverage proving the patcher creates missing setup commissions and generated Capa2 customs contain `Commissions` on every `Setup`.
+- Repairs the already generated local USTEC Capa2 `.cfx` and the already loaded SQX144 Capa2 `project.cfx` with ignored local backups, clearing the missing `Commissions` node in `AutomaticRetest-Task4.xml`.
+- Records the disk posture decision: no deletion performed during the audit; SQX142 fallback closure is handled by the later 2026-06-06 Results closeout, while old SQX144 backups and small SQX143 remnants are cleanup candidates only after explicit operator approval.
+
 ## 2026-06-05 - SQX144-FULL-UPDATE2 New Directory 144.2953 Promotion Gate
 
 - Adds `docs/SQX144_FULL_UPDATE2_GATE.md` with marker `sqx144-full-update2-gate-v1` after the operator confirmed the official installer blocks selecting the existing `SQX_144_Full` directory.
 - Adds read-only `tools/sqx144_full_update2_gate.ps1 status|preflight` to compare the working licensed/migrated source host with a new-directory 144.2953 candidate, without running the installer, Migration Tool, projects, license handling or config switch.
-- Keeps `SQX_144_Full` as the current working host and SQX 142 as fallback; 144.2953 promotion requires legitimate workspace access, official migration/alignment, Readiness Panel parity, snippet compile cleanliness and a clean preflight.
+- Keeps `SQX_144_Full` as the current working host; SQX142 fallback was later closed by the 2026-06-06 Results closeout. 144.2953 promotion requires legitimate workspace access, official migration/alignment, Readiness Panel parity, snippet compile cleanliness and a clean preflight.
 
 ## 2026-06-04 - SQX144-FULL-UPDATE1 Controlled Build 144.2953 Update Gate
 
@@ -12,13 +825,13 @@
 - Adds `tools/sqx144_full_update_gate.ps1` as a read-only `status`/`preflight` classifier for the updated 144.2953 host candidate.
 - Confirms Build 144.2953 from the updated host log, but records decision `blocked_license_activation_pending_and_migration_alignment`.
 - Keeps the updated host as no-promote: controlled launch reaches license screen before workspace, snippets compile is not observed, migrated shape is incomplete and `SQX Edge Readiness Panel` is absent.
-- Leaves ignored local config pointing to the migrated/licensed SQX 144 Full host; SQX 142 remains fallback.
+- Leaves ignored local config pointing to the migrated/licensed SQX 144 Full host; SQX142 fallback was later closed by the 2026-06-06 Results closeout.
 - Preserves boundaries: no license/activation/bypass copy, no engine/binarios/internals copied, no Codex-automated Migration Tool, no project runs, no MT5 import, no direct `data.db` writes, no direct `user/projects` mutation and no profitability or risk-zero claim.
 
 ## 2026-06-04 - SQX144 Full Host Promotion Gate
 
 - Opens `SQX144-FULL-PROMOTE1 Host Promotion Gate` with `docs/SQX144_FULL_PROMOTION_GATE.md` and marker `sqx144-full-promotion-gate-v1`.
-- Treats the operator-licensed `SQX_144_Full` installation as the primary candidate host, with SQX 142 preserved as fallback until gates pass.
+- Treats the operator-licensed `SQX_144_Full` installation as the primary candidate host; this was later closed as confirmed primary by the 2026-06-06 Results closeout.
 - Adds `tools/sqx144_full_host_gate.ps1` for read-only `status` and `preflight` checks over executable, `user/data/data.db`, `user/projects`, `user/extend/ResultsPlugins` and relevant process state.
 - Records read-only preflight pass as `sqx144_full_host_gate_passed`, with local ignored config backed up and switched to `sqx_host_profile=sqx144_full`.
 - Extends local host metadata so `validate-sqx-path` and `autodetect-sqx` can identify `sqx144_full` without renaming existing `/api/sqx142/*` endpoints.
@@ -26,7 +839,7 @@
 - Adapts 13 migrated user Databanks snippets for SQX 144 by removing obsolete `MainApp.isRangerLicense()` calls, then forces snippet recompilation successfully: `Compiling Snippets done in 11s`.
 - Cleans local update/network blockers: removes StrategyQuant host overrides from the Windows hosts file, moves the local `sqx.bat` host-writer into ignored backup, and removes the stale `_MEI` installer temp folder; update 144.2953 is handled by `SQX144-FULL-UPDATE1` as controlled no-promote until license/alignment pass.
 - Preserves boundaries: no engine/binarios/internals 144 copied, no license/activation/bypass handling, no Codex-automated Migration Tool or committed Migration Tool output, no project runs, no MT5 import, no direct `data.db` writes, no direct `user/projects` mutation, no databank mutation and no profitability or risk-zero claim.
-- Keeps manual Results confirmation pending through `SQX144-COMPAT7B Results Plugin Visual Confirmation After Operator License`.
+- Historical note: manual Results confirmation was pending through `SQX144-COMPAT7B Results Plugin Visual Confirmation After Operator License`; it is later closed by the 2026-06-06 Results closeout.
 
 ## 2026-06-04 - SQX142-AW-AI5 Compiler Candidate Decision Gate
 

@@ -10,7 +10,7 @@
   },
   "environment": {
     "protectedUrl": "https://private-live.example.invalid/sqx",
-    "localPath": "C:/BOTS/private/live"
+    "localPath": "<private local live path>"
   },
   "activatedUsers": [
     {

@@ -29,7 +29,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File backend\sqx-edge-tool\tools\
 To package for one approved tester after issuing a signed license outside Git:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File backend\sqx-edge-tool\tools\package_portable.ps1 -RequireEmbeddedPython -ReleaseProfile tester -LicensePath C:\PRIVATE\license_signed_tester.json
+powershell -NoProfile -ExecutionPolicy Bypass -File backend\sqx-edge-tool\tools\package_portable.ps1 -RequireEmbeddedPython -ReleaseProfile tester -LicensePath <private signed tester license path>
 ```
 
 The private key and license issuer remain excluded from portable ZIPs. A signed license may be included only as `backend/sqx-edge-tool/config/license.json`; distribution audit validates that it has signature fields and no private key fields.

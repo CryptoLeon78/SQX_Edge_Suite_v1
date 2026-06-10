@@ -21,6 +21,13 @@
     "persistResponses": false
   },
   "runtimeBootstrap": {
+    "activeSqxPosture": {
+      "primaryHostProfile": "sqx144_full",
+      "sqx144FullStatus": "confirmed_primary",
+      "sqx142CodexStatus": "preserved_local_diagnostic_not_active_fallback",
+      "sqx143Status": "historical_removed_locally",
+      "sqx144Update2Status": "separate_gate_no_promote"
+    },
     "g9ParallelSubagents": {
       "lazyLoadToolSearchQuery": "Multi-agent tools spawn subagents parallel",
       "trigger": "operator_explicitly_requests_g9_subagents_delegation_or_parallel_work",
@@ -89,8 +96,8 @@
       "prompt": "Guia la shortlist diversa, comparativa y decision exportable."
     },
     "sqx142-compat": {
-      "label": "Compatibilidad SQX 142/143/144",
-      "prompt": "Explica el estado local de runtime, procesos, ledger de backport, smoke pendiente y limites: no binarios de engine, no licencia, no ejecucion sin confirmacion."
+      "label": "Compatibilidad SQX 144/142",
+      "prompt": "Explica el estado local actual: SQX144 Full/sqx144_full es host primario confirmado, SQX142 Codex/QXPRO se conserva como diagnostico/metodologia local pero no fallback activo, SQX143 es historico si no existe instalacion local, y 144.2953 sigue en gate separado. Mantiene limites: no binarios de engine, no licencia, no ejecucion sin confirmacion."
     },
     "sqx142-performance": {
       "label": "Rendimiento SQX 142",
@@ -114,7 +121,7 @@
     },
     "sqx-agent-skills": {
       "label": "Agentes y skills SQX",
-      "prompt": "Explica la capa de skills/agentes, handoffs, lazy-load de Multi-agent tools cuando el operador pide subagentes/paralelo, uso paralelo permitido, limites de autonomia y proximo movimiento de metodologia."
+      "prompt": "Explica la capa de skills/agentes tras G10: gbrain primero, SQX144 Full primario, SQX142 Codex/QXPRO local no-fallback, SQX143 historico, handoffs, lazy-load de Multi-agent tools cuando el operador pide subagentes/paralelo, uso paralelo permitido, limites de autonomia y proximo movimiento de metodologia."
     }
   },
   "toolProfiles": {

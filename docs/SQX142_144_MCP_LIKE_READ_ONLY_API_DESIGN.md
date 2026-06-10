@@ -106,7 +106,7 @@ El gate de acceso debe copiar el patron de `/api/sqx142/compat/status`:
 
 Los tests deben comprobar que `json.dumps(response)` no contiene:
 
-- `C:\`
+- private local drive roots
 - `<LOCAL_SQX142_ROOT>`
 - emails
 - tokens

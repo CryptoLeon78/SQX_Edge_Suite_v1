@@ -3336,7 +3336,10 @@ def _write_capa2_generator_profile(path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(
         json.dumps({
-            "retestPeriods": {"BUILD_C1": ["2017.10.02", "2023.01.01"]},
+            "retestPeriods": {
+                "BUILD_C1": ["2017.10.02", "2023.01.01"],
+                "ROBUSTNESS_C2": ["2017.10.02", "2023.12.31"],
+            },
             "tradingTimeRanges": {"capa2": gate.CAPA2_TRADING_TIME_RANGES_TARGET},
             "disableTradingTimeRanges": {"2": gate.CAPA2_DISABLE_TRADING_TIME_RANGES_TARGET},
             "taskPeriodMaps": {"2": {"Build-Task1.xml": "BUILD_C1"}},

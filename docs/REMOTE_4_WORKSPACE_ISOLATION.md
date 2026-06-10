@@ -112,8 +112,8 @@ These remain future work:
 
 ```powershell
 $env:SQX_REMOTE_SESSION_SECRET = "<private 32+ char secret>"
-$env:SQX_REMOTE_ENTITLEMENTS_PATH = "C:\BOTS\SCRIPTS\SQX_Edge_Suite_v1\.local\remote_service\remote_entitlements.local.json"
-$env:SQX_REMOTE_WORKSPACES_ROOT = "C:\BOTS\SCRIPTS\SQX_Edge_Suite_v1\.local\remote_service\workspaces"
+$env:SQX_REMOTE_ENTITLEMENTS_PATH = "<private ignored remote entitlements path>"
+$env:SQX_REMOTE_WORKSPACES_ROOT = "<private ignored remote workspaces root>"
 ```
 
 Then:

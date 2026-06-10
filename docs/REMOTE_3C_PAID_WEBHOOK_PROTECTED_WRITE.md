@@ -99,7 +99,7 @@ Use a private local secret and local entitlement path:
 
 ```powershell
 $env:SQX_REMOTE_PAYMENT_WEBHOOK_SECRET = "<private 32+ char secret>"
-$env:SQX_REMOTE_ENTITLEMENTS_PATH = "C:\BOTS\SCRIPTS\SQX_Edge_Suite_v1\.local\remote_service\remote_entitlements.local.json"
+$env:SQX_REMOTE_ENTITLEMENTS_PATH = "<private ignored remote entitlements path>"
 ```
 
 Generate a signed test body from the same bytes that will be posted. In production, the payment provider adapter must sign the raw body with the private secret before calling the webhook.

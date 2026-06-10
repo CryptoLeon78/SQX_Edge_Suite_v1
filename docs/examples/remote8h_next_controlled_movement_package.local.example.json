@@ -12,7 +12,7 @@
   },
   "environment": {
     "protectedUrl": "https://private-live.example.invalid/sqx",
-    "localPath": "C:/BOTS/private/live"
+    "localPath": "<private local live path>"
   },
   "movement": {
     "type": "add_1_2_users",

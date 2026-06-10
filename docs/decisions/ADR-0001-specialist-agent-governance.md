@@ -40,6 +40,8 @@ G9 extends the baseline with per-message specialist activation and session boots
 
 G9R hardens the runtime behavior for automatic compaction and lazy tools. When the operator explicitly asks for G9, subagents, delegation or parallel agent work, Codex must expose Multi-agent tools through `tool_search` if they are not already available, spawn independent subagent tasks in the same round when they materially help, continue non-overlapping local orchestration work while they run, and store only a short sanitized `.local/agent_handoffs/` summary when their result affects the next action.
 
+G10 refreshes the project and installed Codex agent layer after SQX144 Full was confirmed as the primary host. Agents and subagents must bootstrap with SQX144 Full / `sqx144_full` as confirmed primary, SQX142 Codex/QXPRO as preserved local diagnostic and methodology material but not active fallback, SQX143 as historical-only after local cleanup, and SQX144 144.2953 as a separate `SQX144-FULL-UPDATE2` gate.
+
 ## Consequences
 
 - Future phases should declare active owner areas before implementation.
@@ -49,6 +51,7 @@ G9R hardens the runtime behavior for automatic compaction and lazy tools. When t
 - Specialist use is proactive but bounded: Codex remains orchestrator, permissions do not expand automatically, and backup/diff/confirmation gates continue to govern all mutations.
 - New session bootstrap reports current phase, next exact block, open fronts, gates and immediate verification risks before non-trivial work.
 - Parallel subagent claims require actual Multi-agent runtime use, not just reading skill text; compaction recovery revalidates G9 from tracked docs/manifest and reloads tools when needed.
+- G10 keeps the installed Codex AGENTS/skills and project docs aligned with the active SQX host posture before any subagent work starts.
 - Subagent handoffs are local ignored summaries, not memory stores: role, scope, result and next action only.
 - M46 should start from a defined customer cockpit data model and privacy boundary.
 - Roadmap references should avoid ambiguous unprefixed phase numbers where possible.

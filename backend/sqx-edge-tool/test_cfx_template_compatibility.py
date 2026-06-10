@@ -13,6 +13,7 @@ from core.xml_patcher import (
     RETEST_PERIODS,
     patch_backtest_precision,
     patch_custom_block_resources,
+    patch_commission,
     patch_embedded_strategy_metadata,
     patch_no_session,
     patch_symbol_resources,
@@ -3642,6 +3643,56 @@ def test_patch_custom_block_resources_strips_packaged_donor_blocks():
     assert custom_blocks is not None
     assert list(custom_blocks) == []
     assert custom_blocks.text is None
+
+
+def test_patch_commission_creates_missing_setup_commissions_for_sqx144_load():
+    root = ET.fromstring(
+        """
+        <Task>
+          <Setup>
+            <Chart symbol="NASDAQ_darwinex" timeframe="H1" />
+          </Setup>
+          <Setup>
+            <Commissions>
+              <Method type="PercentageBased" use="true">
+                <Params><Param key="CommissionPct" className="PercentageBased">0.005</Param></Params>
+              </Method>
+            </Commissions>
+            <Chart symbol="NASDAQ_darwinex" timeframe="H1" />
+          </Setup>
+        </Task>
+        """
+    )
+
+    assert patch_commission(root, "SizeBased", 0.0) == 2
+    for setup in root.findall(".//Setup"):
+        target = setup.find("Commissions/Method[@type='SizeBased']")
+        assert target is not None
+        assert target.get("use") == "true"
+        assert target.find("Params/Param[@key='Commission']").text == "0.0"
+    assert root.find(".//Method[@type='PercentageBased']").get("use") == "false"
+
+
+def test_generated_capa2_custom_has_commissions_on_every_setup():
+    mining = Mining(num=98, phase=1, asset="AUDCAD", tf="H1", bs="BS_Momentum", dir="long")
+    with tempfile.TemporaryDirectory() as tmp:
+        out_path = generate_project(
+            mining,
+            str(TEMPLATE_DIR / "Capa2_Base.cfx"),
+            tmp,
+            capa=2,
+            sqx_db_path=None,
+            target_profile="sqxedge_darwinex",
+        )
+        roots = dict(_xml_roots(Path(out_path)))
+
+    missing = [
+        filename
+        for filename, root in roots.items()
+        for setup in root.findall(".//Setup")
+        if setup.find("Commissions") is None
+    ]
+    assert missing == []
 
 
 def test_sq_default_target_keeps_packaged_custom_blocks_for_external_hosts():

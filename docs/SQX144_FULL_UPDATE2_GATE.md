@@ -15,7 +15,7 @@ Este bloque sustituye la idea de actualizacion in-place del host licenciado porq
 - Perfil candidato futuro: `sqx144_full_2953_candidate`.
 - Decision inicial: `blocked_candidate_license_and_official_migration_alignment_pending`.
 - Configuracion local: sin cambio; sigue apuntando al host SQX 144 Full migrado/licenciado anterior.
-- Fallback: SQX 142 sigue disponible como rollback operativo.
+- Rollback: SQX 142 ya no es fallback operativo activo; reselectarlo seria una excepcion manual desde backup/config local si el operador lo aprueba.
 
 ## Motivo
 
@@ -60,7 +60,7 @@ Guard clave: `installerExecutedByThisScript = $false`, `officialMigrationToolExe
 ## Verificacion Inicial
 
 - Ejecutar `tools/sqx144_full_update2_gate.ps1 -Mode status -SourceRoot <host-bueno> -CandidateRoot <candidato-2953>`.
-- Esperado antes de accion manual: fuente OK, candidato bloqueado por licencia/alineacion si aun es `C:\StrategyQuantX144`.
+- Esperado antes de accion manual: fuente OK, candidato bloqueado por licencia/alineacion si aun es el candidato 144.2953 separado pendiente de activar/alinear.
 - Despues de instalacion/activacion/migracion oficial: ejecutar `preflight`; solo puede devolver `sqx144_full_update2_ready_for_promotion` cuando todos los checks pasen.
 
 ## Estado Actual

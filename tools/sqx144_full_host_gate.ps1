@@ -137,9 +137,11 @@ $report = [ordered]@{
         bypassAttempted = $false
     }
     rollback = [ordered]@{
-        fallbackHostProfile = "sqx142"
+        rollbackExceptionHostProfile = "sqx142"
+        legacyFallbackHostProfile = "deprecated_sqx142_not_active_fallback"
         rollbackRequired = $false
-        rollbackAction = "restore_ignored_local_config_backup_or_reselect_previous_sqx142_host"
+        rollbackAction = "manual_exception_restore_ignored_local_config_backup_or_reselect_previous_sqx142_host"
+        activeFallback = $false
     }
     privacy = [ordered]@{
         localPathsReturned = $false

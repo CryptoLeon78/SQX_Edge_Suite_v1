@@ -499,7 +499,7 @@ def patch_commission(root: ET.Element, ctype: str, value: float) -> int:
     for setup in _all_setups(root):
         comm = setup.find("Commissions")
         if comm is None:
-            continue
+            comm = ET.SubElement(setup, "Commissions")
         # Desactivar todos los Methods
         for m in comm.findall("Method"):
             m.set("use", "false")
@@ -518,6 +518,14 @@ def patch_commission(root: ET.Element, ctype: str, value: float) -> int:
             # Actualizar valor del Param key="Commission"
             param = target.find("Params/Param[@key='Commission']")
             if param is not None:
+                param.text = str(value)
+            else:
+                params_node = target.find("Params")
+                if params_node is None:
+                    params_node = ET.SubElement(target, "Params")
+                param = ET.SubElement(params_node, "Param")
+                param.set("key", "Commission")
+                param.set("className", ctype)
                 param.text = str(value)
         target.set("use", "true")
         n += 1

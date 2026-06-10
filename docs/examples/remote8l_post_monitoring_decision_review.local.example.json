@@ -15,7 +15,7 @@
   },
   "environment": {
     "protectedUrl": "https://replace-with-protected-url.example.invalid/sqx",
-    "localPath": "C:/replace/with/private/local/path"
+    "localPath": "<private local live path>"
   },
   "privateDecision": {
     "rationale": "Private operator rationale stays local and ignored. Do not commit real notes."

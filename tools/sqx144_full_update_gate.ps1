@@ -223,8 +223,10 @@ $report = [ordered]@{
     }
     rollback = [ordered]@{
         currentCandidateRemains = "sqx144_full_migrated_host"
-        fallbackHostProfile = "sqx142"
+        rollbackExceptionHostProfile = "sqx142"
+        legacyFallbackHostProfile = "deprecated_sqx142_not_active_fallback"
         rollbackRequired = $false
+        activeFallback = $false
         nextAction = "operator_activate_or_migrate_updated_host_then_rerun_update_gate"
     }
     privacy = [ordered]@{

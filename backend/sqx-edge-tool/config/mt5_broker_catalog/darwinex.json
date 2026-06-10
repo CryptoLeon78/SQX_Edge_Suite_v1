@@ -1,0 +1,41 @@
+{
+  "version": "sqx144-mt5-auto3-broker-catalog-resolver-v1",
+  "brokerKey": "darwinex",
+  "status": "active_current",
+  "host": "sqx144_full",
+  "spreadPolicy": "p90",
+  "sqxBroker": {
+    "expectedBrokerId": 4,
+    "expectedSourceId": 4,
+    "nameMatchers": [
+      "Darwinex",
+      "[[Darwinex]]"
+    ],
+    "postfix": "_darwinex",
+    "timezonePolicy": "preserve_sqx_catalog_timezone",
+    "allowBrokerCreate": false
+  },
+  "symbolMapping": {
+    "assetCase": "upper",
+    "mt5SymbolTemplate": "{asset}_Darwinex",
+    "sqxInstrumentTemplate": "{asset}_darwinex",
+    "sqxDataSymbolTemplate": "{asset}_darwinex",
+    "selectedSymbolAliases": [
+      "{asset}_Darwinex",
+      "{asset}_darwinex"
+    ]
+  },
+  "importRoutes": {
+    "preferred": "native_datamanager_mt5_import",
+    "preferredNativeEndpoint": "dataSourceMt5Api/importData",
+    "fallback": "bridge_csv_file_mass_import",
+    "directDbHistoryInsertAllowed": false
+  },
+  "guards": {
+    "readOnlyCatalogResolver": true,
+    "allowInstrumentCreatePlan": true,
+    "allowHistoryImportPlan": true,
+    "allowImportExecution": false,
+    "requiresExactApprovalForMutation": true
+  }
+}

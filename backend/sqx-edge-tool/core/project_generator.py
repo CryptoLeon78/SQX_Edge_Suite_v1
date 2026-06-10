@@ -11,7 +11,7 @@ import os
 import shutil
 import copy
 from datetime import datetime, timezone
-from typing import Optional
+from typing import Any, Optional
 from xml.etree import ElementTree as ET
 
 from .cfx_editor import CfxEditor
@@ -1014,6 +1014,7 @@ def generate_project(
     project_name: Optional[str] = None,
     blocksetting_capa2: Optional[str] = None,
     target_profile: Optional[dict] = None,
+    blocksetting_entry_override: Optional[dict[str, Any]] = None,
 ) -> str:
     """
     Genera un .cfx para el mining especificado.
@@ -1037,7 +1038,7 @@ def generate_project(
         raise ValueError(f"capa must be 1 or 2, got {capa}")
     editor = CfxEditor(template_path)
     task_map = CAPA_TASK_MAPS[capa]
-    blocksetting_entry = resolve_blocksetting_entry(
+    blocksetting_entry = blocksetting_entry_override or resolve_blocksetting_entry(
         mining.bs,
         timeframe=mining.tf,
         capa=capa,
