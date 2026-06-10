@@ -136,7 +136,7 @@
         available: false,
         status: 'API',
         state: 'api_error',
-        message: 'API local no disponible para evidencia MTF.',
+        message: 'API SQX Edge no disponible para evidencia MTF.',
         summary: {},
         failures: [err.message]
       };

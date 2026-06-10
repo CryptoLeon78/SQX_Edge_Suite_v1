@@ -12,9 +12,29 @@ out/
 # Cloudflare local metadata and build output
 .open-next/
 .wrangler/
+.local/
 cloudflare-env.d.ts
 .dev.vars*
 !.dev.vars.example
+cloudflare-shell-evidence.local.json
+cloudflare-route-access-precreate.local.json
+cloudflare-hostname-zone-selection.local.json
+cloudflare-access-policy-boundary.local.json
+cloudflare-real-app-deploy.local.json
+cloudflare-workers-dev-publication.local.json
+tester-access-handoff.local.json
+tester-account-activation.local.json
+tester-url-share-approval.local.json
+tester-first-smoke.local.json
+tester-cohort-expansion.local.json
+tester-feedback-intake.local.json
+tester-feedback-triage.local.json
+tester-action-plan.local.json
+tester-action-execution.local.json
+tester-result-validation.local.json
+tester-iteration-decision.local.json
+tester-next-iteration.local.json
+tester-launch-candidate.local.json
 
 # Local environment
 .env

@@ -1,0 +1,19 @@
+{
+  "phase": "REMOTE-2",
+  "targetUrl": "http://127.0.0.1:5050",
+  "hostnameConfiguredPrivately": false,
+  "customDomainOwnedPrivately": false,
+  "cloudflaredAuthenticatedPrivately": false,
+  "tunnelCreatedPrivately": false,
+  "tunnelRouteConfiguredPrivately": false,
+  "cloudflareAccessApplicationCreatedPrivately": false,
+  "cloudflareAccessPolicyCreatedPrivately": false,
+  "accessBlocksAnonymous": false,
+  "accessAllowsApprovedIdentity": false,
+  "routerPortsOpened": false,
+  "publicRepoContainsHostname": false,
+  "publicRepoContainsCredentials": false,
+  "publicRepoContainsProviderIds": false,
+  "publicRepoContainsAccessPolicyIds": false,
+  "operatorNotes": "Copy to .local/remote_service/cloudflare_tunnel.local.json and set only booleans. Do not paste hostnames, account IDs, tunnel IDs, Access IDs, tokens or emails into tracked files."
+}

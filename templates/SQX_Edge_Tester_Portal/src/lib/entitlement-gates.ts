@@ -1,5 +1,6 @@
 import type { NextRequest } from "next/server";
 import { canAccessTesterPro, type TesterEntitlement } from "./access-contract";
+import { isRuntimeEnvEnabled } from "./runtime-env";
 import { hasPrototypeSession } from "./session-prototype";
 
 export const TESTER_PRO_FEATURES = [
@@ -20,7 +21,7 @@ export type EntitlementGateResult =
 export const DEMO_ENTITLEMENT_FLAG = "T5_DEMO_TESTER_PRO_ENABLED";
 
 export function isDemoTesterProEnabled(): boolean {
-  return process.env[DEMO_ENTITLEMENT_FLAG] === "true";
+  return isRuntimeEnvEnabled(DEMO_ENTITLEMENT_FLAG);
 }
 
 export function buildPrototypeTesterEntitlement(now = new Date()): TesterEntitlement {
@@ -59,4 +60,3 @@ export function evaluateTesterProGate(request: NextRequest, now = new Date()): E
     features: TESTER_PRO_FEATURES
   };
 }
-

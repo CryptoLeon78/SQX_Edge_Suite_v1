@@ -36,7 +36,7 @@ The local environment has:
 
 - Python 3.14.3, 64-bit.
 - `MetaTrader5` 5.0.5735.
-- Dukascopy terminal at `C:/Program Files/Dukascopy MetaTrader 5/terminal64.exe`.
+- Dukascopy terminal at the operator's private local installation path.
 - Open terminal window: `Dukascopy MetaTrader 5 - Netting - EURUSD,H1`.
 
 The A61 diagnostic returned GO:

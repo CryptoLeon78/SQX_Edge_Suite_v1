@@ -1,4 +1,5 @@
 import { TESTER_RENEWAL_CYCLE_DAYS, type TesterEntitlement, type TesterStatus } from "./access-contract";
+import { readRuntimeEnv } from "./runtime-env";
 
 export const DEMO_RENEWAL_STATE_ENV = "T6_DEMO_RENEWAL_STATE";
 
@@ -54,7 +55,7 @@ export function isManualRenewalDecision(value: string): value is ManualRenewalDe
 }
 
 export function readDemoRenewalState(): RenewalState {
-  const configuredState = process.env[DEMO_RENEWAL_STATE_ENV] ?? "pending_renewal";
+  const configuredState = readRuntimeEnv(DEMO_RENEWAL_STATE_ENV, "pending_renewal");
   return isRenewalState(configuredState) ? configuredState : "pending_renewal";
 }
 

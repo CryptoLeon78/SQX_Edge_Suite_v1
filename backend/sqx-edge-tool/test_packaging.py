@@ -14,8 +14,8 @@ PACKAGING_ROOT = PROJECT_ROOT / "packaging"
 class EmbeddedPackagingTestCase(unittest.TestCase):
     def test_embedded_launchers_and_tools_exist(self):
         expected = [
-            PROJECT_ROOT / "START_SQX_EDGE.bat",
-            PROJECT_ROOT / "STOP_SQX_EDGE.bat",
+            PROJECT_ROOT / "START_SQX_EDGE_REMOTE.bat",
+            PROJECT_ROOT / "STOP_SQX_EDGE_REMOTE.bat",
             PROJECT_ROOT / "RELEASE_SQX_EDGE.bat",
             PACKAGING_ROOT / "START_SQX_EDGE.bat",
             PACKAGING_ROOT / "STOP_SQX_EDGE.bat",
@@ -114,19 +114,36 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
                 self.assertIn("bootstrap_embedded_python.ps1", text)
 
     def test_one_click_launcher_opens_embedded_stack(self):
-        text = (PROJECT_ROOT / "START_SQX_EDGE.bat").read_text(encoding="utf-8-sig")
-        self.assertIn("packaging\\START_SQX_EDGE.bat", text)
         text = (PACKAGING_ROOT / "START_SQX_EDGE.bat").read_text(encoding="utf-8-sig")
         self.assertIn("run-web-embedded.bat", text)
         self.assertIn("app\\SQX_Dashboard_v6.html", text)
         self.assertIn("http://127.0.0.1:5050/api/health", text)
 
+    def test_repository_root_launchers_are_remote_only(self):
+        root_names = {path.name for path in PROJECT_ROOT.glob("*SQX_EDGE*.bat")}
+        self.assertIn("START_SQX_EDGE_REMOTE.bat", root_names)
+        self.assertIn("STOP_SQX_EDGE_REMOTE.bat", root_names)
+        self.assertNotIn("START_SQX_EDGE.bat", root_names)
+        self.assertNotIn("STOP_SQX_EDGE.bat", root_names)
+
     def test_portable_package_includes_embedded_runtime(self):
         text = (TOOL_ROOT / "tools" / "package_portable.ps1").read_text(encoding="utf-8-sig")
         self.assertIn('"runtime\\python\\python.exe"', text)
+        self.assertIn("ReleaseProfile", text)
+        self.assertIn('"tester"', text)
+        self.assertIn("SQX_Edge_Tool_Portable_Tester_", text)
+        self.assertIn("signed_tester_file", text)
+        self.assertIn("LicensePath", text)
+        self.assertIn("backend\\sqx-edge-tool\\config\\license.json", text)
         self.assertNotIn('"runtime"', text)
         self.assertIn('"\\\\backend\\\\sqx-edge-tool\\\\runtime\\\\downloads\\\\",', text)
         self.assertIn('"node_modules"', text)
+        self.assertIn('".open-next"', text)
+        self.assertIn('".wrangler"', text)
+        self.assertIn('".local"', text)
+        self.assertIn('"app - copia"', text)
+        self.assertIn('"material de diagnostico"', text)
+        self.assertIn('"Presentaciones Proyecto"', text)
         self.assertIn('"analysis_output"', text)
         self.assertIn("RELEASE_SQX_EDGE", text)
         self.assertIn("license\\.json", text)
@@ -589,12 +606,21 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             ".env",
             ".git",
             "node_modules",
+            ".open-next",
+            ".wrangler",
+            ".local",
+            "app - copia",
+            "material de diagnostico",
+            "Presentaciones Proyecto",
             "backups",
             "Get-FileHash",
             "SQX_distribution_audit.txt",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, text)
+        self.assertIn("Test-AllowedSignedLicenseEntry", text)
+        self.assertIn("backend/sqx-edge-tool/config/license.json", text)
+        self.assertIn("Test-SignedLicensePayload", text)
 
     def test_gitignore_guards_local_license_file(self):
         text = (PROJECT_ROOT / ".gitignore").read_text(encoding="utf-8-sig")

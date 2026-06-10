@@ -1,0 +1,58 @@
+{
+  "schemaVersion": "remote-next-controlled-movement-execution-approval-v1",
+  "approvalId": "remote8i-approval-001",
+  "capturedAt": "2026-05-16T23:00:00+00:00",
+  "operatorApproval": true,
+  "requestedAction": "approve_or_reject_next_controlled_movement_execution",
+  "sourceGate": {
+    "remote8hStatus": "GO_REMOTE8H_NEXT_CONTROLLED_MOVEMENT_PACKAGE_READY",
+    "remote8hPackageId": "remote8h-next-movement-001",
+    "remote8hMovementType": "add_1_2_users",
+    "plannedNewUsers": 1,
+    "candidateCount": 1
+  },
+  "environment": {
+    "protectedUrl": "https://private-live.example.invalid/sqx",
+    "localPath": "<private local live path>"
+  },
+  "privateReview": {
+    "operatorNotes": "Private operator notes stay local and ignored."
+  },
+  "decision": {
+    "selectedDecision": "approve_execution_record",
+    "rationaleCategory": "tiny_cohort_clean",
+    "executionOwner": "operator",
+    "supportWindowHours": 24,
+    "monitoringWindowHours": 24,
+    "maxExecutionDelayHours": 24
+  },
+  "candidateUsers": [
+    {
+      "email": "buyer4@example.invalid",
+      "approvedForExecutionRecord": true
+    }
+  ],
+  "checks": {
+    "remote8hPackageReviewed": true,
+    "packageMatchesPrivateEvidence": true,
+    "operatorDecisionRecorded": true,
+    "decisionRationaleRecorded": true,
+    "executionScopeUnchanged": true,
+    "supportWindowStillReady": true,
+    "rollbackStillReady": true,
+    "pauseRuleStillReady": true,
+    "noAutomationConfirmed": true,
+    "executionRecordRequired": true,
+    "privateEvidenceStoredOutsideGit": true
+  },
+  "executionMetrics": {
+    "newUsersInvited": 0,
+    "grantsCreated": 0,
+    "checkoutLinksCreated": 0,
+    "emailsSent": 0,
+    "publicUrlsShared": 0,
+    "automationJobsStarted": 0,
+    "trafficExpanded": 0,
+    "paidCampaignStarted": 0
+  }
+}

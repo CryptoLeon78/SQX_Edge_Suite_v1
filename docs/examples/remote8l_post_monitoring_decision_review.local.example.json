@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "remote-post-monitoring-decision-review-v1",
+  "decisionId": "remote8l-post-monitoring-decision-001",
+  "capturedAt": "2026-05-17T12:00:00+00:00",
+  "operatorApproval": true,
+  "selectedDecision": "prepare_next_controlled_movement",
+  "sourceGate": {
+    "remote8kStatus": "GO_REMOTE8K_NEXT_CONTROLLED_MOVEMENT_MONITORING_CLEAN",
+    "remote8kMonitoringId": "remote8k-monitoring-001",
+    "remote8kRequestedDecision": "prepare_next_decision_review",
+    "movementType": "add_1_2_users",
+    "monitoredUserCount": 1,
+    "observationHours": 24,
+    "monitoringBlockerCount": 0
+  },
+  "environment": {
+    "protectedUrl": "https://replace-with-protected-url.example.invalid/sqx",
+    "localPath": "<private local live path>"
+  },
+  "privateDecision": {
+    "rationale": "Private operator rationale stays local and ignored. Do not commit real notes."
+  },
+  "reviewedUsers": [
+    {
+      "email": "buyer4@example.invalid",
+      "kind": "paid_subscription",
+      "featureScope": "full",
+      "accessOutcomeReviewed": true,
+      "entitlementOutcomeReviewed": true,
+      "workspaceOutcomeReviewed": true,
+      "artifactOutcomeReviewed": true,
+      "supportOutcomeReviewed": true,
+      "noNewCriticalIssue": true
+    }
+  ],
+  "checks": {
+    "remote8kMonitoringReviewed": true,
+    "operatorDecisionRecorded": true,
+    "decisionRationaleRecorded": true,
+    "sourceStatusReviewed": true,
+    "monitoringWindowReviewed": true,
+    "supportOutcomeReviewed": true,
+    "workspaceIsolationReviewed": true,
+    "securityOutcomeReviewed": true,
+    "entitlementOutcomeReviewed": true,
+    "generationExportOutcomeReviewed": true,
+    "rollbackPlanReady": true,
+    "pauseRuleReady": true,
+    "noAutomationConfirmed": true,
+    "privateEvidenceStoredOutsideGit": true
+  },
+  "zeroExecutionMetrics": {
+    "newUsersInvited": 0,
+    "grantsChanged": 0,
+    "checkoutLinksCreated": 0,
+    "emailsSent": 0,
+    "publicUrlsShared": 0,
+    "protectedUrlsShared": 0,
+    "automationJobsStarted": 0,
+    "trafficExpanded": 0,
+    "paidCampaignStarted": 0,
+    "automatedEmailsSent": 0,
+    "automatedGrantsCreated": 0,
+    "entitlementsChanged": 0
+  }
+}

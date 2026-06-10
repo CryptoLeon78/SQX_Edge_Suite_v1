@@ -1,0 +1,14 @@
+{
+  "phase": "T10ajc",
+  "provider": "Cloudflare",
+  "projectShellName": "sqx-edge-tester-portal-preview",
+  "shellVerified": false,
+  "deploymentCreated": false,
+  "accessApplicationCreated": false,
+  "accessPolicyCreated": false,
+  "customDomainAttached": false,
+  "testerUrlPublished": false,
+  "testerAccountsCreated": false,
+  "testerEmailsIncluded": false,
+  "notes": "Copy this file to cloudflare-shell-evidence.local.json and keep only non-sensitive booleans/labels."
+}

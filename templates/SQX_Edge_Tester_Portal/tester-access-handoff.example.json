@@ -1,0 +1,21 @@
+{
+  "phase": "T10aq",
+  "publicationResultGo": false,
+  "accessStillInterceptsAnonymous": false,
+  "appSessionStillRequiredAfterAccess": false,
+  "testerAccountsPreparedPrivately": false,
+  "operatorPrivateChannelSelected": false,
+  "testerUrlShared": false,
+  "testerAccountsCreated": false,
+  "testerEmailsCommitted": false,
+  "containsUrl": false,
+  "containsHostname": false,
+  "containsTesterEmail": false,
+  "containsPassword": false,
+  "containsToken": false,
+  "containsKey": false,
+  "containsAccountId": false,
+  "containsAccessId": false,
+  "containsDeploymentId": false,
+  "containsVersionId": false
+}

@@ -232,13 +232,25 @@ Phase J11 adapts JoseLivan commit `ff73a66` as native direction/coherence/score 
 
 J11 intentionally does not restore Jose's visible `Top 5`/`Top Picks` block. The value is internal evidence and traceable handoff context only.
 
+Phase J12-J15 adapts JoseLivan commits `7a0b75c`, `333bd60` and `677efd8` as a native Champion vs Challenger evidence pass:
+
+- `docs/J12_J15_CVC_EVIDENCE_PASS.md`
+- `SQX.championChallengerCore.buildOosTimeline`
+- `SQX.championChallengerCore.detectArchetype`
+- `SQX.championChallengerRegime.assessEgtV2` with first-class `short_only` thresholds.
+- `SQX.championChallengerRegime.assessDirectionalCoherence` with `OK_MEAN_REVERT`.
+- `SQX.championChallengerRegime.computeVolatilityCoherence`.
+- `SQX.viewCreator` template `CVC Decision Cert` as the required export contract for CVC evidence.
+
+J12-J15 intentionally keeps the integration native and excludes Jose's legacy HTML/CSS/JS runtime surfaces, visible Strategy Builder handoffs, Top Picks, Matriz Completa and heatmap panels.
+
 ## Deferred Improvements
 
 These should be separate phases, not bundled into A47:
 
 1. Multi-timeframe metric generation: A49 added the dependency-isolated scoring tool, A50 connected it to plan review, A51 added the validation gate, A52 established H1 as a traceable first-party source, A53 added the full-source intake, A54 added guarded plan artifacts, A55 added the OHLC metric builder, A56 added the end-to-end real-data runner, A57 exposed read-only dashboard evidence after GO, A58 added the internal MT5/Dukascopy download gate, A59 recorded the first local MT5 NO-GO smoke, A60 added active-terminal retry mode, A61 added repeatable IPC diagnostics and A62 achieved real A56 GO using recent MT5 bars.
 2. Optional market data acquisition: keep MT5/Dukascopy as an operator-only script, excluded from portable buyer builds unless explicitly needed.
-3. Champion vs Challenger next evidence pass: J11 is done with native direction detection, directional coherence, Score Pro and Strategy Builder evidence display.
+3. Champion vs Challenger next evidence pass: J12-J15 is done with short-only EGT v2, real OOS timeline, OK_MEAN_REVERT, edge archetype, volatility coherence and CVC Decision Cert.
 4. UI integration: add a read-only "Plan Advisor" panel in Pipeline State after the backend tool stabilizes.
 5. Release packaging: decide whether analytical advisor tools are public buyer tools or internal operator tools before adding packaging assertions.
 

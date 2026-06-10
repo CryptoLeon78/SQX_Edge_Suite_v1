@@ -41,6 +41,8 @@ class Element {
     this.tagName = '';
     this.type = '';
     this.scrollTop = 0;
+    this.attributes = {};
+    this.hidden = false;
   }
   append(...nodes) {
     nodes.forEach(node => {
@@ -55,6 +57,12 @@ class Element {
     this.listeners[type] = this.listeners[type] || [];
     this.listeners[type].push(handler);
   }
+  setAttribute(name, value) {
+    this.attributes[name] = String(value);
+  }
+  getAttribute(name) {
+    return this.attributes[name];
+  }
   click() {
     (this.listeners.click || []).forEach(handler => handler({ target: this }));
   }
@@ -68,6 +76,7 @@ class FakeDocument {
     this.elements = new Map();
     this.tabs = [];
     this.panels = [];
+    this.documentElement = { dataset: {} };
   }
   add(element) {
     this.elements.set(element.id, element);
@@ -105,6 +114,15 @@ class FakeDocument {
     return this.querySelectorAll(selector)[0] || null;
   }
   querySelectorAll(selector) {
+    if (selector.includes(',')) {
+      const found = [];
+      selector.split(',').map(part => part.trim()).forEach(part => {
+        this.querySelectorAll(part).forEach(el => {
+          if (!found.includes(el)) found.push(el);
+        });
+      });
+      return found;
+    }
     if (selector === '.tab') return this.tabs;
     if (selector === '.tab-content') return this.panels;
     if (selector === '.subtab') {
@@ -124,6 +142,22 @@ class FakeDocument {
     }
     if (selector === 'button[data-checklist-clear]') {
       return Array.from(this.elements.values()).filter(el => el.tagName === 'button' && el.dataset.checklistClear);
+    }
+    if (selector === '[data-wf-detail-target]') {
+      return Array.from(this.elements.values()).filter(el => el.dataset.wfDetailTarget);
+    }
+    if (selector === '[data-workflow-subtab-target]') {
+      return Array.from(this.elements.values()).filter(el => el.dataset.workflowSubtabTarget);
+    }
+    if (selector === '[data-sqx-readiness-check]') {
+      return Array.from(this.elements.values()).filter(el => el.dataset.sqxReadinessCheck);
+    }
+    if (selector === '[data-sqx-readiness-requires]') {
+      return Array.from(this.elements.values()).filter(el => el.dataset.sqxReadinessRequires);
+    }
+    if (selector.startsWith('#')) {
+      const el = this.getElementById(selector.slice(1));
+      return el ? [el] : [];
     }
     const checkPrefix = selector.match(/^input\[type="checkbox"\]\[data-check\^="([^"]+)"\]$/);
     if (checkPrefix) {
@@ -177,10 +211,13 @@ function createLoadedSandbox(modules = [
   'app/js/modules/formatters.js',
   'app/js/modules/domain.js',
   'app/js/modules/storage.js',
+  'app/js/modules/modal-registry.js',
   'app/js/modules/ui.js',
   'app/js/modules/strategies.js',
   'app/js/modules/home.js',
   'app/js/modules/workflow.js',
+  'app/js/modules/edge-factory.js',
+  'app/js/modules/edge-factory-ui.js',
   'app/js/modules/project-generator-core.js',
   'app/js/modules/project-generator-config.js',
   'app/js/modules/project-generator-dom.js',

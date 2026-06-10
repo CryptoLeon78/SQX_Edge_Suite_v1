@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "remote-tiny-cohort-activation-v1",
+  "packageId": "remote8d-tiny-cohort-001",
+  "capturedAt": "2026-05-16T15:00:00+00:00",
+  "operatorApproval": true,
+  "requestedAction": "prepare_manual_activation_package",
+  "targetCohortSize": 3,
+  "sourceGate": {
+    "remote8cStatus": "GO_REMOTE8C_TINY_COHORT_EXPANSION_READY",
+    "remote8cObservationId": "remote8c-first-user-001"
+  },
+  "candidates": [
+    {
+      "email": "buyer1@example.invalid",
+      "kind": "paid_subscription",
+      "featureScope": "full"
+    },
+    {
+      "email": "tester2@example.invalid",
+      "kind": "tester_free",
+      "featureScope": "full"
+    },
+    {
+      "email": "buyer3@example.invalid",
+      "kind": "paid_subscription",
+      "featureScope": "full"
+    }
+  ],
+  "checks": {
+    "remote8cGoConfirmed": true,
+    "candidateListReviewed": true,
+    "cohortSizeWithinLimit": true,
+    "entitlementBoundariesDefined": true,
+    "supportOwnerAssigned": true,
+    "supportWindowReady": true,
+    "rollbackPlanReady": true,
+    "pauseRuleReady": true,
+    "communicationCopyReviewed": true,
+    "protectedUrlPrivateOnly": true,
+    "workspaceIsolationReminder": true,
+    "securityMonitoringReady": true,
+    "noAutomationConfirmed": true,
+    "privateEvidenceStoredOutsideGit": true
+  },
+  "automationMetrics": {
+    "invitesSent": 0,
+    "grantsCreated": 0,
+    "checkoutLinksCreated": 0,
+    "emailsSent": 0,
+    "publicUrlsShared": 0,
+    "automationJobsStarted": 0
+  },
+  "notes": [
+    "Copy this example to .local/remote_service/remote8d_tiny_cohort_activation.local.json and replace values with private operator evidence."
+  ]
+}

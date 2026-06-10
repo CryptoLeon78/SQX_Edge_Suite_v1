@@ -19,7 +19,7 @@ assert.match(SQX.renderers.ratingPairBadge({
   metrics: { pf: 1.7 },
 }), /discrepancy-major/);
 assert.equal(SQX.renderers.ratingPairBadge(null), '');
-assert.match(SQX.renderers.compositeBar({ composite: 0.76 }), /Composite 76%/);
+assert.match(SQX.renderers.compositeBar({ composite: 0.76 }), /Hipótesis previa 76%/);
 assert.equal(SQX.renderers.compositeBar({ composite: null }), '');
 assert.match(SQX.renderers.historySection('EURUSD', {}, '<svg></svg>', []), /^$/);
 assert.match(SQX.renderers.historySection('EURUSD', { GBPUSD: {} }, '', []), /Sin datos para EURUSD/);

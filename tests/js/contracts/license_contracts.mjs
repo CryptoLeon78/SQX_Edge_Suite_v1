@@ -10,7 +10,9 @@ for (const exportName of [
   'currentStatus',
   'fetchJson',
   'hasFeature',
+  'importLicenseFile',
   'importLicenseText',
+  'readLicenseFile',
   'renderPanel',
   'refreshBackendStatus',
   'storageKey',
@@ -24,7 +26,9 @@ assert.equal(productManifest.build.channel, 'internal');
 assert.equal(productManifest.licensing.signatureMode, 'rsa_sha256_pkcs1_v1_5');
 assert.equal(productManifest.licensing.signatureAlgorithm, 'RS256');
 assert.ok(productManifest.licensing.publicKey.n.length > 100);
-assert.equal(productManifest.upgrade.headline, 'SQX Edge Pro');
+assert.equal(productManifest.licensing.keyManagement.publicKeyReplacementRequiredBeforePublicSale, true);
+assert.ok(productManifest.licensing.publicKey.kid.startsWith('sqx-tester-'));
+assert.equal(productManifest.upgrade.headline, 'SQX Edge Suite Pro');
 assert.equal(productManifest.upgrade.checkout.primaryProvider, 'Lemon Squeezy');
 assert.equal(productManifest.upgrade.checkout.fallbackProvider, 'Gumroad');
 assert.equal(productManifest.upgrade.checkout.fulfillmentMode, 'manual_signed_license');
@@ -253,6 +257,7 @@ assert.ok(productManifest.features['strategy_cleaner.apply']);
 assert.deepEqual(productManifest.accessLevels.internal.features, ['*']);
 assert.ok(html.includes('id="license-panel"'));
 assert.ok(html.includes('id="license-checkout-link"'));
+assert.ok(html.includes('id="license-file-input"'));
 assert.ok(html.includes('id="license-upgrade-list"'));
 assert.ok(html.includes('id="license-plan-strip"'));
 assert.ok(html.includes('js/modules/license.js'));

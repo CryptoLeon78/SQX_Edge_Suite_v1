@@ -46,6 +46,20 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools\package_portable.ps1 -
 
 El ZIP se genera en `dist/`. No incluye `config.json`, `output/` ni descargas temporales.
 
+Para testers externos, usa el perfil antidistribucion TL11:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\package_portable.ps1 -RequireEmbeddedPython -ReleaseProfile tester
+```
+
+Ese ZIP queda en modo Free/locked si no incluye una licencia firmada. Cuando emitas una licencia por tester fuera de Git, puedes incluirla asi:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\package_portable.ps1 -RequireEmbeddedPython -ReleaseProfile tester -LicensePath C:\PRIVATE\license_signed_tester.json
+```
+
+La licencia firmada se instala como `backend\sqx-edge-tool\config\license.json`; las claves privadas y herramientas de firmado siguen excluidas del ZIP.
+
 ## Uso
 
 ```bash

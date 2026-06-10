@@ -51,48 +51,53 @@
     rawData: true
   };
   var PG_BLOCKSETTINGS = {
-    trend_following: 'BS_Tendencia',
-    mean_reversion: 'BS_Reversion',
-    breakout: 'BS_Breakout',
-    pullback: 'BS_Pullback',
-    volatility_filter: 'BS_Volatility',
-    regime_filter: 'BS_Regime'
+    trend_following: 'BS_Tendencia_v6',
+    mean_reversion: 'BS_Regimen_v6',
+    breakout: 'BS_Volatilidad_v6',
+    pullback: 'BS_Momentum_v6',
+    volatility_filter: 'BS_Volatilidad_v6',
+    regime_filter: 'BS_Regimen_v6'
   };
   var VIEWS_HANDOFF_PACKS = {
     robustness: {
-      label: 'Robustness',
-      preset: 'robustness',
-      yearCount: 9,
+      label: 'View CORR1',
+      preset: 'sqx-edge-correlation-review',
+      yearCount: 1,
       sampleStart: 21,
-      groupMode: 'by_year'
+      includeTotal: false,
+      groupMode: 'plain'
     },
     'risk-capital-review': {
-      label: 'Risk Review',
-      preset: 'risk',
-      yearCount: 5,
+      label: 'View CORR1',
+      preset: 'sqx-edge-correlation-review',
+      yearCount: 1,
       sampleStart: 21,
-      groupMode: 'by_metric'
+      includeTotal: false,
+      groupMode: 'plain'
     },
     'asset-family-review': {
-      label: 'Asset Family Review',
-      preset: 'robustness',
-      yearCount: 9,
+      label: 'View CORR1',
+      preset: 'sqx-edge-correlation-review',
+      yearCount: 1,
       sampleStart: 21,
-      groupMode: 'by_year'
+      includeTotal: false,
+      groupMode: 'plain'
     },
     'pro-setup-assist': {
-      label: 'Pro Setup Review',
-      preset: 'risk',
-      yearCount: 7,
+      label: 'View CORR1',
+      preset: 'sqx-edge-correlation-review',
+      yearCount: 1,
       sampleStart: 21,
-      groupMode: 'by_year'
+      includeTotal: false,
+      groupMode: 'plain'
     },
     'free-core-validation': {
-      label: 'Core Validation',
-      preset: 'egt-core',
-      yearCount: 9,
+      label: 'View CORR1',
+      preset: 'sqx-edge-correlation-review',
+      yearCount: 1,
       sampleStart: 21,
-      groupMode: 'by_year'
+      includeTotal: false,
+      groupMode: 'plain'
     }
   };
 
@@ -149,7 +154,7 @@
     { id: 'review', label: 'Manual review confirmed', blocked: 'Confirm manual review.' },
     { id: 'package', label: 'Package exportable', blocked: 'Resolve package gate.' },
     { id: 'project_generator', label: 'Project Generator handoff available', blocked: 'Package must be exportable.' },
-    { id: 'sqx_views', label: 'SQX Views validation available', blocked: 'Package must be exportable.' },
+    { id: 'sqx_views', label: 'View CORR1 handoff available', blocked: 'Package must be exportable.' },
     { id: 'operator', label: 'Operator runs StrategyQuant manually', blocked: 'Use the prepared handoffs manually.' }
   ];
 
@@ -277,7 +282,7 @@
       };
     }
     if (mode === 'project_generator_profile') {
-      return { type: mode, profile_id: normalizeText(input.project_profile_id || input.projectProfileId, 'starter-forex-h1-balanced') };
+      return { type: mode, profile_id: normalizeText(input.project_profile_id || input.projectProfileId, 'custom-forex-h1-balanced') };
     }
     if (mode === 'views_workflow') {
       return { type: mode, validation_pack_id: normalizeText(input.validation_pack_id || input.validationPackId, 'asset-family-review') };
@@ -330,7 +335,7 @@
         evidence_review: summary.evidence_review || null
       },
       mtf_summary: data.mtf_summary || data.mtfSummary || { status: 'not_attached' },
-      project_profile_id: normalizeText(data.project_profile_id || data.projectProfileId, 'starter-forex-h1-balanced'),
+      project_profile_id: normalizeText(data.project_profile_id || data.projectProfileId, 'custom-forex-h1-balanced'),
       validation_pack_id: normalizeText(data.validation_pack_id || data.validationPackId, defaultValidationPack(archetype)),
       risk_profile: normalizeText(data.risk_profile || data.riskProfile, 'review_required'),
       idea_archetype: archetype,
@@ -491,7 +496,7 @@
       timeframe: normalizeTimeframe(assetProfile.timeframe),
       idea_archetype: normalizeText(idea.id, 'trend_following'),
       validation_pack_id: normalizeText(validation.validation_pack_id, defaultValidationPack(idea.id)),
-      project_profile_id: normalizeText(project.profile_id, 'starter-forex-h1-balanced'),
+      project_profile_id: normalizeText(project.profile_id, 'custom-forex-h1-balanced'),
       operator_reviewed: false,
       traceability: (payload.traceability || []).concat(['SB4 imported package re-review'])
     };
@@ -506,7 +511,7 @@
       timeframe: normalizeTimeframe(candidate.timeframe || 'H1'),
       idea_archetype: 'trend_following',
       validation_pack_id: 'robustness',
-      project_profile_id: 'starter-forex-h1-balanced',
+      project_profile_id: 'custom-forex-h1-balanced',
       operator_reviewed: false,
       traceability: ['SB4 imported CVC handoff re-review']
     };
@@ -799,6 +804,7 @@
         viewName: ['SB', asset, timeframe, pack.label].join(' '),
         yearCount: pack.yearCount,
         sampleStart: pack.sampleStart,
+        includeTotal: pack.includeTotal,
         groupMode: pack.groupMode,
         validation_pack_id: validationPackId,
         asset: asset,
@@ -903,7 +909,7 @@
         manual_next_steps: [
           'Review Project Generator fields before pressing Generar custom.',
           'Review preset name before pressing Guardar preset.',
-          'Review SQX Views columns before pressing Descargar .vw or Guardar preset.',
+          'Review View CORR1 columns before pressing Descargar .vw.',
           'Choose a .sqx folder before pressing Escanear and Procesar seleccion in Strategy Cleaner.',
           'Run StrategyQuant validation manually before making any trading claim.'
         ],
@@ -998,11 +1004,11 @@
       },
       {
         id: 'sqx_views_review',
-        label: 'Open SQX Views validation review',
+        label: 'Open View CORR1 review',
         status: handoffMap.sqx_views ? destinationReady : 'blocked',
         owner: 'operator',
-        action: 'Press Enviar a SQX Views, review columns and download or save the template manually.',
-        note: handoffMap.sqx_views ? destinationNote : 'SQX Views handoff missing.'
+        action: 'Press Enviar a View CORR1, review columns and download the template manually.',
+        note: handoffMap.sqx_views ? destinationNote : 'View CORR1 handoff missing.'
       },
       {
         id: 'strategy_cleaner_review',
@@ -1288,7 +1294,7 @@
         support_questions: [
           'Has the operator confirmed the manual review gate?',
           'Which destination step is blocked or pending?',
-          'Were Project Generator, SQX Views and Strategy Cleaner actions executed manually?',
+          'Were Project Generator, View CORR1 and Strategy Cleaner actions executed manually?',
           'Has StrategyQuant validation been run before any trading or performance claim?'
         ],
         attachment_manifest: [
@@ -1373,7 +1379,7 @@
         label: 'Identify blocked or pending destination step',
         status: blockedDestination ? 'pending' : 'done',
         owner: 'operator',
-        action: 'Use support questions and section manifest to locate the pending Project Generator, SQX Views, Cleaner or StrategyQuant step.'
+        action: 'Use support questions and section manifest to locate the pending Project Generator, View CORR1, Cleaner or StrategyQuant step.'
       },
       {
         id: 'safe_attachments_checked',
@@ -1544,7 +1550,7 @@
       evidenceEntry('strategy_builder_package', 'Strategy Builder package', payload, true),
       evidenceEntry('project_generator_prefill', 'Project Generator prefill', handoffs.project_generator_prefill, true),
       evidenceEntry('project_generator_preset_draft', 'Project Generator preset draft', handoffs.project_generator_preset_draft, true),
-      evidenceEntry('sqx_views', 'SQX Views validation handoff', handoffs.sqx_views, true),
+      evidenceEntry('sqx_views', 'View CORR1 handoff', handoffs.sqx_views, true),
       evidenceEntry('strategy_cleaner', 'Strategy Cleaner draft', handoffs.strategy_cleaner, true),
       evidenceEntry('buyer_handoff_pack', 'Buyer handoff pack', pack, true),
       evidenceEntry('buyer_pack_import_review', 'Buyer pack import review', review, false),

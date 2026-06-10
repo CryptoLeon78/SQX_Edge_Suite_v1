@@ -85,7 +85,7 @@ def closeout_checklist() -> list[str]:
     return [
         "Confirm the M64 feedback cohort evidence is GO.",
         "Review checkout copy without financial-result claims.",
-        "Confirm portable download, unzip and START_SQX_EDGE.bat flow.",
+        "Confirm remote operator START_SQX_EDGE_REMOTE.bat / STOP_SQX_EDGE_REMOTE.bat flow and keep portable launchers only as packaging fallback.",
         "Confirm signed license delivery and import steps.",
         "Confirm support path and basic-user FAQ are visible.",
         "Confirm Template Pack 2 delivery/support macros are ready.",

@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "remote-browser-acceptance-v1",
+  "phase": "REMOTE-ACCEPT1",
+  "capturedAt": "2026-05-17T10:00:00+02:00",
+  "operatorApproval": true,
+  "testerKind": "tester_free",
+  "browser": {
+    "name": "Chrome",
+    "mode": "incognito_or_fresh_session",
+    "closedAndReopened": true
+  },
+  "checks": {
+    "cloudflareAccessPassed": true,
+    "welcomeTitleMatches": true,
+    "commercialNameIsSqxEdgeSuite": true,
+    "identityCopyIsUserFriendly": true,
+    "noInternalAppSessionCopy": true,
+    "dashboardButtonClickedOnce": true,
+    "welcomeDidNotBounceBack": true,
+    "dashboardUsableAfterEntry": true,
+    "workspaceVisibleWithoutLocalPaths": true,
+    "noRawEmailTokenCookieUrlOrCloudflareIdCaptured": true,
+    "browserCloseDoesNotKeepAppSessionExpectation": true,
+    "privateEvidenceStoredOutsideGit": true
+  },
+  "metrics": {
+    "dashboardButtonClicksRequired": 1,
+    "welcomeBounceBacks": 0,
+    "visibleErrorMessages": 0,
+    "sessionPersistenceAfterBrowserClose": 0,
+    "privateDataLeaksObserved": 0
+  },
+  "notes": [
+    "Copy this file to .local/remote_service/remote_accept1_browser_acceptance.local.json and replace values with private, redacted operator evidence."
+  ]
+}

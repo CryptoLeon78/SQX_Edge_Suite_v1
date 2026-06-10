@@ -35,6 +35,8 @@ backend/sqx-edge-tool/config/license.json
 .env.*
 !.env.example
 !.env.staging.example
+.local/
+templates/SQX_Edge_Tester_Portal/.local/
 license_keys/
 licenses_private/
 private_keys/
@@ -114,6 +116,7 @@ private-commercial/
 
 # ── Backups and temporary refactor snapshots ────────
 backups/
+app - copia/
 *_backup_*/
 *_backup_hardcode_refactor_*/
 *.bak
@@ -142,6 +145,10 @@ analysis/analysis_output/real_mtf_pipeline_run/
 # ── Debug / browser / logs ──────────────────────────
 .playwright-cli/
 .playwright-mcp/
+artifacts/
+tmp/
+material de diagnostico/
+material de diagnóstico/
 console_errors.txt
 console-*.log
 page-*.yml

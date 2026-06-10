@@ -186,6 +186,8 @@ def _build_status(product: dict[str, Any], today: date) -> dict[str, Any]:
 def _license_status(product: dict[str, Any], payload: dict[str, Any], today: date) -> dict[str, Any]:
     plan = str(payload.get("plan") or "free")
     level = "pro" if plan.startswith("pro") else "free"
+    raw_distribution = payload.get("distribution") or {}
+    distribution = dict(raw_distribution) if isinstance(raw_distribution, dict) else {}
     expires_at = _parse_date(payload.get("expires_at"))
     grace_days = int(payload.get("grace_days") or product.get("licensing", {}).get("graceDays") or 0)
     signature_result = verify_license_signature(product, payload)
@@ -222,6 +224,13 @@ def _license_status(product: dict[str, Any], payload: dict[str, Any], today: dat
         "days_remaining": remaining,
         "license_id": payload.get("license_id"),
         "customer": payload.get("customer_name"),
+        "customer_email": payload.get("customer_email"),
+        "machine_limit": payload.get("machine_limit"),
+        "distribution": {
+            "channel": distribution.get("channel"),
+            "tester_marker": distribution.get("tester_marker"),
+            "redistribution_allowed": bool(distribution.get("redistribution_allowed")),
+        } if distribution else None,
         "public_key_id": payload.get("public_key_id"),
         "signature_valid": bool(signature_result["signature_valid"]),
         "signature_error": signature_result.get("error") or None,

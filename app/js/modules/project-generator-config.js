@@ -8,112 +8,6 @@
   var CUSTOM_PRESETS_STORAGE_KEY = storageKeys.projectGeneratorCustomPresets || 'sqx_pg_custom_presets_v1';
   var CUSTOM_PRESET_PACKAGE_TYPE = 'sqx-edge.project-generator-custom-presets';
   var CUSTOM_PRESET_PACKAGE_VERSION = 1;
-  var CUSTOM_STARTER_PROFILES = [
-    {
-      id: 'forex-h1-balanced',
-      name: 'Forex H1 Balanced',
-      tag: 'Forex',
-      description: 'Punto de partida equilibrado para pares major en H1.',
-      guidance: 'Usalo como primer .cfx de validacion para compradores que quieren algo estable y facil de auditar.',
-      config: { name: 'Custom_EURUSD_H1_Balanced', asset: 'EURUSD', tf: 'H1', bs: 'BS_Forex_H1_Balanced', dir: 'both', capa: 1, template: '' }
-    },
-    {
-      id: 'forex-m15-scalp',
-      name: 'Forex M15 Scalp',
-      tag: 'Scalp',
-      description: 'Perfil rapido para explorar intradia con control por Capa 1.',
-      guidance: 'Buen candidato para demos cortas, siempre con filtro de robustez posterior.',
-      config: { name: 'Custom_GBPUSD_M15_Scalp', asset: 'GBPUSD', tf: 'M15', bs: 'BS_Forex_M15_Scalp', dir: 'both', capa: 1, template: '' }
-    },
-    {
-      id: 'index-h1-trend',
-      name: 'Index H1 Trend',
-      tag: 'Index',
-      description: 'Base direccional para indices con sesgo long y timeframe H1.',
-      guidance: 'Ideal para mostrar una linea de investigacion direccional sin saturar al comprador.',
-      config: { name: 'Custom_US500_H1_Trend', asset: 'US500', tf: 'H1', bs: 'BS_Index_H1_Trend', dir: 'long', capa: 1, template: '' }
-    },
-    {
-      id: 'gold-h1-risk',
-      name: 'Gold H1 Risk',
-      tag: 'Gold',
-      description: 'Arranque prudente para oro con Capa 2 y direccion dual.',
-      guidance: 'Conviene presentarlo como perfil de riesgo controlado, no como promesa de resultado.',
-      config: { name: 'Custom_XAUUSD_H1_Risk', asset: 'XAUUSD', tf: 'H1', bs: 'BS_Gold_H1_Risk', dir: 'both', capa: 2, template: '' }
-    },
-    {
-      id: 'forex-h4-swing',
-      name: 'Forex H4 Swing',
-      tag: 'Swing',
-      description: 'Perfil calmado para swing en EURJPY con menos ruido intradia.',
-      guidance: 'Util para compradores que prefieren menos operaciones y una lectura mas tranquila.',
-      config: { name: 'Custom_EURJPY_H4_Swing', asset: 'EURJPY', tf: 'H4', bs: 'BS_Forex_H4_Swing', dir: 'both', capa: 2, template: '' }
-    },
-    {
-      id: 'index-m15-breakout',
-      name: 'Index M15 Breakout',
-      tag: 'Breakout',
-      description: 'Exploracion de rupturas para US100 en M15 con sesgo long.',
-      guidance: 'Perfil de validacion agresiva: debe pasar por comparativas fuera de muestra.',
-      config: { name: 'Custom_US100_M15_Breakout', asset: 'US100', tf: 'M15', bs: 'BS_Index_M15_Breakout', dir: 'long', capa: 1, template: '' }
-    },
-    {
-      id: 'gold-m30-volatility',
-      name: 'Gold M30 Volatility',
-      tag: 'Volatility',
-      description: 'Perfil de oro para sesiones activas y validacion de volatilidad.',
-      guidance: 'Buen complemento al perfil Gold H1 para explicar sensibilidad por timeframe.',
-      config: { name: 'Custom_XAUUSD_M30_Volatility', asset: 'XAUUSD', tf: 'M30', bs: 'BS_Gold_M30_Volatility', dir: 'both', capa: 2, template: '' }
-    },
-    {
-      id: 'index-h1-meanrevert',
-      name: 'Index H1 Mean Revert',
-      tag: 'MeanRev',
-      description: 'Perfil alternativo para DE40 H1 orientado a reversion.',
-      guidance: 'Sirve para contrastar tendencia vs reversion dentro de un mismo paquete comprador.',
-      config: { name: 'Custom_DE40_H1_MeanRevert', asset: 'DE40', tf: 'H1', bs: 'BS_Index_H1_MeanRevert', dir: 'both', capa: 2, template: '' }
-    }
-  ];
-  var CUSTOM_PROFILE_FAMILY_DEFINITIONS = [
-    {
-      id: 'buyer-first-setup',
-      name: 'Buyer First Setup',
-      tag: 'Buyer',
-      description: 'Pack minimo para entregar una primera propuesta Pro con Forex, indice y oro.',
-      profileIds: ['forex-h1-balanced', 'index-h1-trend', 'gold-h1-risk']
-    },
-    {
-      id: 'intraday-validation',
-      name: 'Intraday Validation',
-      tag: 'Validation',
-      description: 'Perfiles intradia para comparar scalp, breakout y volatilidad sin tocar el plan mining.',
-      profileIds: ['forex-m15-scalp', 'index-m15-breakout', 'gold-m30-volatility']
-    },
-    {
-      id: 'swing-risk-review',
-      name: 'Swing Risk Review',
-      tag: 'Risk',
-      description: 'Familia tranquila para revisar H1/H4, capa 2 y sensibilidad direccional.',
-      profileIds: ['forex-h4-swing', 'gold-h1-risk', 'index-h1-meanrevert']
-    },
-    {
-      id: 'full-buyer-sample',
-      name: 'Full Buyer Sample',
-      tag: 'Pro',
-      description: 'Muestra completa para compradores Pro: ocho perfiles base con narrativa de validacion.',
-      profileIds: [
-        'forex-h1-balanced',
-        'forex-m15-scalp',
-        'forex-h4-swing',
-        'index-h1-trend',
-        'index-m15-breakout',
-        'index-h1-meanrevert',
-        'gold-h1-risk',
-        'gold-m30-volatility'
-      ]
-    }
-  ];
-
 function safeJsonParse(raw, fallback) {
     try {
       return JSON.parse(raw);
@@ -156,149 +50,6 @@ function normalizeCustomPreset(item) {
       savedAt: String(item.savedAt || new Date().toISOString()),
       config: config
     };
-  }
-
-function getCustomStarterProfiles() {
-    return CUSTOM_STARTER_PROFILES.map(function(profile) {
-      return {
-        id: profile.id,
-        name: profile.name,
-        tag: profile.tag,
-        description: profile.description,
-        guidance: profile.guidance,
-        config: normalizeCustomProjectConfig(profile.config)
-      };
-    });
-  }
-
-function findCustomStarterProfile(id) {
-    var profileId = String(id || '').trim();
-    return getCustomStarterProfiles().find(function(profile) { return profile.id === profileId; }) || null;
-  }
-
-function customStarterProfileToPreset(profile) {
-    var starter = typeof profile === 'string' ? findCustomStarterProfile(profile) : profile;
-    if (!starter) return null;
-    return normalizeCustomPreset({
-      id: 'starter-' + starter.id,
-      name: starter.name,
-      savedAt: new Date().toISOString(),
-      config: starter.config
-    });
-  }
-
-function buildCustomStarterProfilePack() {
-    return buildCustomProjectPresetPackage(getCustomStarterProfiles().map(customStarterProfileToPreset));
-  }
-
-function getCustomProfileFamilies() {
-    return CUSTOM_PROFILE_FAMILY_DEFINITIONS.map(function(family) {
-      var profiles = (family.profileIds || []).map(findCustomStarterProfile).filter(Boolean);
-      return {
-        id: family.id,
-        name: family.name,
-        tag: family.tag,
-        description: family.description,
-        profileIds: profiles.map(function(profile) { return profile.id; }),
-        profiles: profiles
-      };
-    });
-  }
-
-function findCustomProfileFamily(id) {
-    var familyId = String(id || '').trim();
-    return getCustomProfileFamilies().find(function(family) { return family.id === familyId; }) || null;
-  }
-
-function buildCustomProfileFamilyPack(id) {
-    var family = findCustomProfileFamily(id);
-    if (!family) return null;
-    return buildCustomProjectPresetPackage(family.profiles.map(function(profile) {
-      var preset = customStarterProfileToPreset(profile);
-      if (preset) preset.id = 'family-' + family.id + '-' + profile.id;
-      return preset;
-    }).filter(Boolean));
-  }
-
-function buildAllCustomProfileFamilyPack() {
-    var seen = {};
-    var presets = [];
-    getCustomProfileFamilies().forEach(function(family) {
-      var pack = buildCustomProfileFamilyPack(family.id);
-      (pack && pack.presets || []).forEach(function(preset) {
-        if (seen[preset.id]) return;
-        seen[preset.id] = true;
-        presets.push(preset);
-      });
-    });
-    return buildCustomProjectPresetPackage(presets);
-  }
-
-function customProfileFamilyCountLabel(count) {
-    var n = count || 0;
-    return n + (n === 1 ? ' familia lista' : ' familias listas');
-  }
-
-function customProfileFamilyCardsHtml(families) {
-    var list = families || getCustomProfileFamilies();
-    if (!list.length) return messageHtml('No hay familias de perfiles disponibles.', 'warning');
-    return list.map(function(family) {
-      var id = escapeHtml(family.id);
-      var profiles = family.profiles || [];
-      return ''
-        + '<article class="pg-custom-family-card">'
-        +   '<div class="pg-custom-starter-title">'
-        +     '<strong>' + escapeHtml(family.name) + '</strong>'
-        +     '<span class="pg-custom-starter-tag">' + escapeHtml(family.tag || 'Pack') + '</span>'
-        +   '</div>'
-        +   '<div class="pg-custom-starter-desc">' + escapeHtml(family.description || '') + '</div>'
-        +   '<div class="pg-custom-family-flow">'
-        +     profiles.map(function(profile) {
-                var cfg = normalizeCustomProjectConfig(profile.config);
-                return '<span>' + escapeHtml(cfg.asset + ' ' + cfg.tf) + '</span>';
-              }).join('')
-        +   '</div>'
-        +   '<div class="pg-custom-starter-actions">'
-        +     '<button class="export-btn pg-ghost-btn" data-pg-family-load="' + id + '">Cargar primero</button>'
-        +     '<button class="export-btn pg-ghost-btn" data-pg-family-save="' + id + '">Guardar pack</button>'
-        +     '<button class="export-btn pg-ghost-btn" data-pg-family-export="' + id + '">Exportar</button>'
-        +   '</div>'
-        + '</article>';
-    }).join('');
-  }
-
-function customStarterProfileCountLabel(count) {
-    var n = count || 0;
-    return n + (n === 1 ? ' perfil listo' : ' perfiles listos');
-  }
-
-function customStarterProfileCardsHtml(profiles) {
-    var list = profiles || getCustomStarterProfiles();
-    if (!list.length) return messageHtml('No hay perfiles starter disponibles.', 'warning');
-    return list.map(function(profile) {
-      var config = normalizeCustomProjectConfig(profile.config);
-      var title = escapeHtml(profile.name);
-      var id = escapeHtml(profile.id);
-      return ''
-        + '<article class="pg-custom-starter-card">'
-        +   '<div class="pg-custom-starter-title">'
-        +     '<strong>' + title + '</strong>'
-        +     '<span class="pg-custom-starter-tag">' + escapeHtml(profile.tag || 'Starter') + '</span>'
-        +   '</div>'
-        +   '<div class="pg-custom-starter-desc">' + escapeHtml(profile.description || '') + '</div>'
-        +   '<div class="pg-custom-starter-guidance">' + escapeHtml(profile.guidance || '') + '</div>'
-        +   '<div class="pg-custom-starter-meta">'
-        +     '<span>' + escapeHtml(config.asset) + '</span>'
-        +     '<span>' + escapeHtml(config.tf) + '</span>'
-        +     '<span>' + escapeHtml(config.dir.toUpperCase()) + '</span>'
-        +     '<span>C' + escapeHtml(config.capa) + '</span>'
-        +   '</div>'
-        +   '<div class="pg-custom-starter-actions">'
-        +     '<button class="export-btn pg-ghost-btn" data-pg-starter-load="' + id + '">Cargar</button>'
-        +     '<button class="export-btn pg-ghost-btn" data-pg-starter-save="' + id + '">Guardar</button>'
-        +   '</div>'
-        + '</article>';
-    }).join('');
   }
 
 function getCustomProjectPresets(storage) {
@@ -550,6 +301,8 @@ function configSaveBody(input) {
       output_dir: data.outputDir || '',
       template_capa1: data.templateCapa1 || '',
       template_capa2: data.templateCapa2 || '',
+      target_profile: data.targetProfile || 'sq_default_exact',
+      target_profile_custom: data.targetProfileCustom || {},
       asset_aliases: data.assetAliases || {}
     };
   }
@@ -626,115 +379,6 @@ function messageHtml(message, tone) {
     return '<div style="color:' + color + ';font-size:12px;">' + escapeHtml(message) + '</div>';
   }
 
-  var BUYER_CFX_CONTEXT_LABELS = {
-    review: 'Revision inicial',
-    setup: 'Setup Assist',
-    'template-pack': 'Template Pack',
-    support: 'Soporte'
-  };
-
-function safeDateStamp(value) {
-    var raw = value || new Date().toISOString();
-    return String(raw).slice(0, 10);
-  }
-
-function sanitizeFilenamePart(value) {
-    return String(value || '')
-      .trim()
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '')
-      .slice(0, 48) || 'buyer';
-  }
-
-function normalizeBuyerCfxHandoffInput(input) {
-    var data = input || {};
-    var config = normalizeCustomProjectConfig(data.config || data.customConfig || {});
-    var files = (data.outputFiles || []).map(function(file) {
-      if (typeof file === 'string') return { name: file };
-      return file || {};
-    }).filter(function(file) {
-      return !!String(file.name || '').trim();
-    }).slice(0, 8);
-    var context = BUYER_CFX_CONTEXT_LABELS[data.context] ? data.context : 'review';
-    return {
-      buyerName: String(data.buyerName || '').trim() || 'Comprador Pro',
-      context: context,
-      contextLabel: BUYER_CFX_CONTEXT_LABELS[context],
-      generatedAt: safeDateStamp(data.generatedAt),
-      outputDir: String(data.outputDir || '').trim() || 'output',
-      config: config,
-      outputFiles: files
-    };
-  }
-
-function buyerCfxHandoffFilename(input) {
-    var data = normalizeBuyerCfxHandoffInput(input);
-    var cfg = data.config;
-    return [
-      'sqx-cfx-handoff',
-      sanitizeFilenamePart(data.buyerName),
-      sanitizeFilenamePart(cfg.asset || 'custom'),
-      sanitizeFilenamePart(cfg.tf || 'tf'),
-      data.generatedAt
-    ].join('-') + '.md';
-  }
-
-function buyerCfxHandoffSummary(input) {
-    var data = normalizeBuyerCfxHandoffInput(input);
-    var cfg = data.config;
-    var project = (cfg.asset || 'Asset pendiente') + ' ' + (cfg.tf || 'TF pendiente') + ' · ' + (cfg.bs || 'BS_Custom');
-    var count = data.outputFiles.length;
-    return data.contextLabel + ': ' + project + ' · ' + count + ' archivo' + (count === 1 ? '' : 's') + ' .cfx referenciado' + (count === 1 ? '' : 's') + '.';
-  }
-
-function outputFileLines(files) {
-    if (!files || !files.length) return ['- Pendiente: genera el .cfx o refresca output antes de entregar.'];
-    return files.map(function(file) {
-      var size = file.size_kb ? ' · ' + file.size_kb + ' KB' : '';
-      return '- ' + String(file.name || 'archivo.cfx') + size;
-    });
-  }
-
-function buyerCfxHandoffMarkdown(input) {
-    var data = normalizeBuyerCfxHandoffInput(input);
-    var cfg = data.config;
-    var lines = [
-      '# SQX Edge - Entrega .cfx comprador',
-      '',
-      '## Contexto',
-      '- Comprador/caso: ' + data.buyerName,
-      '- Tipo de entrega: ' + data.contextLabel,
-      '- Fecha: ' + data.generatedAt,
-      '- Carpeta output: ' + data.outputDir,
-      '',
-      '## Custom Project',
-      '- Nombre: ' + (cfg.name || 'Pendiente de definir'),
-      '- Asset: ' + (cfg.asset || 'Pendiente'),
-      '- Timeframe: ' + (cfg.tf || 'Pendiente'),
-      '- Blocksetting: ' + (cfg.bs || 'BS_Custom'),
-      '- Direccion: ' + (cfg.dir || 'both'),
-      '- Capa: ' + (cfg.capa || 1),
-      '- Template: ' + (cfg.template || 'Template configurado por capa'),
-      '',
-      '## Archivos .cfx',
-    ];
-    lines = lines.concat(outputFileLines(data.outputFiles));
-    return lines.concat([
-      '',
-      '## Checklist de entrega',
-      '- Confirmar que StrategyQuant X abre el .cfx sin errores.',
-      '- Verificar asset, timeframe, direccion, capa y blocksetting antes de lanzar mining.',
-      '- Ejecutar validacion fuera de muestra y robustez antes de cualquier decision operativa.',
-      '- Registrar cambios manuales si el comprador ajusta paths, aliases o templates.',
-      '',
-      '## Limites responsables',
-      '- Esta entrega es una ayuda de productividad y trazabilidad.',
-      '- No promete rentabilidad ni resultados financieros.',
-      '- El operador debe revisar configuracion, costes, spread, swaps y riesgo antes de usarla.'
-    ]).join('\n');
-  }
-
 function sqxNotFoundHtml() {
     return '<div class="alert warning"><div class="alert-icon">!</div><div class="alert-content"><strong>No se encontro ninguna instalacion de SQX.</strong>Edita los campos manualmente con la ruta donde este StrategyQuantX.exe.</div></div>';
   }
@@ -791,35 +435,19 @@ function validateSqxPathHtml(result) {
     customPresetPackageType: CUSTOM_PRESET_PACKAGE_TYPE,
     customPresetPackageVersion: CUSTOM_PRESET_PACKAGE_VERSION,
     customPresetIdFromName: customPresetIdFromName,
-    customProfileFamilyCardsHtml: customProfileFamilyCardsHtml,
-    customProfileFamilyCountLabel: customProfileFamilyCountLabel,
     customProjectPresetImportPreview: customProjectPresetImportPreview,
     customProjectPresetImportPreviewFromText: customProjectPresetImportPreviewFromText,
     customProjectPresetImportPreviewHtml: customProjectPresetImportPreviewHtml,
     customProjectPresetImportPreviewSummary: customProjectPresetImportPreviewSummary,
     customProjectPresetCountLabel: customProjectPresetCountLabel,
     customProjectPresetOptionsHtml: customProjectPresetOptionsHtml,
-    customStarterProfileCardsHtml: customStarterProfileCardsHtml,
-    customStarterProfileCountLabel: customStarterProfileCountLabel,
-    customStarterProfileToPreset: customStarterProfileToPreset,
     deleteCustomProjectPreset: deleteCustomProjectPreset,
-    findCustomStarterProfile: findCustomStarterProfile,
-    findCustomProfileFamily: findCustomProfileFamily,
     findCustomProjectPreset: findCustomProjectPreset,
-    getCustomProfileFamilies: getCustomProfileFamilies,
-    getCustomStarterProfiles: getCustomStarterProfiles,
     getCustomProjectPresets: getCustomProjectPresets,
-    buildAllCustomProfileFamilyPack: buildAllCustomProfileFamilyPack,
-    buildCustomProfileFamilyPack: buildCustomProfileFamilyPack,
-    buildCustomStarterProfilePack: buildCustomStarterProfilePack,
     buildCustomProjectPresetPackage: buildCustomProjectPresetPackage,
-    buyerCfxHandoffFilename: buyerCfxHandoffFilename,
-    buyerCfxHandoffMarkdown: buyerCfxHandoffMarkdown,
-    buyerCfxHandoffSummary: buyerCfxHandoffSummary,
     importCustomProjectPresetPackage: importCustomProjectPresetPackage,
     importCustomProjectPresetPackageFromText: importCustomProjectPresetPackageFromText,
     messageHtml: messageHtml,
-    normalizeBuyerCfxHandoffInput: normalizeBuyerCfxHandoffInput,
     normalizeCustomPreset: normalizeCustomPreset,
     normalizeCustomProjectConfig: normalizeCustomProjectConfig,
     setCustomProjectPresets: setCustomProjectPresets,

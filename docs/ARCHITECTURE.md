@@ -4,13 +4,41 @@ Final architecture map and load order after the modularization phases.
 
 ## Runtime Shape
 
-SQX Edge Suite is a portable local web application:
+SQX Edge Suite is moving to `remote_service` as the primary product shape:
 
-- The dashboard runs from `app/SQX_Dashboard_v6.html`.
+- The final user opens a protected web link, validates email and uses the app in the browser with no local installation.
+- Cloudflare Access plus Cloudflare Tunnel protect the public edge and route traffic to the operator laptop during the pilot.
+- A laptop-hosted gateway talks to the SQX Edge backend and assigns every request to a server-derived workspace per user.
+- SQX paths, `data.db`, templates, BlockSettings and generated artifacts live on the server side.
+- The existing local Flask API, dashboard scripts and portable package remain the technical base and internal fallback, but portable ZIP is no longer the commercial user-facing flow.
+
+Current implementation base:
+
+- The dashboard still runs from `app/SQX_Dashboard_v6.html`.
 - Frontend behavior is loaded through plain browser scripts, without a bundler.
 - Shared frontend namespaces live under `window.SQX`.
-- The Project Generator tab talks to the local Python API at `http://127.0.0.1:5050` for both plan-based generation and custom projects outside the plan.
-- The portable package includes an embedded Python runtime and one-click launchers.
+- The Project Generator tab currently talks to the Python API at `http://127.0.0.1:5050`; REMOTE phases will transition this boundary from `local_only` to `remote_tunnel_only`.
+- The active pilot host remains the Windows laptop because SQX resources, `data.db`, templates, PowerShell runbooks and compatibility diagnostics are already aligned there.
+- Docker/Linux is a future hardening option, not an active deployment requirement for testers or buyers.
+- The local AI agent is mediated by Flask: the browser calls `/api/agent/*`, Flask calls Ollama on `127.0.0.1`, backend policy validates structured actions before any UI command is returned, and remote authenticated testers receive only a safe read/navigate subset. The server monitor remains local-only for the creator/operator.
+- BS-AI1 BlockSettings Generator is mediated by Flask as `bs-ai-blocksettings-generator-v1`: `/api/blocksettings/ai/*` exposes a sanitized catalog, sessions, planning, `save-candidate`, `generate-project` and candidate download for the local operator. Candidates use `BSAI_<Family>_L<layer>_<TF|ALL>_from_<BaseCanonicalId>_rNNN.sqb` under `.local/blocksettings_ai/candidates/`, keep `promotionState=local_candidate`, preserve official BlockSettings immutable in V1 and generate complete Capa1/Capa2 `.cfx` downloads without writing SQX `data.db`, `user/projects` or databanks.
+- Current local SQX host baseline is SQX144 Full with profile `sqx144_full`. SQX142 Codex/QXPRO remains preserved local diagnostic and methodology material, not active fallback. SQX143 is historical after local cleanup and must not be treated as a live dependency unless a future governed gate reinstalls or reopens it.
+- SQX 142 local compatibility is mediated by Flask and operator scripts: `/api/sqx142/compat/status` returns redacted runtime/process/config status for the local monitor and agent, while `tools/sqx142_compatibility.ps1` keeps historical backport/preflight checks local-only; SQX143 references are historical, not an active local install dependency.
+- SQX142 Performance Gate is mediated by Flask and operator scripts: `/api/sqx142/performance/status` returns redacted profile/resource/disk/view/smoke state plus local-only `intelligence` with evidence health, Live Guard and next recommendation, while `tools/sqx142_performance_gate.ps1` owns dry-run-first measurement, reversible JVM profiles and lightweight review views without changing methodology quality.
+- SQX142 Custom Task Config Gate is local/operator-only: `tools/sqx142_task_config_gate.ps1` compares donor/base/template customs, writes full questionnaire state under ignored `.local/sqx142_task_config/`, and keeps docs/test methodology summaries sanitized before any Capa1/Capa2 promotion. Phase 15 opens Capa2 as read-only planning first, Phase 16 snapshots the local base/template/generator/BlockSettings evidence before any apply, Phase 17 generates full Build Capa2 questionnaires before closing `phase17_capa2_build_what_to_build`, `phase17_capa2_build_blocks`, `phase17_capa2_build_data_databanks_resources_options`, `phase17_capa2_build_rankings`, `phase17_capa2_build_crosschecks` and `phase17_capa2_build_static_tabs`, Phase 18 closes `phase18_capa2_retest0` as validation-only, Phase 19 closes `phase19_capa2_retest1` as historical Dukascopy validation, later Capa2 retests returning to Darwinex, and Phase 20 closes `phase20_capa2_tick_real` as Darwinex precision-data validation before `phase21_capa2_mc`; Template Maker C2 `templateFile` ownership stays local/operator-owned, `StrategyType=template` stays method-owned for Build, `MarketSides` stays generator-owned through Project Generator/xml_patcher, and SL/TP/trailing, indicator filters, `ExitAfterBars` removal, `EnterAtMarket` only, neutral `AlwaysTrue`, reference-only `BS_Filtros_v6*`, Capa2 Build seed resources, `testPrecision=2 simulated`, `Input=Results`, `Output=null`, realistic gaps, no chart-data storage, generator layer 2 ownership, generator layer 2 trading-window ownership, Capa2 Build task identity by `Build-Task1.xml`, bounded Rankings cantera filter, no portfolio/custom-analysis selection, inert Capa2 Build CrossChecks, hidden inactive crosscheck methods off, bounded Static Tabs (`FixedAmount`, ATMs off, entry/order improvement off, exit improvement on), Capa2 Retest 0 `Retest-Task1.xml`, OOS1 `2023.01.01-2025.01.01`, FOWARD_C1 reserved from `2025.01.01`, passive Results validation, Capa2 Retest 1 `AutomaticRetest-Task7.xml`, `Input=RETEST 0`, `Output=retest 1`, historical `RETEST_1_C1 2010.01.01-2017.10.02`, `CustomData` canonical with no direct `Data`, Dukascopy source `2` with Darwinex execution broker `4` for Retest 1, Capa2 TICK REAL `AutomaticRetest-Task2.xml`, HBP normalized to `TICK REAL` / `TICK`, `Input=retest 1`, `Output=TICK`, `ROBUSTNESS_C2 2017.10.02-2023.12.31`, Darwinex `AUDCAD_darwinex` source `4` broker `4`, generator layer 2 mapping to `ROBUSTNESS_C2`, `PartsToImprove` off, `CrossChecks use=false`, `FitPortfolio=false`, `CustomAnalysis=false`, `ExitAfterBars=false` and heavy robustness outside Build remain guarded methodology decisions. Build CrossChecks do not imply SQX execution. Static Tabs do not imply SQX execution. Retest 0 does not imply SQX execution or optimization. Retest 0 and Retest 1 do not imply SQX execution or optimization. Retest 0, Retest 1 and TICK REAL do not imply SQX execution or optimization.
+- Phase 21 closes `phase21_capa2_mc` as Capa2 MC `AutomaticRetest-Task1.xml`: `Input=TICK`, `Output=MC`, `ROBUSTNESS_C2 2017.10.02-2023.12.31`, Darwinex `AUDCAD_darwinex` source `4` broker `4`, `testPrecision=1 fastest`, `CrossChecks use=true/evaluateAll=true`, only `MonteCarloManipulation` active (`NumberOfSimulations=200`, `MCUseFullSample=true`, `RandomizeTradesOrder=resampling`, `RandomlySkipTrades=false`), `MonteCarloRetest=false`, no ranking filters, `FitPortfolio=false`, `CustomAnalysis=false`, `ExitAfterBars=false` with SL/PT/trailing active, generator layer 2 mapping for `AutomaticRetest-Task1.xml` to `ROBUSTNESS_C2`, and no SQX execution, smoke, optimization or forced `Results=passed`; pending Capa2 robustness retests inherit fastest precision, while Forward returns to real tick precision.
+- Phase 22 closes `phase22_capa2_mc2` as Capa2 MC2 `AutomaticRetest-Task8.xml`: `Input=MC`, `Output=MC2`, `ROBUSTNESS_C2 2017.10.02-2023.12.31`, `CustomData` canonical with no direct `Data`, Darwinex `AUDCAD_darwinex` source `4` broker `4`, `testPrecision=1 fastest`, `CrossChecks use=true/evaluateAll=true`, only `MonteCarloRetest` active (`NumberOfSimulations=100`, `MCUseFullSample=true`, `RandomizeHistoryData=true`, adaptive `RandomizeSpread` base spread x2-x5, `RandomizeSlippage=false`), no ranking filters, `FitPortfolio=false`, `CustomAnalysis=false`, `ExitAfterBars=false` with SL/PT/trailing active, generator layer 2 mapping for `AutomaticRetest-Task8.xml` to `ROBUSTNESS_C2`, `adaptiveSpreadStress.2` for MC2 and no SQX execution, smoke, optimization or forced `Results=passed`; pending Capa2 robustness retests keep fastest precision, while Forward returns to real tick precision.
+- Phase 23 closes `phase23_capa2_sequential` as Capa2 Sequential `AutomaticRetest-Task3.xml`: `Input=MC2`, `Output=Sequential`, `ROBUSTNESS_C2 2017.10.02-2023.12.31`, dual `Data+CustomData`, Darwinex `AUDCAD_darwinex` source `4` broker `4`, `testPrecision=1 fastest`, `CrossChecks use=true/evaluateAll=true`, only `SequentialOptimization` active (`ApplyToStrategy=false`, `DistributionUp=130`, `DistributionDown=70`, `Steps=12`, acceptance `80/5/25`, empty conditions), no ranking filters, `FitPortfolio=false`, `CustomAnalysis=false`, `ExitAfterBars=false` with SL/PT/trailing active, generator layer 2 mapping for `AutomaticRetest-Task3.xml` to `ROBUSTNESS_C2`, and no SQX execution, smoke, optimization or forced `Results=passed`; pending Capa2 robustness retests keep fastest precision, while Forward returns to real tick precision.
+- Phase 24 closes `phase24_capa2_monkey` as Capa2 Monkey `AutomaticRetest-Task6.xml`: `Input=Sequential`, `Output=Monkey Test`, dedicated databank view `MC MONKEY RETEST`, `ROBUSTNESS_C2 2017.10.02-2023.12.31`, dual `Data+CustomData`, Darwinex `AUDCAD_darwinex` source `4` broker `4`, `testPrecision=1 fastest`, `CrossChecks use=true/evaluateAll=true`, only `MonteCarloRetest` active with `RealMonkeyTest`, `NumberOfSimulations=200`, `MCUseFullSample=true`, `MCBacktestPrecision=-1`, `MaxChange=90` and Monkey acceptance filters, no ranking filters, `FitPortfolio=false`, `CustomAnalysis=false`, `ExitAfterBars=false` with SL/PT/trailing active, generator layer 2 mapping for `AutomaticRetest-Task6.xml` to `ROBUSTNESS_C2`, and no SQX execution, smoke, optimization or forced `Results=passed`; pending Capa2 robustness retests keep fastest precision, while Forward returns to real tick precision.
+- Phase 25 closes `phase25_capa2_synthetic` as Capa2 Synthetic `AutomaticRetest-Task5.xml`: `Input=Monkey Test`, `Output=Synthetic`, dedicated databank view `MC SYNTHETIC RETEST`, `ROBUSTNESS_C2 2017.10.02-2023.12.31`, dual `Data+CustomData`, Darwinex `AUDCAD_darwinex` source `4` broker `4`, `testPrecision=1 fastest`, `CrossChecks use=true/evaluateAll=true`, only `MonteCarloRetest` active with `SyntheticBootstrapV3`, `NumberOfSimulations=100`, `MCUseFullSample=true`, `MCBacktestPrecision=-1`, `BlockSize=20`, `WarmupBars=200`, `PreservePct=85`, no ranking filters, `FitPortfolio=false`, `CustomAnalysis=false`, `ExitAfterBars=false` with SL/PT/trailing active, generator layer 2 mapping for `AutomaticRetest-Task5.xml` to `ROBUSTNESS_C2`, and no SQX execution, smoke, optimization or forced `Results=passed`; pending Capa2 robustness retests keep fastest precision, while Forward returns to real tick precision.
+- Phase 26 closes `phase26_capa2_spp` as Capa2 SPP `AutomaticRetest-Task4.xml`: `Input=Synthetic`, `Output=SPP`, databank view `RETEST ROBUST REVIEW`, `ROBUSTNESS_C2 2017.10.02-2023.12.31`, dual `Data+CustomData`, Darwinex `AUDCAD_darwinex` source `4` broker `4`, `testPrecision=1 fastest`, `CrossChecks use=true/evaluateAll=true`, only `OptProfileSysParamPermutation` active with `MaxTests=3000`, `DistributionUp=20`, `DistributionDown=20`, `Steps=25`, no active methods, acceptance `NetProfit >= 50%` and `DrawdownPct <= 200%` versus main, no ranking filters, `FitPortfolio=false`, `CustomAnalysis=false`, `ExitAfterBars=false` with SL/PT/trailing active, generator layer 2 mapping for `AutomaticRetest-Task4.xml` to `ROBUSTNESS_C2`, and no SQX execution, smoke, optimization or forced `Results=passed`; SPP and WFM keep fastest precision, while Forward returns to real tick precision.
+- Phase 27 closes `phase27_capa2_wfm` as Capa2 WFM `Optimize-Task1.xml`: `Input=SPP`, `Output=WFM`, databank view `RETEST ROBUST REVIEW`, `ROBUSTNESS_C2 2017.10.02-2023.12.31`, dual `Data+CustomData`, Darwinex `AUDCAD_darwinex` source `4` broker `4`, `testPrecision=1 fastest`, explicit `SizeBased=0.0` commissions, `CrossChecks use=true/evaluateAll=true`, only `WalkForwardMatrix` active with `MaxTests=3000`, WFM `10/15`, distributions `20/20`, `maxSteps=8`, dedicated WFM acceptance filters, no ranking filters, `FitPortfolio=false`, `CustomAnalysis=false`, `ExitAfterBars=false` with SL/PT/trailing active, generator layer 2 mapping for `Optimize-Task1.xml` to `ROBUSTNESS_C2`, and no SQX execution, smoke, optimization or forced `Results=passed`; WFM keeps fastest precision, while Forward returns to real tick precision.
+- Phase 28 closes `phase28_capa2_forward` as Capa2 Forward `Retest-Task2.xml`: `Input=WFM`, `Output=Forward`, databank view `RETEST QUICK REVIEW`, `FOWARD_C1 2025.01.01-2026.04.08`, `Data` carrier with inert top-level `CustomData`, Darwinex `AUDCAD_darwinex` source `4` broker `4`, `testPrecision=4 real tick`, explicit `SizeBased=0.0` commissions, internal OOS review ranges `2025.01.01-2026.01.01` and `2026.01.01-2026.04.08`, `CrossChecks use=false/evaluateAll=false`, passive `StrategyType` from WFM, only broad final sanity filters `NumberOfTrades >= 30`, `RExpectancy > 0` and `NetProfit >= 0`, `FitPortfolio=false`, `CustomAnalysis=false`, `ExitAfterBars=false` with SL/PT/trailing active, generator layer 2 mapping for `Retest-Task2.xml` to `FOWARD_C1`, `CAPA2_TICK_PRECISION_TASKS`/`CAPA2_NO_EXIT_AFTER_BARS_TASKS` coverage, and no SQX execution, smoke, optimization, nested robustness, portfolio fitting or forced `Results=passed`; portfolio construction starts after Forward.
+- Phase 29 documents `phase29_capa2_portfolio` as the Forward -> Portfolio governance handoff: Portfolio Lab owns shortlist/diversity/base-risk sizing/export after natural Forward survivors from `Output=Forward`; Template Maker and SQX task config do not fit or backfill the portfolio. Defaults are `0.2%` base risk per strategy and `8-12` from `30-50` natural Forward survivors. This is a docs/governance state only: no SQX execution, smoke, retest rerun, optimization, `FitPortfolio=true` or forced `Results=passed`, and no profitability guarantee or risk zero claim.
+- Phase 30 documents and records `phase30_capa2_portfolio_master_contract` with evidence `phase30_capa2_portfolio_master_contract_20260525_152846.json` as the Portfolio Master operating contract after the Phase29 governed Lab: it defines Portfolio Master package prerequisites, operator review controls and blocked artifact boundaries. Actual SQX artifact generation remains blocked until governed Lab output and operator Forward CSV/equity/account/broker context are present; the architecture makes no SQX execution, forced pass, FitPortfolio drift, live/broker guarantee, profitability guarantee or risk-zero claim.
+- Phase 30 input intake records `phase30_capa2_portfolio_master_inputs_pending` with evidence `phase30_capa2_portfolio_master_inputs_pending_20260525_154242.json`: `processes=[]`, `cfxGuard=true`, no Capa2 `.cfx` mutation and missing governed Lab output, natural Forward CSV, comparable equity/return series, account context and broker context. Portfolio Master stays blocked; no fake winners, fake inputs, lot sizing, SQX runtime, retest/optimization or artifact generation is allowed.
+- Phase 30 operator inputs intake records `phase30_capa2_portfolio_master_operator_inputs_intake` with evidence `phase30_capa2_portfolio_master_operator_inputs_intake_20260525_165548.json`: it validates supplied operator files, blocks `Example Only` samples, forced/synthetic/manual pass markers and private account/broker markers, keeps `processes=[]`, `cfxGuard=true`, no Capa2 `.cfx` mutation and returns to `phase30_capa2_portfolio_master_inputs_pending` until real inputs exist.
+- Capa1 Fastest Precision Correction Before Capa2 SPP is the active precision policy for Capa1 robustness: Capa1 robustness retests MC through WFM use `testPrecision=1 fastest`, while Capa1 Foward and TICK REAL real-tick gates use `testPrecision=4 real tick`. This correction supersedes older Capa1 closeout text and did not start Capa2 SPP.
 
 ## Top-Level Map
 
@@ -28,7 +56,7 @@ flowchart TD
   DATA --> CFG["app-config.js"]
 
   MOD --> CORE["core.js"]
-  MOD --> FEAT["domain/renderers/charts/strategies/home/state backup/MTF evidence/Champion vs Challenger/Strategy Builder/support/fulfillment/customer cockpit/workflow/view creator"]
+  MOD --> FEAT["domain/renderers/charts/strategies/home/state backup/MTF evidence/Champion vs Challenger/Strategy Builder/support/fulfillment/customer cockpit/workflow/Edge Factory/view creator"]
   MOD --> PG["project-generator-* modules"]
   MOD --> IDX["index.js boot"]
 
@@ -39,6 +67,15 @@ flowchart TD
   INIT --> PGM["project-generator-main.js"]
 
   PGM --> API["backend/sqx-edge-tool/api/server.py"]
+  AGUI["Edge Factory Agent Dock"] --> AGAPI["/api/agent/*"]
+  AGAPI --> AGCORE["backend/sqx-edge-tool/core/agent/*"]
+  AGCORE --> OLLAMA["Ollama localhost"]
+  AGAPI --> SQXCOMPAT["/api/sqx142/compat/status"]
+  SQXCOMPAT --> SQXLEDGER["SQX142/143 historical backport ledger"]
+  AGAPI --> SQXPERF["/api/sqx142/performance/status"]
+  SQXPERF --> SQXPERFTOOLS["SQX142 Performance Gate"]
+  API --> SQXTASKCFG["SQX142 Custom Task Config Gate"]
+  SQXTASKCFG --> SQXTASKCFGTOOLS["tools/sqx142_task_config_gate.ps1"]
   API --> COREPY["backend/sqx-edge-tool/core/*"]
   API --> RELAYIN["Relay ingest endpoint"]
   COREPY --> CONFIG["backend/sqx-edge-tool/config/*.json"]
@@ -74,6 +111,317 @@ flowchart TD
   RELAY --> RELAYIN
 ```
 
+## Remote Service Target Map
+
+```mermaid
+flowchart TD
+  U["Paid user browser"] --> CFA["Cloudflare Access"]
+  CFA --> CFT["Cloudflare Tunnel"]
+  CFT --> GW["Laptop gateway"]
+  GW --> AUTH["SQX Edge auth and entitlement"]
+  AUTH --> WS["Workspace per user"]
+  WS --> API["backend/sqx-edge-tool/api/server.py"]
+  API --> SQXCFG["Server SQX config, data.db and templates"]
+  API --> OUT["User exports and generated .cfx"]
+```
+
+Remote-service invariants:
+
+- Browser payloads cannot select arbitrary local paths, user ids or workspace ids.
+- Payment entitlement and validated email are checked before user-facing Pro access.
+- REMOTE-3C payment webhooks use `remote-payment-webhook-v1`, `SQX_REMOTE_PAYMENT_WEBHOOK_SECRET`, exact-body HMAC verification and idempotent `processedWebhookEvents` before changing paid access.
+- REMOTE-4 workspaces use `remote-workspace-v1`; the workspace id is derived from the active session identity hash and browser-supplied workspace ids or local paths are ignored.
+- REMOTE-5 Home UX uses `remote-pro-panel` to render access, session, workspace, server and privacy state without exposing raw local paths or identities.
+- REMOTE-6 security and abuse controls use `remote-security-v1` to apply rate limits, kill switch, session revocation, identity-hash blocking, redacted audit visibility and session watermark without exposing raw emails, policy paths, tokens or local paths.
+- REMOTE-SEC2 credential-sharing control uses `remote-access-control-v1` to bind app sessions to approved hashed device/IP/browser contexts, allow 2 trusted contexts per identity and route extra-context approval through redacted support evidence.
+- REMOTE-7 makes `remote_service` the commercial offer shape: buyers use `web_pro_monthly` or `web_pro_annual`, approved testers use `tester_free`, support is optional as `support_assist`, and portable ZIP/offline license flows are internal fallback rather than buyer onboarding.
+- REMOTE-8 uses `remote-controlled-pilot-v1` to prove the end-to-end remote chain locally before live cohort expansion: payment webhook, app session, workspace, `.cfx` artifact, export, isolation, revocation and restore.
+- REMOTE-8B uses `remote-live-pilot-evidence-v1` to ingest one private live-pilot smoke as redacted evidence only. Raw email, protected URL, Cloudflare identifiers, payment payloads, support logs and workspace paths remain local/ignored, and expansion beyond one user stays blocked until REMOTE-8C.
+- REMOTE-8C uses `remote-first-user-observation-v1` to decide whether the first real user experience is clean enough to prepare a manual 3-5 user cohort package. It never automates invites, grants, checkout, emails or protected URL sharing.
+- REMOTE-8D uses `remote-tiny-cohort-activation-v1` to prepare the manual 3-5 user activation package after REMOTE-8C GO. Candidate identities, protected URLs and communication copy stay local/ignored; the public summary contains only redacted refs and zero-automation proof.
+- REMOTE-8E uses `remote-tiny-cohort-execution-v1` to record the operator's manual 3-5 user execution after REMOTE-8D GO. Activated identities, protected URLs, private message bodies and local paths stay local/ignored; the public summary proves manual counts, zero automation and monitoring readiness.
+- REMOTE-8F uses `remote-tiny-cohort-monitoring-v1` to observe the activated cohort for at least 24 clean hours. Support, tunnel, session, workspace, security, generation, export and entitlement evidence stays local/ignored; the public summary proves zero incidents and keeps expansion blocked until REMOTE-8G.
+- REMOTE-8G uses `remote-tiny-cohort-decision-review-v1` to turn REMOTE-8F monitoring into a human decision. Decision rationale, identities, private URLs and support details stay local/ignored; even a GO only prepares a next package and keeps execution blocked until REMOTE-8H+.
+- REMOTE-8H uses `remote-next-controlled-movement-package-v1` to package one exact next movement after REMOTE-8G. Candidate identities, protected URLs and communication copy stay local/ignored; execution remains blocked until REMOTE-8I.
+- REMOTE-8I uses `remote-next-controlled-movement-execution-approval-v1` to approve, reject or defer the REMOTE-8H package. Decision notes, identities and private URLs stay local/ignored; approval only enables a later manual execution record.
+- REMOTE-8J uses `remote-next-controlled-movement-manual-execution-v1` to record the manual execution approved by REMOTE-8I. Executed-user identities, protected URLs, private messages and grant details stay local/ignored; monitoring is required before any further movement.
+- REMOTE-8K uses `remote-next-controlled-movement-monitoring-v1` to observe the REMOTE-8J execution for a clean 24-hour window. Monitored identities, protected URLs, support notes and local paths stay local/ignored; even a clean window only enables REMOTE-8L decision review.
+- REMOTE-8L uses `remote-post-monitoring-decision-review-v1` to convert REMOTE-8K monitoring into one human decision. Decision rationale, reviewed identities, protected URLs and local paths stay local/ignored; even a GO only routes to the next gated phase.
+- Every mutable action writes an audit event with user, workspace, action, artifact and timestamp.
+- The laptop backend is never published directly; public traffic must enter through Cloudflare Access/Tunnel.
+
+REMOTE-1 laptop server baseline:
+
+- `tools/remote_service_preflight.ps1` validates local server readiness, SQX paths, `data.db`, templates and output without opening a public surface.
+- `tools/remote_service_start_server.ps1` starts `backend/sqx-edge-tool/api/server.py` on `127.0.0.1:5050` only.
+- `tools/remote_service_watchdog.ps1` supervises `/api/health` and logs to ignored `.local/remote_service/`.
+- `tools/remote_service_install_startup_task.ps1` registers the watchdog in Windows Task Scheduler when the operator explicitly runs it.
+- REMOTE-2 is the first phase allowed to add Cloudflare Tunnel/domain exposure; REMOTE-1 remains local-only.
+
+REMOTE-2 Cloudflare Tunnel and Access:
+
+- `tools/remote_tunnel_preflight.ps1` checks Cloudflare Tunnel readiness, private evidence, REMOTE-1 readiness and that the target remains `http://127.0.0.1:5050`.
+- `tools/remote_tunnel_operator_handoff.ps1` creates local-only operator instructions and an ignored `cloudflared` config template so Cloudflare login, route and Access evidence can be completed without leaking provider details.
+- `tools/remote_tunnel_run.ps1` runs `cloudflared` from ignored local config only after preflight GO.
+- `tools/remote_tunnel_smoke.ps1` verifies anonymous traffic is blocked by Cloudflare Access before any SQX Edge body is visible.
+- `tools/remote_link_preview_smoke.ps1` verifies the social preview boundary: root `/` is a public-safe preview, `/dashboard` remains Access-protected and only the required brand assets are public-safe.
+- `tools/remote_tunnel_install_startup_task.ps1` can register the tunnel runner in Windows Task Scheduler.
+- `docs/examples/remote_tunnel.local.example.json` defines the redacted boolean evidence shape copied into ignored `.local/remote_service/cloudflare_tunnel.local.json`.
+- `docs/examples/cloudflared-config.local.example.yml` documents the safe placeholder shape for the ignored real tunnel config.
+
+REMOTE-RUNBOOK1 operator start/stop:
+
+- `START_SQX_EDGE_REMOTE.bat` opens the visible HTA operator monitor and starts Backend, Tunnel and the Flask-mediated Ollama readiness check without leaving service consoles in front of the operator.
+- `STOP_SQX_EDGE_REMOTE.bat` opens the visual operator monitor and stops only this repo backend plus the tunnel using `cloudflared-config.local.yml`.
+- `tools/remote_operator_monitor.hta` is the visible local-only operator monitor with Backend/Tunnel/Ollama status, manual refresh, guarded `Arrancar`/`Detener` buttons and stop-mode messaging.
+- `tools/remote_operator_probe.ps1` provides the monitor with a reliable PowerShell status probe for backend, Cloudflare Tunnel and Ollama state when direct HTA/WMI checks are unavailable.
+- `tools/remote_operator_status.ps1` remains as a diagnostic Windows Forms monitor fallback.
+- `tools/remote_operator_start.ps1` and `tools/remote_operator_stop.ps1` remain scriptable helpers for QA and operator diagnostics.
+- The visual runbook is operator-only; users and testers still enter only through the protected Cloudflare URL and never see the server monitor.
+
+REMOTE-OPS1 laptop production readiness drill:
+
+- `backend/sqx-edge-tool/core/remote_ops1_laptop_readiness.py` owns `remote-ops1-laptop-readiness-v1`.
+- `backend/sqx-edge-tool/tools/remote_ops1_laptop_readiness.py` reads ignored private readiness evidence from `.local/remote_service/remote_ops1_laptop_readiness.local.json`.
+- The redacted output is `.local/remote_service/remote_ops1_laptop_readiness/remote_ops1_laptop_readiness.public.json`.
+- Required proofs cover Windows power/reboot readiness, REMOTE-1 strict preflight, watchdog, localhost-only backend, SQX paths, `data.db`, templates, output, Cloudflare Tunnel/Access, app session, workspace, artifact generation/export, revocation, restore and no Git/private-evidence leakage.
+- REMOTE-OPS1 returns `GO_REMOTE_OPS1_LAPTOP_READY` only when every zero-risk metric is zero; it never creates users, grants, checkout links, emails, public URL sharing or automation jobs.
+- A GO routes back to REMOTE-8H private package evidence; a NO-GO routes to readiness blocker fixes.
+
+CFX-BASE142 base template compatibility:
+
+- `backend/sqx-edge-tool/templates/Capa1_Long.cfx` and `backend/sqx-edge-tool/templates/Capa2_Base.cfx` are the seed projects used by Project Generator.
+- They are kept loadable in the authorized SQX 142 host with a neutral safe default `AUDCAD_darwinex` H1 resource from `data.db`; this seed is only for opening/editing the base templates.
+- Generated customs still repatch asset, timeframe, direction, costs, dates, BlockSettings and embedded Capa 2 strategy metadata from the user's Plan Mining or Custom manual selection, so the neutral seed must not leak into generated projects.
+- `backend/sqx-edge-tool/core/xml_patcher.py` rebuilds `<Resources><Symbols>` in SQX 142 native shape, ensures only the matching `<Resources><Brokers>` broker entry remains, normalizes symbol resources to `precision="TICK"` / `timezone="EETUS"`, rewrites embedded `BackupStrategyTemplate` symbols, forces tick backtest precision (`testPrecision="2"`) and forces the project session contract to `No Session` by clearing stale `<Resources><Sessions>` plus `MarketOpenSession` values.
+- Symbol resource date ranges are bounded to the local SQX `DATA` availability when a task asks for an older validation period, avoiding SQX 142 "Missing N days" resolver failures while keeping the task's methodological setup dates intact.
+- The 2026-05-17 AUDCAD H4 probe reproduced the resolver symptom as `Missing 2831 days`; the same probe loaded after bounding the resource window to local data availability.
+- SQX 142 native AUDCAD evidence keeps `InstrumentInfo dataType="3"` with Darwinex `source="4"` / `broker="4"` while the DATA row stores tick-series type separately, so generation preserves the instrument metadata from `INSTRUMENTS` instead of forcing DATA.DATATYPE onto `InstrumentInfo`.
+- `backend/sqx-edge-tool/core/cfx_compatibility.py` owns `cfx-compatibility-audit-v1`, a non-mutating cross-host audit for external or downloaded `.cfx` files. It detects SQ Equity Data subscription dependencies, placeholder symbols, unbound brokers, stale sessions, non-`No Session` `MarketOpenSession`, chart/resource mismatches, embedded strategy drift, non-SQX Edge precision/timezone and source-machine paths before a file is treated as portable across SQX hosts.
+- `backend/sqx-edge-tool/tools/cfx_compatibility_audit.py` is the operator CLI for local diagnostic inbox files. It must report sanitized compatibility facts only; raw files in `material de diagnostico/` remain ignored and must not be copied into Git.
+
+REMOTE-3C paid webhook and protected write pilot:
+
+- `backend/sqx-edge-tool/core/remote_payments.py` owns signed payment event normalization, idempotent paid entitlement upserts and redacted audit records.
+- `POST /api/remote/payment/webhook` accepts only signed raw bodies and writes `paid_subscription` changes to the ignored local entitlement store.
+- `POST /api/remote/protected/write-pilot` proves app-session write enforcement without mutating project state; real workspace writes begin in REMOTE-4.
+
+REMOTE-4 workspace isolation foundation:
+
+- `backend/sqx-edge-tool/core/remote_workspaces.py` owns workspace id derivation, layout creation and per-workspace audit helpers.
+- `GET /api/remote/workspace/status` provisions the server-derived workspace for the active session and returns no local paths.
+- `POST /api/remote/protected/write-pilot` now writes its audit proof inside the derived workspace and ignores browser `workspace_id`, `workspaceId` or `path` fields.
+- Workspace files live under ignored `.local/remote_service/workspaces/` or private `SQX_REMOTE_WORKSPACES_ROOT`.
+
+REMOTE-PERSIST1A workspace state persistence:
+
+- `backend/sqx-edge-tool/core/remote_workspace_state.py` owns `remote-workspace-state-v1` and creates a private SQLite store at `<workspace>/config/workspace_state.sqlite`.
+- `GET /api/remote/state/bootstrap` loads allowed dashboard state for the active workspace.
+- `POST /api/remote/state/save` persists only allowed keys inside the active workspace and writes a workspace audit event.
+- `GET /api/remote/state/status` reports public-safe state persistence readiness without returning local paths.
+- `app/js/modules/remote-state.js` bridges browser cache to workspace state for Plan Mining, Pipeline State, Strategy Control and View CORR1 presets: `sqx_plan_user_v1`, `sqx_pipeline_state_v1`, `sqx_strategies_user_v1`, `sqx_strategies_deleted_v1` and `sqx_view_creator_presets_v1`.
+- Browser `localStorage` remains a compatibility cache in remote mode; it is not the multi-user source of truth.
+
+REMOTE-PERSIST1B workspace outputs:
+
+- `backend/sqx-edge-tool/core/remote_workspace_outputs.py` owns `remote-workspace-output-v1` and maps Project Generator artifacts to `<workspace>/outputs`.
+- `GET /api/output` lists configured local output in local mode, but lists only active workspace `.cfx` files in remote mode.
+- `POST /api/generate`, `POST /api/generate-custom` and `POST /api/generate-all` keep local behavior unchanged, but active remote app sessions always write to workspace outputs.
+- Browser-provided remote `output` overrides are rejected with `remote_output_override_blocked`.
+- Remote output JSON uses `workspace://outputs` URIs and `privacy.local_paths_returned=false`; absolute operator paths stay server-local.
+- `POST /api/open-folder` remains local-only and is blocked for remote sessions.
+
+REMOTE-PERSIST1C Template Maker workspace state:
+
+- `backend/sqx-edge-tool/core/remote_template_maker_state.py` owns `remote-template-maker-state-v1` and stores Template Maker snapshots in `<workspace>/config/template_maker.sqlite`.
+- `GET /api/remote/template-maker/bootstrap` loads strategies/config for the active workspace and returns no local paths.
+- `POST /api/remote/template-maker/save` persists the normalized snapshot and writes a workspace audit event.
+- `GET /api/remote/template-maker/status` reports public-safe storage readiness.
+- `app/js/modules/template-maker.js` bridges the browser to the workspace through `buildRemoteSnapshot`, `applyRemoteSnapshot`, `bootstrapRemoteState`, `saveRemoteState` and `getRemotePersistenceStatus`.
+- Browser IndexedDB is only a compatibility cache in remote mode; the server-derived workspace snapshot is the source of truth.
+
+REMOTE-PERSIST1D Control Panel workspace backups:
+
+- `/api/state/backup`, `/api/state/backups` and `/api/state/restore/<filename>` keep local operator behavior in local mode.
+- The same endpoints switch to `remote-state-backup-v1` when the request has a remote app session or trusted tunnel identity.
+- Remote snapshots live under `<workspace>/config/state_backups` and public JSON uses `workspace://state-backups`.
+- The backend filters snapshot payloads to the allowed dashboard state keys before writing.
+- `app/js/modules/state-backup.js` includes credentials in state backup calls, labels workspace snapshots and resyncs restored keys through `SQX.remoteState.saveSnapshot(...)`.
+
+REMOTE-PERSIST1E SQX Views workspace presets (current View CORR1 workspace presets):
+
+- `docs/REMOTE_PERSIST1E_SQX_VIEWS_PRESETS.md` owns the persistence contract for View CORR1 user presets.
+- `sqx_view_creator_presets_v1` is now an allowed `remote-workspace-state-v1` key in `backend/sqx-edge-tool/core/remote_workspace_state.py`.
+- `app/js/modules/view-creator.js` keeps its existing synchronous local cache API, then triggers a remote save with source `sqx-views-presets` whenever presets are saved, imported or deleted.
+- Remote bootstrap restores View CORR1 presets into `localStorage` before the tab renders; `localStorage` remains a cache, not the multi-user source of truth.
+
+REMOTE-5 remote Pro UX surface:
+
+- `docs/REMOTE_5_REMOTE_UX.md` owns the visible UX contract for remote-service status.
+- `app/SQX_Dashboard_v6.html` contains the Home `remote-pro-panel`.
+- `app/js/modules/home.js` computes and renders the redacted remote status model from `GET /api/remote/access/status`, `GET /api/remote/session/status`, `GET /api/remote/workspace/status` and `GET /api/health`.
+- `app/js/dashboard.js` initializes the panel during dashboard boot.
+- Public copy may show entitlement class, short workspace id and readiness, but never raw SQX paths, workspace roots, `data.db`, output folders, session tokens, grant keys, private URLs, Cloudflare identifiers or raw emails.
+
+REMOTE-6 security and abuse controls:
+
+- `backend/sqx-edge-tool/core/remote_security.py` owns `remote-security-v1`, `SQX_REMOTE_SECURITY_POLICY_PATH`, rate limits, kill switch, revocation/blocking policy and public-safe security status.
+- `backend/sqx-edge-tool/api/server.py` applies remote rate limits before `/api/remote/*` routes, returns `429` with `Retry-After` on abuse and returns `503` for login/protected writes when the kill switch is active.
+- `GET /api/remote/security/status` reports the public-safe security posture and watermark model.
+- `GET /api/remote/security/audit/recent` returns recent workspace audit events for the active session with identity refs shortened and local paths removed.
+- `backend/sqx-edge-tool/core/remote_access.py` enforces revoked session ids and blocked identity hashes before entitlement access is considered allowed.
+- `app/js/modules/home.js` consumes `/remote/security/status`; `app/SQX_Dashboard_v6.html` renders the Home security item and `remote-session-watermark`.
+
+REMOTE-SEC2 credential-sharing control:
+
+- `backend/sqx-edge-tool/core/remote_access_control.py` owns `remote-access-control-v1`, `__Host-sqx_device_id`, hashed context evaluation, context approval/revocation and redacted context summaries.
+- `GET /api/remote/access-control/status` reports whether the current context is trusted, pending, revoked or blocked without returning raw IP, device id, user agent or email.
+- `POST /api/remote/access-control/request-approval` creates a support incident when a legitimate user needs an extra context reviewed.
+- Remote sessions carry `access_context_ref`; session reuse from another context is rejected before workspace creation.
+
+REMOTE-OWNER1 owner access recovery:
+
+- `backend/sqx-edge-tool/core/remote_owner_access.py` owns `remote-owner-access-recovery-v1`, local backup/rollback and owner grant promotion to `internal_operator`.
+- `tools/remote_owner_access_recovery.ps1` exposes local-only `status/recover/rollback`; output is hash-ref/status only.
+- `remote-access-control-v1` keeps `maxTrustedContextsPerIdentity=2` for normal users and uses `maxTrustedContextsPerInternalOperator` only when the entitlement kind is `internal_operator`.
+- Owner recovery does not mutate Cloudflare, checkout, other users, workspaces or SQX artifacts.
+
+REMOTE-7 web Pro monetization rewrite:
+
+- `docs/REMOTE_7_MONETIZATION_REWRITE.md` owns the commercial shape of the remote service.
+- `docs/COMMERCIAL_README.md` describes buyer onboarding as protected web access, not installation.
+- `docs/PUBLIC_ROADMAP.md` presents remote Pro access as the current public-safe direction.
+- `backend/sqx-edge-tool/config/product_manifest.json` keeps legacy fallback fields for compatibility but adds a remote commercial contract for `web_pro_monthly`, `web_pro_annual`, `support_assist`, `tester_free` and `internal_fallback`.
+- This phase changes commercial contracts and docs only; runtime access remains governed by REMOTE-3 through REMOTE-6 until REMOTE-8 proves the full pilot.
+
+REMOTE-8 controlled pilot drill:
+
+- `backend/sqx-edge-tool/core/remote_pilot.py` owns `remote-controlled-pilot-v1`.
+- `backend/sqx-edge-tool/tools/remote_controlled_pilot.py` runs the local-only drill and writes ignored evidence under `.local/remote_service/remote8_controlled_pilot/`.
+- The drill uses signed payment webhook processing, app session creation, workspace derivation, a generated `.cfx` pilot artifact, export checksum verification, second-user workspace isolation, cancellation/revocation and restore.
+- Public summaries never include raw email, session token, grant key, local path, protected URL or provider secret.
+- REMOTE-8B must ingest only redacted evidence from a private live smoke before any cohort expansion.
+
+REMOTE-8B live pilot evidence ingest:
+
+- `backend/sqx-edge-tool/core/remote_live_pilot.py` owns `remote-live-pilot-evidence-v1`.
+- `backend/sqx-edge-tool/tools/remote_live_pilot_evidence.py` reads ignored private evidence from `.local/remote_service/remote8b_live_pilot_evidence.local.json`.
+- The redacted output is `.local/remote_service/remote8b_live_pilot_evidence/remote8b_live_pilot_evidence.public.json`.
+- Required proofs cover anonymous Access block, Cloudflare Access pass, app session pass, entitlement active, workspace creation, artifact generation/export, revocation, restore, second-user isolation, no workspace leakage and support redaction.
+- Public summaries never include raw email, private URL, Cloudflare identifiers, session token, grant key, local path or provider secret.
+- REMOTE-8C must observe the first user and decide expansion explicitly; REMOTE-8B alone never expands the cohort.
+
+REMOTE-8C first user observation decision:
+
+- `backend/sqx-edge-tool/core/remote_first_user_observation.py` owns `remote-first-user-observation-v1`.
+- `backend/sqx-edge-tool/tools/remote_first_user_observation.py` reads ignored private observation evidence from `.local/remote_service/remote8c_first_user_observation.local.json`.
+- The redacted output is `.local/remote_service/remote8c_first_user_observation/remote8c_first_user_observation.public.json`.
+- Required signals cover REMOTE-8B GO, guided flow completion, support observation, tunnel/session/entitlement stability, workspace isolation, generation/export, revocation/restore confidence, no incidents and redacted support evidence.
+- Zero-tolerance metrics must remain zero for open support items, unresolved blockers, tunnel drops, session failures, workspace leaks, security incidents, generation failures, entitlement errors and refund requests.
+- Even on GO, `decision.automationAllowed` stays false; REMOTE-8D must prepare only a manual activation package.
+
+REMOTE-8D tiny cohort activation package:
+
+- `backend/sqx-edge-tool/core/remote_tiny_cohort_activation.py` owns `remote-tiny-cohort-activation-v1`.
+- `backend/sqx-edge-tool/tools/remote_tiny_cohort_activation.py` reads ignored private package evidence from `.local/remote_service/remote8d_tiny_cohort_activation.local.json`.
+- The redacted output is `.local/remote_service/remote8d_tiny_cohort_activation/remote8d_tiny_cohort_activation.public.json`.
+- The package requires REMOTE-8C GO, 3-5 candidates, reviewed entitlement boundaries, support owner, support window, rollback plan, pause rule, reviewed communication copy, private protected URL handling and security monitoring.
+- Automation counters for invites, grant creation, checkout links, emails, public URL sharing and jobs started must remain zero.
+- Even on GO, execution gates remain false; REMOTE-8E records only a separate manual execution after operator approval.
+
+REMOTE-8E tiny cohort manual execution record:
+
+- `backend/sqx-edge-tool/core/remote_tiny_cohort_execution.py` owns `remote-tiny-cohort-execution-v1`.
+- `backend/sqx-edge-tool/tools/remote_tiny_cohort_execution.py` reads ignored private execution evidence from `.local/remote_service/remote8e_tiny_cohort_execution.local.json`.
+- The redacted output is `.local/remote_service/remote8e_tiny_cohort_execution/remote8e_tiny_cohort_execution.public.json`.
+- The record requires REMOTE-8D GO, 3-5 activated users, operator approval, private messages, private protected URL sharing, support window, rollback, pause rule and monitoring start.
+- Manual counts for invites, grants, private messages and protected URL sharing must match activated user count.
+- Automation metrics for jobs, checkout links, public URLs, automated emails and automated grants must remain zero.
+- Even on GO, `record.automationAllowed` stays false and further expansion remains blocked until REMOTE-8F monitoring.
+
+REMOTE-8F tiny cohort monitoring:
+
+- `backend/sqx-edge-tool/core/remote_tiny_cohort_monitoring.py` owns `remote-tiny-cohort-monitoring-v1`.
+- `backend/sqx-edge-tool/tools/remote_tiny_cohort_monitoring.py` reads ignored private monitoring evidence from `.local/remote_service/remote8f_tiny_cohort_monitoring.local.json`.
+- The redacted output is `.local/remote_service/remote8f_tiny_cohort_monitoring/remote8f_tiny_cohort_monitoring.public.json`.
+- The monitor requires REMOTE-8E GO, 3-5 monitored users, at least 24 hours, stable cohort access, Cloudflare Access, app session, entitlement, workspace isolation, artifact generation, exports and support loop evidence.
+- Zero-tolerance metrics for support blockers, tunnel drops, session failures, workspace leaks, incidents, generation failures, entitlement errors, refunds, public URL leaks and automation jobs must remain zero.
+- Even on GO, `decision.automationAllowed` and `decision.furtherExpansionAllowedNow` stay false; REMOTE-8G owns the next human decision.
+
+REMOTE-8G tiny cohort decision review:
+
+- `backend/sqx-edge-tool/core/remote_tiny_cohort_decision_review.py` owns `remote-tiny-cohort-decision-review-v1`.
+- `backend/sqx-edge-tool/tools/remote_tiny_cohort_decision_review.py` reads ignored private decision evidence from `.local/remote_service/remote8g_tiny_cohort_decision_review.local.json`.
+- The redacted output is `.local/remote_service/remote8g_tiny_cohort_decision_review/remote8g_tiny_cohort_decision_review.public.json`.
+- The review accepts clean or blocked REMOTE-8F monitoring, but `prepare_next_controlled_movement` requires a clean REMOTE-8F source and zero monitoring blockers.
+- Execution metrics for new invites, grant changes, checkout links, emails, public URL sharing, automation jobs, traffic expansion and paid campaigns must remain zero.
+- Even on GO, `decision.executionAllowedNow` stays false; REMOTE-8H owns the next package and any future execution needs another gate.
+
+REMOTE-8H next controlled movement package:
+
+- `backend/sqx-edge-tool/core/remote_next_controlled_movement_package.py` owns `remote-next-controlled-movement-package-v1`.
+- `backend/sqx-edge-tool/tools/remote_next_controlled_movement_package.py` reads ignored private package evidence from `.local/remote_service/remote8h_next_controlled_movement_package.local.json`.
+- The redacted output is `.local/remote_service/remote8h_next_controlled_movement_package/remote8h_next_controlled_movement_package.public.json`.
+- The active package source is REMOTE-8L GO with selected decision `prepare_next_controlled_movement`; REMOTE-8G GO remains accepted only as legacy tiny-cohort compatibility.
+- User expansion is capped at `add_1_2_users`; candidate identities and handoff copy remain local/ignored.
+- Execution metrics for new invites, grants, checkout links, emails, public URL sharing, automation jobs, traffic expansion and paid campaigns must remain zero.
+- Even on GO, `movementPackage.executionAllowedNow` stays false; REMOTE-8I owns approval before any execution record.
+
+REMOTE-8I next controlled movement execution approval:
+
+- `backend/sqx-edge-tool/core/remote_next_controlled_movement_execution_approval.py` owns `remote-next-controlled-movement-execution-approval-v1`.
+- `backend/sqx-edge-tool/tools/remote_next_controlled_movement_execution_approval.py` reads ignored private approval evidence from `.local/remote_service/remote8i_next_controlled_movement_execution_approval.local.json`.
+- The redacted output is `.local/remote_service/remote8i_next_controlled_movement_execution_approval/remote8i_next_controlled_movement_execution_approval.public.json`.
+- The approval requires REMOTE-8H GO and a decision of `approve_execution_record`, `reject_execution` or `defer_execution`.
+- Raw decision notes, candidate identities, protected URLs, grant details and local paths remain local/ignored.
+- Execution metrics for new invites, grants, checkout links, emails, public URL sharing, automation jobs, traffic expansion and paid campaigns must remain zero.
+- Even on approval, `approval.executionPerformedNow` stays false; REMOTE-8J owns the manual execution record.
+
+REMOTE-8J next controlled movement manual execution:
+
+- `backend/sqx-edge-tool/core/remote_next_controlled_movement_manual_execution.py` owns `remote-next-controlled-movement-manual-execution-v1`.
+- `backend/sqx-edge-tool/tools/remote_next_controlled_movement_manual_execution.py` reads ignored private execution evidence from `.local/remote_service/remote8j_next_controlled_movement_manual_execution.local.json`.
+- The redacted output is `.local/remote_service/remote8j_next_controlled_movement_manual_execution/remote8j_next_controlled_movement_manual_execution.public.json`.
+- The record requires REMOTE-8I approval and selected decision `approve_execution_record`.
+- Manual counts must match the approved package; executed-user identities and handoff copy remain local/ignored.
+- Raw executed-user identities, protected URLs, message bodies, grant details and local paths remain local/ignored.
+- Automation metrics for jobs, checkout links, public URLs, automated emails, automated grants, traffic expansion and paid campaigns must remain zero.
+- Even on GO, `postExecutionGate.furtherExpansionAllowedNow` stays false; REMOTE-8K owns monitoring.
+
+REMOTE-8K next controlled movement post execution monitoring:
+
+- `backend/sqx-edge-tool/core/remote_next_controlled_movement_monitoring.py` owns `remote-next-controlled-movement-monitoring-v1`.
+- `backend/sqx-edge-tool/tools/remote_next_controlled_movement_monitoring.py` reads ignored private monitoring evidence from `.local/remote_service/remote8k_next_controlled_movement_monitoring.local.json`.
+- The redacted output is `.local/remote_service/remote8k_next_controlled_movement_monitoring/remote8k_next_controlled_movement_monitoring.public.json`.
+- The monitor requires REMOTE-8J GO and at least 24 clean observation hours.
+- For `add_1_2_users`, monitored-user count must match the executed-user count recorded by REMOTE-8J.
+- Required signals cover access, Cloudflare Access, app session, entitlement, workspace isolation, artifact generation, exports, support loop, no leakage, no security incidents, rollback readiness and pause readiness.
+- Zero-tolerance metrics cover support blockers, tunnel drops, app session failures, workspace leaks, security incidents, generation/export failures, entitlement errors, refunds, public URL leaks, automation jobs, traffic expansion, paid campaigns, checkout links and automated messages/grants.
+- Even on GO, `decision.furtherExpansionAllowedNow` stays false; REMOTE-8L owns any next human decision.
+
+REMOTE-8L post monitoring decision review:
+
+- `backend/sqx-edge-tool/core/remote_post_monitoring_decision_review.py` owns `remote-post-monitoring-decision-review-v1`.
+- `backend/sqx-edge-tool/tools/remote_post_monitoring_decision_review.py` reads ignored private decision evidence from `.local/remote_service/remote8l_post_monitoring_decision_review.local.json`.
+- The redacted output is `.local/remote_service/remote8l_post_monitoring_decision_review/remote8l_post_monitoring_decision_review.public.json`.
+- Source status may be `GO_REMOTE8K_NEXT_CONTROLLED_MOVEMENT_MONITORING_CLEAN` or `NO_GO_REMOTE8K_NEXT_CONTROLLED_MOVEMENT_MONITORING_BLOCKED`.
+- `prepare_next_controlled_movement` is allowed only when REMOTE-8K is clean, requested `prepare_next_decision_review`, has at least 24 observation hours and zero monitoring blockers.
+- `continue_monitoring`, `fix_blockers` and `rollback_last_movement` route to their own non-automated follow-up paths.
+- Even on GO, `decision.automationAllowed`, `decision.executionAllowedNow` and `decision.furtherExpansionAllowedNow` stay false.
+
+REMOTE-SUG1 deployment hardening decision:
+
+- The tester proposal validates our zero-ingress direction: no router ports, Cloudflare Tunnel only, Cloudflare Access before app body and no provider secrets in Git.
+- Its backup, persistence, restart and energy-management ideas reinforce REMOTE-1/2 runbooks.
+- Root Docker/Ubuntu deployment is deferred to REMOTE-9 because current SQX resource access is Windows-centered.
+- The core app must not gain a root `Dockerfile`, root `docker-compose.yml` or root `.dockerignore` until SQX compatibility, workspaces and backup/restore are proven.
+
+REMOTE-9 future containerization:
+
+- Option A: Linux/Docker hosts the web backend while a Windows worker owns SQX resources.
+- Option B: Docker hosts only sanitized backend resources after SQX dependencies are abstracted away.
+- Both options require explicit compatibility tests for `data.db`, templates, `.cfx` output paths, workspace persistence and protected write endpoints.
+
 ## Frontend Load Order
 
 The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboard_static.py`.
@@ -85,41 +433,51 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 5. `js/modules/core.js`
 6. `js/modules/config.js`
 7. `js/modules/storage.js`
-8. `js/modules/state-backup.js`
-9. `js/modules/license.js`
-10. `js/modules/ui.js`
-11. `js/modules/formatters.js`
-12. `js/modules/champion-challenger-core.js`
-13. `js/modules/domain.js`
-14. `js/modules/datasets.js`
-15. `js/modules/champion-challenger-regime.js`
-16. `js/modules/champion-challenger.js`
-17. `js/modules/strategy-builder-core.js`
-18. `js/modules/strategy-builder.js`
-19. `js/modules/renderers.js`
-20. `js/modules/charts.js`
-21. `js/modules/strategies.js`
-22. `js/modules/analyzer.js`
-23. `js/modules/home.js`
-24. `js/modules/mtf-evidence.js`
-25. `js/modules/support.js`
-26. `js/modules/fulfillment.js`
-27. `js/modules/customer-cockpit.js`
-28. `js/modules/workflow.js`
-29. `js/modules/view-creator.js`
-30. `js/modules/project-generator-core.js`
-31. `js/modules/project-generator-config.js`
-32. `js/modules/project-generator-dom.js`
-33. `js/modules/project-generator-bindings.js`
-34. `js/modules/project-generator-renderers.js`
-35. `js/modules/project-generator-status.js`
-36. `js/modules/project-generator-cleaner.js`
-37. `js/modules/project-generator.js`
-38. `js/modules/index.js`
-39. `js/data.js`
-40. `js/dashboard.js`
-41. `js/main.js`
-42. `js/project-generator-main.js`
+8. `js/modules/modal-registry.js`
+9. `js/modules/state-backup.js`
+10. `js/modules/remote-state.js`
+11. `js/modules/sqx-readiness.js`
+11. `js/modules/license.js`
+12. `js/modules/ui.js`
+13. `js/modules/formatters.js`
+14. `js/modules/champion-challenger-core.js`
+15. `js/modules/domain.js`
+16. `js/modules/datasets.js`
+17. `js/modules/champion-challenger-regime.js`
+18. `js/modules/champion-challenger.js`
+19. `js/modules/strategy-builder-core.js`
+20. `js/modules/strategy-builder.js`
+21. `js/modules/renderers.js`
+22. `js/modules/charts.js`
+23. `js/modules/strategies.js`
+24. `vendor/jszip.min.js`
+25. `js/modules/exit-policy.js`
+26. `js/modules/template-maker-worker-client.js`
+27. `js/modules/template-maker.js`
+28. `js/modules/template-maker-ui.js`
+29. `js/modules/home.js`
+30. `js/modules/mtf-evidence.js`
+31. `js/modules/support.js`
+32. `js/modules/fulfillment.js`
+33. `js/modules/customer-cockpit.js`
+34. `js/modules/workflow.js`
+35. `js/modules/edge-factory.js`
+36. `js/modules/edge-factory-ui.js`
+37. `js/modules/agent-guide.js`
+38. `js/modules/view-creator.js`
+39. `js/modules/project-generator-core.js`
+40. `js/modules/project-generator-config.js`
+41. `js/modules/project-generator-dom.js`
+42. `js/modules/project-generator-bindings.js`
+43. `js/modules/project-generator-renderers.js`
+44. `js/modules/project-generator-status.js`
+45. `js/modules/project-generator-cleaner.js`
+46. `js/modules/project-generator.js`
+47. `js/modules/index.js`
+48. `js/data.js`
+49. `js/dashboard.js`
+50. `js/main.js`
+51. `js/project-generator-main.js`
 
 ## Why This Order Matters
 
@@ -127,8 +485,17 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 - `app-config.js` loads before modules so API base and feature options are available everywhere.
 - `modules/core.js` creates `window.SQX`, module registration, and ready callbacks.
 - Focused modules attach stable contracts under `window.SQX`.
+- `modal-registry.js` loads before state backup and dashboard actions so critical decisions can use a traceable shared modal instead of blind native prompts.
+- `remote-state.js` loads after storage/state backup and before dashboard so remote workspaces can bootstrap Plan Mining and Strategy Control state while local mode continues to use browser storage.
+- `sqx-readiness.js` loads after remote-state and before license/UI modules so the mandatory local SQX checklist can gate SQX-dependent browser actions early.
 - `champion-challenger-regime.js` loads after `datasets.js` because it adapts first-party historical and score evidence.
-- `strategy-builder-core.js` and `strategy-builder.js` load after Champion vs Challenger so the Builder can consume the reduced J6 handoff shape without coupling to raw CSV; SQX Views handoff is resolved at click time through the later `view-creator.js` runtime contract.
+- `strategy-builder-core.js` and `strategy-builder.js` load after Champion vs Challenger so the Builder can consume the reduced J6 handoff shape without coupling to raw CSV; View CORR1 handoff is resolved at click time through the later `view-creator.js` runtime contract.
+- `vendor/jszip.min.js` loads before Template Maker because local/offline `.sqx` parsing and C2 export cannot depend on a CDN.
+- `exit-policy.js` loads before Template Maker so C2 generation can detect, disable or randomize SQX exit methods through one global policy.
+- `template-maker-worker-client.js` loads before Template Maker so the core can delegate CSV parsing, `.sqx` ZIP/hash/XML extraction and diversity cache warmup to `app/js/workers/template-maker-worker.js` when a browser Worker is available, while falling back to the main thread in file mode or unsupported browsers.
+- `template-maker.js` and `template-maker-ui.js` replace the old active analyzer surface with a native SQX module for Capa 1 scoring and C2 generation.
+- `edge-factory.js` and `edge-factory-ui.js` load after Workflow because Edge Factory is the new desktop-first command shell over the existing methodology engines, while Workflow keeps the legacy detail system available as an internal surface.
+- `agent-guide.js` loads after Edge Factory UI so the local/remote-safe agent can read the active stage and reuse safe UI commands without becoming a primary navigation tab or direct Ollama browser client.
 - `modules/index.js` marks the module layer as booted and flushes ready callbacks.
 - `data.js` and `dashboard.js` preserve existing global render functions and dashboard behavior.
 - `main.js` runs shell-level initial rendering and workflow initialization.
@@ -141,26 +508,34 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 | `modules/core.js` | SQX namespace, module registry, ready queue, shared guards. |
 | `modules/config.js` | Central access to UI/config manifests and dynamic values. |
 | `modules/storage.js` | Local state persistence, safe JSON access, strategy state. |
+| `modules/modal-registry.js` | Registry of active modals, user-visible trace helpers and the shared decision modal for critical reset/delete/import/restore actions. |
 | `modules/state-backup.js` | Dashboard local-state snapshot and restore UI against the local backup API, limited to non-sensitive localStorage keys. |
+| `modules/sqx-readiness.js` | Mandatory SQX Edge Readiness checklist, checker-report import, browser/manual status persistence and UI gating for SQX-dependent actions. |
 | `modules/ui.js` | Shared DOM/UI helpers and tab helpers. |
 | `modules/formatters.js` | Display formatting, escaping, labels, badges. |
-| `modules/champion-challenger-core.js` | Pure CSV parsing, alias resolution, Champion vs Challenger comparison and OOS stability scoring. |
+| `modules/champion-challenger-core.js` | Pure CSV parsing, alias resolution, Champion vs Challenger comparison, OOS stability/timeline helpers, direction detection and edge archetype classification. |
 | `modules/domain.js` | Domain rules that are independent from DOM rendering. |
 | `modules/datasets.js` | Normalized access to asset, score and manifest datasets. |
-| `modules/champion-challenger-regime.js` | First-party Regime/EGT evidence adapter for Champion vs Challenger using historical and score datasets. |
-| `modules/champion-challenger.js` | Native dashboard UI facade for `tab-cvc`, delegating parsing, scoring, contextual evidence, safe JSON export and future Strategy Builder handoff to focused contracts without local persistence. |
-| `modules/strategy-builder-core.js` | Pure read-only Strategy Builder package builder for local `sqx-edge.strategy-builder-package` previews, import validation, re-review gating, review summaries, buyer workflow summaries, visible audit entries, Project Generator prefill/preset draft mapping, SQX Views validation-pack handoff mapping, Strategy Cleaner draft mapping, unified buyer handoff packs, buyer pack import reviews, guided buyer session checklists, redacted buyer session summaries, printable operator notes, local support-case bundles and support resolution checklists. |
-| `modules/strategy-builder.js` | Native dashboard UI facade for `tab-strategybuilder`, building local previews plus gated JSON import/export, visible review checklist, session-only handoff audit trail, Project Generator custom/preset prefill, SQX Views handoff, Strategy Cleaner draft handoff, preview-only buyer packs, buyer pack import reviews, buyer session checklists, local redacted buyer summary exports, printable operator notes, support-case bundles and support resolution checklists without backend calls or generated trading logic. |
+| `modules/champion-challenger-regime.js` | First-party Regime/EGT evidence adapter for Champion vs Challenger using historical and score datasets, including `short_only`, `OK_MEAN_REVERT` and volatility coherence. |
+| `modules/champion-challenger.js` | Native dashboard UI facade for `tab-cvc`, delegating parsing, scoring, contextual evidence, safe JSON export and internal handoff contracts without local persistence. |
+| `modules/strategy-builder-core.js` | Pure read-only Strategy Builder package builder for local `sqx-edge.strategy-builder-package` previews, import validation, re-review gating, review summaries, buyer workflow summaries, visible audit entries, Project Generator prefill/preset draft mapping, View CORR1 handoff mapping, Strategy Cleaner draft mapping, unified buyer handoff packs, buyer pack import reviews, guided buyer session checklists, redacted buyer session summaries, printable operator notes, local support-case bundles and support resolution checklists. |
+| `modules/strategy-builder.js` | Native dashboard UI facade for `tab-strategybuilder`, building local previews plus gated JSON import/export, visible review checklist, session-only handoff audit trail, Project Generator custom/preset prefill, View CORR1 handoff, Strategy Cleaner draft handoff, preview-only buyer packs, buyer pack import reviews, buyer session checklists, local redacted buyer summary exports, printable operator notes, support-case bundles and support resolution checklists without backend calls or generated trading logic. |
 | `modules/renderers.js` | Reusable HTML rendering helpers for dashboard lists/tables. |
 | `modules/charts.js` | Chart and visual summary helpers. |
 | `modules/strategies.js` | Strategy UI contracts, deletion/import state, strategy metadata. |
+| `modules/exit-policy.js` | Global SQX exit-method policy for detecting exit params, disabling non-methodological exits and randomizing allowed C2 exits before export. |
+| `modules/template-maker-worker-client.js` | Browser Worker facade for Template Maker heavy ingestion. It owns job/progress messaging and safe fallback; the main Template Maker core still owns certification, public diversity accessors, C2, persistence and public API compatibility. |
+| `workers/template-maker-worker.js` | Dedicated Worker for Template Maker CSV parsing, `.sqx` ZIP unpacking, SHA-256 hashing, XML extraction and diversity clustering cache warmup using local JSZip only. |
 | `modules/home.js` | Inicio tab model, trace and summary helpers. |
 | `modules/mtf-evidence.js` | Read-only MTF evidence panel that consumes `/api/mtf/evidence` and only surfaces A56 GO summaries. |
-| `modules/support.js` | Safe support diagnostics download from the local API. |
+| `modules/support.js` | Safe support diagnostics download and REMOTE-SUPPORT1 incident intake from the local API. |
 | `modules/fulfillment.js` | Internal operator queue cockpit for manual fulfillment states and retries. |
 | `modules/customer-cockpit.js` | Redacted customer success cockpit for Pro renewal, support and expansion state. |
 | `modules/workflow.js` | Workflow tab initialization and subtab behavior. |
-| `modules/view-creator.js` | Native SQX `.vw` generator for annual Databank views, EGT presets, buyer-ready examples, buyer-profile packs, asset-family/validation workflow packs, saved local presets, JSON preset packs with import preview, workflow handoffs and XML downloads. This is the maintained replacement for the archived Tkinter staging prototype. |
+| `modules/edge-factory.js` | Desktop-first Edge Factory state model, 8-stage methodology contract, workspace-scoped persistence key and Portfolio Lab MVP ranking/diversity helpers. |
+| `modules/edge-factory-ui.js` | Edge Factory UI shell, advanced tools drawer, stage completion wiring, handoffs to hidden tools and Portfolio Lab browser export. |
+| `modules/agent-guide.js` | Operator-only local AI dock for Edge Factory, mediated through Flask `/api/agent/*`, with session-only state and confirmed allowlisted UI commands. |
+| `modules/view-creator.js` | Native SQX `.vw` generator reduced to the active View CORR1 utility: `SQX EDGE CORRELATION REVIEW` for Template Maker C2/CORR1, saved user presets, JSON preset packs with import preview, workflow handoffs and XML downloads. Legacy EGT/Robustez/CVC/Risk/Full audit templates are not readiness views. |
 | `modules/project-generator-core.js` | Project Generator shared helpers and API primitives. |
 | `modules/project-generator-config.js` | Project Generator config read/write helpers, enriched starter custom profiles, profile-family packs, local custom preset persistence, import preview and portable custom preset JSON packs. |
 | `modules/project-generator-dom.js` | Project Generator DOM helpers, config inputs, custom project inputs, settings panel and log output. |
@@ -190,6 +565,7 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 | `backend/sqx-edge-tool/core/config_loader.py` | Config loading and defaults. |
 | `backend/sqx-edge-tool/core/sqx_db.py` | SQX database verification and access helpers. |
 | `backend/sqx-edge-tool/core/support_diagnostics.py` | Redacted support diagnostics payload builder. |
+| `backend/sqx-edge-tool/core/support_incidents.py` | `support-incident-v1` local-only support case builder, redactor, JSONL persistence and REMOTE-8C summary helper. |
 | `backend/sqx-edge-tool/core/mtf_evidence.py` | Read-only A56 MTF evidence summarizer for dashboard use, redacting full paths and blocking non-GO reports. |
 | `backend/sqx-edge-tool/core/customer_cockpit.py` | Redacted commercial customer cockpit aggregation from local success evidence. |
 | `backend/sqx-edge-tool/core/fulfillment_normalizer.py` | Shared Lemon Squeezy normalization and signature verification. |
@@ -262,14 +638,14 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 | `resources/pro-buyer-pack/*` | Buyer-facing Pro starter data, CSV import template, onboarding, activation/support checklists and first-value material. |
 | `resources/pro-template-pack-1/*` | Buyer-facing add-on source and public offer draft for Template Pack 1, packaged separately from the base portable ZIP. |
 
-## Portable Packaging
+## Internal Fallback Packaging
 
-Portable packaging is owned by `backend/sqx-edge-tool/tools/package_portable.ps1`.
+Portable packaging is owned by `backend/sqx-edge-tool/tools/package_portable.ps1` and remains an internal fallback/rollback path during the remote-service pivot. It is not the final-user commercial onboarding flow unless explicitly re-approved.
 
 The package includes:
 
-- `START_SQX_EDGE.bat` and `STOP_SQX_EDGE.bat` at package root.
-- `packaging/START_SQX_EDGE.bat` and `packaging/STOP_SQX_EDGE.bat` as source launchers.
+- `START_SQX_EDGE_REMOTE.bat` and `STOP_SQX_EDGE_REMOTE.bat` at repository root for the operator remote flow.
+- `packaging/START_SQX_EDGE.bat` and `packaging/STOP_SQX_EDGE.bat` remain source launchers for generated portable fallback packages only.
 - `app/` dashboard assets.
 - `backend/sqx-edge-tool/` API, core code, templates, config templates and embedded runtime.
 - `backend/sqx-edge-tool/runtime/python/python.exe`.
@@ -307,4 +683,5 @@ When changing load order or module boundaries, update both the implementation an
 - Do not make a module depend on a script loaded later.
 - Prefer adding narrow contracts before moving behavior across files.
 - Any new visible tab, panel, module or manifest-driven UI state must update the architecture map, load-order or module-responsibility table, JS contracts and E2E smoke expectations in the same phase.
-- Keep packaging validation aligned with the actual portable user flow.
+- Keep remote-service validation aligned with Cloudflare Tunnel, paid auth and workspace isolation.
+- Keep fallback packaging validation aligned with the internal portable flow when packaging files change.

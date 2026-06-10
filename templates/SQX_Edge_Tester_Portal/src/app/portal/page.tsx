@@ -1,10 +1,19 @@
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { TESTER_RENEWAL_CYCLE_DAYS } from "@/lib/access-contract";
+import { SESSION_COOKIE_CONTRACT } from "@/lib/auth-data-contract";
 import { buildDeploymentProtectionSummary } from "@/lib/deployment-protection";
 import { TESTER_PRO_FEATURES } from "@/lib/entitlement-gates";
 import { MANUAL_RENEWAL_DECISIONS } from "@/lib/renewal-flow";
 import { buildDemoVisibleWatermark } from "@/lib/security-hardening";
+import { LOGIN_ROUTE } from "@/lib/session-prototype";
 
-export default function PortalPage() {
+export default async function PortalPage() {
+  const session = (await cookies()).get(SESSION_COOKIE_CONTRACT.name)?.value;
+  if (!session) {
+    redirect(`${LOGIN_ROUTE}?next=/portal`);
+  }
+
   const deploymentProtection = buildDeploymentProtectionSummary();
   const watermark = buildDemoVisibleWatermark();
 
@@ -14,7 +23,7 @@ export default function PortalPage() {
         <p className="eyebrow">Tester Pro</p>
         <h1>Protected portal placeholder</h1>
         <p>
-          This route is intentionally protected by middleware. Real features stay blocked until T3-T8 provide auth,
+          This route is intentionally protected by route-level session checks. Real features stay blocked until T3-T8 provide auth,
           entitlement, renewal and audit persistence.
         </p>
         <div className="grid">

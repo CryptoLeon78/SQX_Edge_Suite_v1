@@ -52,11 +52,21 @@
       outputDir: trimmedInputValue(doc, 'pg-output-dir'),
       templateCapa1: trimmedInputValue(doc, 'pg-tpl-c1'),
       templateCapa2: trimmedInputValue(doc, 'pg-tpl-c2'),
+      targetProfile: inputValue(doc, 'pg-target-profile') || 'sq_default_exact',
+      targetProfileCustom: {
+        brokerPostfix: trimmedInputValue(doc, 'pg-target-postfix'),
+        symbol: trimmedInputValue(doc, 'pg-target-symbol'),
+        brokerId: trimmedInputValue(doc, 'pg-target-broker-id'),
+        sourceId: trimmedInputValue(doc, 'pg-target-source-id'),
+        brokerName: trimmedInputValue(doc, 'pg-target-broker-name'),
+        timezone: trimmedInputValue(doc, 'pg-target-timezone')
+      },
       assetAliases: aliases || {}
     };
   }
 
   function readCustomProjectInputs(doc) {
+    var visualGuide = byId(doc, 'pg-custom-visual-guide-pdf');
     return {
       name: trimmedInputValue(doc, 'pg-custom-name'),
       asset: trimmedInputValue(doc, 'pg-custom-asset').toUpperCase(),
@@ -64,7 +74,8 @@
       bs: trimmedInputValue(doc, 'pg-custom-bs') || 'BS_Custom',
       dir: inputValue(doc, 'pg-custom-dir') || 'long',
       capa: parseInt(inputValue(doc, 'pg-custom-capa') || '1', 10) || 1,
-      template: trimmedInputValue(doc, 'pg-custom-template')
+      template: trimmedInputValue(doc, 'pg-custom-template'),
+      visual_guide_pdf: !!(visualGuide && visualGuide.checked)
     };
   }
 
@@ -77,6 +88,8 @@
     setInputValue(doc, 'pg-custom-dir', data.dir || 'long');
     setInputValue(doc, 'pg-custom-capa', data.capa || 1);
     setInputValue(doc, 'pg-custom-template', data.template);
+    var visualGuide = byId(doc, 'pg-custom-visual-guide-pdf');
+    if (visualGuide) visualGuide.checked = !!(data.visual_guide_pdf || data.visualGuidePdf);
   }
 
   function setCustomProjectStatus(doc, status) {
@@ -99,6 +112,14 @@
     setInputValue(doc, 'pg-output-dir', c.output_dir);
     setInputValue(doc, 'pg-tpl-c1', c.template_capa1);
     setInputValue(doc, 'pg-tpl-c2', c.template_capa2);
+    setInputValue(doc, 'pg-target-profile', c.target_profile || 'sq_default_exact');
+    var custom = c.target_profile_custom || {};
+    setInputValue(doc, 'pg-target-postfix', custom.brokerPostfix || custom.broker_postfix || custom.postfix);
+    setInputValue(doc, 'pg-target-symbol', custom.symbol);
+    setInputValue(doc, 'pg-target-broker-id', custom.brokerId || custom.broker_id);
+    setInputValue(doc, 'pg-target-source-id', custom.sourceId || custom.source_id);
+    setInputValue(doc, 'pg-target-broker-name', custom.brokerName || custom.broker_name);
+    setInputValue(doc, 'pg-target-timezone', custom.timezone);
   }
 
   function applySqxFields(doc, fields) {
@@ -109,12 +130,18 @@
   }
 
   function setSettingsOpen(doc, open) {
+    var card = byId(doc, 'pg-settings-card');
     var body = byId(doc, 'pg-settings-body');
     var arrow = byId(doc, 'pg-settings-arrow');
-    if (!body || !arrow) return false;
     var shouldOpen = !!open;
+    if (card && String(card.tagName || '').toLowerCase() === 'details') {
+      card.open = shouldOpen;
+      if (body) body.style.display = '';
+      return true;
+    }
+    if (!body) return false;
     body.style.display = shouldOpen ? 'block' : 'none';
-    arrow.classList.toggle('closed', !shouldOpen);
+    if (arrow) arrow.classList.toggle('closed', !shouldOpen);
     return true;
   }
 

@@ -1,0 +1,72 @@
+{
+  "schemaVersion": "remote-next-controlled-movement-monitoring-v1",
+  "monitoringId": "remote8k-monitoring-001",
+  "capturedAt": "2026-05-17T00:00:00+00:00",
+  "operatorReview": true,
+  "requestedDecision": "prepare_next_decision_review",
+  "observationHours": 24,
+  "sourceGate": {
+    "remote8jStatus": "GO_REMOTE8J_NEXT_CONTROLLED_MOVEMENT_MANUAL_EXECUTION_RECORDED",
+    "remote8jExecutionId": "remote8j-manual-execution-001",
+    "movementType": "add_1_2_users",
+    "executedUserCount": 1
+  },
+  "environment": {
+    "protectedUrl": "https://private-live.example.invalid/sqx",
+    "localPath": "<private local live path>"
+  },
+  "privateMonitoring": {
+    "supportNote": "Private monitoring notes stay local and ignored."
+  },
+  "monitoredUsers": [
+    {
+      "email": "buyer4@example.invalid",
+      "kind": "paid_subscription",
+      "featureScope": "full",
+      "accessVerified": true,
+      "entitlementChecked": true,
+      "workspaceIsolationChecked": true,
+      "artifactFlowChecked": true,
+      "supportWindowAcknowledged": true,
+      "noCriticalIssue": true
+    }
+  ],
+  "signals": {
+    "remote8jExecutionGoConfirmed": true,
+    "manualScopeStillMatches": true,
+    "accessStable": true,
+    "cloudflareAccessStable": true,
+    "appSessionStable": true,
+    "entitlementStable": true,
+    "workspaceIsolationClean": true,
+    "artifactGenerationObserved": true,
+    "exportsDownloaded": true,
+    "supportLoopObserved": true,
+    "noWorkspaceLeakage": true,
+    "noSecurityIncidents": true,
+    "noUnresolvedSupportBlockers": true,
+    "rollbackPlanReady": true,
+    "pauseRuleReady": true,
+    "privateEvidenceStoredOutsideGit": true
+  },
+  "zeroToleranceMetrics": {
+    "openSupportItems": 0,
+    "unresolvedBlockers": 0,
+    "tunnelDrops": 0,
+    "appSessionFailures": 0,
+    "workspaceLeakEvents": 0,
+    "securityIncidents": 0,
+    "generationFailures": 0,
+    "exportFailures": 0,
+    "entitlementErrors": 0,
+    "refundRequests": 0,
+    "crossUserDataFindings": 0,
+    "publicUrlLeaks": 0,
+    "automationJobsStarted": 0,
+    "trafficExpanded": 0,
+    "paidCampaignStarted": 0,
+    "checkoutLinksCreated": 0,
+    "automatedEmailsSent": 0,
+    "automatedGrantsCreated": 0
+  }
+}

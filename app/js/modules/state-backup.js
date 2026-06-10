@@ -8,6 +8,7 @@
     pipelineState: 'sqx_pipeline_state_v1',
     strategiesUser: 'sqx_strategies_user_v1',
     strategiesDeleted: 'sqx_strategies_deleted_v1',
+    sqxReadinessStatus: 'sqx_readiness_status_v1',
     workflowChecklist: 'sqx_workflow_checklist_v1',
     viewCreatorPresets: 'sqx_view_creator_presets_v1',
     projectGeneratorCustomPresets: 'sqx_pg_custom_presets_v1',
@@ -90,10 +91,15 @@
     }
     return backups.map(function(item) {
       var name = String(item.name || '');
+      var remote = item.scope === 'remote_workspace';
+      var trace = remote
+        ? 'Origen: workspace remoto · Destino: claves permitidas · Backup previo automatico'
+        : 'Origen: snapshot local · Destino: claves permitidas · Backup previo automatico';
       return '<div class="state-restore-row">' +
         '<div>' +
           '<div class="state-restore-name">' + escapeHtml(name) + '</div>' +
           '<div class="state-restore-meta">' + escapeHtml(fmtDate(item.mtime)) + ' · ' + escapeHtml(item.size_kb || 0) + ' KB</div>' +
+          '<div class="state-restore-meta">' + escapeHtml(trace) + '</div>' +
         '</div>' +
         '<button class="export-btn" type="button" data-state-restore="' + escapeHtml(name) + '">Restaurar</button>' +
       '</div>';
@@ -107,7 +113,7 @@
   }
 
   function fetchJson(url, options) {
-    return global.fetch(url, options).then(function(response) {
+    return global.fetch(url, Object.assign({ credentials: 'include' }, options || {})).then(function(response) {
       return response.json().then(function(json) {
         if (!response.ok || !json.ok) throw new Error(json.error || ('HTTP ' + response.status));
         return json;
@@ -126,7 +132,7 @@
       body: JSON.stringify(payload)
     }).then(function(result) {
       setBadge(doc, 'ok', 'Backup OK');
-      setStatus(doc, 'Snapshot creado: ' + result.filename);
+      setStatus(doc, (result.scope === 'remote_workspace' ? 'Snapshot workspace creado: ' : 'Snapshot creado: ') + result.filename);
       return result;
     }).catch(function(err) {
       setBadge(doc, 'error', 'Backup offline');
@@ -148,7 +154,7 @@
       .then(function(result) {
         renderList(result.backups || [], doc);
         setBadge(doc, (result.backups || []).length ? 'ok' : 'warn', (result.backups || []).length + ' backups');
-        setStatus(doc, (result.backups || []).length + ' snapshots disponibles.');
+        setStatus(doc, (result.backups || []).length + (result.scope === 'remote_workspace' ? ' snapshots workspace disponibles.' : ' snapshots disponibles.'));
         return result.backups || [];
       })
       .catch(function(err) {
@@ -163,20 +169,42 @@
     var opts = options || {};
     var doc = opts.document || global.document;
     if (!filename) return Promise.resolve([]);
-    if (global.confirm && !global.confirm('Restaurar este snapshot reemplazara el estado local actual. Se creara un backup previo.')) {
-      return Promise.resolve([]);
-    }
-    setStatus(doc, 'Creando backup previo...');
-    return createBackup(opts).catch(function() { return null; }).then(function() {
+    var decision = SQX.modalRegistry && SQX.modalRegistry.confirm
+      ? SQX.modalRegistry.confirm({
+        document: doc,
+        title: 'Restaurar snapshot de estado',
+        message: 'Restaurar este snapshot reemplazara el estado de trabajo permitido. En remoto se sincronizara con tu workspace. Antes se creara un backup previo para poder volver atras.',
+        confirmLabel: 'Restaurar con backup previo',
+        trace: [
+          'Snapshot: ' + filename,
+          'Lee: /state/restore',
+          'Escribe: localStorage permitido y workspace remoto si aplica',
+          'Excluye: licencias, fulfillment y datos sensibles'
+        ]
+      })
+      : Promise.resolve(!global.confirm || global.confirm('Restaurar este snapshot reemplazara el estado local actual. Se creara un backup previo.'));
+    return decision.then(function(ok) {
+      if (!ok) return [];
+      setStatus(doc, 'Creando backup previo...');
+      return createBackup(opts).catch(function() { return null; });
+    }).then(function(result) {
+      if (Array.isArray(result)) return result;
       setStatus(doc, 'Restaurando ' + filename + '...');
       return fetchJson(apiBase() + '/state/restore/' + encodeURIComponent(filename));
     }).then(function(result) {
+      if (Array.isArray(result)) return result;
       var data = result.payload && result.payload.data ? result.payload.data : {};
       var applied = applyState(data, opts.storage, opts.config);
       setBadge(doc, 'ok', 'Restaurado');
-      setStatus(doc, 'Restauradas ' + applied.length + ' claves. Recargando...');
-      if (global.location && global.location.reload) global.setTimeout(function() { global.location.reload(); }, 450);
-      return applied;
+      setStatus(doc, 'Restauradas ' + applied.length + ' claves. Sincronizando...');
+      var sync = result.scope === 'remote_workspace' && SQX.remoteState && SQX.remoteState.saveSnapshot
+        ? SQX.remoteState.saveSnapshot(applied, 'state-restore').catch(function() { return null; })
+        : Promise.resolve(null);
+      return sync.then(function() {
+        setStatus(doc, 'Restauradas ' + applied.length + ' claves. Recargando...');
+        if (global.location && global.location.reload) global.setTimeout(function() { global.location.reload(); }, 450);
+        return applied;
+      });
     }).catch(function(err) {
       setBadge(doc, 'error', 'Restore error');
       setStatus(doc, 'No se pudo restaurar: ' + err.message);

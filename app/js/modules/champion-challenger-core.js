@@ -20,6 +20,7 @@
   var FIELD_ALIASES = {
     strategy_name: ['Strategy Name', 'Strategy', 'Name'],
     symbol: ['Symbol', 'Market', 'Asset'],
+    timeframe: ['TimeFrame', 'Timeframe', 'TF', 'Period'],
     net_profit: ['Net profit', 'Net Profit', 'NetProfit'],
     profit_factor: ['Profit factor', 'Profit Factor', 'PF'],
     return_drawdown: ['Return/Drawdown', 'Return / Drawdown', 'Ret/DD', 'CAGR/Max DD'],
@@ -32,6 +33,8 @@
     r_expectancy: ['R Expectancy', 'Expectancy', 'R-Expectancy'],
     stagnation: ['Stagnation', 'Stagnation %', 'Max Stagnation'],
     entry_indicators: ['Entry indicators', 'Entry Indicators', 'Indicators'],
+    avg_bars: ['Avg. Bars in Trade', 'Avg Bars in Trade', 'Average # of Bars in Trade', 'Avg. # of Bars in Trade'],
+    avg_trades_per_month: ['Avg. Trades Per Month', 'Avg Trades Per Month', 'Average Trades Per Month', 'Trades Per Month'],
     filters_result: ['Filters Result', 'Forward', 'OOS Result']
   };
 
@@ -46,7 +49,9 @@
     net_profit_long: true,
     net_profit_short: true,
     r_expectancy: true,
-    stagnation: true
+    stagnation: true,
+    avg_bars: true,
+    avg_trades_per_month: true
   };
 
   function clone(value) {
@@ -175,6 +180,82 @@
     var parsed = parseFloat(raw);
     if (!isFinite(parsed)) return { value: null, ok: false, reason: 'nan' };
     return { value: parsed, ok: true, percent: hadPercent };
+  }
+
+  function pad2(value) {
+    return value < 10 ? '0' + value : String(value);
+  }
+
+  function parseYearMonth(value) {
+    var text = String(value == null ? '' : value).trim();
+    var match = text.match(/^(\d{4})[-/.](\d{1,2})/);
+    if (!match) return null;
+    var year = parseInt(match[1], 10);
+    var month = parseInt(match[2], 10);
+    if (!year || month < 1 || month > 12) return null;
+    return year * 12 + (month - 1);
+  }
+
+  function monthLabel(monthIndex) {
+    if (monthIndex == null || !isFinite(Number(monthIndex))) return '';
+    var year = Math.floor(Number(monthIndex) / 12);
+    var month = (Number(monthIndex) % 12) + 1;
+    return year + '-' + pad2(month);
+  }
+
+  function addMonths(monthIndex, months) {
+    return Number(monthIndex) + Number(months || 0);
+  }
+
+  function defaultMiningRange(symbol) {
+    var text = String(symbol == null ? '' : symbol).toUpperCase();
+    var isIndex = /NASDAQ|NAS100|NDX|USTEC|SPX|SP500|US500|US30|DJ30|GER40|DAX|US100/.test(text);
+    var isMetal = /XAU|GOLD|XAG|SILVER/.test(text);
+    return {
+      start: isIndex ? '2018-01' : '2017-10',
+      end: '2026-04',
+      profile: isIndex ? 'indices' : (isMetal ? 'metals' : 'fx')
+    };
+  }
+
+  function buildOosTimeline(oosRecord, options) {
+    var opts = options || {};
+    var blockCount = Math.max(0, parseInt(opts.blockCount || oosRecord && oosRecord.block_count, 10) || 0);
+    if (!blockCount) return { ok: false, profile: 'unknown', blocks: [], warnings: [{ code: 'oos_timeline_no_blocks' }] };
+    var range = opts.range || defaultMiningRange(opts.symbol || oosRecord && oosRecord.symbol || '');
+    var start = parseYearMonth(opts.start || range.start);
+    var end = parseYearMonth(opts.end || range.end);
+    if (start == null || end == null || end < start) {
+      return { ok: false, profile: range.profile || 'unknown', blocks: [], warnings: [{ code: 'oos_timeline_invalid_range' }] };
+    }
+    var totalMonths = (end - start) + 1;
+    var monthsPerBlock = totalMonths / blockCount;
+    var nowIndex = parseYearMonth(opts.now || '2026-05') || parseYearMonth(new Date().toISOString().slice(0, 7));
+    var blocks = [];
+    for (var i = 0; i < blockCount; i += 1) {
+      var blockStart = Math.round(start + i * monthsPerBlock);
+      var blockEnd = Math.round(start + (i + 1) * monthsPerBlock) - 1;
+      if (i === blockCount - 1) blockEnd = end;
+      var ageMonths = nowIndex == null ? null : Math.max(0, nowIndex - blockEnd);
+      blocks.push({
+        block: i + 1,
+        start: monthLabel(blockStart),
+        end: monthLabel(blockEnd),
+        label: monthLabel(blockStart) + ' / ' + monthLabel(blockEnd),
+        age_months: ageMonths,
+        age_years: ageMonths == null ? null : Math.round((ageMonths / 12) * 10) / 10,
+        age_bucket: ageMonths == null ? 'unknown' : (ageMonths >= 60 ? 'old' : 'recent')
+      });
+    }
+    return {
+      ok: true,
+      profile: range.profile || 'unknown',
+      start: monthLabel(start),
+      end: monthLabel(end),
+      block_count: blockCount,
+      blocks: blocks,
+      warnings: []
+    };
   }
 
   function resolveColumnAliases(headers, options) {
@@ -714,6 +795,58 @@
     });
   }
 
+  function detectArchetype(record) {
+    var metrics = record && record.metrics ? record.metrics : record || {};
+    var avgBars = numberOrNull(metrics.avg_bars);
+    var tradesPerMonth = numberOrNull(metrics.avg_trades_per_month);
+    var indicators = String(metrics.entry_indicators || metrics.indicators || '').toLowerCase();
+    var name = String(metrics.strategy_name || metrics.name || '').toLowerCase();
+    var timeframe = String(metrics.timeframe || '').toLowerCase();
+    var reasons = [];
+
+    if (avgBars != null && avgBars < 5 && tradesPerMonth != null && tradesPerMonth > 30) {
+      reasons.push('avg_bars_lt_5');
+      reasons.push('trades_per_month_gt_30');
+      return { archetype: 'SCALPER', confidence: 'high', reasons: reasons };
+    }
+    if (avgBars != null && avgBars < 3) {
+      reasons.push('avg_bars_lt_3');
+      return { archetype: 'SCALPER', confidence: 'medium', reasons: reasons };
+    }
+
+    var hasRsi = /rsi|relative\s*strength/.test(indicators);
+    var hasStoch = /stoch/.test(indicators);
+    var hasBollinger = /bollinger|\bbb\b/.test(indicators);
+    var hasSuperTrend = /super\s*trend|supertrend/.test(indicators + ' ' + name);
+    var hasMeanRevertIndicator = hasRsi || hasStoch || hasBollinger || /percent\s*rank|z[-\s]?score/.test(indicators);
+    if (avgBars != null && avgBars >= 5 && avgBars <= 30 && (hasSuperTrend || hasMeanRevertIndicator)) {
+      reasons.push(hasSuperTrend ? 'supertrend_intraday' : 'mean_revert_indicator');
+      reasons.push('avg_bars_intraday');
+      return { archetype: 'MEAN_REVERT', confidence: 'medium', reasons: reasons };
+    }
+
+    var hasAtr = /\batr\b|average\s*true\s*range/.test(indicators);
+    var hasBreakout = /highest|lowest|breakout|donchian|keltner|channel/.test(indicators + ' ' + name);
+    if (hasAtr && hasBreakout && (avgBars == null || (avgBars >= 10 && avgBars <= 100))) {
+      reasons.push('atr_breakout_pattern');
+      if (avgBars != null) reasons.push('avg_bars_mid_range');
+      return { archetype: 'BREAKOUT', confidence: 'medium', reasons: reasons };
+    }
+
+    if (avgBars != null && avgBars > 50) {
+      reasons.push('avg_bars_gt_50');
+      return { archetype: 'TREND_FOLLOWING', confidence: 'medium', reasons: reasons };
+    }
+    if (/ema|sma|moving\s*average|macd|ichimoku|kumo|tenkan|kijun|linear\s*regression|linreg|\badx\b/.test(indicators)) {
+      reasons.push('trend_indicator');
+      if (/h4|d1|daily/.test(timeframe)) reasons.push('higher_timeframe');
+      return { archetype: 'TREND_FOLLOWING', confidence: 'medium', reasons: reasons };
+    }
+
+    if (avgBars != null) reasons.push('avg_bars_no_clear_pattern');
+    return { archetype: 'UNKNOWN', confidence: 'low', reasons: reasons };
+  }
+
   function parseStrategyCsv(text, options) {
     var opts = options || {};
     var errors = [];
@@ -898,8 +1031,12 @@
     primaryOosMetrics: PRIMARY_OOS_METRICS,
     temporalHealthDefaults: TEMPORAL_HEALTH_DEFAULTS,
     temporalHealthMetrics: TEMPORAL_HEALTH_METRICS,
+    addMonths: addMonths,
+    buildOosTimeline: buildOosTimeline,
     compareCandidate: compareCandidate,
     computeTemporalHealth: computeTemporalHealth,
+    defaultMiningRange: defaultMiningRange,
+    detectArchetype: detectArchetype,
     detectDirection: detectDirection,
     detectDelimiter: detectDelimiter,
     escapeHtml: escapeHtml,

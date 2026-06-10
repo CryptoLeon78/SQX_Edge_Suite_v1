@@ -21,11 +21,6 @@
     if (!refresh) return false;
 
     refresh.addEventListener('click', h.checkHealth);
-    bind(doc, 'pg-settings-toggle', 'click', function() {
-      var body = byId(doc, 'pg-settings-body');
-      var open = body && body.style.display !== 'none';
-      if (h.setSettingsOpen) h.setSettingsOpen(!open);
-    });
     bind(doc, 'pg-settings-save', 'click', h.saveConfig);
     bind(doc, 'pg-settings-reload', 'click', h.loadConfig);
     bind(doc, 'pg-onboarding-action', 'click', h.runOnboardingAction);
@@ -38,30 +33,20 @@
     bind(doc, 'pg-custom-save-preset', 'click', h.saveCustomPreset);
     bind(doc, 'pg-custom-load-preset', 'click', h.loadCustomPreset);
     bind(doc, 'pg-custom-delete-preset', 'click', h.deleteCustomPreset);
-    bind(doc, 'pg-custom-starter-list', 'click', h.handleCustomStarterProfileClick);
-    bind(doc, 'pg-custom-export-starter-profiles', 'click', h.exportCustomStarterProfiles);
-    bind(doc, 'pg-custom-family-list', 'click', h.handleCustomProfileFamilyClick);
-    bind(doc, 'pg-custom-export-family-profiles', 'click', h.exportCustomProfileFamilies);
     bind(doc, 'pg-custom-export-presets', 'click', h.exportCustomPresets);
     bind(doc, 'pg-custom-import-presets', 'click', h.openImportCustomPresets);
     bind(doc, 'pg-custom-import-presets-file', 'change', h.importCustomPresets);
-    bind(doc, 'pg-buyer-name', 'input', h.renderBuyerCfxHandoff);
-    bind(doc, 'pg-buyer-context', 'change', h.renderBuyerCfxHandoff);
-    bind(doc, 'pg-buyer-handoff-refresh', 'click', h.renderBuyerCfxHandoff);
-    bind(doc, 'pg-buyer-handoff-copy', 'click', h.copyBuyerCfxHandoff);
-    bind(doc, 'pg-buyer-handoff-download', 'click', h.downloadBuyerCfxHandoff);
-    [
-      'pg-custom-name',
-      'pg-custom-asset',
-      'pg-custom-tf',
-      'pg-custom-bs',
-      'pg-custom-template'
-    ].forEach(function(id) { bind(doc, id, 'input', h.renderBuyerCfxHandoff); });
-    ['pg-custom-dir', 'pg-custom-capa'].forEach(function(id) { bind(doc, id, 'change', h.renderBuyerCfxHandoff); });
-    bind(doc, 'pg-gen-all-c1', 'click', function() { h.generateAll(1); });
-    bind(doc, 'pg-gen-all-c2', 'click', function() { h.generateAll(2); });
+    bind(doc, 'pg-mode-methodological', 'click', function() { if (h.setGenerationMode) h.setGenerationMode('methodological'); });
+    bind(doc, 'pg-mode-manual', 'click', function() { if (h.setGenerationMode) h.setGenerationMode('manual'); });
+    bind(doc, 'pg-select-all-minings', 'click', h.selectAllMinings);
+    bind(doc, 'pg-clear-selected-minings', 'click', h.clearSelectedMinings);
+    bind(doc, 'pg-delete-selected-minings', 'click', h.deleteSelectedMinings);
+    bind(doc, 'pg-generate-selected-c1', 'click', function() { h.generateSelected(1); });
+    bind(doc, 'pg-generate-selected-c2', 'click', function() { h.generateSelected(2); });
     bind(doc, 'pg-output-refresh', 'click', h.loadOutput);
     bind(doc, 'pg-open-output', 'click', h.openOutputFolder);
+    bind(doc, 'pg-output-download-selected', 'click', h.downloadSelectedOutputFiles);
+    bind(doc, 'pg-output-delete-selected', 'click', h.deleteSelectedOutputFiles);
     bind(doc, 'pg-log-clear', 'click', function() {
       var log = byId(doc, 'pg-log');
       if (log) log.textContent = '[esperando primera acción…]';

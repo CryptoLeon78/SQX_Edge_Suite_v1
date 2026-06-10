@@ -16,6 +16,10 @@ if (window.SQX && window.SQX.license) {
   window.SQX.license.init();
 }
 
+if (window.SQX && window.SQX.sqxReadiness) {
+  window.SQX.sqxReadiness.init();
+}
+
 if (window.SQX && window.SQX.support) {
   window.SQX.support.init();
 }
@@ -32,8 +36,8 @@ if (window.SQX && window.SQX.strategyBuilder) {
   window.SQX.strategyBuilder.init();
 }
 
-if (window.SQX && window.SQX.analyzer) {
-  window.SQX.analyzer.init();
+if (window.SQX && window.SQX.templateMakerUI) {
+  window.SQX.templateMakerUI.init();
 }
 
 if (window.SQX && window.SQX.fulfillment) {
@@ -50,6 +54,14 @@ if (window.SQX && window.SQX.stateBackup) {
 
 if (window.SQX && window.SQX.workflow) {
   window.SQX.workflow.init();
+}
+
+if (window.SQX && window.SQX.edgeFactoryUI) {
+  window.SQX.edgeFactoryUI.init();
+}
+
+if (window.SQX && window.SQX.agentGuide) {
+  window.SQX.agentGuide.init();
 }
 
 if (window.SQX && window.SQX.viewCreator) {

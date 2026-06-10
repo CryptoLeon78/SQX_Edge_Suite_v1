@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Strategy>
+  <options>
+    <StrategyName>Strategy TM.02</StrategyName>
+  </options>
+  <Rules>
+    <Rule name="Long entry">
+      <If>
+        <Item categoryType="indicator" key="HullMovingAverageATRBands" name="Hull Moving Average ATR Bands">
+          <Param key="#Period#">20</Param>
+        </Item>
+      </If>
+      <Then>
+        <Item key="EnterAtMarket" name="Enter at market" returnType="order">
+          <Param key="#Identification#" name="Identification" type="string">EnterAtMarket1</Param>
+          <Param key="#ExitAfterBars.ExitAfterBars#" name="Exit After Bars" type="int" exitMethod="true">20</Param>
+          <Param key="#ExitAfterDays.ExitAfterDays#" name="Exit After Days LaCity" type="int" exitMethod="true">5</Param>
+          <Param key="#ExitAfterTradingDays.ExitAfterTradingDays#" name="Exit After TDays LaCity" type="int" exitMethod="true">3</Param>
+          <Param key="#MoveSL2BE.MoveSL2BE#" name="Move SL to BE" type="double" exitMethod="true">10</Param>
+          <Param key="#ProfitTarget.ProfitTarget#" name="Profit Target" controlType="SLPT" type="double" exitMethod="true" exitMethodType="PT" isFormula="true">
+            <Formula key="SQ.Formulas.SLPT.FixedValue"><Param key="#Value#">120</Param></Formula>
+          </Param>
+          <Param key="#StopLoss.StopLoss#" name="Stop Loss" controlType="SLPT" type="double" exitMethod="true" exitMethodType="SL" isFormula="true">
+            <Formula key="SQ.Formulas.SLPT.FixedValue"><Param key="#Value#">80</Param></Formula>
+          </Param>
+          <Param key="#TrailingStop.TrailingStop#" name="Trailing Stop" controlType="RangeLevel" type="double" exitMethod="true" isFormula="true">
+            <Formula key="SQ.Formulas.RangeLevel.FixedValue"><Param key="#Value#">50</Param></Formula>
+          </Param>
+        </Item>
+      </Then>
+    </Rule>
+  </Rules>
+</Strategy>

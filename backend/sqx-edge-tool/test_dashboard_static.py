@@ -12,6 +12,124 @@ TOOL_ROOT = PROJECT_ROOT / "backend" / "sqx-edge-tool"
 ANALYSIS_ROOT = PROJECT_ROOT / "analysis"
 ARCHITECTURE_DOC = PROJECT_ROOT / "docs" / "ARCHITECTURE.md"
 PROJECT_GOVERNANCE_DOC = PROJECT_ROOT / "docs" / "PROJECT_GOVERNANCE.md"
+REMOTE_SERVICE_ROADMAP_DOC = PROJECT_ROOT / "docs" / "REMOTE_SERVICE_ROADMAP.md"
+REMOTE_SERVICE_SECURITY_PRIVACY_COPY_DOC = PROJECT_ROOT / "docs" / "REMOTE_SERVICE_SECURITY_PRIVACY_COPY.md"
+REMOTE_VALUE_BACKLOG_DOC = PROJECT_ROOT / "docs" / "REMOTE_VALUE_BACKLOG.md"
+WAIT4_TRUST_EVIDENCE_PACK_DOC = PROJECT_ROOT / "docs" / "WAIT4_TRUST_EVIDENCE_PACK.md"
+WAIT5_ONBOARDING_POLISH_DOC = PROJECT_ROOT / "docs" / "WAIT5_ONBOARDING_POLISH.md"
+REMOTE_ACCEPT1_BROWSER_ACCEPTANCE_DOC = PROJECT_ROOT / "docs" / "REMOTE_ACCEPT1_BROWSER_ACCEPTANCE.md"
+REMOTE_ACCEPT1_BROWSER_ACCEPTANCE_CORE = TOOL_ROOT / "core" / "remote_browser_acceptance.py"
+REMOTE_ACCEPT1_BROWSER_ACCEPTANCE_TOOL = TOOL_ROOT / "tools" / "remote_accept1_browser_acceptance.py"
+REMOTE_ACCEPT1_BROWSER_ACCEPTANCE_TEST = TOOL_ROOT / "test_remote_browser_acceptance.py"
+REMOTE_1_LAPTOP_SERVER_BASELINE_DOC = PROJECT_ROOT / "docs" / "REMOTE_1_LAPTOP_SERVER_BASELINE.md"
+REMOTE_2_CLOUDFLARE_TUNNEL_ACCESS_DOC = PROJECT_ROOT / "docs" / "REMOTE_2_CLOUDFLARE_TUNNEL_ACCESS.md"
+REMOTE_2B_TESTER_GRANTS_REPO_PRIVACY_DOC = PROJECT_ROOT / "docs" / "REMOTE_2B_TESTER_GRANTS_REPO_PRIVACY.md"
+REMOTE_3A_REMOTE_ACCESS_FOUNDATION_DOC = PROJECT_ROOT / "docs" / "REMOTE_3A_REMOTE_ACCESS_FOUNDATION.md"
+REMOTE_3B_APP_SESSION_GRANT_KEY_DOC = PROJECT_ROOT / "docs" / "REMOTE_3B_APP_SESSION_GRANT_KEY.md"
+REMOTE_3C_PAID_WEBHOOK_PROTECTED_WRITE_DOC = PROJECT_ROOT / "docs" / "REMOTE_3C_PAID_WEBHOOK_PROTECTED_WRITE.md"
+REMOTE_4_WORKSPACE_ISOLATION_DOC = PROJECT_ROOT / "docs" / "REMOTE_4_WORKSPACE_ISOLATION.md"
+REMOTE_PERSIST1B_WORKSPACE_OUTPUTS_DOC = PROJECT_ROOT / "docs" / "REMOTE_PERSIST1B_WORKSPACE_OUTPUTS.md"
+REMOTE_DOWNLOADS2_BROWSER_DOWNLOADS_DOC = PROJECT_ROOT / "docs" / "REMOTE_DOWNLOADS2_BROWSER_DOWNLOADS.md"
+REMOTE_PERSIST1C_TEMPLATE_MAKER_STATE_DOC = PROJECT_ROOT / "docs" / "REMOTE_PERSIST1C_TEMPLATE_MAKER_STATE.md"
+REMOTE_PERSIST1D_STATE_BACKUPS_DOC = PROJECT_ROOT / "docs" / "REMOTE_PERSIST1D_STATE_BACKUPS.md"
+REMOTE_PERSIST1E_SQX_VIEWS_PRESETS_DOC = PROJECT_ROOT / "docs" / "REMOTE_PERSIST1E_SQX_VIEWS_PRESETS.md"
+CFX_BASE142_TEMPLATE_COMPATIBILITY_DOC = PROJECT_ROOT / "docs" / "CFX_BASE142_TEMPLATE_COMPATIBILITY.md"
+CFX_COMPAT_DTR1_DOC = PROJECT_ROOT / "docs" / "CFX_COMPAT_DTR1_CUSTOM_PROJECT_COMPATIBILITY.md"
+REMOTE_5_REMOTE_UX_DOC = PROJECT_ROOT / "docs" / "REMOTE_5_REMOTE_UX.md"
+REMOTE_6_SECURITY_ABUSE_CONTROLS_DOC = PROJECT_ROOT / "docs" / "REMOTE_6_SECURITY_ABUSE_CONTROLS.md"
+REMOTE_SEC2_CREDENTIAL_SHARING_DOC = PROJECT_ROOT / "docs" / "REMOTE_SEC2_CREDENTIAL_SHARING_CONTROL.md"
+REMOTE_ACCESS_CONTROL_CORE = TOOL_ROOT / "core" / "remote_access_control.py"
+REMOTE_ACCESS_CONTROL_TEST = TOOL_ROOT / "test_remote_access_control.py"
+REMOTE_ACCESS_CONTROL_STATUS_TOOL = TOOL_ROOT / "tools" / "remote_access_control_status.py"
+REMOTE_ACCESS_CONTROL_ADMIN_TOOL = TOOL_ROOT / "tools" / "remote_access_control_admin.py"
+REMOTE_ACCESS_CONTROL_STATUS_PS1 = PROJECT_ROOT / "tools" / "remote_access_control_status.ps1"
+REMOTE_ACCESS_CONTROL_ADMIN_PS1 = PROJECT_ROOT / "tools" / "remote_access_control_admin.ps1"
+REMOTE_7_MONETIZATION_REWRITE_DOC = PROJECT_ROOT / "docs" / "REMOTE_7_MONETIZATION_REWRITE.md"
+REMOTE_8_CONTROLLED_PILOT_DOC = PROJECT_ROOT / "docs" / "REMOTE_8_CONTROLLED_PILOT.md"
+REMOTE_8B_LIVE_PILOT_EVIDENCE_DOC = PROJECT_ROOT / "docs" / "REMOTE_8B_LIVE_PILOT_EVIDENCE.md"
+REMOTE_8C_FIRST_USER_OBSERVATION_DOC = PROJECT_ROOT / "docs" / "REMOTE_8C_FIRST_USER_OBSERVATION.md"
+REMOTE_8D_TINY_COHORT_ACTIVATION_DOC = PROJECT_ROOT / "docs" / "REMOTE_8D_TINY_COHORT_ACTIVATION.md"
+REMOTE_8E_TINY_COHORT_EXECUTION_DOC = PROJECT_ROOT / "docs" / "REMOTE_8E_TINY_COHORT_EXECUTION.md"
+REMOTE_ASSET1_INCIDENT_DOC = PROJECT_ROOT / "docs" / "REMOTE_ASSET1_PROTECTED_DASHBOARD_ASSET_INCIDENT.md"
+REMOTE_8F_TINY_COHORT_MONITORING_DOC = PROJECT_ROOT / "docs" / "REMOTE_8F_TINY_COHORT_MONITORING.md"
+REMOTE_8F_CLOSE_ACTIVE_COHORT_DOC = PROJECT_ROOT / "docs" / "REMOTE_8F_CLOSE_ACTIVE_COHORT.md"
+REMOTE_COHORT_EVIDENCE1_DOWNLOAD_SMOKE_DOC = (
+    PROJECT_ROOT / "docs" / "REMOTE_COHORT_EVIDENCE1_DOWNLOAD_SMOKE.md"
+)
+REMOTE_COHORT_MATRIX1_DOC = PROJECT_ROOT / "docs" / "REMOTE_COHORT_MATRIX1.md"
+REMOTE_COHORT_FIX1_DOC = PROJECT_ROOT / "docs" / "REMOTE_COHORT_FIX1_SCOPE_RECONCILIATION.md"
+REMOTE_COHORT_FIX2_DOC = PROJECT_ROOT / "docs" / "REMOTE_COHORT_FIX2_CONTEXT_RECAPTURE.md"
+WFCO_EDGE_FACTORY_DOC = PROJECT_ROOT / "docs" / "WFCO_EDGE_FACTORY_FACELIFT.md"
+REMOTE_COHORT_MATRIX_CORE = TOOL_ROOT / "core" / "remote_cohort_matrix.py"
+REMOTE_COHORT_MATRIX_TOOL = TOOL_ROOT / "tools" / "remote_cohort_matrix.py"
+REMOTE_COHORT_MATRIX_TEST = TOOL_ROOT / "test_remote_cohort_matrix.py"
+REMOTE_COHORT_MATRIX_PS1 = PROJECT_ROOT / "tools" / "remote_cohort_matrix.ps1"
+REMOTE_COHORT_CONTEXT_RECONCILE_CORE = TOOL_ROOT / "core" / "remote_cohort_context_reconcile.py"
+REMOTE_COHORT_CONTEXT_RECONCILE_TOOL = TOOL_ROOT / "tools" / "remote_cohort_context_reconcile.py"
+REMOTE_COHORT_CONTEXT_RECONCILE_TEST = TOOL_ROOT / "test_remote_cohort_context_reconcile.py"
+REMOTE_COHORT_CONTEXT_RECONCILE_PS1 = PROJECT_ROOT / "tools" / "remote_cohort_context_reconcile.ps1"
+REMOTE_8G_TINY_COHORT_DECISION_REVIEW_DOC = PROJECT_ROOT / "docs" / "REMOTE_8G_TINY_COHORT_DECISION_REVIEW.md"
+REMOTE_8H_NEXT_CONTROLLED_MOVEMENT_PACKAGE_DOC = PROJECT_ROOT / "docs" / "REMOTE_8H_NEXT_CONTROLLED_MOVEMENT_PACKAGE.md"
+REMOTE_8I_NEXT_CONTROLLED_MOVEMENT_EXECUTION_APPROVAL_DOC = (
+    PROJECT_ROOT / "docs" / "REMOTE_8I_NEXT_CONTROLLED_MOVEMENT_EXECUTION_APPROVAL.md"
+)
+REMOTE_8J_NEXT_CONTROLLED_MOVEMENT_MANUAL_EXECUTION_DOC = (
+    PROJECT_ROOT / "docs" / "REMOTE_8J_NEXT_CONTROLLED_MOVEMENT_MANUAL_EXECUTION.md"
+)
+REMOTE_8K_NEXT_CONTROLLED_MOVEMENT_MONITORING_DOC = (
+    PROJECT_ROOT / "docs" / "REMOTE_8K_NEXT_CONTROLLED_MOVEMENT_MONITORING.md"
+)
+REMOTE_8L_POST_MONITORING_DECISION_REVIEW_DOC = (
+    PROJECT_ROOT / "docs" / "REMOTE_8L_POST_MONITORING_DECISION_REVIEW.md"
+)
+REMOTE_SUG1_DEPLOYMENT_HARDENING_REVIEW_DOC = PROJECT_ROOT / "docs" / "REMOTE_SUG1_DEPLOYMENT_HARDENING_REVIEW.md"
+REMOTE_OPS1_LAPTOP_READINESS_DOC = PROJECT_ROOT / "docs" / "REMOTE_OPS1_LAPTOP_READINESS_DRILL.md"
+REMOTE_RUNBOOK1_OPERATOR_START_STOP_DOC = PROJECT_ROOT / "docs" / "REMOTE_RUNBOOK1_OPERATOR_START_STOP.md"
+REMOTE_8B_LIVE_PILOT_EVIDENCE_EXAMPLE = PROJECT_ROOT / "docs" / "examples" / "remote8b_live_pilot_evidence.local.example.json"
+REMOTE_8C_FIRST_USER_OBSERVATION_EXAMPLE = PROJECT_ROOT / "docs" / "examples" / "remote8c_first_user_observation.local.example.json"
+REMOTE_ACCEPT1_BROWSER_ACCEPTANCE_EXAMPLE = PROJECT_ROOT / "docs" / "examples" / "remote_accept1_browser_acceptance.local.example.json"
+REMOTE_8D_TINY_COHORT_ACTIVATION_EXAMPLE = PROJECT_ROOT / "docs" / "examples" / "remote8d_tiny_cohort_activation.local.example.json"
+REMOTE_8E_TINY_COHORT_EXECUTION_EXAMPLE = PROJECT_ROOT / "docs" / "examples" / "remote8e_tiny_cohort_execution.local.example.json"
+REMOTE_8F_TINY_COHORT_MONITORING_EXAMPLE = PROJECT_ROOT / "docs" / "examples" / "remote8f_tiny_cohort_monitoring.local.example.json"
+REMOTE_8G_TINY_COHORT_DECISION_REVIEW_EXAMPLE = PROJECT_ROOT / "docs" / "examples" / "remote8g_tiny_cohort_decision_review.local.example.json"
+REMOTE_8H_NEXT_CONTROLLED_MOVEMENT_PACKAGE_EXAMPLE = PROJECT_ROOT / "docs" / "examples" / "remote8h_next_controlled_movement_package.local.example.json"
+REMOTE_8I_NEXT_CONTROLLED_MOVEMENT_EXECUTION_APPROVAL_EXAMPLE = (
+    PROJECT_ROOT / "docs" / "examples" / "remote8i_next_controlled_movement_execution_approval.local.example.json"
+)
+REMOTE_8J_NEXT_CONTROLLED_MOVEMENT_MANUAL_EXECUTION_EXAMPLE = (
+    PROJECT_ROOT / "docs" / "examples" / "remote8j_next_controlled_movement_manual_execution.local.example.json"
+)
+REMOTE_8K_NEXT_CONTROLLED_MOVEMENT_MONITORING_EXAMPLE = (
+    PROJECT_ROOT / "docs" / "examples" / "remote8k_next_controlled_movement_monitoring.local.example.json"
+)
+REMOTE_8L_POST_MONITORING_DECISION_REVIEW_EXAMPLE = (
+    PROJECT_ROOT / "docs" / "examples" / "remote8l_post_monitoring_decision_review.local.example.json"
+)
+REMOTE_OPS1_LAPTOP_READINESS_EXAMPLE = (
+    PROJECT_ROOT / "docs" / "examples" / "remote_ops1_laptop_readiness.local.example.json"
+)
+REMOTE_TUNNEL_EXAMPLE_EVIDENCE = PROJECT_ROOT / "docs" / "examples" / "remote_tunnel.local.example.json"
+REMOTE_ENTITLEMENTS_EXAMPLE = PROJECT_ROOT / "docs" / "examples" / "remote_entitlements.local.example.json"
+REMOTE_SERVICE_PREFLIGHT_SCRIPT = PROJECT_ROOT / "tools" / "remote_service_preflight.ps1"
+REMOTE_SERVICE_START_SERVER_SCRIPT = PROJECT_ROOT / "tools" / "remote_service_start_server.ps1"
+REMOTE_SERVICE_WATCHDOG_SCRIPT = PROJECT_ROOT / "tools" / "remote_service_watchdog.ps1"
+REMOTE_SERVICE_INSTALL_STARTUP_TASK_SCRIPT = PROJECT_ROOT / "tools" / "remote_service_install_startup_task.ps1"
+REMOTE_TUNNEL_PREFLIGHT_SCRIPT = PROJECT_ROOT / "tools" / "remote_tunnel_preflight.ps1"
+REMOTE_TUNNEL_OPERATOR_HANDOFF_SCRIPT = PROJECT_ROOT / "tools" / "remote_tunnel_operator_handoff.ps1"
+REMOTE_TUNNEL_RUN_SCRIPT = PROJECT_ROOT / "tools" / "remote_tunnel_run.ps1"
+REMOTE_TUNNEL_SMOKE_SCRIPT = PROJECT_ROOT / "tools" / "remote_tunnel_smoke.ps1"
+REMOTE_LINK_PREVIEW_SMOKE_SCRIPT = PROJECT_ROOT / "tools" / "remote_link_preview_smoke.ps1"
+REMOTE_TUNNEL_INSTALL_STARTUP_TASK_SCRIPT = PROJECT_ROOT / "tools" / "remote_tunnel_install_startup_task.ps1"
+REMOTE_OPERATOR_START_SCRIPT = PROJECT_ROOT / "tools" / "remote_operator_start.ps1"
+REMOTE_OPERATOR_STOP_SCRIPT = PROJECT_ROOT / "tools" / "remote_operator_stop.ps1"
+REMOTE_OPERATOR_STATUS_SCRIPT = PROJECT_ROOT / "tools" / "remote_operator_status.ps1"
+REMOTE_OPERATOR_MONITOR_HTA = PROJECT_ROOT / "tools" / "remote_operator_monitor.hta"
+REMOTE_OPERATOR_PROBE_SCRIPT = PROJECT_ROOT / "tools" / "remote_operator_probe.ps1"
+REMOTE_8C_OBSERVATION_STATUS_SCRIPT = PROJECT_ROOT / "tools" / "remote8c_observation_status.ps1"
+REMOTE_CLOUDFLARED_CONFIG_EXAMPLE = PROJECT_ROOT / "docs" / "examples" / "cloudflared-config.local.example.yml"
+REMOTE_START_BAT = PROJECT_ROOT / "START_SQX_EDGE_REMOTE.bat"
+REMOTE_STOP_BAT = PROJECT_ROOT / "STOP_SQX_EDGE_REMOTE.bat"
+CLEAN_WORKSPACE_SCRIPT = PROJECT_ROOT / "tools" / "clean_workspace.ps1"
 J1_CHAMPION_CHALLENGER_DOC = PROJECT_ROOT / "docs" / "J1_CHAMPION_CHALLENGER_CONTRACT.md"
 J2_CHAMPION_CHALLENGER_DOC = PROJECT_ROOT / "docs" / "J2_CHAMPION_CHALLENGER_CORE.md"
 J3_CHAMPION_CHALLENGER_DOC = PROJECT_ROOT / "docs" / "J3_CHAMPION_CHALLENGER_OOS.md"
@@ -90,7 +208,45 @@ T10AE_CLOUDFLARE_RUNTIME_COMPATIBILITY_DOC = PROJECT_ROOT / "docs" / "T10AE_CLOU
 T10AF_OPENNEXT_CLOUDFLARE_ADAPTER_PACKAGE_DOC = PROJECT_ROOT / "docs" / "T10AF_OPENNEXT_CLOUDFLARE_ADAPTER_PACKAGE.md"
 T10AG_OPENNEXT_LOCAL_SMOKE_DOC = PROJECT_ROOT / "docs" / "T10AG_OPENNEXT_LOCAL_SMOKE.md"
 T10AH_NEXT_PROXY_MIGRATION_DOC = PROJECT_ROOT / "docs" / "T10AH_NEXT_PROXY_MIGRATION.md"
+T10AI_CLOUDFLARE_PROVIDER_PROJECT_PREFLIGHT_DOC = PROJECT_ROOT / "docs" / "T10AI_CLOUDFLARE_PROVIDER_PROJECT_PREFLIGHT.md"
+T10AJ_CLOUDFLARE_PROJECT_SHELL_DOC = PROJECT_ROOT / "docs" / "T10AJ_CLOUDFLARE_PROJECT_SHELL.md"
+T10AJB_CLOUDFLARE_AUTH_HANDOFF_DOC = PROJECT_ROOT / "docs" / "T10AJB_CLOUDFLARE_AUTH_HANDOFF.md"
+T10AJC_CLOUDFLARE_SHELL_EVIDENCE_INGEST_DOC = PROJECT_ROOT / "docs" / "T10AJC_CLOUDFLARE_SHELL_EVIDENCE_INGEST.md"
+T10AJD_CLOUDFLARE_SHELL_EVIDENCE_CAPTURE_DOC = PROJECT_ROOT / "docs" / "T10AJD_CLOUDFLARE_SHELL_EVIDENCE_CAPTURE.md"
+T10AJE_CLOUDFLARE_READONLY_SHELL_CAPTURE_DOC = PROJECT_ROOT / "docs" / "T10AJE_CLOUDFLARE_READONLY_SHELL_CAPTURE.md"
+T10AJF_CLOUDFLARE_SHELL_CREATION_DECISION_DOC = PROJECT_ROOT / "docs" / "T10AJF_CLOUDFLARE_SHELL_CREATION_DECISION.md"
+T10AJG_CLOUDFLARE_FIRST_DEPLOY_APPROVAL_GATE_DOC = PROJECT_ROOT / "docs" / "T10AJG_CLOUDFLARE_FIRST_DEPLOY_APPROVAL_GATE.md"
+T10AJH_CLOUDFLARE_FIRST_DEPLOY_READINESS_DOC = PROJECT_ROOT / "docs" / "T10AJH_CLOUDFLARE_FIRST_DEPLOY_READINESS.md"
+T10AJI_CLOUDFLARE_FIRST_DEPLOY_ROLLBACK_DOC = PROJECT_ROOT / "docs" / "T10AJI_CLOUDFLARE_FIRST_DEPLOY_ROLLBACK.md"
+T10AJJ_CLOUDFLARE_ROUTE_ONBOARDING_DECISION_DOC = PROJECT_ROOT / "docs" / "T10AJJ_CLOUDFLARE_ROUTE_ONBOARDING_DECISION.md"
+T10AJK_CLOUDFLARE_ROUTE_ACCESS_PRECREATE_DOC = PROJECT_ROOT / "docs" / "T10AJK_CLOUDFLARE_ROUTE_ACCESS_PRECREATE.md"
+T10AJL_CLOUDFLARE_HOSTNAME_ZONE_SELECTION_DOC = PROJECT_ROOT / "docs" / "T10AJL_CLOUDFLARE_HOSTNAME_ZONE_SELECTION.md"
+T10AJL_OPERATOR_UNLOCK_KIT_DOC = PROJECT_ROOT / "docs" / "T10AJL_OPERATOR_UNLOCK_KIT.md"
+T10AJM_WORKERS_DEV_SHELL_GATE_DOC = PROJECT_ROOT / "docs" / "T10AJM_WORKERS_DEV_SHELL_GATE.md"
+T10AJN_CONTROLLED_WORKERS_DEV_SHELL_DEPLOY_DOC = PROJECT_ROOT / "docs" / "T10AJN_CONTROLLED_WORKERS_DEV_SHELL_DEPLOY.md"
+T10AJO_WORKERS_DEV_ACCESS_VERIFIED_DOC = PROJECT_ROOT / "docs" / "T10AJO_WORKERS_DEV_ACCESS_VERIFIED.md"
+T10AK_ACCESS_POLICY_BOUNDARY_DOC = PROJECT_ROOT / "docs" / "T10AK_ACCESS_POLICY_BOUNDARY.md"
+T10AL_CONTROLLED_REAL_APP_DEPLOY_GATE_DOC = PROJECT_ROOT / "docs" / "T10AL_CONTROLLED_REAL_APP_DEPLOY_GATE.md"
+T10AM_CONTROLLED_REAL_APP_DEPLOY_RESULT_DOC = PROJECT_ROOT / "docs" / "T10AM_CONTROLLED_REAL_APP_DEPLOY_RESULT.md"
+T10AN_PROTECTED_TESTER_PUBLICATION_TARGET_DOC = PROJECT_ROOT / "docs" / "T10AN_PROTECTED_TESTER_PUBLICATION_TARGET_GATE.md"
+T10AO_CONTROLLED_WORKERS_DEV_PUBLICATION_PREFLIGHT_DOC = PROJECT_ROOT / "docs" / "T10AO_CONTROLLED_WORKERS_DEV_PUBLICATION_PREFLIGHT.md"
+T10AP_CONTROLLED_WORKERS_DEV_PUBLICATION_RESULT_DOC = PROJECT_ROOT / "docs" / "T10AP_CONTROLLED_WORKERS_DEV_PUBLICATION_RESULT.md"
+T10AQ_TESTER_ACCESS_HANDOFF_DOC = PROJECT_ROOT / "docs" / "T10AQ_TESTER_ACCESS_HANDOFF_NO_URL_LEAK.md"
+T10AR_PRIVATE_TESTER_ACCOUNT_ACTIVATION_DOC = PROJECT_ROOT / "docs" / "T10AR_PRIVATE_TESTER_ACCOUNT_ACTIVATION_GATE.md"
+T10AS_PRIVATE_TESTER_ACTIVATION_EVIDENCE_DOC = PROJECT_ROOT / "docs" / "T10AS_PRIVATE_TESTER_ACTIVATION_EVIDENCE_INGEST.md"
+T10AT_PRIVATE_TESTER_URL_SHARE_APPROVAL_DOC = PROJECT_ROOT / "docs" / "T10AT_PRIVATE_TESTER_URL_SHARE_APPROVAL_GATE.md"
+T10AU_PRIVATE_FIRST_TESTER_SMOKE_DOC = PROJECT_ROOT / "docs" / "T10AU_PRIVATE_FIRST_TESTER_SMOKE_GATE.md"
+T10AV_PRIVATE_TESTER_COHORT_EXPANSION_DOC = PROJECT_ROOT / "docs" / "T10AV_PRIVATE_TESTER_COHORT_EXPANSION_GATE.md"
+T10AW_PRIVATE_TESTER_FEEDBACK_INTAKE_DOC = PROJECT_ROOT / "docs" / "T10AW_PRIVATE_TESTER_FEEDBACK_INTAKE_GATE.md"
+T10AX_PRIVATE_TESTER_FEEDBACK_TRIAGE_DOC = PROJECT_ROOT / "docs" / "T10AX_PRIVATE_TESTER_FEEDBACK_TRIAGE_GATE.md"
+T10AY_PRIVATE_TESTER_ACTION_PLAN_DOC = PROJECT_ROOT / "docs" / "T10AY_PRIVATE_TESTER_ACTION_PLAN_GATE.md"
+T10AZ_PRIVATE_TESTER_ACTION_EXECUTION_DOC = PROJECT_ROOT / "docs" / "T10AZ_PRIVATE_TESTER_ACTION_EXECUTION_GATE.md"
+T10BA_PRIVATE_TESTER_RESULT_VALIDATION_DOC = PROJECT_ROOT / "docs" / "T10BA_PRIVATE_TESTER_RESULT_VALIDATION_GATE.md"
+T10BB_PRIVATE_TESTER_ITERATION_DECISION_DOC = PROJECT_ROOT / "docs" / "T10BB_PRIVATE_TESTER_ITERATION_DECISION_GATE.md"
+T10BC_PRIVATE_TESTER_NEXT_ITERATION_DOC = PROJECT_ROOT / "docs" / "T10BC_PRIVATE_TESTER_NEXT_ITERATION_GATE.md"
+TL1_TESTER_LAUNCH_CANDIDATE_DOC = PROJECT_ROOT / "docs" / "TL1_TESTER_LAUNCH_CANDIDATE.md"
 TESTER_PORTAL_TEMPLATE_ROOT = PROJECT_ROOT / "templates" / "SQX_Edge_Tester_Portal"
+TESTER_PORTAL_IGNORED_TEXT_SCAN_PARTS = {"node_modules", ".next", ".open-next", ".wrangler"}
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
 R47_CONTROLLED_COMMERCIAL_RELEASE_DOC = PROJECT_ROOT / "docs" / "R47_CONTROLLED_COMMERCIAL_RELEASE.md"
 GOVERNANCE_ADR_DOC = PROJECT_ROOT / "docs" / "decisions" / "ADR-0001-specialist-agent-governance.md"
@@ -224,7 +380,10 @@ class DashboardStaticTestCase(unittest.TestCase):
                 "js/modules/core.js",
                 "js/modules/config.js",
                 "js/modules/storage.js",
+                "js/modules/modal-registry.js",
                 "js/modules/state-backup.js",
+                "js/modules/remote-state.js",
+                "js/modules/sqx-readiness.js",
                 "js/modules/license.js",
                 "js/modules/ui.js",
                 "js/modules/formatters.js",
@@ -238,13 +397,20 @@ class DashboardStaticTestCase(unittest.TestCase):
                 "js/modules/renderers.js",
                 "js/modules/charts.js",
                 "js/modules/strategies.js",
-                "js/modules/analyzer.js",
+                "vendor/jszip.min.js",
+                "js/modules/exit-policy.js",
+                "js/modules/template-maker-worker-client.js",
+                "js/modules/template-maker.js",
+                "js/modules/template-maker-ui.js",
                 "js/modules/home.js",
                 "js/modules/mtf-evidence.js",
                 "js/modules/support.js",
                 "js/modules/fulfillment.js",
                 "js/modules/customer-cockpit.js",
                 "js/modules/workflow.js",
+                "js/modules/edge-factory.js",
+                "js/modules/edge-factory-ui.js",
+                "js/modules/agent-guide.js",
                 "js/modules/view-creator.js",
                 "js/modules/project-generator-core.js",
                 "js/modules/project-generator-config.js",
@@ -276,6 +442,5125 @@ class DashboardStaticTestCase(unittest.TestCase):
         documented_scripts = re.findall(r"^\d+\.\s+`([^`]+)`", match.group(0), flags=re.M)
 
         self.assertEqual(documented_scripts, scripts)
+
+    def test_remote_service_pivot_is_documented_and_not_portable_first(self):
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        architecture = ARCHITECTURE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        privacy_copy = REMOTE_SERVICE_SECURITY_PRIVACY_COPY_DOC.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(REMOTE_SERVICE_ROADMAP_DOC.is_file())
+        self.assertTrue(REMOTE_SERVICE_SECURITY_PRIVACY_COPY_DOC.is_file())
+        self.assertTrue(REMOTE_2B_TESTER_GRANTS_REPO_PRIVACY_DOC.is_file())
+        self.assertTrue(REMOTE_3A_REMOTE_ACCESS_FOUNDATION_DOC.is_file())
+        self.assertTrue(REMOTE_5_REMOTE_UX_DOC.is_file())
+        self.assertTrue(REMOTE_6_SECURITY_ABUSE_CONTROLS_DOC.is_file())
+        self.assertTrue(REMOTE_7_MONETIZATION_REWRITE_DOC.is_file())
+
+        for pattern in (
+            "REMOTE-0",
+            "REMOTE-1 - Laptop Server Baseline",
+            "REMOTE-2 - Cloudflare Tunnel And Domain",
+            "REMOTE-2B - Tester Grants And Repository Privacy",
+            "REMOTE-3 - Paid Auth And Webhook",
+            "REMOTE-3A",
+            "REMOTE-4 - Workspace Isolation",
+            "REMOTE-5 - Remote UX",
+            "REMOTE-6 - Security And Abuse Controls",
+            "REMOTE-8 - Controlled Pilot",
+            "Primary channel: `remote_service`",
+            "Tester grants: approved testers can receive complete `tester_free` access",
+            "Repository posture: before active sales",
+            "Cloudflare Tunnel",
+            "workspace per user",
+            "Fallback Portable Gate",
+            "GET /api/remote/access/status",
+            "docs/REMOTE_5_REMOTE_UX.md",
+            "docs/REMOTE_6_SECURITY_ABUSE_CONTROLS.md",
+            "remote-pro-panel",
+            "Remote UX Disclosure Gate",
+            "Remote Security Abuse Gate",
+            "Remote Monetization Rewrite Gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "Remote Service Gate",
+            "authenticated user",
+            "active paid entitlement",
+            "Tester Free Access Gate",
+            "Repository Privacy Gate",
+            "tester_free",
+            "Remote Access Foundation Gate",
+            "server-derived workspace",
+            "Manual Operator Action Gate",
+            "detailed step-by-step instructions",
+            "expected success signal",
+            "what evidence or screenshot/text to return",
+            "what not to expose publicly",
+            "specific skill, plugin or connector",
+            "$interface-craft-director",
+            "@cloudflare",
+            "Remote UX Disclosure Gate",
+            "Remote Security Abuse Gate",
+            "Remote Monetization Rewrite Gate",
+            "Public Canonical Link Gate",
+            "remote-pro-panel",
+            "raw SQX paths",
+            "Cloudflare Tunnel/Access",
+            "Remote Ops/SRE",
+            "`REMOTE-xx`: remote-service delivery",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "remote_service",
+            "Cloudflare Tunnel",
+            "workspace per user",
+            "remote_tunnel_only",
+            "REMOTE-5 remote Pro UX surface",
+            "REMOTE-6 security and abuse controls",
+            "remote-pro-panel",
+            "GET /api/remote/security/status",
+            "GET /api/remote/workspace/status",
+            "Internal Fallback Packaging",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, architecture)
+
+        for pattern in (
+            "Servicio web Pro",
+            "Estado comercial: REMOTE-8H cycle bridge",
+            "Distribucion principal: enlace unico comercial `https://sqxedgesuite.org/`",
+            "URL de acceso comunicable: `https://sqxedgesuite.org/`",
+            "clave tester",
+            "REMOTE-2B fija acceso completo `tester_free`",
+            "REMOTE-3A fija la base backend `remote-access-v1`",
+            "REMOTE-3B fija la sesion de app `remote-session-v1`",
+            "REMOTE-3C fija el webhook de pago firmado `remote-payment-webhook-v1`",
+            "REMOTE-4 fija el workspace aislado `remote-workspace-v1`",
+            "REMOTE-5 fija el panel `remote-pro-panel`",
+            "REMOTE-6 fija `remote-security-v1`",
+            "REMOTE-7 fija la oferta web Pro",
+            "verificados como privados por GitHub CLI",
+            "Los testers aprobados podran usar todas las funcionalidades sin pago",
+            "Recomendacion comercial: convertir `SQX_Edge_Suite_v1` y `SQX_Institutional_Core` a repos privados",
+            "SQX Edge Pro Mensual: acceso web",
+            "docs/REMOTE_SERVICE_SECURITY_PRIVACY_COPY.md",
+            "Acceso Web Pro",
+            "Cloudflare Access y la autenticacion propia validan su sesion",
+            "El usuario final no instala Python, no descomprime ZIPs, no ejecuta `START_SQX_EDGE.bat`",
+            "El portable queda como herramienta interna de rollback, soporte o diagnostico. No es el flujo comercial principal.",
+            "Launcher interno desde la carpeta `packaging/`",
+            "packaging\\START_SQX_EDGE.bat",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for forbidden in (
+            "Paquete recomendado para usuario final",
+            "Uso para usuario basico",
+            "Haz doble click en `START_SQX_EDGE.bat`",
+            "No hace falta instalar Python. El ZIP incluye",
+            "SQX Edge Free: descarga portable",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, readme)
+
+        for pattern in (
+            "You do not need to install Python",
+            "Your workspace is isolated from other users",
+            "controlled, audited and isolated operating model",
+            "Do not claim that the service has no risk",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, privacy_copy)
+
+    def test_wait_1_welcome_trust_center_is_honest_and_wired(self):
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        backlog = REMOTE_VALUE_BACKLOG_DOC.read_text(encoding="utf-8-sig")
+        html = self.html
+        css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")
+        home_js = (APP_ROOT / "js" / "modules" / "home.js").read_text(encoding="utf-8-sig")
+
+        self.assertTrue(REMOTE_VALUE_BACKLOG_DOC.is_file())
+        self.assertTrue(WAIT4_TRUST_EVIDENCE_PACK_DOC.is_file())
+        self.assertTrue(WAIT5_ONBOARDING_POLISH_DOC.is_file())
+
+        for pattern in (
+            "WAIT-1 - Welcome + Trust Center",
+            "WAIT-2 - Welcome Direct Tester Access",
+            "WAIT-4 - Trust Evidence Pack",
+            "WAIT-5 - Commercial Onboarding Polish",
+            "Count: `5/5` WAIT phases completed after WAIT-5",
+            "Trust Claims Gate",
+            "Commercial Onboarding Claims Gate",
+            "No fictitious auditing company",
+            "No fake third-party certificates",
+            "MDN HTTP Observatory",
+            "OWASP ZAP Baseline",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "Trust Claims Gate",
+            "Trust Evidence Pack Gate",
+            "Commercial Onboarding Claims Gate",
+            "must not claim external certification",
+            "fake issuer status",
+            "real external artifact exists",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "REMOTE VALUE BACKLOG",
+            "WAIT-1 - Welcome + Trust Center",
+            "WAIT-2 - Welcome Direct Tester Access",
+            "WAIT-4 - Trust Evidence Pack",
+            "WAIT-5 - Onboarding Comercial Y Primera Sesion Pro",
+            "SQX Edge Suite Security Self-Assessment",
+            "Privacy & Data Handling Statement",
+            "Remote Service Safety Checklist",
+            "No crear empresa auditora ficticia",
+            "No emitir certificados como si fueran externos",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, backlog)
+
+        for pattern in (
+            'id="remote-welcome-gate"',
+            'id="remote-welcome-primary"',
+            'id="remote-welcome-verdict"',
+            'id="remote-welcome-trust-toggle"',
+            'id="remote-trust-center"',
+            "Controles verificables, sin certificados ficticios",
+            "SQX Edge Suite Security Self-Assessment",
+            "Privacy & Data Handling Statement",
+            "Remote Service Safety Checklist",
+            "Evidence Pack",
+            "Última revisión: 2026-05-18",
+            "Self-assessment",
+            "Privacy statement",
+            "Safety checklist",
+            "External scans planned",
+            "SQX Edge Suite ofrece productividad, estructura, trazabilidad y reducción de errores operativos.",
+            "No promete rentabilidad",
+            "Herramienta creada por QXPro",
+            "Una plataforma Pro para ordenar todo tu flujo StrategyQuant X.",
+            "Primera sesión Pro",
+            "Empieza por Workflow",
+            "Genera o certifica",
+            "Primeros 10 minutos",
+            "Early Access Pro",
+            "Acceso DASHBOARD",
+            "MDN HTTP Observatory",
+            "OWASP ZAP Baseline",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, html)
+
+        for pattern in (
+            ".remote-welcome-gate",
+            ".remote-welcome-shell",
+            ".remote-trust-center",
+            ".remote-welcome-verdict",
+            ".remote-welcome-sales",
+            ".remote-welcome-value-copy",
+            ".remote-first-session",
+            ".remote-welcome-status-grid",
+            ".remote-trust-evidence-pack",
+            ".remote-trust-chip",
+            ".home-first-session",
+            ".home-first-step",
+            "@media (max-width: 860px)",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, css)
+
+        for pattern in (
+            "REMOTE_WELCOME_DISMISSED_KEY",
+            "applyRemoteWelcomeModel",
+            "bindRemoteWelcomeGate",
+            "dismissRemoteWelcomeGate",
+            "OK todo validado",
+            "Acceso DASHBOARD",
+            "remote_first_user",
+        ):
+            with self.subTest(pattern=pattern):
+                if pattern == "remote_first_user":
+                    self.assertIn("remote-welcome", home_js)
+                else:
+                    self.assertIn(pattern, home_js)
+
+        self.assertNotIn('id="remote-welcome-grant-key"', html)
+
+        wait4 = WAIT4_TRUST_EVIDENCE_PACK_DOC.read_text(encoding="utf-8-sig")
+        for pattern in (
+            "WAIT-4 - Trust Evidence Pack",
+            "Customer-facing canonical link: `https://sqxedgesuite.org/`",
+            "SQX Edge Suite Security Self-Assessment",
+            "Privacy & Data Handling Statement",
+            "Remote Service Safety Checklist",
+            "External Evidence Preparation",
+            "No fake external certificate",
+            "WAIT-5",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, wait4)
+
+        combined = "\n".join([governance, roadmap, backlog, html, wait4])
+        for forbidden in (
+            "auditor externo certificado",
+            "empresa ficticia",
+            "emitido por auditor externo",
+            "certificado externo emitido",
+            "risk-free guarantee",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, combined.lower())
+
+    def test_wait_2_operational_cadence_and_agents_are_governed(self):
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        backlog = REMOTE_VALUE_BACKLOG_DOC.read_text(encoding="utf-8-sig")
+
+        for pattern in (
+            "WAIT workstream state",
+            "WAIT-2 - Welcome Direct Tester Access + Operational Cadence",
+            "Status + Next Suggestion Cadence Gate",
+            "Specialist Agent Autonomy Gate",
+            "I+D / Research Scout",
+            "Web & RRSS Creative",
+            "Sales & Commercial",
+            "Asset Cards Curator",
+            "Requires explicit operator confirmation before changing asset-card data",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "WAIT Workstream During REMOTE-8C",
+            "| WAIT-1 | Completed |",
+            "| WAIT-2 | Completed |",
+            "| WAIT-3 / REMOTE-SUPPORT1 | Completed |",
+            "WAIT-4 | Completed",
+            "WAIT-5 | Completed",
+            "Count: `5/5` WAIT phases completed after WAIT-5",
+            "default Welcome flow must not ask testers for a second key after Cloudflare validation",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "WAIT-2 - Welcome Direct Tester Access + Operational Cadence",
+            "OK todo validado",
+            "Acceso DASHBOARD",
+            "No cambiar tarjetas de activos sin confirmacion explicita",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, backlog)
+
+    def test_wait_5_commercial_onboarding_is_completed_and_safe(self):
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        backlog = REMOTE_VALUE_BACKLOG_DOC.read_text(encoding="utf-8-sig")
+        wait5 = WAIT5_ONBOARDING_POLISH_DOC.read_text(encoding="utf-8-sig")
+        html = self.html
+        css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")
+
+        for pattern in (
+            "WAIT-5 - Commercial Onboarding Polish",
+            "| WAIT-5 | Completed | Commercial onboarding polish",
+            "Count: `5/5` WAIT phases completed after WAIT-5",
+            "`https://sqxedgesuite.org/`",
+            "does not allow expansion",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "Commercial Onboarding Claims Gate",
+            "WAIT workstream state: WAIT-1, WAIT-2, WAIT-3/REMOTE-SUPPORT1, WAIT-4 and WAIT-5 are completed",
+            "5 of 5 WAIT phases are complete",
+            "productivity, structure, traceability and reduced operational error",
+            "must not imply external certification",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "WAIT-5 - Onboarding Comercial Y Primera Sesion Pro",
+            "Estado: completado en WAIT-5",
+            "Tono comercial fuerte, pero honesto",
+            "`Primeros 10 minutos`",
+            "Early Access Pro no crea checkout",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, backlog)
+
+        for pattern in (
+            "WAIT-5 - Onboarding Comercial Y Primera Sesion Pro",
+            "WAIT workstream: `5/5` completado",
+            "Expansion de testers: bloqueada hasta REMOTE-8C GO explicito",
+            "Checkout: no activado",
+            "No se promete rentabilidad",
+            "No se simulan certificados",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, wait5)
+
+        for pattern in (
+            "Una plataforma Pro para ordenar todo tu flujo StrategyQuant X.",
+            "Primera sesión Pro",
+            "Primeros 10 minutos",
+            "Early Access Pro",
+            "REMOTE-8C sigue como gate de observacion",
+            "Workflow",
+            "Mining Control",
+            "View CORR1",
+            "Project Generator",
+            "Template Maker",
+            "Strategy Control",
+            "Champion vs Challenger",
+            "No promete rentabilidad",
+            "Acceso DASHBOARD",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, html)
+
+        for pattern in (
+            ".remote-welcome-sales",
+            ".remote-first-session",
+            ".home-first-session",
+            ".home-first-session-grid",
+            ".home-first-step",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, css)
+
+        combined = "\n".join([governance, roadmap, backlog, wait5, html])
+        for forbidden in (
+            "rentabilidad asegurada",
+            "riesgo cero",
+            "auditor externo certificado",
+            "empresa ficticia",
+            "certificado externo emitido",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, combined.lower())
+
+    def test_remote_accept1_browser_acceptance_gate_is_documented(self):
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        accept_doc = REMOTE_ACCEPT1_BROWSER_ACCEPTANCE_DOC.read_text(encoding="utf-8-sig")
+        example = json.loads(REMOTE_ACCEPT1_BROWSER_ACCEPTANCE_EXAMPLE.read_text(encoding="utf-8-sig"))
+        home_js = (APP_ROOT / "js" / "modules" / "home.js").read_text(encoding="utf-8-sig")
+
+        self.assertTrue(REMOTE_ACCEPT1_BROWSER_ACCEPTANCE_DOC.is_file())
+        self.assertTrue(REMOTE_ACCEPT1_BROWSER_ACCEPTANCE_CORE.is_file())
+        self.assertTrue(REMOTE_ACCEPT1_BROWSER_ACCEPTANCE_TOOL.is_file())
+        self.assertTrue(REMOTE_ACCEPT1_BROWSER_ACCEPTANCE_TEST.is_file())
+        self.assertTrue(REMOTE_ACCEPT1_BROWSER_ACCEPTANCE_EXAMPLE.is_file())
+        self.assertEqual(example["schemaVersion"], "remote-browser-acceptance-v1")
+        self.assertEqual(example["phase"], "REMOTE-ACCEPT1")
+        self.assertTrue(example["checks"]["dashboardButtonClickedOnce"])
+        self.assertEqual(example["metrics"]["dashboardButtonClicksRequired"], 1)
+        self.assertEqual(example["metrics"]["welcomeBounceBacks"], 0)
+
+        for pattern in (
+            "REMOTE-ACCEPT1 - Real Browser Acceptance Gate",
+            "remote-browser-acceptance-v1",
+            ".local/remote_service/remote_accept1_browser_acceptance",
+            "backend/sqx-edge-tool/core/remote_browser_acceptance.py",
+            "backend/sqx-edge-tool/tools/remote_accept1_browser_acceptance.py",
+            "one click on `Acceso DASHBOARD` opens the dashboard without bounce-back",
+            "no internal wording like `falta crear la sesion de app` is shown",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "Real Browser Acceptance Gate",
+            "one-click `Acceso DASHBOARD`",
+            "no Welcome bounce-back",
+            "no persistent app-session expectation after browser close",
+            "backend/sqx-edge-tool/tools/remote_accept1_browser_acceptance.py",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "What The Underlined Welcome Text Means",
+            "Identidad y permiso validados. Pulsa Acceso DASHBOARD para abrir tu workspace privado.",
+            "Manual Acceptance Checklist",
+            "remote_accept1_browser_acceptance.py",
+            "The user-facing rule is simple",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, accept_doc)
+
+        self.assertIn("workspace privado", home_js)
+        self.assertNotIn("falta crear la sesion de app", home_js)
+
+    def test_remote_2b_tester_grants_and_repo_privacy_are_locked(self):
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        remote_2b = REMOTE_2B_TESTER_GRANTS_REPO_PRIVACY_DOC.read_text(encoding="utf-8-sig")
+
+        for pattern in (
+            "REMOTE-2B - Tester Grants And Repository Privacy",
+            "Approved testers keep complete app access without payment",
+            "entitlement_kind = paid_subscription | tester_free | internal_operator",
+            "a first-class `tester_free` grant path",
+            "Make `CryptoLeon78/SQX_Edge_Suite_v1` private before active sales",
+            "Make `CryptoLeon78/SQX_Institutional_Core` private before active sales",
+            "making a repository private does not erase anything previously cloned or cached",
+            "Codex must not assume the change occurred until verified",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_2b)
+
+        for pattern in (
+            "Tester Free Access Gate",
+            "approved tester cohort",
+            "complete app access without payment",
+            "Repository Privacy Gate",
+            "should be private unless the operator explicitly approves",
+            "active tester-free user allowed",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "REMOTE-2B - Tester Grants And Repository Privacy",
+            "Tester Free Access Gate",
+            "Repository Privacy Gate",
+            "tester_free",
+            "paid_subscription",
+            "internal_operator",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "REMOTE-2B fija acceso completo `tester_free`",
+            "Los testers aprobados podran usar todas las funcionalidades sin pago",
+            "convertir `SQX_Edge_Suite_v1` y `SQX_Institutional_Core` a repos privados",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for forbidden in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            "grant_key=",
+            "tester_password",
+            "https://sqx" + "-edge",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, remote_2b)
+
+    def test_remote_3a_remote_access_foundation_is_wired_and_redacted(self):
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        remote_3a = REMOTE_3A_REMOTE_ACCESS_FOUNDATION_DOC.read_text(encoding="utf-8-sig")
+        entitlements_example = json.loads(REMOTE_ENTITLEMENTS_EXAMPLE.read_text(encoding="utf-8-sig"))
+        server_py = (TOOL_ROOT / "api" / "server.py").read_text(encoding="utf-8-sig")
+        remote_access_py = (TOOL_ROOT / "core" / "remote_access.py").read_text(encoding="utf-8-sig")
+
+        for path in (
+            REMOTE_3A_REMOTE_ACCESS_FOUNDATION_DOC,
+            REMOTE_ENTITLEMENTS_EXAMPLE,
+            TOOL_ROOT / "core" / "remote_access.py",
+            TOOL_ROOT / "test_remote_access.py",
+        ):
+            with self.subTest(path=path):
+                self.assertTrue(path.is_file(), path)
+
+        for pattern in (
+            "REMOTE-3A - Remote Access Foundation",
+            "CryptoLeon78/SQX_Edge_Suite_v1 -> PRIVATE",
+            "CryptoLeon78/SQX_Institutional_Core -> PRIVATE",
+            "paid_subscription",
+            "tester_free",
+            "internal_operator",
+            ".local/remote_service/remote_entitlements.local.json",
+            "never returns grant keys",
+            "REMOTE-3B must add app sessions",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_3a)
+
+        for pattern in (
+            "Remote Access Foundation Gate",
+            "remote-access-v1",
+            "Current repository privacy state",
+            "verified as PRIVATE through GitHub CLI",
+            "REMOTE-3B app session grant-key gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "docs/REMOTE_3A_REMOTE_ACCESS_FOUNDATION.md",
+            "docs/examples/remote_entitlements.local.example.json",
+            "backend/sqx-edge-tool/core/remote_access.py",
+            "GET /api/remote/access/status",
+            "backend/sqx-edge-tool/test_remote_access.py",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "REMOTE-3A fija la base backend `remote-access-v1`",
+            "Estado de repos: `SQX_Edge_Suite_v1` e `SQX_Institutional_Core` verificados como privados",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        self.assertEqual(entitlements_example["schemaVersion"], "remote-entitlements-v1")
+        self.assertEqual(entitlements_example["grants"][0]["entitlementKind"], "tester_free")
+        self.assertEqual(entitlements_example["grants"][1]["entitlementKind"], "paid_subscription")
+
+        for pattern in (
+            "REMOTE_ACCESS_VERSION = \"remote-access-v1\"",
+            "ENTITLEMENTS_SCHEMA_VERSION = \"remote-entitlements-v1\"",
+            "VALID_ENTITLEMENT_KINDS",
+            "tester_free",
+            "grant_key_never_returned",
+            "raw_email_returned",
+            "grant_keys_returned",
+            "evaluate_remote_access_from_headers",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_access_py)
+
+        self.assertIn("/api/remote/access/status", server_py)
+        self.assertIn("evaluate_remote_request", server_py)
+
+        combined_public = "\n".join([remote_3a, json.dumps(entitlements_example), remote_access_py, server_py, roadmap])
+        for forbidden in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            "grant_key=",
+            "tester_password",
+            "CLOUDFLARE_API_TOKEN=",
+            "sk_" + "live_",
+            "pk_" + "live_",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, combined_public)
+
+    def test_remote_3b_app_session_grant_key_gate_is_wired_and_redacted(self):
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        remote_3b = REMOTE_3B_APP_SESSION_GRANT_KEY_DOC.read_text(encoding="utf-8-sig")
+        server_py = (TOOL_ROOT / "api" / "server.py").read_text(encoding="utf-8-sig")
+        remote_access_py = (TOOL_ROOT / "core" / "remote_access.py").read_text(encoding="utf-8-sig")
+
+        for path in (
+            REMOTE_3B_APP_SESSION_GRANT_KEY_DOC,
+            TOOL_ROOT / "core" / "remote_access.py",
+            TOOL_ROOT / "api" / "server.py",
+            TOOL_ROOT / "test_remote_access.py",
+        ):
+            with self.subTest(path=path):
+                self.assertTrue(path.is_file(), path)
+
+        for pattern in (
+            "REMOTE-3B - App Session Grant Key Gate",
+            "remote-session-v1",
+            "__Host-sqx_remote_session",
+            "SQX_REMOTE_SESSION_SECRET",
+            "POST /api/remote/session/login",
+            "GET /api/remote/session/status",
+            "POST /api/remote/session/logout",
+            "tester_free",
+            "grantKeyHash",
+            "Never returns the signed token or grant key in JSON",
+            "REMOTE-3B does not yet",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_3b)
+
+        for pattern in (
+            "REMOTE-3B app session grant-key gate",
+            "Current phase completed: REMOTE-8H cycle bridge",
+            "Current implementation phase: REMOTE-8H private package evidence",
+            "Remote Session Gate",
+            "remote-session-v1",
+            "__Host-sqx_remote_session",
+            "SQX_REMOTE_SESSION_SECRET",
+            "session tokens, grant keys or raw tester emails",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Artifacts added in REMOTE-3B",
+            "docs/REMOTE_3B_APP_SESSION_GRANT_KEY.md",
+            "remote-session-v1",
+            "__Host-sqx_remote_session",
+            "POST /api/remote/session/login",
+            "GET /api/remote/session/status",
+            "POST /api/remote/session/logout",
+            "Artifacts added in REMOTE-3C",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "Estado comercial: REMOTE-8H cycle bridge",
+            "Siguiente paso recomendado: rellenar evidencia privada REMOTE-8H",
+            "REMOTE-3B fija la sesion de app `remote-session-v1`",
+            "REMOTE-3C fija el webhook de pago firmado `remote-payment-webhook-v1`",
+            "REMOTE-4 fija el workspace aislado `remote-workspace-v1`",
+            "docs/REMOTE_3B_APP_SESSION_GRANT_KEY.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "@app.post(\"/api/remote/session/login\")",
+            "@app.get(\"/api/remote/session/status\")",
+            "@app.post(\"/api/remote/session/logout\")",
+            "set_cookie",
+            "httponly=True",
+            "secure=True",
+            "samesite=\"Lax\"",
+            "delete_cookie",
+            "evaluate_remote_request",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, server_py)
+
+        for pattern in (
+            "REMOTE_SESSION_VERSION = \"remote-session-v1\"",
+            "SESSION_COOKIE_NAME = \"__Host-sqx_remote_session\"",
+            "SQX_REMOTE_SESSION_SECRET",
+            "grant_key_hash",
+            "verify_tester_grant_key",
+            "start_remote_session_from_headers",
+            "evaluate_remote_session",
+            "evaluate_remote_request",
+            "session_token_returned",
+            "grant_key_returned",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_access_py)
+
+        combined_public = "\n".join([remote_3b, remote_access_py, server_py, roadmap, governance, readme])
+        for forbidden in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            "grant_key=",
+            "tester_password",
+            "CLOUDFLARE_API_TOKEN=",
+            "sk_" + "live_",
+            "pk_" + "live_",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, combined_public)
+
+    def test_remote_3c_paid_webhook_and_protected_write_gate_is_wired(self):
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        architecture = ARCHITECTURE_DOC.read_text(encoding="utf-8-sig")
+        remote_3c = REMOTE_3C_PAID_WEBHOOK_PROTECTED_WRITE_DOC.read_text(encoding="utf-8-sig")
+        server_py = (TOOL_ROOT / "api" / "server.py").read_text(encoding="utf-8-sig")
+        remote_payments_py = (TOOL_ROOT / "core" / "remote_payments.py").read_text(encoding="utf-8-sig")
+        remote_payments_tests = (TOOL_ROOT / "test_remote_payments.py").read_text(encoding="utf-8-sig")
+
+        for path in (
+            REMOTE_3C_PAID_WEBHOOK_PROTECTED_WRITE_DOC,
+            TOOL_ROOT / "core" / "remote_payments.py",
+            TOOL_ROOT / "test_remote_payments.py",
+        ):
+            with self.subTest(path=path):
+                self.assertTrue(path.is_file(), path)
+
+        for pattern in (
+            "REMOTE-3C - Paid Webhook And Protected Write Pilot",
+            "remote-payment-webhook-v1",
+            "remote-write-pilot-v1",
+            "SQX_REMOTE_PAYMENT_WEBHOOK_SECRET",
+            "POST /api/remote/payment/webhook",
+            "POST /api/remote/protected/write-pilot",
+            "processedWebhookEvents",
+            "No raw buyer email is returned",
+            "Real user workspaces and generated artifacts start in REMOTE-4",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_3c)
+
+        for pattern in (
+            "REMOTE-3C paid webhook protected write gate",
+            "Payment Webhook Entitlement Gate",
+            "remote-payment-webhook-v1",
+            "SQX_REMOTE_PAYMENT_WEBHOOK_SECRET",
+            "POST /api/remote/payment/webhook",
+            "POST /api/remote/protected/write-pilot",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Artifacts added in REMOTE-3C",
+            "docs/REMOTE_3C_PAID_WEBHOOK_PROTECTED_WRITE.md",
+            "backend/sqx-edge-tool/core/remote_payments.py",
+            "remote-payment-webhook-v1",
+            "Next REMOTE-4 scope",
+            "Payment Webhook Entitlement Gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "REMOTE-3C payment webhooks use `remote-payment-webhook-v1`",
+            "REMOTE-3C paid webhook and protected write pilot",
+            "backend/sqx-edge-tool/core/remote_payments.py",
+            "POST /api/remote/payment/webhook",
+            "POST /api/remote/protected/write-pilot",
+            "real workspace writes begin in REMOTE-4",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, architecture)
+
+        for pattern in (
+            "Estado comercial: REMOTE-8H cycle bridge",
+            "Siguiente paso recomendado: rellenar evidencia privada REMOTE-8H",
+            "docs/REMOTE_3C_PAID_WEBHOOK_PROTECTED_WRITE.md",
+            "endpoint `/api/remote/payment/webhook`",
+            "endpoint piloto `/api/remote/protected/write-pilot`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "@app.post(\"/api/remote/payment/webhook\")",
+            "@app.post(\"/api/remote/protected/write-pilot\")",
+            "X-SQX-Webhook-Signature",
+            "X-Hub-Signature-256",
+            "process_payment_webhook",
+            "evaluate_remote_session",
+            "REMOTE_WRITE_PILOT_AUDIT_PATH",
+            "raw_email_returned",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, server_py)
+
+        for pattern in (
+            "REMOTE_PAYMENT_WEBHOOK_VERSION = \"remote-payment-webhook-v1\"",
+            "PAYMENT_WEBHOOK_SECRET_ENV = \"SQX_REMOTE_PAYMENT_WEBHOOK_SECRET\"",
+            "sign_payment_webhook_body",
+            "verify_payment_webhook_signature",
+            "process_payment_webhook",
+            "paid_subscription",
+            "processedWebhookEvents",
+            "raw_email_returned",
+            "webhook_secret_returned",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_payments_py)
+
+        for pattern in (
+            "test_payment_webhook_signature_and_entitlement_activation",
+            "test_payment_webhook_is_idempotent",
+            "test_payment_webhook_cancel_blocks_paid_entitlement",
+            "test_remote_protected_write_pilot_requires_active_app_session",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_payments_tests)
+
+        combined_public = "\n".join([remote_3c, remote_payments_py, server_py, roadmap, governance, readme])
+        for forbidden in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            "CLOUDFLARE_API_TOKEN=",
+            "SQX_REMOTE_PAYMENT_WEBHOOK_SECRET=",
+            "sk_" + "live_",
+            "pk_" + "live_",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, combined_public)
+
+    def test_remote_4_workspace_isolation_foundation_is_wired(self):
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        architecture = ARCHITECTURE_DOC.read_text(encoding="utf-8-sig")
+        remote_4 = REMOTE_4_WORKSPACE_ISOLATION_DOC.read_text(encoding="utf-8-sig")
+        server_py = (TOOL_ROOT / "api" / "server.py").read_text(encoding="utf-8-sig")
+        remote_workspaces_py = (TOOL_ROOT / "core" / "remote_workspaces.py").read_text(encoding="utf-8-sig")
+        remote_workspaces_tests = (TOOL_ROOT / "test_remote_workspaces.py").read_text(encoding="utf-8-sig")
+
+        for path in (
+            REMOTE_4_WORKSPACE_ISOLATION_DOC,
+            TOOL_ROOT / "core" / "remote_workspaces.py",
+            TOOL_ROOT / "test_remote_workspaces.py",
+        ):
+            with self.subTest(path=path):
+                self.assertTrue(path.is_file(), path)
+
+        for pattern in (
+            "REMOTE-4 - Workspace Isolation Foundation",
+            "remote-workspace-v1",
+            "SQX_REMOTE_WORKSPACES_ROOT",
+            "GET /api/remote/workspace/status",
+            "workspace-aware `POST /api/remote/protected/write-pilot`",
+            "Browser-supplied workspace ids and paths are ignored",
+            "Public API responses never include absolute local paths or raw buyer emails",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_4)
+
+        for pattern in (
+            "Recent remote anchor: REMOTE-2",
+            "Workspace Isolation Gate",
+            "remote-workspace-v1",
+            "SQX_REMOTE_WORKSPACES_ROOT",
+            "GET /api/remote/workspace/status",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Artifacts added in REMOTE-4",
+            "docs/REMOTE_4_WORKSPACE_ISOLATION.md",
+            "backend/sqx-edge-tool/core/remote_workspaces.py",
+            "remote-workspace-v1",
+            "Artifacts added in REMOTE-5",
+            "Workspace Isolation Gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "REMOTE-4 workspaces use `remote-workspace-v1`",
+            "REMOTE-4 workspace isolation foundation",
+            "backend/sqx-edge-tool/core/remote_workspaces.py",
+            "GET /api/remote/workspace/status",
+            "SQX_REMOTE_WORKSPACES_ROOT",
+            "ignores browser `workspace_id`, `workspaceId` or `path` fields",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, architecture)
+
+        for pattern in (
+            "Estado comercial: REMOTE-8H cycle bridge",
+            "Siguiente paso recomendado: rellenar evidencia privada REMOTE-8H",
+            "docs/REMOTE_4_WORKSPACE_ISOLATION.md",
+            "endpoint `/api/remote/workspace/status`",
+            "workspace aislado `remote-workspace-v1`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "@app.get(\"/api/remote/workspace/status\")",
+            "derive_remote_workspace",
+            "public_workspace_context",
+            "append_workspace_audit_event",
+            "browserWorkspaceIgnored",
+            "local_paths_returned",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, server_py)
+
+        for pattern in (
+            "REMOTE_WORKSPACE_VERSION = \"remote-workspace-v1\"",
+            "WORKSPACE_ROOT_ENV = \"SQX_REMOTE_WORKSPACES_ROOT\"",
+            "workspace_id_from_identity_hash",
+            "derive_remote_workspace",
+            "public_workspace_context",
+            "append_workspace_audit_event",
+            "workspace_path_escape_blocked",
+            "local_paths_returned",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_workspaces_py)
+
+        for pattern in (
+            "test_derive_remote_workspace_creates_layout_without_public_local_paths",
+            "test_workspace_requires_active_remote_session",
+            "test_remote_workspace_status_endpoint_requires_session_and_returns_no_paths",
+            "test_remote_write_pilot_ignores_browser_workspace_and_writes_workspace_audit",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_workspaces_tests)
+
+        combined_public = "\n".join([remote_4, remote_workspaces_py, server_py, roadmap, governance, readme])
+        for forbidden in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            "SQX_REMOTE_WORKSPACES_ROOT=",
+            "sk_" + "live_",
+            "pk_" + "live_",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, combined_public)
+
+    def test_remote_persist1b_project_generator_outputs_are_workspace_scoped(self):
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        architecture = ARCHITECTURE_DOC.read_text(encoding="utf-8-sig")
+        persist1b = REMOTE_PERSIST1B_WORKSPACE_OUTPUTS_DOC.read_text(encoding="utf-8-sig")
+        server_py = (TOOL_ROOT / "api" / "server.py").read_text(encoding="utf-8-sig")
+        outputs_py = (TOOL_ROOT / "core" / "remote_workspace_outputs.py").read_text(encoding="utf-8-sig")
+        outputs_tests = (TOOL_ROOT / "test_remote_workspace_outputs.py").read_text(encoding="utf-8-sig")
+
+        for path in (
+            REMOTE_PERSIST1B_WORKSPACE_OUTPUTS_DOC,
+            TOOL_ROOT / "core" / "remote_workspace_outputs.py",
+            TOOL_ROOT / "test_remote_workspace_outputs.py",
+        ):
+            with self.subTest(path=path):
+                self.assertTrue(path.is_file(), path)
+
+        for pattern in (
+            "REMOTE-PERSIST1B - Workspace Outputs For Project Generator",
+            "remote-workspace-output-v1",
+            "`<workspace>/outputs/*.cfx`",
+            "`workspace://outputs`",
+            "`remote_output_override_blocked`",
+            "`POST /api/open-folder`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, persist1b)
+
+        for pattern in (
+            "Project Generator Workspace Output Gate",
+            "remote-workspace-output-v1",
+            "`workspace://outputs`",
+            "browser-supplied remote `output` overrides",
+            "Browser Output Delivery Gate",
+            "configured Downloads folder",
+            "Any user-facing file export",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "REMOTE-PERSIST1B - Workspace Outputs For Project Generator",
+            "Artifacts added in REMOTE-PERSIST1B",
+            "remote-workspace-output-v1",
+            "Two identities cannot see each other's generated `.cfx` files",
+            "Project Generator Workspace Output Gate",
+            "every user-facing export must be a browser download",
+            "configured Downloads folder",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "REMOTE-PERSIST1B workspace outputs",
+            "backend/sqx-edge-tool/core/remote_workspace_outputs.py",
+            "Browser-provided remote `output` overrides are rejected",
+            "`POST /api/open-folder` remains local-only",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, architecture)
+
+        for pattern in (
+            "from core.remote_workspace_outputs import",
+            "list_workspace_outputs",
+            "workspace_outputs_dir",
+            "output_response_fields",
+            "/api/output/download/",
+            "/api/output/download-selected",
+            "/api/output/delete",
+            "remote_output_override_blocked",
+            "remote_open_folder_blocked",
+            "_resolve_generation_output",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, server_py)
+
+        for pattern in (
+            "REMOTE_WORKSPACE_OUTPUT_VERSION = \"remote-workspace-output-v1\"",
+            "def workspace_outputs_dir",
+            "def list_workspace_outputs",
+            "def output_response_fields",
+            "workspace://outputs",
+            "local_paths_returned",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, outputs_py)
+
+        for pattern in (
+            "test_remote_generate_custom_writes_to_workspace_outputs_and_redacts_local_paths",
+            "test_remote_output_lists_workspace_outputs_not_global_output",
+            "test_remote_output_downloads_workspace_file_without_local_path",
+            "test_remote_output_download_selected_returns_zip_for_multiple_files",
+            "test_remote_output_delete_selected_removes_only_workspace_files",
+            "test_remote_output_rejects_path_traversal",
+            "test_remote_output_override_is_blocked",
+            "test_remote_project_generator_requires_app_session_before_output_access",
+            "test_remote_workspace_outputs_are_separate_per_identity",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, outputs_tests)
+
+    def test_remote_downloads2_user_exports_are_browser_downloads(self):
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        downloads2 = REMOTE_DOWNLOADS2_BROWSER_DOWNLOADS_DOC.read_text(encoding="utf-8-sig")
+        dashboard_js = (APP_ROOT / "js" / "dashboard.js").read_text(encoding="utf-8-sig")
+        view_creator_js = (APP_ROOT / "js" / "modules" / "view-creator.js").read_text(encoding="utf-8-sig")
+        template_maker_ui_js = (APP_ROOT / "js" / "modules" / "template-maker-ui.js").read_text(encoding="utf-8-sig")
+        cvc_js = (APP_ROOT / "js" / "modules" / "champion-challenger.js").read_text(encoding="utf-8-sig")
+        support_js = (APP_ROOT / "js" / "modules" / "support.js").read_text(encoding="utf-8-sig")
+
+        self.assertTrue(REMOTE_DOWNLOADS2_BROWSER_DOWNLOADS_DOC.is_file())
+
+        for pattern in (
+            "REMOTE-DOWNLOADS2 - Universal Browser Downloads",
+            "every user-facing export must be a browser download",
+            "View CORR1",
+            "Template Maker",
+            "Strategy Control",
+            "Champion vs Challenger",
+            "Control Panel support",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, downloads2)
+
+        for pattern in (
+            "REMOTE-DOWNLOADS2 - Universal Browser Downloads",
+            "Universal Browser Download Gate",
+            "configured Downloads folder",
+            "popup-window export previews",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "REMOTE-DOWNLOADS2 - Universal Browser Downloads",
+            "Mining Control consolidated plan JSON downloads directly",
+            "Strategy Control consolidated strategies JSON downloads directly",
+            "No normal user-facing export opens a popup preview window",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for forbidden in (
+            "Abrir carpeta",
+            "abrir carpeta",
+            "carpeta local",
+            "ruta local",
+            "rutas locales",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, self.html)
+
+        self.assertNotIn("window.open", dashboard_js)
+        for pattern in (
+            "function downloadBrowserFile",
+            "downloadJsonFile('sqx-plan-consolidado-",
+            "downloadBrowserFile('sqx-strategies-consolidated-",
+            "Entrega: descarga del navegador",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, dashboard_js)
+
+        for label, source in (
+            ("SQX Views", view_creator_js),
+            ("Template Maker", template_maker_ui_js),
+            ("Champion vs Challenger", cvc_js),
+            ("Support", support_js),
+        ):
+            with self.subTest(label=label):
+                self.assertRegex(source, r"\.download\s*=")
+
+    def test_remote_persist1c_template_maker_state_is_workspace_scoped(self):
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        architecture = ARCHITECTURE_DOC.read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        persist1c = REMOTE_PERSIST1C_TEMPLATE_MAKER_STATE_DOC.read_text(encoding="utf-8-sig")
+        server_py = (TOOL_ROOT / "api" / "server.py").read_text(encoding="utf-8-sig")
+        state_py = (TOOL_ROOT / "core" / "remote_template_maker_state.py").read_text(encoding="utf-8-sig")
+        state_tests = (TOOL_ROOT / "test_remote_template_maker_state.py").read_text(encoding="utf-8-sig")
+        template_maker_js = (APP_ROOT / "js" / "modules" / "template-maker.js").read_text(encoding="utf-8-sig")
+
+        for path in (
+            REMOTE_PERSIST1C_TEMPLATE_MAKER_STATE_DOC,
+            TOOL_ROOT / "core" / "remote_template_maker_state.py",
+            TOOL_ROOT / "test_remote_template_maker_state.py",
+        ):
+            with self.subTest(path=path):
+                self.assertTrue(path.is_file(), path)
+
+        for pattern in (
+            "REMOTE-PERSIST1C - Template Maker Workspace State",
+            "remote-template-maker-state-v1",
+            "`<workspace>/config/template_maker.sqlite`",
+            "`GET /api/remote/template-maker/bootstrap`",
+            "`POST /api/remote/template-maker/save`",
+            "browser keeps IndexedDB only as a compatibility cache",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, persist1c)
+
+        for pattern in (
+            "Template Maker Workspace State Gate",
+            "remote-template-maker-state-v1",
+            "`template_maker.sqlite`",
+            "Template Maker browser IndexedDB is only a compatibility cache",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "REMOTE-PERSIST1C - Template Maker Workspace State",
+            "Artifacts added in REMOTE-PERSIST1C",
+            "remote-template-maker-state-v1",
+            "Template Maker Workspace State Gate",
+            "Two remote identities must keep separate Template Maker records",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "REMOTE-PERSIST1C Template Maker workspace state",
+            "backend/sqx-edge-tool/core/remote_template_maker_state.py",
+            "`GET /api/remote/template-maker/bootstrap`",
+            "`POST /api/remote/template-maker/save`",
+            "IndexedDB is only a compatibility cache",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, architecture)
+
+        for pattern in (
+            "REMOTE-PERSIST1C",
+            "remote-template-maker-state-v1",
+            "Template Maker",
+            "workspace-scoped",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "from core.remote_template_maker_state import",
+            "read_template_maker_state",
+            "write_template_maker_state",
+            "template_maker_state_public_status",
+            "/api/remote/template-maker/bootstrap",
+            "/api/remote/template-maker/save",
+            "/api/remote/template-maker/status",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, server_py)
+
+        for pattern in (
+            "REMOTE_TEMPLATE_MAKER_STATE_VERSION = \"remote-template-maker-state-v1\"",
+            "REMOTE_TEMPLATE_MAKER_DB = \"template_maker.sqlite\"",
+            "def read_template_maker_state",
+            "def write_template_maker_state",
+            "def template_maker_state_public_status",
+            "remote_template_maker_state_write",
+            "local_paths_returned",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, state_py)
+
+        for pattern in (
+            "test_template_maker_state_persists_snapshot_in_workspace_sqlite",
+            "test_template_maker_endpoints_require_session_and_return_no_local_paths",
+            "test_template_maker_state_is_separate_per_identity",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, state_tests)
+
+        for pattern in (
+            "remote-template-maker-state-v1",
+            "buildRemoteSnapshot",
+            "applyRemoteSnapshot",
+            "bootstrapRemoteState",
+            "saveRemoteState",
+            "getRemotePersistenceStatus",
+            "/remote/template-maker/bootstrap",
+            "/remote/template-maker/save",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_maker_js)
+
+    def test_remote_persist1d_control_panel_backups_are_workspace_scoped(self):
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        architecture = ARCHITECTURE_DOC.read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        persist1d = REMOTE_PERSIST1D_STATE_BACKUPS_DOC.read_text(encoding="utf-8-sig")
+        server_py = (TOOL_ROOT / "api" / "server.py").read_text(encoding="utf-8-sig")
+        state_backup_js = (APP_ROOT / "js" / "modules" / "state-backup.js").read_text(encoding="utf-8-sig")
+        modal_registry_js = (APP_ROOT / "js" / "modules" / "modal-registry.js").read_text(encoding="utf-8-sig")
+        state_backup_contracts = (PROJECT_ROOT / "tests" / "js" / "contracts" / "state_backup_contracts.mjs").read_text(encoding="utf-8-sig")
+        remote_state_backup_tests = (TOOL_ROOT / "test_remote_state_backups.py").read_text(encoding="utf-8-sig")
+
+        for path in (
+            REMOTE_PERSIST1D_STATE_BACKUPS_DOC,
+            TOOL_ROOT / "test_remote_state_backups.py",
+        ):
+            with self.subTest(path=path):
+                self.assertTrue(path.is_file(), path)
+
+        for pattern in (
+            "REMOTE-PERSIST1D - Workspace State Backups And Restore",
+            "remote-state-backup-v1",
+            "`<workspace>/config/state_backups/state_backup_*.json`",
+            "`workspace://state-backups`",
+            "`POST /api/state/backup`",
+            "`GET /api/state/backups`",
+            "`GET /api/state/restore/<filename>`",
+            "filters payload to allowlisted dashboard keys",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, persist1d)
+
+        for pattern in (
+            "Control Panel Workspace Backup Gate",
+            "remote-state-backup-v1",
+            "`<workspace>/config/state_backups`",
+            "SQX Views/user presets",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "REMOTE-PERSIST1D - Workspace State Backups And Restore",
+            "Artifacts added in REMOTE-PERSIST1D",
+            "remote-state-backup-v1",
+            "Control Panel Workspace Backup Gate",
+            "Remote sessions can list and restore only their own workspace snapshots",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "REMOTE-PERSIST1D Control Panel workspace backups",
+            "`remote-state-backup-v1`",
+            "`workspace://state-backups`",
+            "filters snapshot payloads to the allowed dashboard state keys",
+            "SQX.remoteState.saveSnapshot",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, architecture)
+
+        for pattern in (
+            "REMOTE-PERSIST1D",
+            "remote-state-backup-v1",
+            "state_backups",
+            "Control Panel",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "REMOTE_STATE_BACKUP_VERSION = \"remote-state-backup-v1\"",
+            "REMOTE_STATE_BACKUP_DIRNAME = \"state_backups\"",
+            "STATE_BACKUP_ALLOWED_KEYS",
+            "path.startswith(\"/api/state/\")",
+            "def _state_backup_scope",
+            "workspace://state-backups",
+            "remote_state_backup_created",
+            "remote_state_backup_restored",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, server_py)
+
+        for pattern in (
+            "credentials: 'include'",
+            "workspace remoto",
+            "SQX.remoteState.saveSnapshot",
+            "state-restore",
+            "localStorage permitido y workspace remoto si aplica",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, state_backup_js)
+
+        for pattern in (
+            "API /state/backups local o workspace remoto",
+            "scope local/workspace",
+            "sesion remota ausente",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, modal_registry_js)
+
+        for pattern in (
+            "workspace remoto",
+            "remote restore should resync restored keys to workspace state",
+            "credentials",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, state_backup_contracts)
+
+        for pattern in (
+            "test_remote_state_backup_requires_session_for_tunnel_request",
+            "test_remote_state_backup_roundtrip_uses_workspace_and_redacts",
+            "test_remote_state_backups_are_separate_per_identity",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_state_backup_tests)
+
+    def test_remote_persist1e_sqx_views_presets_are_workspace_scoped(self):
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        architecture = ARCHITECTURE_DOC.read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        persist1e = REMOTE_PERSIST1E_SQX_VIEWS_PRESETS_DOC.read_text(encoding="utf-8-sig")
+        remote_workspace_state_py = (TOOL_ROOT / "core" / "remote_workspace_state.py").read_text(encoding="utf-8-sig")
+        remote_state_js = (APP_ROOT / "js" / "modules" / "remote-state.js").read_text(encoding="utf-8-sig")
+        view_creator_js = (APP_ROOT / "js" / "modules" / "view-creator.js").read_text(encoding="utf-8-sig")
+        remote_state_contracts = (PROJECT_ROOT / "tests" / "js" / "contracts" / "remote_state_contracts.mjs").read_text(encoding="utf-8-sig")
+        view_creator_contracts = (PROJECT_ROOT / "tests" / "js" / "contracts" / "view_creator_contracts.mjs").read_text(encoding="utf-8-sig")
+        remote_workspace_state_tests = (TOOL_ROOT / "test_remote_workspace_state.py").read_text(encoding="utf-8-sig")
+
+        self.assertTrue(REMOTE_PERSIST1E_SQX_VIEWS_PRESETS_DOC.is_file())
+
+        for pattern in (
+            "REMOTE-PERSIST1E - SQX Views Workspace Presets",
+            "`sqx_view_creator_presets_v1`",
+            "`remote-workspace-state-v1`",
+            "`<workspace>/config/workspace_state.sqlite`",
+            "`sqx-views-presets`",
+            "Two remote identities keep separate SQX Views preset lists",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, persist1e)
+
+        for pattern in (
+            "SQX Views Workspace Preset Gate",
+            "REMOTE-PERSIST1E - SQX Views Workspace Presets",
+            "The former SQX Views/user presets persistence blocker is closed",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "### REMOTE-PERSIST1E - SQX Views Workspace Presets",
+            "`sqx_view_creator_presets_v1`",
+            "`sqx-views-presets`",
+            "Remaining multi-user expansion blockers after REMOTE-PERSIST1E",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "REMOTE-PERSIST1E SQX Views workspace presets",
+            "`sqx_view_creator_presets_v1`",
+            "`sqx-views-presets`",
+            "source of truth",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, architecture)
+
+        for pattern in (
+            "REMOTE-PERSIST1E",
+            "sqx_view_creator_presets_v1",
+            "workspace_state.sqlite",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            '"viewCreatorPresets": "sqx_view_creator_presets_v1"',
+            "ALLOWED_REMOTE_STATE_KEYS",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_workspace_state_py)
+
+        for pattern in (
+            "viewCreatorPresets: 'sqx_view_creator_presets_v1'",
+            "allowedKeys",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_state_js)
+
+        for pattern in (
+            "syncSavedPresetsToRemote",
+            "sqx-views-presets",
+            "sqx:remote-state-loaded",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, view_creator_js)
+
+        for pattern in (
+            "sqx_view_creator_presets_v1",
+            "remote-view",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_state_contracts)
+
+        for pattern in (
+            "remotePresetPayload",
+            "sqx-views-presets",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, view_creator_contracts)
+
+        for pattern in (
+            "sqx_view_creator_presets_v1",
+            "corr1",
+            "SQX EDGE CORRELATION REVIEW",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_workspace_state_tests)
+
+    def test_cfx_base142_template_compatibility_is_documented_and_guarded(self):
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        architecture = ARCHITECTURE_DOC.read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        doc = CFX_BASE142_TEMPLATE_COMPATIBILITY_DOC.read_text(encoding="utf-8-sig")
+        xml_patcher = (TOOL_ROOT / "core" / "xml_patcher.py").read_text(encoding="utf-8-sig")
+        test_cfx = (TOOL_ROOT / "test_cfx_template_compatibility.py").read_text(encoding="utf-8-sig")
+
+        self.assertTrue(CFX_BASE142_TEMPLATE_COMPATIBILITY_DOC.is_file())
+
+        for pattern in (
+            "CFX-BASE142 - Base Template Compatibility",
+            "`backend/sqx-edge-tool/templates/Capa1_Long.cfx`",
+            "`backend/sqx-edge-tool/templates/Capa2_Base.cfx`",
+            "Capa1_Long_SQX142_Base",
+            "Capa2_Base_SQX142_Base",
+            "BrokerDto.getName()",
+            "Futures_Commodities1",
+            "MarketOpenSession",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, doc)
+
+        for pattern in (
+            "Base CFX SQX142 Compatibility Gate",
+            "Local SQX 142 intelligence rule",
+            "SQX 142 Local Intelligence",
+            "CFX-BASE142 repairs",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "CFX-BASE142 base template compatibility",
+            "AUDCAD_darwinex",
+            "neutral seed must not leak into generated projects",
+            "rewrites embedded `BackupStrategyTemplate` symbols",
+            "forces tick backtest precision",
+            'precision="TICK"',
+            'timezone="EETUS"',
+            'InstrumentInfo dataType="3"',
+            "bounded to the local SQX `DATA` availability",
+            "Missing 2831 days",
+            "forces the project session contract to `No Session`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, architecture)
+
+        for pattern in (
+            "CFX-BASE142",
+            "Capa1_Long.cfx",
+            "Capa2_Base.cfx",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "def _ensure_resource_broker",
+            "def _bounded_resource_period_ms",
+            "def patch_backtest_precision",
+            "def patch_embedded_strategy_metadata",
+            "def patch_no_session",
+            "broker_description",
+            "Brokers",
+            "MarketOpenSession",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, xml_patcher)
+
+        for pattern in (
+            "test_base_cfx_templates_have_sqx142_resolvable_resources",
+            "test_patch_symbol_resources_rebuilds_empty_brokers_for_sqx142",
+            "test_patch_symbol_resources_uses_available_data_range_when_task_is_older_than_sqx_data",
+            "test_patch_backtest_precision_sets_tick_precision_for_sqx142",
+            "test_patch_no_session_clears_stale_market_open_session",
+            "test_patch_embedded_strategy_metadata_tracks_generated_symbol",
+            "Capa2_Base_SQX142_Base",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, test_cfx)
+
+    def test_cfx_cross_host_compatibility_audit_is_documented_and_guarded(self):
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        architecture = ARCHITECTURE_DOC.read_text(encoding="utf-8-sig")
+        doc = CFX_COMPAT_DTR1_DOC.read_text(encoding="utf-8-sig")
+        core = (TOOL_ROOT / "core" / "cfx_compatibility.py").read_text(encoding="utf-8-sig")
+        cli = (TOOL_ROOT / "tools" / "cfx_compatibility_audit.py").read_text(encoding="utf-8-sig")
+        tests = (TOOL_ROOT / "test_cfx_compatibility_audit.py").read_text(encoding="utf-8-sig")
+
+        self.assertTrue(CFX_COMPAT_DTR1_DOC.is_file())
+
+        for pattern in (
+            "CFX-COMPAT-DTR1 - Custom Project Compatibility Review",
+            "sq_equity_data_subscription_bound",
+            "cfx-compatibility-audit-v1",
+            "placeholder symbol",
+            "source-machine paths",
+            "CFX-TARGET1",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, doc)
+
+        for pattern in (
+            "CFX-COMPAT-DTR1 - custom project compatibility review",
+            "CFX Cross-Host Compatibility Gate",
+            "cfx-compatibility-audit-v1",
+            "SQ Equity Data subscription dependencies",
+            "backend/sqx-edge-tool/tools/cfx_compatibility_audit.py",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "CFX-COMPAT-DTR1 - Custom Project Compatibility Review",
+            "cfx-compatibility-audit-v1",
+            "target-host profile",
+            "backend/sqx-edge-tool/tools/cfx_compatibility_audit.py",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "cfx-compatibility-audit-v1",
+            "SQ Equity Data subscription dependencies",
+            "source-machine paths",
+            "backend/sqx-edge-tool/core/cfx_compatibility.py",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, architecture)
+
+        for pattern in (
+            "CFX_COMPATIBILITY_AUDIT_VERSION",
+            "sq_equity_data_subscription_bound",
+            "placeholder_symbol",
+            "stale_market_open_session",
+            "chart_missing_resource_symbol",
+            "absolute_strategytype_path",
+            "render_markdown",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, core)
+
+        self.assertIn("audit_many", cli)
+        self.assertIn("test_generated_cfx_passes_host_compatibility_audit", tests)
+        self.assertIn("test_external_sq_equity_profile_is_blocked_for_cross_host_delivery", tests)
+        self.assertIn("test_mixed_symbol_and_session_profile_is_failed", tests)
+
+    def test_remote_5_remote_ux_surface_is_redacted_and_wired(self):
+        remote_5 = REMOTE_5_REMOTE_UX_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        architecture = ARCHITECTURE_DOC.read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        home_js = (APP_ROOT / "js" / "modules" / "home.js").read_text(encoding="utf-8-sig")
+        dashboard_js = (APP_ROOT / "js" / "dashboard.js").read_text(encoding="utf-8-sig")
+        css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")
+
+        self.assertTrue(REMOTE_5_REMOTE_UX_DOC.is_file())
+
+        for pattern in (
+            "REMOTE-5 - Remote Pro UX Surface",
+            "remote-pro-panel",
+            "GET /api/remote/access/status",
+            "GET /api/remote/session/status",
+            "GET /api/remote/workspace/status",
+            "GET /api/health",
+            "Do not display",
+            "controlled, audited and isolated",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_5)
+
+        for pattern in (
+            'id="remote-pro-panel"',
+            'id="remote-pro-access-status"',
+            'id="remote-pro-workspace-status"',
+            'id="remote-pro-server-status"',
+            'id="remote-pro-privacy-status"',
+            'id="remote-pro-refresh"',
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, self.html)
+
+        for forbidden in (
+            'id="remote-pro-sqx-path"',
+            'id="remote-pro-data-db"',
+            'id="remote-pro-output-dir"',
+            'id="remote-pro-workspace-root"',
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, self.html)
+
+        for pattern in (
+            "computeRemoteServiceModel",
+            "applyRemoteServiceModel",
+            "refreshRemoteServiceStatus",
+            "initRemoteServicePanel",
+            "/remote/access/status",
+            "/remote/session/status",
+            "/remote/workspace/status",
+            "/health",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, home_js)
+
+        for pattern in (
+            "SQX_HOME.initRemoteServicePanel",
+            ".remote-pro-panel",
+            ".remote-pro-item.is-ok",
+            "Remote UX Disclosure Gate",
+            "REMOTE-5 remote Pro UX surface",
+            "REMOTE-5 fija el panel `remote-pro-panel`",
+            "Artifacts added in REMOTE-6",
+        ):
+            combined = "\n".join([dashboard_js, css, governance, architecture, readme, roadmap])
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, combined)
+
+        combined_public = "\n".join([remote_5, home_js, self.html, css, roadmap, governance, architecture, readme])
+        for forbidden in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            "SQX_REMOTE_SESSION_SECRET=",
+            "SQX_REMOTE_WORKSPACES_ROOT=",
+            "CLOUDFLARE_API_TOKEN=",
+            "sk_" + "live_",
+            "pk_" + "live_",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, combined_public)
+
+    def test_remote_6_security_abuse_controls_are_wired(self):
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        architecture = ARCHITECTURE_DOC.read_text(encoding="utf-8-sig")
+        remote_6 = REMOTE_6_SECURITY_ABUSE_CONTROLS_DOC.read_text(encoding="utf-8-sig")
+        server_py = (TOOL_ROOT / "api" / "server.py").read_text(encoding="utf-8-sig")
+        remote_security_py = (TOOL_ROOT / "core" / "remote_security.py").read_text(encoding="utf-8-sig")
+        remote_access_py = (TOOL_ROOT / "core" / "remote_access.py").read_text(encoding="utf-8-sig")
+        remote_workspaces_py = (TOOL_ROOT / "core" / "remote_workspaces.py").read_text(encoding="utf-8-sig")
+        home_js = (APP_ROOT / "js" / "modules" / "home.js").read_text(encoding="utf-8-sig")
+        css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")
+
+        for path in (
+            REMOTE_6_SECURITY_ABUSE_CONTROLS_DOC,
+            TOOL_ROOT / "core" / "remote_security.py",
+            TOOL_ROOT / "test_remote_security.py",
+        ):
+            with self.subTest(path=path):
+                self.assertTrue(path.is_file(), path)
+
+        for pattern in (
+            "REMOTE-6 - Security And Abuse Controls",
+            "remote-security-v1",
+            "SQX_REMOTE_SECURITY_POLICY_PATH",
+            "GET /api/remote/security/status",
+            "GET /api/remote/security/audit/recent",
+            "Kill switch",
+            "Rate limits",
+            "Watermark",
+            "Do not commit the real local policy",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_6)
+
+        for pattern in (
+            "Current phase completed: REMOTE-8H cycle bridge",
+            "Current implementation phase: REMOTE-8H private package evidence",
+            "Remote Security Abuse Gate",
+            "remote-security-v1",
+            "redacted audit visibility",
+            "remote-session-watermark",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Artifacts added in REMOTE-6",
+            "docs/REMOTE_6_SECURITY_ABUSE_CONTROLS.md",
+            "backend/sqx-edge-tool/core/remote_security.py",
+            "remote-security-v1",
+            "X-SQX-Remote-Security-Version",
+            "Remote Security Abuse Gate",
+            "Next REMOTE-7 scope",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "REMOTE-6 security and abuse controls",
+            "backend/sqx-edge-tool/core/remote_security.py",
+            "GET /api/remote/security/status",
+            "GET /api/remote/security/audit/recent",
+            "remote-security-v1",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, architecture)
+
+        for pattern in (
+            "Estado comercial: REMOTE-8H cycle bridge",
+            "Siguiente paso recomendado: rellenar evidencia privada REMOTE-8H",
+            "REMOTE-6 fija `remote-security-v1`",
+            "endpoint `/api/remote/security/status`",
+            "endpoint `/api/remote/security/audit/recent`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "enforce_remote_security_controls",
+            "@app.get(\"/api/remote/security/status\")",
+            "@app.get(\"/api/remote/security/audit/recent\")",
+            "X-SQX-Remote-Security-Version",
+            "remote_rate_limited",
+            "remote_kill_switch_active",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, server_py)
+
+        for pattern in (
+            "REMOTE_SECURITY_VERSION = \"remote-security-v1\"",
+            "SECURITY_POLICY_ENV = \"SQX_REMOTE_SECURITY_POLICY_PATH\"",
+            "check_remote_rate_limit",
+            "public_security_status",
+            "revokedSessionIds",
+            "blockedIdentityHashes",
+            "policy_path_returned",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_security_py)
+
+        for pattern in (
+            "session_revoked",
+            "security_identity_blocked",
+            "identity_blocked",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_access_py)
+
+        for pattern in (
+            "read_recent_workspace_audit_events",
+            "identity_hash_ref",
+            "local_paths_returned",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_workspaces_py)
+
+        for pattern in (
+            'id="remote-pro-security-status"',
+            'id="remote-session-watermark"',
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, self.html)
+
+        for pattern in (
+            "/remote/security/status",
+            "remote-session-watermark",
+            "watermark",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, home_js)
+
+        self.assertIn(".remote-session-watermark", css)
+
+        combined_public = "\n".join([
+            remote_6, remote_security_py, remote_access_py, remote_workspaces_py,
+            server_py, home_js, self.html, css, roadmap, governance, architecture, readme,
+        ])
+        for forbidden in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            "SQX_REMOTE_SECURITY_POLICY_PATH=",
+            "CLOUDFLARE_API_TOKEN=",
+            "sk_" + "live_",
+            "pk_" + "live_",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, combined_public)
+
+    def test_remote_sec2_credential_sharing_control_is_wired(self):
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        remote_sec2 = REMOTE_SEC2_CREDENTIAL_SHARING_DOC.read_text(encoding="utf-8-sig")
+        server_py = (TOOL_ROOT / "api" / "server.py").read_text(encoding="utf-8-sig")
+        remote_access_py = (TOOL_ROOT / "core" / "remote_access.py").read_text(encoding="utf-8-sig")
+        remote_access_control_py = REMOTE_ACCESS_CONTROL_CORE.read_text(encoding="utf-8-sig")
+        home_js = (APP_ROOT / "js" / "modules" / "home.js").read_text(encoding="utf-8-sig")
+
+        for path in (
+            REMOTE_SEC2_CREDENTIAL_SHARING_DOC,
+            REMOTE_ACCESS_CONTROL_CORE,
+            REMOTE_ACCESS_CONTROL_TEST,
+            REMOTE_ACCESS_CONTROL_STATUS_TOOL,
+            REMOTE_ACCESS_CONTROL_ADMIN_TOOL,
+            REMOTE_ACCESS_CONTROL_STATUS_PS1,
+            REMOTE_ACCESS_CONTROL_ADMIN_PS1,
+        ):
+            with self.subTest(path=path):
+                self.assertTrue(path.is_file(), path)
+
+        for pattern in (
+            "REMOTE-SEC2 - Credential Sharing Control",
+            "remote-access-control-v1",
+            "__Host-sqx_device_id",
+            "2 trusted contexts",
+            "copied sessions",
+            "Operator Flow",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_sec2)
+
+        for pattern in (
+            "Credential Sharing Gate",
+            "REMOTE-SEC2 - Credential Sharing Control",
+            "2 trusted contexts per identity",
+            "copied-session mismatch blocking",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "### REMOTE-SEC2 - Credential Sharing Control",
+            "remote-access-control-v1",
+            "GET /api/remote/access-control/status",
+            "POST /api/remote/access-control/request-approval",
+            "tools/remote_access_control_status.ps1",
+            "tools/remote_access_control_admin.ps1",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "REMOTE_ACCESS_CONTROL_VERSION = \"remote-access-control-v1\"",
+            "ACCESS_CONTROL_COOKIE_NAME = \"__Host-sqx_device_id\"",
+            "maxTrustedContextsPerIdentity",
+            "build_access_context",
+            "evaluate_access_context",
+            "approve_access_context",
+            "revoke_access_context",
+            "raw_ip_returned",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_access_control_py)
+
+        for pattern in (
+            "@app.get(\"/api/remote/access-control/status\")",
+            "@app.post(\"/api/remote/access-control/request-approval\")",
+            "ACCESS_CONTROL_COOKIE_NAME",
+            "record_session_started",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, server_py)
+
+        self.assertIn("access_context_ref", remote_access_py)
+        self.assertIn("/remote/access-control/status", home_js)
+        self.assertIn("requestAccessApproval", home_js)
+        self.assertIn("Solicitar aprobacion", home_js)
+
+        combined_public = "\n".join([remote_sec2, remote_access_control_py, server_py, home_js, governance, roadmap])
+        for forbidden in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            "CF_Authorization=",
+            "__Host-sqx_remote_session=",
+            "CLOUDFLARE_API_TOKEN=",
+            "sk_" + "live_",
+            "pk_" + "live_",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, combined_public)
+
+    def test_remote_7_web_pro_monetization_rewrite_is_wired(self):
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        architecture = ARCHITECTURE_DOC.read_text(encoding="utf-8-sig")
+        remote_7 = REMOTE_7_MONETIZATION_REWRITE_DOC.read_text(encoding="utf-8-sig")
+        commercial_readme = (PROJECT_ROOT / "docs" / "COMMERCIAL_README.md").read_text(encoding="utf-8-sig")
+        public_roadmap = (PROJECT_ROOT / "docs" / "PUBLIC_ROADMAP.md").read_text(encoding="utf-8-sig")
+        product_manifest = json.loads((TOOL_ROOT / "config" / "product_manifest.json").read_text(encoding="utf-8-sig"))
+
+        self.assertTrue(REMOTE_7_MONETIZATION_REWRITE_DOC.is_file())
+
+        for pattern in (
+            "REMOTE-7 - Web Pro Monetization Rewrite",
+            "web_pro_monthly",
+            "web_pro_annual",
+            "tester_free",
+            "No-Install Buyer Promise",
+            "Support Assist",
+            "Responsible Notice",
+            "Next REMOTE-8 Scope",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_7)
+
+        for pattern in (
+            "Current phase completed: REMOTE-8H cycle bridge",
+            "Current implementation phase: REMOTE-8H private package evidence",
+            "Remote Monetization Rewrite Gate",
+            "web_pro_monthly",
+            "web_pro_annual",
+            "support_assist",
+            "tester_free",
+            "portable as internal fallback only",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Artifacts added in REMOTE-7",
+            "docs/REMOTE_7_MONETIZATION_REWRITE.md",
+            "Remote Monetization Rewrite Gate",
+            "Next REMOTE-8 scope",
+            "web_pro_monthly",
+            "web_pro_annual",
+            "support_assist",
+            "tester_free",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "Estado comercial: REMOTE-8H cycle bridge",
+            "Siguiente paso recomendado: rellenar evidencia privada REMOTE-8H",
+            "REMOTE-7 fija la oferta web Pro",
+            "El usuario final no instala Python",
+            "acceso web con suscripcion mensual/anual",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "SQX Edge Pro - Commercial README",
+            "protected web access",
+            "web_pro_monthly",
+            "web_pro_annual",
+            "support_assist",
+            "tester_free",
+            "No Python install",
+            "Portable packaging remains an internal rollback/support fallback",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, commercial_readme)
+
+        for forbidden in (
+            "Descargar el ZIP portable",
+            "Hacer doble click",
+            "START_SQX_EDGE.bat",
+            "licencia local firmada",
+            "SQX Edge Free:",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, commercial_readme)
+
+        for pattern in (
+            "Primary commercial direction: protected remote web Pro access",
+            "web_pro_monthly",
+            "web_pro_annual",
+            "support_assist",
+            "tester_free",
+            "REMOTE-RILIS-STANDBY",
+            "Portable packaging remains an internal fallback",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, public_roadmap)
+
+        self.assertNotIn("ZIP portable para Windows con runtime embebido", public_roadmap)
+
+        for pattern in (
+            "REMOTE-7 web Pro monetization rewrite",
+            "web_pro_monthly",
+            "web_pro_annual",
+            "tester_free",
+            "support_assist",
+            "portable ZIP/offline license flows are internal fallback",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, architecture)
+
+        remote_commercial = product_manifest["remoteCommercial"]
+        self.assertEqual(remote_commercial["phase"], "REMOTE-7")
+        self.assertEqual(remote_commercial["primaryChannel"], "remote_service")
+        self.assertEqual(remote_commercial["buyerAccessModel"], "web_pro_subscription")
+        self.assertEqual(remote_commercial["plans"], ["web_pro_monthly", "web_pro_annual"])
+        self.assertEqual(remote_commercial["supportAddons"], ["support_assist"])
+        self.assertEqual(remote_commercial["testerEntitlement"], "tester_free")
+        self.assertEqual(remote_commercial["portableRole"], "internal_fallback")
+        self.assertTrue(remote_commercial["noInstallBuyerPromise"])
+        self.assertIn("no_financial_results_promise", remote_commercial["responsibleClaims"])
+        self.assertIn("checkout_links", remote_commercial["privateBoundary"])
+
+        combined_public = "\n".join([
+            remote_7, commercial_readme, public_roadmap, roadmap, governance, architecture, readme,
+        ])
+        for forbidden in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            "CLOUDFLARE_API_TOKEN=",
+            "SQX_REMOTE_SESSION_SECRET=",
+            "SQX_REMOTE_PAYMENT_WEBHOOK_SECRET=",
+            "sk_" + "live_",
+            "pk_" + "live_",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, combined_public)
+
+    def test_remote_8_controlled_pilot_drill_is_wired(self):
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        architecture = ARCHITECTURE_DOC.read_text(encoding="utf-8-sig")
+        remote_8 = REMOTE_8_CONTROLLED_PILOT_DOC.read_text(encoding="utf-8-sig")
+        product_manifest = json.loads((TOOL_ROOT / "config" / "product_manifest.json").read_text(encoding="utf-8-sig"))
+        remote_pilot_py = (TOOL_ROOT / "core" / "remote_pilot.py").read_text(encoding="utf-8-sig")
+        remote_pilot_tool = (TOOL_ROOT / "tools" / "remote_controlled_pilot.py").read_text(encoding="utf-8-sig")
+        remote_pilot_test = (TOOL_ROOT / "test_remote_controlled_pilot.py").read_text(encoding="utf-8-sig")
+
+        for path in (
+            REMOTE_8_CONTROLLED_PILOT_DOC,
+            TOOL_ROOT / "core" / "remote_pilot.py",
+            TOOL_ROOT / "tools" / "remote_controlled_pilot.py",
+            TOOL_ROOT / "test_remote_controlled_pilot.py",
+        ):
+            with self.subTest(path=path):
+                self.assertTrue(path.is_file(), path)
+
+        for pattern in (
+            "REMOTE-8 - Controlled Pilot Drill",
+            "remote-controlled-pilot-v1",
+            ".local/remote_service/remote8_controlled_pilot/",
+            "signed payment webhook activates `paid_subscription`",
+            "artifactGeneration.filename",
+            "isolation.sameWorkspace = false",
+            "revocation.accessAllowedAfterCancel = false",
+            "restore.accessAllowedAfterRestore = true",
+            "REMOTE-8B - Live Pilot Evidence Ingest",
+            "Controlled Pilot Gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_8)
+
+        for pattern in (
+            "Current phase completed: REMOTE-8H cycle bridge",
+            "Current implementation phase: REMOTE-8H private package evidence",
+            "Controlled Pilot Gate",
+            "remote-controlled-pilot-v1",
+            "ignored `.local/remote_service/remote8_controlled_pilot/` evidence",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Artifacts added in REMOTE-8",
+            "docs/REMOTE_8_CONTROLLED_PILOT.md",
+            "backend/sqx-edge-tool/core/remote_pilot.py",
+            "backend/sqx-edge-tool/tools/remote_controlled_pilot.py",
+            "backend/sqx-edge-tool/test_remote_controlled_pilot.py",
+            "remote-controlled-pilot-v1",
+            "Next REMOTE-8B scope",
+            "Controlled Pilot Gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "Estado comercial: REMOTE-8H cycle bridge",
+            "Siguiente paso recomendado: rellenar evidencia privada REMOTE-8H",
+            "REMOTE-8 fija `remote-controlled-pilot-v1`",
+            "backend/sqx-edge-tool/tools/remote_controlled_pilot.py",
+            "Controlled Pilot Gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "REMOTE-8 controlled pilot drill",
+            "remote-controlled-pilot-v1",
+            ".local/remote_service/remote8_controlled_pilot/",
+            "payment webhook, app session, workspace, `.cfx` artifact, export, isolation, revocation and restore",
+            "REMOTE-8B must ingest only redacted evidence",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, architecture)
+
+        for pattern in (
+            "REMOTE_CONTROLLED_PILOT_VERSION = \"remote-controlled-pilot-v1\"",
+            "run_controlled_pilot_drill",
+            "_activate_paid_entitlement",
+            "_cancel_paid_entitlement",
+            "_write_pilot_artifact",
+            "firstArtifactVisibleInSecondWorkspace",
+            "accessAllowedAfterCancel",
+            "accessAllowedAfterRestore",
+            "remote8_public_summary_leaked_raw_email",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_pilot_py)
+
+        for pattern in (
+            "run_controlled_pilot_drill",
+            "--run-id",
+            "REMOTE-8 controlled pilot drill",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_pilot_tool)
+
+        for pattern in (
+            "test_remote8_controlled_pilot_drill_proves_end_to_end_without_public_paths",
+            "test_remote8_controlled_pilot_restores_environment",
+            "remote8-buyer@example.invalid",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_pilot_test)
+
+        pilot_manifest = product_manifest["remoteControlledPilot"]
+        self.assertEqual(pilot_manifest["phase"], "REMOTE-8")
+        self.assertEqual(pilot_manifest["version"], "remote-controlled-pilot-v1")
+        self.assertEqual(pilot_manifest["tool"], "backend/sqx-edge-tool/tools/remote_controlled_pilot.py")
+        self.assertEqual(pilot_manifest["doc"], "docs/REMOTE_8_CONTROLLED_PILOT.md")
+        self.assertIn("payment_webhook_activation", pilot_manifest["requiredProofs"])
+        self.assertIn("restore_allows_access", pilot_manifest["requiredProofs"])
+        self.assertFalse(pilot_manifest["privacy"]["rawEmailReturned"])
+        self.assertFalse(pilot_manifest["privacy"]["protectedUrlCommitted"])
+        self.assertEqual(pilot_manifest["nextPhase"], "REMOTE-8B-private-live-pilot-evidence-ingest")
+
+        combined_public = "\n".join([
+            remote_8, roadmap, governance, architecture, readme, remote_pilot_py, remote_pilot_tool,
+        ])
+        for forbidden in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            "CLOUDFLARE_API_TOKEN=",
+            "SQX_REMOTE_PAYMENT_WEBHOOK_SECRET=",
+            "sk_" + "live_",
+            "pk_" + "live_",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, combined_public)
+
+    def test_remote_8b_live_pilot_evidence_ingest_is_wired(self):
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        architecture = ARCHITECTURE_DOC.read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        remote_8b = REMOTE_8B_LIVE_PILOT_EVIDENCE_DOC.read_text(encoding="utf-8-sig")
+        remote_live_py = (TOOL_ROOT / "core" / "remote_live_pilot.py").read_text(encoding="utf-8-sig")
+        remote_live_tool = (TOOL_ROOT / "tools" / "remote_live_pilot_evidence.py").read_text(encoding="utf-8-sig")
+        remote_live_test = (TOOL_ROOT / "test_remote_live_pilot.py").read_text(encoding="utf-8-sig")
+        product_manifest = json.loads((TOOL_ROOT / "config" / "product_manifest.json").read_text(encoding="utf-8-sig"))
+
+        for path in (
+            REMOTE_8B_LIVE_PILOT_EVIDENCE_DOC,
+            REMOTE_8B_LIVE_PILOT_EVIDENCE_EXAMPLE,
+            TOOL_ROOT / "core" / "remote_live_pilot.py",
+            TOOL_ROOT / "tools" / "remote_live_pilot_evidence.py",
+            TOOL_ROOT / "test_remote_live_pilot.py",
+        ):
+            with self.subTest(path=path):
+                self.assertTrue(path.is_file(), path)
+
+        for pattern in (
+            "REMOTE-8B - Live Pilot Evidence Ingest",
+            "remote-live-pilot-evidence-v1",
+            ".local/remote_service/remote8b_live_pilot_evidence",
+            "GO_REMOTE8B_LIVE_PILOT_EVIDENCE_SAFE_NO_GIT_LEAK",
+            "expansionGate.allowedToExpandBeyondOneUser = false",
+            "REMOTE-8C - First User Support Observation And Expansion Decision",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_8b)
+
+        for pattern in (
+            "Current phase completed: REMOTE-8H cycle bridge",
+            "Current implementation phase: REMOTE-8H private package evidence",
+            "Live Pilot Evidence Gate",
+            "remote-live-pilot-evidence-v1",
+            "ignored `.local/remote_service/remote8b_live_pilot_evidence*` evidence",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Artifacts added in REMOTE-8B",
+            "docs/REMOTE_8B_LIVE_PILOT_EVIDENCE.md",
+            "backend/sqx-edge-tool/core/remote_live_pilot.py",
+            "backend/sqx-edge-tool/tools/remote_live_pilot_evidence.py",
+            "backend/sqx-edge-tool/test_remote_live_pilot.py",
+            "REMOTE-8C - First User Support Observation And Expansion Decision",
+            "Live Pilot Evidence Gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "Estado comercial: REMOTE-8H cycle bridge",
+            "Siguiente paso recomendado: rellenar evidencia privada REMOTE-8H",
+            "REMOTE-8B fija `remote-live-pilot-evidence-v1`",
+            "backend/sqx-edge-tool/tools/remote_live_pilot_evidence.py",
+            "Live Pilot Evidence Gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "REMOTE-8B live pilot evidence ingest",
+            "remote-live-pilot-evidence-v1",
+            ".local/remote_service/remote8b_live_pilot_evidence.local.json",
+            "REMOTE-8C must observe the first user",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, architecture)
+
+        for pattern in (
+            "REMOTE_LIVE_PILOT_EVIDENCE_VERSION = \"remote-live-pilot-evidence-v1\"",
+            "REQUIRED_PROOFS",
+            "build_remote8b_evidence_summary",
+            "ingest_remote8b_live_pilot_evidence",
+            "NO_GO_REMOTE8B_PRIVATE_EVIDENCE_MISSING",
+            "NO_GO_REMOTE8B_PUBLIC_SUMMARY_PRIVACY_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_live_py)
+
+        for pattern in (
+            "ingest_remote8b_live_pilot_evidence",
+            "--evidence",
+            "--out-dir",
+            "REMOTE-8B live pilot evidence",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_live_tool)
+
+        for pattern in (
+            "test_remote8b_live_pilot_evidence_go_redacts_private_values",
+            "test_remote8b_missing_evidence_returns_no_go",
+            "test_remote8b_incomplete_evidence_blocks_expansion",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_live_test)
+
+        live_manifest = product_manifest["remoteLivePilotEvidence"]
+        self.assertEqual(live_manifest["phase"], "REMOTE-8B")
+        self.assertEqual(live_manifest["version"], "remote-live-pilot-evidence-v1")
+        self.assertEqual(live_manifest["tool"], "backend/sqx-edge-tool/tools/remote_live_pilot_evidence.py")
+        self.assertEqual(live_manifest["doc"], "docs/REMOTE_8B_LIVE_PILOT_EVIDENCE.md")
+        self.assertEqual(live_manifest["example"], "docs/examples/remote8b_live_pilot_evidence.local.example.json")
+        self.assertIn("cloudflareAccessPassed", live_manifest["requiredProofs"])
+        self.assertIn("privateEvidenceStoredOutsideGit", live_manifest["requiredProofs"])
+        self.assertFalse(live_manifest["privacy"]["rawEmailReturned"])
+        self.assertFalse(live_manifest["privacy"]["protectedUrlReturned"])
+        self.assertFalse(live_manifest["privacy"]["privateEvidenceCommitted"])
+        self.assertEqual(live_manifest["nextPhase"], "REMOTE-8C-first-user-support-observation")
+
+        combined_public = "\n".join([
+            remote_8b, roadmap, governance, architecture, readme, remote_live_py, remote_live_tool,
+        ])
+        for forbidden in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            "CLOUDFLARE_API_TOKEN=",
+            "SQX_REMOTE_SESSION_SECRET=",
+            "SQX_REMOTE_PAYMENT_WEBHOOK_SECRET=",
+            "sk_" + "live_",
+            "pk_" + "live_",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, combined_public)
+
+    def test_remote_8c_first_user_observation_gate_is_wired(self):
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        architecture = ARCHITECTURE_DOC.read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        remote_8c = REMOTE_8C_FIRST_USER_OBSERVATION_DOC.read_text(encoding="utf-8-sig")
+        observation_py = (TOOL_ROOT / "core" / "remote_first_user_observation.py").read_text(encoding="utf-8-sig")
+        observation_tool = (TOOL_ROOT / "tools" / "remote_first_user_observation.py").read_text(encoding="utf-8-sig")
+        observation_status_tool = REMOTE_8C_OBSERVATION_STATUS_SCRIPT.read_text(encoding="utf-8-sig")
+        observation_test = (TOOL_ROOT / "test_remote_first_user_observation.py").read_text(encoding="utf-8-sig")
+        product_manifest = json.loads((TOOL_ROOT / "config" / "product_manifest.json").read_text(encoding="utf-8-sig"))
+
+        for path in (
+            REMOTE_8C_FIRST_USER_OBSERVATION_DOC,
+            REMOTE_8C_FIRST_USER_OBSERVATION_EXAMPLE,
+            TOOL_ROOT / "core" / "remote_first_user_observation.py",
+            TOOL_ROOT / "tools" / "remote_first_user_observation.py",
+            REMOTE_8C_OBSERVATION_STATUS_SCRIPT,
+            TOOL_ROOT / "test_remote_first_user_observation.py",
+        ):
+            with self.subTest(path=path):
+                self.assertTrue(path.is_file(), path)
+
+        for pattern in (
+            "REMOTE-8C - First User Support Observation And Expansion Decision",
+            "remote-first-user-observation-v1",
+            ".local/remote_service/remote8c_first_user_observation",
+            "GO_REMOTE8C_TINY_COHORT_EXPANSION_READY",
+            "GO_REMOTE8C_STAY_ONE_USER_DECISION_RECORDED",
+            "38.0",
+            "Requested decision: `expand_3_5`",
+            "Expansion package allowed: `true`",
+            "decision.automationAllowed = false",
+            "Operator Status Helper",
+            "tools\\remote8c_observation_status.ps1",
+            "REMOTE-8D - Tiny Cohort Activation Package",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_8c)
+
+        for pattern in (
+            "Current phase completed: REMOTE-8H cycle bridge",
+            "Current implementation phase: REMOTE-8H private package evidence",
+            "Current phase completed: REMOTE-8C - First User Support Observation",
+            "Current phase completed: REMOTE-8D - Tiny Cohort Activation Package prepared",
+            "GO_REMOTE8D_TINY_COHORT_ACTIVATION_PACKAGE_READY",
+            "GO_REMOTE8C_STAY_ONE_USER_DECISION_RECORDED",
+            "GO_REMOTE8C_TINY_COHORT_EXPANSION_READY",
+            "First User Observation Gate",
+            "remote-first-user-observation-v1",
+            "tools/remote8c_observation_status.ps1",
+            "ignored `.local/remote_service/remote8c_first_user_observation*` evidence",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Artifacts added in REMOTE-8C",
+            "Current public-safe decision on 2026-05-18",
+            "GO_REMOTE8C_STAY_ONE_USER_DECISION_RECORDED",
+            "GO_REMOTE8C_TINY_COHORT_EXPANSION_READY",
+            "zero open support items",
+            "did not invite users",
+            "docs/REMOTE_8C_FIRST_USER_OBSERVATION.md",
+            "backend/sqx-edge-tool/core/remote_first_user_observation.py",
+            "backend/sqx-edge-tool/tools/remote_first_user_observation.py",
+            "backend/sqx-edge-tool/test_remote_first_user_observation.py",
+            "REMOTE-8D - Tiny Cohort Activation Package",
+            "First User Observation Gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "Estado comercial: REMOTE-8H cycle bridge",
+            "Siguiente paso recomendado: rellenar evidencia privada REMOTE-8H",
+            "REMOTE-8C fija `remote-first-user-observation-v1`",
+            "backend/sqx-edge-tool/tools/remote_first_user_observation.py",
+            "First User Observation Gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "REMOTE-8C first user observation decision",
+            "remote-first-user-observation-v1",
+            ".local/remote_service/remote8c_first_user_observation.local.json",
+            "decision.automationAllowed",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, architecture)
+
+        for pattern in (
+            "REMOTE_FIRST_USER_OBSERVATION_VERSION = \"remote-first-user-observation-v1\"",
+            "MIN_OBSERVATION_HOURS = 24",
+            "REQUIRED_SIGNALS",
+            "MAX_ZERO_METRICS",
+            "build_remote8c_observation_summary",
+            "ingest_remote8c_first_user_observation",
+            "NO_GO_REMOTE8C_OBSERVATION_EVIDENCE_MISSING",
+            "NO_GO_REMOTE8C_PUBLIC_SUMMARY_PRIVACY_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, observation_py)
+
+        for pattern in (
+            "ingest_remote8c_first_user_observation",
+            "--evidence",
+            "--out-dir",
+            "REMOTE-8C first user observation",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, observation_tool)
+
+        for pattern in (
+            "remote_first_user_observation.py",
+            "GO_REMOTE8C_TINY_COHORT_EXPANSION_READY",
+            "NO_GO_REMOTE8C_FIRST_USER_OBSERVATION_BLOCKED",
+            "FailOnNoGo",
+            "<local-ignored>",
+            "allowedToExpandToTinyCohort",
+            "manualOperatorStepRequired",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, observation_status_tool)
+
+        for pattern in (
+            "test_remote8c_clean_first_user_observation_allows_only_manual_tiny_cohort",
+            "test_remote8c_missing_evidence_returns_no_go",
+            "test_remote8c_blockers_prevent_expansion",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, observation_test)
+
+        observation_manifest = product_manifest["remoteFirstUserObservation"]
+        self.assertEqual(observation_manifest["phase"], "REMOTE-8C")
+        self.assertEqual(observation_manifest["version"], "remote-first-user-observation-v1")
+        self.assertEqual(observation_manifest["tool"], "backend/sqx-edge-tool/tools/remote_first_user_observation.py")
+        self.assertEqual(observation_manifest["doc"], "docs/REMOTE_8C_FIRST_USER_OBSERVATION.md")
+        self.assertEqual(observation_manifest["example"], "docs/examples/remote8c_first_user_observation.local.example.json")
+        self.assertEqual(observation_manifest["minimumObservationHours"], 24)
+        self.assertIn("expand_3_5", observation_manifest["validRequestedDecisions"])
+        self.assertIn("supportLoopObserved", observation_manifest["requiredSignals"])
+        self.assertIn("generationFailures", observation_manifest["zeroToleranceMetrics"])
+        self.assertFalse(observation_manifest["privacy"]["supportLogsReturned"])
+        self.assertFalse(observation_manifest["automation"]["invitesAllowed"])
+        self.assertFalse(observation_manifest["automation"]["grantMutationAllowed"])
+        self.assertEqual(observation_manifest["nextPhase"], "REMOTE-8D-tiny-cohort-activation-package")
+
+        combined_public = "\n".join([
+            remote_8c, roadmap, governance, architecture, readme, observation_py, observation_tool,
+            observation_status_tool,
+        ])
+        for forbidden in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            "CLOUDFLARE_API_TOKEN=",
+            "SQX_REMOTE_SESSION_SECRET=",
+            "SQX_REMOTE_PAYMENT_WEBHOOK_SECRET=",
+            "sk_" + "live_",
+            "pk_" + "live_",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, combined_public)
+
+    def test_remote_welcome_is_mobile_safe_for_rilis_standby(self):
+        html = (APP_ROOT / "SQX_Dashboard_v6.html").read_text(encoding="utf-8-sig")
+        css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+
+        for pattern in (
+            'id="remote-welcome-gate"',
+            'id="remote-welcome-verdict"',
+            'id="remote-welcome-primary"',
+            'id="remote-trust-center"',
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, html)
+
+        for pattern in (
+            ".remote-welcome-gate",
+            "overflow:hidden",
+            "overflow-x:hidden",
+            "@media (max-width: 860px)",
+            "place-items:start center",
+            "max-height:calc(100dvh - 20px)",
+            "white-space:normal",
+            "overflow-wrap:anywhere",
+            "@media (max-width: 480px)",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, css)
+
+        for pattern in (
+            "REMOTE-RILIS-STANDBY",
+            "standby browser/custom-load blocker",
+            "operator confirmed that TESTER-RILIS has access",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+    def test_remote_8d_tiny_cohort_activation_package_gate_is_wired(self):
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        architecture = ARCHITECTURE_DOC.read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        remote_8d = REMOTE_8D_TINY_COHORT_ACTIVATION_DOC.read_text(encoding="utf-8-sig")
+        activation_py = (TOOL_ROOT / "core" / "remote_tiny_cohort_activation.py").read_text(encoding="utf-8-sig")
+        activation_tool = (TOOL_ROOT / "tools" / "remote_tiny_cohort_activation.py").read_text(encoding="utf-8-sig")
+        activation_test = (TOOL_ROOT / "test_remote_tiny_cohort_activation.py").read_text(encoding="utf-8-sig")
+        product_manifest = json.loads((TOOL_ROOT / "config" / "product_manifest.json").read_text(encoding="utf-8-sig"))
+
+        for path in (
+            REMOTE_8D_TINY_COHORT_ACTIVATION_DOC,
+            REMOTE_8D_TINY_COHORT_ACTIVATION_EXAMPLE,
+            TOOL_ROOT / "core" / "remote_tiny_cohort_activation.py",
+            TOOL_ROOT / "tools" / "remote_tiny_cohort_activation.py",
+            TOOL_ROOT / "test_remote_tiny_cohort_activation.py",
+        ):
+            with self.subTest(path=path):
+                self.assertTrue(path.is_file(), path)
+
+        for pattern in (
+            "REMOTE-8D - Tiny Cohort Activation Package",
+            "Current Package Status",
+            "GO_REMOTE8D_TINY_COHORT_ACTIVATION_PACKAGE_READY",
+            "Candidate count: `3`",
+            "Grants created: `0`",
+            "remote-tiny-cohort-activation-v1",
+            ".local/remote_service/remote8d_tiny_cohort_activation",
+            "GO_REMOTE8D_TINY_COHORT_ACTIVATION_PACKAGE_READY",
+            "executionGate.invitesAllowedNow = false",
+            "REMOTE-8E - Tiny Cohort Manual Execution Record",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_8d)
+
+        for pattern in (
+            "Current phase completed: REMOTE-8H cycle bridge",
+            "Current implementation phase: REMOTE-8H private package evidence",
+            "Tiny Cohort Activation Package Gate",
+            "remote-tiny-cohort-activation-v1",
+            "ignored `.local/remote_service/remote8d_tiny_cohort_activation*` evidence",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Artifacts added in REMOTE-8D",
+            "Current public-safe status on 2026-05-18",
+            "3 `tester_free` candidates",
+            "zero invites/grants/checkout links/emails/public URLs created",
+            "docs/REMOTE_8D_TINY_COHORT_ACTIVATION.md",
+            "backend/sqx-edge-tool/core/remote_tiny_cohort_activation.py",
+            "backend/sqx-edge-tool/tools/remote_tiny_cohort_activation.py",
+            "backend/sqx-edge-tool/test_remote_tiny_cohort_activation.py",
+            "REMOTE-8E - Tiny Cohort Manual Execution Record",
+            "Tiny Cohort Activation Package Gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "Estado comercial: REMOTE-8H cycle bridge",
+            "Siguiente paso recomendado: rellenar evidencia privada REMOTE-8H",
+            "REMOTE-8D fija `remote-tiny-cohort-activation-v1`",
+            "backend/sqx-edge-tool/tools/remote_tiny_cohort_activation.py",
+            "Tiny Cohort Activation Package Gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "REMOTE-8D tiny cohort activation package",
+            "remote-tiny-cohort-activation-v1",
+            ".local/remote_service/remote8d_tiny_cohort_activation.local.json",
+            "Automation counters for invites",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, architecture)
+
+        for pattern in (
+            "REMOTE_TINY_COHORT_ACTIVATION_VERSION = \"remote-tiny-cohort-activation-v1\"",
+            "MIN_COHORT_SIZE = 3",
+            "MAX_COHORT_SIZE = 5",
+            "REQUIRED_SOURCE_STATUS = \"GO_REMOTE8C_TINY_COHORT_EXPANSION_READY\"",
+            "REQUIRED_CHECKS",
+            "ZERO_AUTOMATION_METRICS",
+            "build_remote8d_activation_summary",
+            "ingest_remote8d_tiny_cohort_activation",
+            "NO_GO_REMOTE8D_ACTIVATION_PACKAGE_EVIDENCE_MISSING",
+            "NO_GO_REMOTE8D_PUBLIC_SUMMARY_PRIVACY_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, activation_py)
+
+        for pattern in (
+            "ingest_remote8d_tiny_cohort_activation",
+            "--evidence",
+            "--out-dir",
+            "REMOTE-8D tiny cohort activation package",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, activation_tool)
+
+        for pattern in (
+            "test_remote8d_clean_package_prepares_manual_only_tiny_cohort",
+            "test_remote8d_missing_evidence_returns_no_go",
+            "test_remote8d_blockers_prevent_package_ready",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, activation_test)
+
+        activation_manifest = product_manifest["remoteTinyCohortActivation"]
+        self.assertEqual(activation_manifest["phase"], "REMOTE-8D")
+        self.assertEqual(activation_manifest["version"], "remote-tiny-cohort-activation-v1")
+        self.assertEqual(activation_manifest["tool"], "backend/sqx-edge-tool/tools/remote_tiny_cohort_activation.py")
+        self.assertEqual(activation_manifest["doc"], "docs/REMOTE_8D_TINY_COHORT_ACTIVATION.md")
+        self.assertEqual(activation_manifest["example"], "docs/examples/remote8d_tiny_cohort_activation.local.example.json")
+        self.assertEqual(activation_manifest["sourceStatusRequired"], "GO_REMOTE8C_TINY_COHORT_EXPANSION_READY")
+        self.assertEqual(activation_manifest["minCohortSize"], 3)
+        self.assertEqual(activation_manifest["maxCohortSize"], 5)
+        self.assertIn("prepare_manual_activation_package", activation_manifest["validRequestedActions"])
+        self.assertIn("tester_free", activation_manifest["validEntitlementKinds"])
+        self.assertIn("pauseRuleReady", activation_manifest["requiredChecks"])
+        self.assertIn("emailsSent", activation_manifest["zeroAutomationMetrics"])
+        self.assertFalse(activation_manifest["privacy"]["rawEmailsReturned"])
+        self.assertFalse(activation_manifest["privacy"]["communicationCopyReturned"])
+        self.assertFalse(activation_manifest["execution"]["invitesAllowedNow"])
+        self.assertFalse(activation_manifest["execution"]["grantMutationAllowedNow"])
+        self.assertEqual(activation_manifest["nextPhase"], "REMOTE-8E-tiny-cohort-manual-execution-record")
+
+        combined_public = "\n".join([
+            remote_8d, roadmap, governance, architecture, readme, activation_py, activation_tool,
+        ])
+        for forbidden in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            "CLOUDFLARE_API_TOKEN=",
+            "SQX_REMOTE_SESSION_SECRET=",
+            "SQX_REMOTE_PAYMENT_WEBHOOK_SECRET=",
+            "sk_" + "live_",
+            "pk_" + "live_",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, combined_public)
+
+    def test_remote_asset1_incident_is_tracked_and_verified(self):
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        remote_8e = REMOTE_8E_TINY_COHORT_EXECUTION_DOC.read_text(encoding="utf-8-sig")
+        incident = REMOTE_ASSET1_INCIDENT_DOC.read_text(encoding="utf-8-sig")
+        server_py = (TOOL_ROOT / "api" / "server.py").read_text(encoding="utf-8-sig")
+        test_api = (TOOL_ROOT / "test_api.py").read_text(encoding="utf-8-sig")
+
+        self.assertTrue(REMOTE_ASSET1_INCIDENT_DOC.is_file())
+
+        for pattern in (
+            "REMOTE-ASSET1 - Protected Dashboard Asset Incident",
+            "/dashboard HTML OK",
+            "/dashboard/css/dashboard.css",
+            "/dashboard/js/main.js",
+            "tester-ref-asset1",
+            "does not by itself authorize",
+            "separate REMOTE-8E private evidence was recorded",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, incident)
+
+        for pattern in (
+            "Current phase completed: REMOTE-ASSET1",
+            "Protected Dashboard Asset Gate",
+            "tester-ref-asset1",
+            "REMOTE-8E - Tiny Cohort Manual Execution Record",
+            "GO_REMOTE8E_TINY_COHORT_MANUAL_EXECUTION_RECORDED",
+            "REMOTE-8F tiny cohort monitoring",
+            "further movement is blocked until the standby tester retest closes",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "REMOTE-ASSET1 fixes the clean-session dashboard asset boundary",
+            "docs/REMOTE_ASSET1_PROTECTED_DASHBOARD_ASSET_INCIDENT.md",
+            "GO_REMOTE8E_TINY_COHORT_MANUAL_EXECUTION_RECORDED",
+            "5 redacted",
+            "zero automation",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "REMOTE-ASSET1 was verified",
+            "GO_REMOTE8E_TINY_COHORT_MANUAL_EXECUTION_RECORDED",
+            "Next gate: REMOTE-8F",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_8e)
+
+        for pattern in (
+            "_with_dashboard_asset_prefix",
+            "'href=\"css/': 'href=\"/dashboard/css/'",
+            "@app.get(\"/dashboard/<path:asset_path>\")",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, server_py)
+
+        for pattern in (
+            "href=\"/dashboard/css/dashboard.css\"",
+            "src=\"/dashboard/js/main.js\"",
+            "/dashboard/css/dashboard.css",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, test_api)
+
+        combined_public = "\n".join([incident, governance, roadmap, remote_8e, server_py, test_api])
+        self.assertNotIn("@", incident)
+        for forbidden in (
+            "CLOUDFLARE_API_TOKEN=",
+            "SQX_REMOTE_SESSION_SECRET=",
+            "SQX_REMOTE_PAYMENT_WEBHOOK_SECRET=",
+            "sk_" + "live_",
+            "pk_" + "live_",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, combined_public)
+
+    def test_remote_8e_tiny_cohort_execution_record_gate_is_wired(self):
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        architecture = ARCHITECTURE_DOC.read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        remote_8e = REMOTE_8E_TINY_COHORT_EXECUTION_DOC.read_text(encoding="utf-8-sig")
+        execution_py = (TOOL_ROOT / "core" / "remote_tiny_cohort_execution.py").read_text(encoding="utf-8-sig")
+        execution_tool = (TOOL_ROOT / "tools" / "remote_tiny_cohort_execution.py").read_text(encoding="utf-8-sig")
+        execution_test = (TOOL_ROOT / "test_remote_tiny_cohort_execution.py").read_text(encoding="utf-8-sig")
+        product_manifest = json.loads((TOOL_ROOT / "config" / "product_manifest.json").read_text(encoding="utf-8-sig"))
+
+        for path in (
+            REMOTE_8E_TINY_COHORT_EXECUTION_DOC,
+            REMOTE_8E_TINY_COHORT_EXECUTION_EXAMPLE,
+            TOOL_ROOT / "core" / "remote_tiny_cohort_execution.py",
+            TOOL_ROOT / "tools" / "remote_tiny_cohort_execution.py",
+            TOOL_ROOT / "test_remote_tiny_cohort_execution.py",
+        ):
+            with self.subTest(path=path):
+                self.assertTrue(path.is_file(), path)
+
+        for pattern in (
+            "REMOTE-8E - Tiny Cohort Manual Execution Record",
+            "remote-tiny-cohort-execution-v1",
+            ".local/remote_service/remote8e_tiny_cohort_execution",
+            "GO_REMOTE8E_TINY_COHORT_MANUAL_EXECUTION_RECORDED",
+            "record.automationAllowed = false",
+            "REMOTE-8F - Tiny Cohort Monitoring And Pause/Rollback Watch",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_8e)
+
+        for pattern in (
+            "Current phase completed: REMOTE-8H cycle bridge",
+            "Current implementation phase: REMOTE-8H private package evidence",
+            "Tiny Cohort Manual Execution Record Gate",
+            "remote-tiny-cohort-execution-v1",
+            "ignored `.local/remote_service/remote8e_tiny_cohort_execution*` evidence",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Artifacts added in REMOTE-8E",
+            "docs/REMOTE_8E_TINY_COHORT_EXECUTION.md",
+            "backend/sqx-edge-tool/core/remote_tiny_cohort_execution.py",
+            "backend/sqx-edge-tool/tools/remote_tiny_cohort_execution.py",
+            "backend/sqx-edge-tool/test_remote_tiny_cohort_execution.py",
+            "REMOTE-8F - Tiny Cohort Monitoring And Pause/Rollback Watch",
+            "Tiny Cohort Manual Execution Record Gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "Estado comercial: REMOTE-8H cycle bridge",
+            "Siguiente paso recomendado: rellenar evidencia privada REMOTE-8H",
+            "REMOTE-8E fija `remote-tiny-cohort-execution-v1`",
+            "backend/sqx-edge-tool/tools/remote_tiny_cohort_execution.py",
+            "Tiny Cohort Manual Execution Record Gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "REMOTE-8E tiny cohort manual execution record",
+            "remote-tiny-cohort-execution-v1",
+            ".local/remote_service/remote8e_tiny_cohort_execution.local.json",
+            "Manual counts for invites",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, architecture)
+
+        for pattern in (
+            "REMOTE_TINY_COHORT_EXECUTION_VERSION = \"remote-tiny-cohort-execution-v1\"",
+            "MIN_COHORT_SIZE = 3",
+            "MAX_COHORT_SIZE = 5",
+            "REQUIRED_SOURCE_STATUS = \"GO_REMOTE8D_TINY_COHORT_ACTIVATION_PACKAGE_READY\"",
+            "REQUIRED_CHECKS",
+            "MANUAL_COUNT_METRICS",
+            "ZERO_AUTOMATION_METRICS",
+            "build_remote8e_execution_summary",
+            "ingest_remote8e_tiny_cohort_execution",
+            "NO_GO_REMOTE8E_EXECUTION_EVIDENCE_MISSING",
+            "NO_GO_REMOTE8E_PUBLIC_SUMMARY_PRIVACY_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, execution_py)
+
+        for pattern in (
+            "ingest_remote8e_tiny_cohort_execution",
+            "--evidence",
+            "--out-dir",
+            "REMOTE-8E tiny cohort manual execution",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, execution_tool)
+
+        for pattern in (
+            "test_remote8e_clean_manual_execution_record_is_redacted_and_monitoring_ready",
+            "test_remote8e_missing_evidence_returns_no_go",
+            "test_remote8e_blockers_prevent_execution_record",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, execution_test)
+
+        execution_manifest = product_manifest["remoteTinyCohortExecution"]
+        self.assertEqual(execution_manifest["phase"], "REMOTE-8E")
+        self.assertEqual(execution_manifest["version"], "remote-tiny-cohort-execution-v1")
+        self.assertEqual(execution_manifest["tool"], "backend/sqx-edge-tool/tools/remote_tiny_cohort_execution.py")
+        self.assertEqual(execution_manifest["doc"], "docs/REMOTE_8E_TINY_COHORT_EXECUTION.md")
+        self.assertEqual(execution_manifest["example"], "docs/examples/remote8e_tiny_cohort_execution.local.example.json")
+        self.assertEqual(execution_manifest["sourceStatusRequired"], "GO_REMOTE8D_TINY_COHORT_ACTIVATION_PACKAGE_READY")
+        self.assertEqual(execution_manifest["minCohortSize"], 3)
+        self.assertEqual(execution_manifest["maxCohortSize"], 5)
+        self.assertIn("record_manual_activation_execution", execution_manifest["validRequestedActions"])
+        self.assertIn("tester_free", execution_manifest["validEntitlementKinds"])
+        self.assertIn("monitoringStarted", execution_manifest["requiredChecks"])
+        self.assertIn("invitesSentManually", execution_manifest["manualCountMetrics"])
+        self.assertIn("automatedEmailsSent", execution_manifest["zeroAutomationMetrics"])
+        self.assertFalse(execution_manifest["privacy"]["rawEmailsReturned"])
+        self.assertFalse(execution_manifest["privacy"]["messageBodyReturned"])
+        self.assertFalse(execution_manifest["execution"]["automationAllowed"])
+        self.assertTrue(execution_manifest["execution"]["monitoringRequired"])
+        self.assertEqual(execution_manifest["nextPhase"], "REMOTE-8F-tiny-cohort-monitoring")
+
+        combined_public = "\n".join([
+            remote_8e, roadmap, governance, architecture, readme, execution_py, execution_tool,
+        ])
+        for forbidden in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            "CLOUDFLARE_API_TOKEN=",
+            "SQX_REMOTE_SESSION_SECRET=",
+            "SQX_REMOTE_PAYMENT_WEBHOOK_SECRET=",
+            "sk_" + "live_",
+            "pk_" + "live_",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, combined_public)
+
+    def test_remote_8f_tiny_cohort_monitoring_gate_is_wired(self):
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        architecture = ARCHITECTURE_DOC.read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        remote_8f = REMOTE_8F_TINY_COHORT_MONITORING_DOC.read_text(encoding="utf-8-sig")
+        monitoring_py = (TOOL_ROOT / "core" / "remote_tiny_cohort_monitoring.py").read_text(encoding="utf-8-sig")
+        monitoring_tool = (TOOL_ROOT / "tools" / "remote_tiny_cohort_monitoring.py").read_text(encoding="utf-8-sig")
+        monitoring_test = (TOOL_ROOT / "test_remote_tiny_cohort_monitoring.py").read_text(encoding="utf-8-sig")
+        product_manifest = json.loads((TOOL_ROOT / "config" / "product_manifest.json").read_text(encoding="utf-8-sig"))
+
+        for path in (
+            REMOTE_8F_TINY_COHORT_MONITORING_DOC,
+            REMOTE_8F_TINY_COHORT_MONITORING_EXAMPLE,
+            TOOL_ROOT / "core" / "remote_tiny_cohort_monitoring.py",
+            TOOL_ROOT / "tools" / "remote_tiny_cohort_monitoring.py",
+            TOOL_ROOT / "test_remote_tiny_cohort_monitoring.py",
+        ):
+            with self.subTest(path=path):
+                self.assertTrue(path.is_file(), path)
+
+        for pattern in (
+            "REMOTE-8F - Tiny Cohort Monitoring And Pause/Rollback Watch",
+            "remote-tiny-cohort-monitoring-v1",
+            ".local/remote_service/remote8f_tiny_cohort_monitoring",
+            "NO_GO_REMOTE8F_TINY_COHORT_MONITORING_BLOCKED",
+            "workspace isolation checks",
+            "No further expansion",
+            "GO_REMOTE8F_TINY_COHORT_MONITORING_CLEAN",
+            "decision.automationAllowed = false",
+            "REMOTE-8G - Tiny Cohort Decision Review",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_8f)
+
+        for pattern in (
+            "REMOTE-8F-CLOSE - active tiny cohort monitoring clean",
+            "GO_REMOTE8F_TINY_COHORT_MONITORING_CLEAN",
+            "active cohort is `4/4 ready`",
+            "Historical remote anchor: REMOTE-RILIS-STANDBY",
+            "Current phase completed: REMOTE-RILIS-STANDBY",
+            "Current phase completed: REMOTE-8H cycle bridge",
+            "Current implementation phase: REMOTE-8H private package evidence",
+            "Tiny Cohort Monitoring Gate",
+            "remote-tiny-cohort-monitoring-v1",
+            "ignored `.local/remote_service/remote8f_tiny_cohort_monitoring*` evidence",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "REMOTE-8F-CLOSE is clean",
+            "GO_REMOTE8F_TINY_COHORT_MONITORING_CLEAN",
+            "active cohort is `4/4 ready`",
+            "Artifacts added in REMOTE-8F",
+            "docs/REMOTE_8F_TINY_COHORT_MONITORING.md",
+            "backend/sqx-edge-tool/core/remote_tiny_cohort_monitoring.py",
+            "backend/sqx-edge-tool/tools/remote_tiny_cohort_monitoring.py",
+            "backend/sqx-edge-tool/test_remote_tiny_cohort_monitoring.py",
+            "REMOTE-8G - Tiny Cohort Decision Review",
+            "Tiny Cohort Monitoring Gate",
+            "Close evidence added in REMOTE-8F-CLOSE",
+            "docs/REMOTE_8F_CLOSE_ACTIVE_COHORT.md",
+            "standby aliases: `TESTER-RILIS`, `TESTER-ESTHER`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "Estado comercial: REMOTE-8H cycle bridge",
+            "Siguiente paso recomendado: rellenar evidencia privada REMOTE-8H",
+            "REMOTE-8F fija `remote-tiny-cohort-monitoring-v1`",
+            "backend/sqx-edge-tool/tools/remote_tiny_cohort_monitoring.py",
+            "Tiny Cohort Monitoring Gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "REMOTE-8F tiny cohort monitoring",
+            "remote-tiny-cohort-monitoring-v1",
+            ".local/remote_service/remote8f_tiny_cohort_monitoring.local.json",
+            "Zero-tolerance metrics for support blockers",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, architecture)
+
+        for pattern in (
+            "REMOTE_TINY_COHORT_MONITORING_VERSION = \"remote-tiny-cohort-monitoring-v1\"",
+            "MIN_COHORT_SIZE = 3",
+            "MAX_COHORT_SIZE = 5",
+            "MIN_OBSERVATION_HOURS = 24",
+            "REQUIRED_SOURCE_STATUS = \"GO_REMOTE8E_TINY_COHORT_MANUAL_EXECUTION_RECORDED\"",
+            "REQUIRED_SIGNALS",
+            "ZERO_TOLERANCE_METRICS",
+            "build_remote8f_monitoring_summary",
+            "ingest_remote8f_tiny_cohort_monitoring",
+            "NO_GO_REMOTE8F_MONITORING_EVIDENCE_MISSING",
+            "NO_GO_REMOTE8F_PUBLIC_SUMMARY_PRIVACY_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, monitoring_py)
+
+        for pattern in (
+            "ingest_remote8f_tiny_cohort_monitoring",
+            "--evidence",
+            "--out-dir",
+            "REMOTE-8F tiny cohort monitoring decision",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, monitoring_tool)
+
+        for pattern in (
+            "test_remote8f_clean_monitoring_is_redacted_and_allows_decision_review",
+            "test_remote8f_missing_evidence_returns_no_go",
+            "test_remote8f_blockers_prevent_next_movement",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, monitoring_test)
+
+        monitoring_manifest = product_manifest["remoteTinyCohortMonitoring"]
+        self.assertEqual(monitoring_manifest["phase"], "REMOTE-8F")
+        self.assertEqual(monitoring_manifest["version"], "remote-tiny-cohort-monitoring-v1")
+        self.assertEqual(monitoring_manifest["tool"], "backend/sqx-edge-tool/tools/remote_tiny_cohort_monitoring.py")
+        self.assertEqual(monitoring_manifest["doc"], "docs/REMOTE_8F_TINY_COHORT_MONITORING.md")
+        self.assertEqual(monitoring_manifest["example"], "docs/examples/remote8f_tiny_cohort_monitoring.local.example.json")
+        self.assertEqual(monitoring_manifest["sourceStatusRequired"], "GO_REMOTE8E_TINY_COHORT_MANUAL_EXECUTION_RECORDED")
+        self.assertEqual(monitoring_manifest["minCohortSize"], 3)
+        self.assertEqual(monitoring_manifest["maxCohortSize"], 5)
+        self.assertEqual(monitoring_manifest["minimumObservationHours"], 24)
+        self.assertIn("prepare_next_controlled_movement", monitoring_manifest["validRequestedDecisions"])
+        self.assertIn("tester_free", monitoring_manifest["validEntitlementKinds"])
+        self.assertIn("workspaceIsolationClean", monitoring_manifest["requiredSignals"])
+        self.assertIn("securityIncidents", monitoring_manifest["zeroToleranceMetrics"])
+        self.assertFalse(monitoring_manifest["privacy"]["rawEmailsReturned"])
+        self.assertFalse(monitoring_manifest["privacy"]["supportLogsReturned"])
+        self.assertFalse(monitoring_manifest["decision"]["automationAllowed"])
+        self.assertFalse(monitoring_manifest["decision"]["furtherExpansionAllowedNow"])
+        self.assertEqual(monitoring_manifest["nextPhase"], "REMOTE-8G-tiny-cohort-decision-review")
+
+        combined_public = "\n".join([
+            remote_8f, roadmap, governance, architecture, readme, monitoring_py, monitoring_tool,
+        ])
+        for forbidden in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            "CLOUDFLARE_API_TOKEN=",
+            "SQX_REMOTE_SESSION_SECRET=",
+            "SQX_REMOTE_PAYMENT_WEBHOOK_SECRET=",
+            "sk_" + "live_",
+            "pk_" + "live_",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, combined_public)
+
+    def test_remote_8f_close_active_cohort_is_public_safe(self):
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        close_doc = REMOTE_8F_CLOSE_ACTIVE_COHORT_DOC.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(REMOTE_8F_CLOSE_ACTIVE_COHORT_DOC.is_file())
+
+        for pattern in (
+            "REMOTE-8F-CLOSE - Active Cohort Monitoring Clean",
+            "GO_REMOTE8F_TINY_COHORT_MONITORING_CLEAN",
+            "Active aliases: `4`",
+            "Ready active aliases: `4`",
+            "`CREATOR-IVAN`",
+            "`TESTER-DRP`",
+            "`TESTER-BIBI`",
+            "`TESTER-JL`",
+            "`TESTER-RILIS` - standby",
+            "`TESTER-ESTHER` - standby",
+            "move to REMOTE-8G decision review",
+            "does not allow:",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, close_doc)
+
+        for pattern in (
+            "Current phase completed: REMOTE-8F-CLOSE",
+            "active tiny cohort monitoring clean",
+            "active cohort is `4/4 ready`",
+            "TESTER-RILIS` and `TESTER-ESTHER` remain standby",
+            "No grants, Cloudflare changes, emails, checkout links, protected URLs or expansion were performed",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Close on 2026-05-19: REMOTE-8F-CLOSE",
+            "docs/REMOTE_8F_CLOSE_ACTIVE_COHORT.md",
+            "active cohort `4/4 ready`",
+            "GO_REMOTE8F_TINY_COHORT_MONITORING_CLEAN",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        combined_public = close_doc
+        for forbidden in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            "example.invalid",
+            "__Host-sqx_remote_session",
+            "CLOUDFLARE_API_TOKEN=",
+            "SQX_REMOTE_SESSION_SECRET=",
+            "SQX_REMOTE_PAYMENT_WEBHOOK_SECRET=",
+            "sk_" + "live_",
+            "pk_" + "live_",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, combined_public)
+
+    def test_remote_cohort_evidence1_download_smoke_is_public_safe(self):
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        cohort_doc = REMOTE_COHORT_EVIDENCE1_DOWNLOAD_SMOKE_DOC.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(REMOTE_COHORT_EVIDENCE1_DOWNLOAD_SMOKE_DOC.is_file())
+
+        for pattern in (
+            "REMOTE-COHORT-EVIDENCE1 - Cohort Download Smoke Passed",
+            "cohort download smoke passed",
+            "CREATOR-IVAN",
+            "TESTER-DRP",
+            "TESTER-RILIS",
+            "TESTER-BIBI",
+            "TESTER-JL",
+            "Access OK: 5 of 5",
+            "Browser download smoke OK: 5 of 5",
+            "does not by itself",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, cohort_doc)
+
+        for pattern in (
+            "Current phase completed: REMOTE-COHORT-EVIDENCE1",
+            "Cohort Evidence Gate",
+            "cohort download smoke passed",
+            "5/5 access OK",
+            "5/5 browser download smoke OK",
+            "ignored `.local/remote_service/remote_cohort_evidence1/`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "REMOTE-COHORT-EVIDENCE1 records `cohort download",
+            "smoke passed`",
+            "5/5 access",
+            "5/5 browser download smoke OK",
+            "docs/REMOTE_COHORT_EVIDENCE1_DOWNLOAD_SMOKE.md",
+            "Cohort Evidence Gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        combined_public = cohort_doc
+        for forbidden in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            "CLOUDFLARE_API_TOKEN=",
+            "CF_Authorization",
+            "__Host-sqx_remote_session",
+            "SQX_REMOTE_SESSION_SECRET=",
+            "SQX_REMOTE_PAYMENT_WEBHOOK_SECRET=",
+            "C:\\BOTS\\",
+            "sk_" + "live_",
+            "pk_" + "live_",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, combined_public)
+
+    def test_remote_cohort_matrix1_operator_matrix_is_wired(self):
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        matrix_doc = REMOTE_COHORT_MATRIX1_DOC.read_text(encoding="utf-8-sig")
+        fix_doc = REMOTE_COHORT_FIX1_DOC.read_text(encoding="utf-8-sig")
+        fix2_doc = REMOTE_COHORT_FIX2_DOC.read_text(encoding="utf-8-sig")
+        matrix_core = REMOTE_COHORT_MATRIX_CORE.read_text(encoding="utf-8-sig")
+        matrix_tool = REMOTE_COHORT_MATRIX_TOOL.read_text(encoding="utf-8-sig")
+        matrix_test = REMOTE_COHORT_MATRIX_TEST.read_text(encoding="utf-8-sig")
+        matrix_ps1 = REMOTE_COHORT_MATRIX_PS1.read_text(encoding="utf-8-sig")
+        reconcile_core = REMOTE_COHORT_CONTEXT_RECONCILE_CORE.read_text(encoding="utf-8-sig")
+        reconcile_tool = REMOTE_COHORT_CONTEXT_RECONCILE_TOOL.read_text(encoding="utf-8-sig")
+        reconcile_test = REMOTE_COHORT_CONTEXT_RECONCILE_TEST.read_text(encoding="utf-8-sig")
+        reconcile_ps1 = REMOTE_COHORT_CONTEXT_RECONCILE_PS1.read_text(encoding="utf-8-sig")
+
+        for path in (
+            REMOTE_COHORT_MATRIX1_DOC,
+            REMOTE_COHORT_FIX1_DOC,
+            REMOTE_COHORT_FIX2_DOC,
+            REMOTE_COHORT_MATRIX_CORE,
+            REMOTE_COHORT_MATRIX_TOOL,
+            REMOTE_COHORT_MATRIX_TEST,
+            REMOTE_COHORT_MATRIX_PS1,
+            REMOTE_COHORT_CONTEXT_RECONCILE_CORE,
+            REMOTE_COHORT_CONTEXT_RECONCILE_TOOL,
+            REMOTE_COHORT_CONTEXT_RECONCILE_TEST,
+            REMOTE_COHORT_CONTEXT_RECONCILE_PS1,
+        ):
+            with self.subTest(path=path):
+                self.assertTrue(path.is_file(), path)
+
+        for pattern in (
+            "REMOTE-COHORT-MATRIX1 - Live Alias Cohort Matrix",
+            "Access OK",
+            "Grant OK",
+            "Anti-sharing OK",
+            "Downloads OK",
+            "Incidencias abiertas",
+            "Monitoring scope",
+            "remote_cohort_matrix.local.json",
+            "REMOTE-COHORT-FIX1",
+            "does not",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, matrix_doc)
+
+        for pattern in (
+            "REMOTE-COHORT-FIX1 - Cohort Scope Reconciliation",
+            "active",
+            "standby",
+            "excluded",
+            "TESTER-RILIS",
+            "TESTER-ESTHER",
+            "must not force it green",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, fix_doc)
+
+        for pattern in (
+            "REMOTE-COHORT-FIX2 - Anti-Sharing Context Recapture",
+            "TESTER-RILIS",
+            "Recapture required",
+            "remote_cohort_context_reconcile.ps1",
+            "must not force",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, fix2_doc)
+
+        for pattern in (
+            "Current phase completed: REMOTE-COHORT-FIX2",
+            "Current phase completed: REMOTE-COHORT-FIX1",
+            "Current phase completed: REMOTE-COHORT-MATRIX1",
+            "Cohort Matrix Gate",
+            "Cohort Scope Gate",
+            "Cohort Context Recapture Gate",
+            "Access OK",
+            "grant OK",
+            "anti-sharing context OK",
+            "downloads OK",
+            "open incidents",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "REMOTE-COHORT-MATRIX1 adds a live alias",
+            "REMOTE-COHORT-FIX1 separates the alias",
+            "REMOTE-COHORT-FIX2 adds an alias-only",
+            "docs/REMOTE_COHORT_FIX1_SCOPE_RECONCILIATION.md",
+            "docs/REMOTE_COHORT_FIX2_CONTEXT_RECAPTURE.md",
+            "docs/REMOTE_COHORT_MATRIX1.md",
+            "backend/sqx-edge-tool/core/remote_cohort_matrix.py",
+            "tools/remote_cohort_matrix.ps1",
+            "remote-cohort-matrix-v1",
+            "Cohort Matrix Gate",
+            "Cohort Scope Gate",
+            "Cohort Context Recapture Gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "REMOTE_COHORT_MATRIX_VERSION = \"remote-cohort-matrix-v1\"",
+            "DEFAULT_ALIAS_PATH",
+            "DEFAULT_ENTITLEMENTS_PATH",
+            "DEFAULT_ACCESS_CONTROL_PATH",
+            "DEFAULT_SUPPORT_CASES_PATH",
+            "DEFAULT_DOWNLOAD_SMOKE_PATH",
+            "DEFAULT_SCOPE_PATH",
+            "build_remote_cohort_matrix",
+            "write_remote_cohort_matrix",
+            "rawEmailsReturned",
+            "monitoringScope",
+            "activeAliasCount",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, matrix_core)
+
+        for pattern in (
+            "build_remote_cohort_matrix",
+            "write_remote_cohort_matrix",
+            "--scope",
+            "--json",
+            "SQX Edge Suite REMOTE cohort matrix",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, matrix_tool)
+
+        for pattern in (
+            "remote_cohort_matrix.py",
+            "[switch]$Json",
+            "--download-smoke",
+            "--scope",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, matrix_ps1)
+
+        for pattern in (
+            "test_remote_cohort_matrix_builds_alias_only_status",
+            "test_remote_cohort_matrix_redacts_private_values_and_writes_local_output",
+            "test_remote_cohort_matrix_separates_standby_aliases_from_active_blockers",
+            "download_smoke_not_confirmed",
+            "anti_sharing_context_not_ready",
+            "standby_not_in_current_monitoring_scope",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, matrix_test)
+
+        for pattern in (
+            "REMOTE_COHORT_CONTEXT_RECONCILE_VERSION = \"remote-cohort-context-reconcile-v1\"",
+            "build_remote_cohort_context_reconcile",
+            "write_remote_cohort_context_reconcile",
+            "recapture_context",
+            "human_smoke_ok_but_anti_sharing_context_missing",
+            "rawEmailsReturned",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, reconcile_core)
+
+        for pattern in (
+            "build_remote_cohort_context_reconcile",
+            "write_remote_cohort_context_reconcile",
+            "--json",
+            "SQX Edge Suite REMOTE cohort anti-sharing reconciliation",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, reconcile_tool)
+
+        for pattern in (
+            "remote_cohort_context_reconcile.py",
+            "[switch]$Json",
+            "--scope",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, reconcile_ps1)
+
+        for pattern in (
+            "test_context_reconcile_flags_active_alias_that_needs_recapture",
+            "test_context_reconcile_detects_pending_context_operator_review_and_redacts",
+            "TESTER-RILIS",
+            "recapture_context",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, reconcile_test)
+
+        combined_public = "\n".join([
+            matrix_doc,
+            fix_doc,
+            fix2_doc,
+            matrix_core,
+            matrix_tool,
+            matrix_test,
+            matrix_ps1,
+            reconcile_core,
+            reconcile_tool,
+            reconcile_test,
+            reconcile_ps1,
+        ])
+        for forbidden in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            "CF_Authorization",
+            "__Host-sqx_remote_session",
+            "CLOUDFLARE_API_TOKEN=",
+            "SQX_REMOTE_SESSION_SECRET=",
+            "SQX_REMOTE_PAYMENT_WEBHOOK_SECRET=",
+            "app.sqxedgesuite.org",
+            "C:\\BOTS\\",
+            "sk_" + "live_",
+            "pk_" + "live_",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, combined_public)
+
+    def test_remote_8g_tiny_cohort_decision_review_gate_is_wired(self):
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        architecture = ARCHITECTURE_DOC.read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        remote_8g = REMOTE_8G_TINY_COHORT_DECISION_REVIEW_DOC.read_text(encoding="utf-8-sig")
+        decision_py = (TOOL_ROOT / "core" / "remote_tiny_cohort_decision_review.py").read_text(encoding="utf-8-sig")
+        decision_tool = (TOOL_ROOT / "tools" / "remote_tiny_cohort_decision_review.py").read_text(encoding="utf-8-sig")
+        decision_test = (TOOL_ROOT / "test_remote_tiny_cohort_decision_review.py").read_text(encoding="utf-8-sig")
+        product_manifest = json.loads((TOOL_ROOT / "config" / "product_manifest.json").read_text(encoding="utf-8-sig"))
+
+        for path in (
+            REMOTE_8G_TINY_COHORT_DECISION_REVIEW_DOC,
+            REMOTE_8G_TINY_COHORT_DECISION_REVIEW_EXAMPLE,
+            TOOL_ROOT / "core" / "remote_tiny_cohort_decision_review.py",
+            TOOL_ROOT / "tools" / "remote_tiny_cohort_decision_review.py",
+            TOOL_ROOT / "test_remote_tiny_cohort_decision_review.py",
+        ):
+            with self.subTest(path=path):
+                self.assertTrue(path.is_file(), path)
+
+        for pattern in (
+            "REMOTE-8G - Tiny Cohort Decision Review",
+            "remote-tiny-cohort-decision-review-v1",
+            ".local/remote_service/remote8g_tiny_cohort_decision_review",
+            "GO_REMOTE8G_TINY_COHORT_DECISION_REVIEW_READY",
+            "decision.executionAllowedNow = false",
+            "REMOTE-8H - Next Controlled Movement Package",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_8g)
+
+        for pattern in (
+            "Current phase completed: REMOTE-8H cycle bridge",
+            "Current implementation phase: REMOTE-8H private package evidence",
+            "Tiny Cohort Decision Review Gate",
+            "remote-tiny-cohort-decision-review-v1",
+            "ignored `.local/remote_service/remote8g_tiny_cohort_decision_review*` evidence",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Artifacts added in REMOTE-8G",
+            "docs/REMOTE_8G_TINY_COHORT_DECISION_REVIEW.md",
+            "backend/sqx-edge-tool/core/remote_tiny_cohort_decision_review.py",
+            "backend/sqx-edge-tool/tools/remote_tiny_cohort_decision_review.py",
+            "backend/sqx-edge-tool/test_remote_tiny_cohort_decision_review.py",
+            "REMOTE-8H - Next Controlled Movement Package",
+            "Tiny Cohort Decision Review Gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "Estado comercial: REMOTE-8H cycle bridge",
+            "Siguiente paso recomendado: rellenar evidencia privada REMOTE-8H",
+            "REMOTE-8G fija `remote-tiny-cohort-decision-review-v1`",
+            "backend/sqx-edge-tool/tools/remote_tiny_cohort_decision_review.py",
+            "Tiny Cohort Decision Review Gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "REMOTE-8G tiny cohort decision review",
+            "remote-tiny-cohort-decision-review-v1",
+            ".local/remote_service/remote8g_tiny_cohort_decision_review.local.json",
+            "Execution metrics for new invites",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, architecture)
+
+        for pattern in (
+            "REMOTE_TINY_COHORT_DECISION_REVIEW_VERSION = \"remote-tiny-cohort-decision-review-v1\"",
+            "CLEAN_SOURCE_STATUS = \"GO_REMOTE8F_TINY_COHORT_MONITORING_CLEAN\"",
+            "BLOCKED_SOURCE_STATUS = \"NO_GO_REMOTE8F_TINY_COHORT_MONITORING_BLOCKED\"",
+            "VALID_SELECTED_DECISIONS",
+            "REQUIRED_CHECKS",
+            "ZERO_EXECUTION_METRICS",
+            "build_remote8g_decision_review_summary",
+            "ingest_remote8g_tiny_cohort_decision_review",
+            "NO_GO_REMOTE8G_DECISION_REVIEW_EVIDENCE_MISSING",
+            "NO_GO_REMOTE8G_PUBLIC_SUMMARY_PRIVACY_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, decision_py)
+
+        for pattern in (
+            "ingest_remote8g_tiny_cohort_decision_review",
+            "--evidence",
+            "--out-dir",
+            "REMOTE-8G tiny cohort decision review",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, decision_tool)
+
+        for pattern in (
+            "test_remote8g_clean_decision_review_is_redacted_and_prepares_next_package",
+            "test_remote8g_missing_evidence_returns_no_go",
+            "test_remote8g_blockers_prevent_next_movement_package",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, decision_test)
+
+        decision_manifest = product_manifest["remoteTinyCohortDecisionReview"]
+        self.assertEqual(decision_manifest["phase"], "REMOTE-8G")
+        self.assertEqual(decision_manifest["version"], "remote-tiny-cohort-decision-review-v1")
+        self.assertEqual(decision_manifest["tool"], "backend/sqx-edge-tool/tools/remote_tiny_cohort_decision_review.py")
+        self.assertEqual(decision_manifest["doc"], "docs/REMOTE_8G_TINY_COHORT_DECISION_REVIEW.md")
+        self.assertEqual(decision_manifest["example"], "docs/examples/remote8g_tiny_cohort_decision_review.local.example.json")
+        self.assertEqual(decision_manifest["cleanSourceStatus"], "GO_REMOTE8F_TINY_COHORT_MONITORING_CLEAN")
+        self.assertEqual(decision_manifest["blockedSourceStatus"], "NO_GO_REMOTE8F_TINY_COHORT_MONITORING_BLOCKED")
+        self.assertEqual(decision_manifest["minCohortSize"], 3)
+        self.assertEqual(decision_manifest["maxCohortSize"], 5)
+        self.assertIn("prepare_next_controlled_movement", decision_manifest["validSelectedDecisions"])
+        self.assertIn("tester_free", decision_manifest["validEntitlementKinds"])
+        self.assertIn("decisionRationaleRecorded", decision_manifest["requiredChecks"])
+        self.assertIn("trafficExpanded", decision_manifest["zeroExecutionMetrics"])
+        self.assertFalse(decision_manifest["privacy"]["rawEmailsReturned"])
+        self.assertFalse(decision_manifest["privacy"]["decisionRationaleReturned"])
+        self.assertFalse(decision_manifest["decision"]["automationAllowed"])
+        self.assertFalse(decision_manifest["decision"]["executionAllowedNow"])
+        self.assertEqual(decision_manifest["nextPhase"], "REMOTE-8H-next-controlled-movement-package")
+
+        combined_public = "\n".join([
+            remote_8g, roadmap, governance, architecture, readme, decision_py, decision_tool,
+        ])
+        for forbidden in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            "CLOUDFLARE_API_TOKEN=",
+            "SQX_REMOTE_SESSION_SECRET=",
+            "SQX_REMOTE_PAYMENT_WEBHOOK_SECRET=",
+            "sk_" + "live_",
+            "pk_" + "live_",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, combined_public)
+
+    def test_remote_8h_next_controlled_movement_package_gate_is_wired(self):
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        architecture = ARCHITECTURE_DOC.read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        remote_8h = REMOTE_8H_NEXT_CONTROLLED_MOVEMENT_PACKAGE_DOC.read_text(encoding="utf-8-sig")
+        package_py = (TOOL_ROOT / "core" / "remote_next_controlled_movement_package.py").read_text(encoding="utf-8-sig")
+        package_tool = (TOOL_ROOT / "tools" / "remote_next_controlled_movement_package.py").read_text(encoding="utf-8-sig")
+        package_test = (TOOL_ROOT / "test_remote_next_controlled_movement_package.py").read_text(encoding="utf-8-sig")
+        product_manifest = json.loads((TOOL_ROOT / "config" / "product_manifest.json").read_text(encoding="utf-8-sig"))
+
+        for path in (
+            REMOTE_8H_NEXT_CONTROLLED_MOVEMENT_PACKAGE_DOC,
+            REMOTE_8H_NEXT_CONTROLLED_MOVEMENT_PACKAGE_EXAMPLE,
+            TOOL_ROOT / "core" / "remote_next_controlled_movement_package.py",
+            TOOL_ROOT / "tools" / "remote_next_controlled_movement_package.py",
+            TOOL_ROOT / "test_remote_next_controlled_movement_package.py",
+        ):
+            with self.subTest(path=path):
+                self.assertTrue(path.is_file(), path)
+
+        for pattern in (
+            "REMOTE-8H - Next Controlled Movement Package",
+            "remote-next-controlled-movement-package-v1",
+            ".local/remote_service/remote8h_next_controlled_movement_package",
+            "GO_REMOTE8H_NEXT_CONTROLLED_MOVEMENT_PACKAGE_READY",
+            "movementPackage.executionAllowedNow = false",
+            "REMOTE-8I - Next Controlled Movement Execution Approval",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_8h)
+
+        for pattern in (
+            "Current phase completed: REMOTE-8H cycle bridge",
+            "Current implementation phase: REMOTE-8H private package evidence",
+            "Next Controlled Movement Package Gate",
+            "remote-next-controlled-movement-package-v1",
+            "ignored `.local/remote_service/remote8h_next_controlled_movement_package*` evidence",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Artifacts added in REMOTE-8H",
+            "docs/REMOTE_8H_NEXT_CONTROLLED_MOVEMENT_PACKAGE.md",
+            "backend/sqx-edge-tool/core/remote_next_controlled_movement_package.py",
+            "backend/sqx-edge-tool/tools/remote_next_controlled_movement_package.py",
+            "backend/sqx-edge-tool/test_remote_next_controlled_movement_package.py",
+            "REMOTE-8I - Next Controlled Movement Execution Approval",
+            "Next Controlled Movement Package Gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "Estado comercial: REMOTE-8H cycle bridge",
+            "Siguiente paso recomendado: rellenar evidencia privada REMOTE-8H",
+            "REMOTE-8H fija `remote-next-controlled-movement-package-v1`",
+            "backend/sqx-edge-tool/tools/remote_next_controlled_movement_package.py",
+            "Next Controlled Movement Package Gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "REMOTE-8H next controlled movement package",
+            "remote-next-controlled-movement-package-v1",
+            ".local/remote_service/remote8h_next_controlled_movement_package.local.json",
+            "User expansion is capped at `add_1_2_users`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, architecture)
+
+        for pattern in (
+            "REMOTE_NEXT_CONTROLLED_MOVEMENT_PACKAGE_VERSION = \"remote-next-controlled-movement-package-v1\"",
+            "CURRENT_SOURCE_STATUS = \"GO_REMOTE8L_POST_MONITORING_DECISION_REVIEW_READY\"",
+            "LEGACY_SOURCE_STATUS = \"GO_REMOTE8G_TINY_COHORT_DECISION_REVIEW_READY\"",
+            "REQUIRED_SOURCE_DECISION = \"prepare_next_controlled_movement\"",
+            "VALID_MOVEMENT_TYPES",
+            "MAX_NEW_USERS = 2",
+            "REQUIRED_CHECKS",
+            "ZERO_EXECUTION_METRICS",
+            "build_remote8h_movement_package_summary",
+            "ingest_remote8h_next_controlled_movement_package",
+            "NO_GO_REMOTE8H_MOVEMENT_PACKAGE_EVIDENCE_MISSING",
+            "NO_GO_REMOTE8H_PUBLIC_SUMMARY_PRIVACY_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, package_py)
+
+        for pattern in (
+            "ingest_remote8h_next_controlled_movement_package",
+            "--evidence",
+            "--out-dir",
+            "REMOTE-8H next controlled movement package",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, package_tool)
+
+        for pattern in (
+            "test_remote8h_clean_package_is_redacted_and_requires_execution_approval",
+            "test_remote8h_missing_evidence_returns_no_go",
+            "test_remote8h_blockers_prevent_package_ready",
+            "test_remote8h_legacy_remote8g_source_still_supported",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, package_test)
+
+        package_manifest = product_manifest["remoteNextControlledMovementPackage"]
+        self.assertEqual(package_manifest["phase"], "REMOTE-8H")
+        self.assertEqual(package_manifest["version"], "remote-next-controlled-movement-package-v1")
+        self.assertEqual(package_manifest["tool"], "backend/sqx-edge-tool/tools/remote_next_controlled_movement_package.py")
+        self.assertEqual(package_manifest["doc"], "docs/REMOTE_8H_NEXT_CONTROLLED_MOVEMENT_PACKAGE.md")
+        self.assertEqual(package_manifest["example"], "docs/examples/remote8h_next_controlled_movement_package.local.example.json")
+        self.assertEqual(package_manifest["currentSourceStatusRequired"], "GO_REMOTE8L_POST_MONITORING_DECISION_REVIEW_READY")
+        self.assertEqual(package_manifest["legacySourceStatusAccepted"], "GO_REMOTE8G_TINY_COHORT_DECISION_REVIEW_READY")
+        self.assertEqual(package_manifest["sourceDecisionRequired"], "prepare_next_controlled_movement")
+        self.assertIn("prepare_next_controlled_movement_package", package_manifest["validRequestedActions"])
+        self.assertIn("add_1_2_users", package_manifest["validMovementTypes"])
+        self.assertEqual(package_manifest["maxNewUsers"], 2)
+        self.assertIn("tester_free", package_manifest["validEntitlementKinds"])
+        self.assertIn("executionRequiresSeparateApproval", package_manifest["requiredChecks"])
+        self.assertIn("trafficExpanded", package_manifest["zeroExecutionMetrics"])
+        self.assertFalse(package_manifest["privacy"]["rawEmailsReturned"])
+        self.assertFalse(package_manifest["privacy"]["communicationCopyReturned"])
+        self.assertFalse(package_manifest["movementPackage"]["automationAllowed"])
+        self.assertFalse(package_manifest["movementPackage"]["executionAllowedNow"])
+        self.assertEqual(package_manifest["nextPhase"], "REMOTE-8I-next-controlled-movement-execution-approval")
+
+        combined_public = "\n".join([
+            remote_8h, roadmap, governance, architecture, readme, package_py, package_tool,
+        ])
+        for forbidden in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            "CLOUDFLARE_API_TOKEN=",
+            "SQX_REMOTE_SESSION_SECRET=",
+            "SQX_REMOTE_PAYMENT_WEBHOOK_SECRET=",
+            "sk_" + "live_",
+            "pk_" + "live_",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, combined_public)
+
+    def test_remote_8i_execution_approval_gate_is_wired(self):
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        architecture = ARCHITECTURE_DOC.read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        remote_8i = REMOTE_8I_NEXT_CONTROLLED_MOVEMENT_EXECUTION_APPROVAL_DOC.read_text(encoding="utf-8-sig")
+        approval_py = (TOOL_ROOT / "core" / "remote_next_controlled_movement_execution_approval.py").read_text(
+            encoding="utf-8-sig"
+        )
+        approval_tool = (TOOL_ROOT / "tools" / "remote_next_controlled_movement_execution_approval.py").read_text(
+            encoding="utf-8-sig"
+        )
+        approval_test = (TOOL_ROOT / "test_remote_next_controlled_movement_execution_approval.py").read_text(
+            encoding="utf-8-sig"
+        )
+        product_manifest = json.loads((TOOL_ROOT / "config" / "product_manifest.json").read_text(encoding="utf-8-sig"))
+
+        for path in (
+            REMOTE_8I_NEXT_CONTROLLED_MOVEMENT_EXECUTION_APPROVAL_DOC,
+            REMOTE_8I_NEXT_CONTROLLED_MOVEMENT_EXECUTION_APPROVAL_EXAMPLE,
+            TOOL_ROOT / "core" / "remote_next_controlled_movement_execution_approval.py",
+            TOOL_ROOT / "tools" / "remote_next_controlled_movement_execution_approval.py",
+            TOOL_ROOT / "test_remote_next_controlled_movement_execution_approval.py",
+        ):
+            with self.subTest(path=path):
+                self.assertTrue(path.is_file(), path)
+
+        for pattern in (
+            "REMOTE-8I - Next Controlled Movement Execution Approval",
+            "remote-next-controlled-movement-execution-approval-v1",
+            ".local/remote_service/remote8i_next_controlled_movement_execution_approval",
+            "GO_REMOTE8I_NEXT_CONTROLLED_MOVEMENT_EXECUTION_APPROVED",
+            "approval.executionPerformedNow = false",
+            "REMOTE-8J - Manual Execution Record",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_8i)
+
+        for pattern in (
+            "Current phase completed: REMOTE-8H cycle bridge",
+            "Current implementation phase: REMOTE-8H private package evidence",
+            "Next Controlled Movement Execution Approval Gate",
+            "remote-next-controlled-movement-execution-approval-v1",
+            "ignored `.local/remote_service/remote8i_next_controlled_movement_execution_approval*` evidence",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Artifacts added in REMOTE-8I",
+            "docs/REMOTE_8I_NEXT_CONTROLLED_MOVEMENT_EXECUTION_APPROVAL.md",
+            "backend/sqx-edge-tool/core/remote_next_controlled_movement_execution_approval.py",
+            "backend/sqx-edge-tool/tools/remote_next_controlled_movement_execution_approval.py",
+            "backend/sqx-edge-tool/test_remote_next_controlled_movement_execution_approval.py",
+            "REMOTE-8J - Manual Execution Record",
+            "Next Controlled Movement Execution Approval Gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "Estado comercial: REMOTE-8H cycle bridge",
+            "Siguiente paso recomendado: rellenar evidencia privada REMOTE-8H",
+            "REMOTE-8I fija `remote-next-controlled-movement-execution-approval-v1`",
+            "backend/sqx-edge-tool/tools/remote_next_controlled_movement_execution_approval.py",
+            "Next Controlled Movement Execution Approval Gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "REMOTE-8I next controlled movement execution approval",
+            "remote-next-controlled-movement-execution-approval-v1",
+            ".local/remote_service/remote8i_next_controlled_movement_execution_approval.local.json",
+            "Even on approval, `approval.executionPerformedNow` stays false",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, architecture)
+
+        for pattern in (
+            "REMOTE_NEXT_CONTROLLED_MOVEMENT_EXECUTION_APPROVAL_VERSION",
+            "\"remote-next-controlled-movement-execution-approval-v1\"",
+            "REQUIRED_SOURCE_STATUS = \"GO_REMOTE8H_NEXT_CONTROLLED_MOVEMENT_PACKAGE_READY\"",
+            "VALID_EXECUTION_DECISIONS",
+            "APPROVAL_DECISION",
+            "REQUIRED_CHECKS",
+            "ZERO_EXECUTION_METRICS",
+            "build_remote8i_execution_approval_summary",
+            "ingest_remote8i_next_controlled_movement_execution_approval",
+            "NO_GO_REMOTE8I_EXECUTION_APPROVAL_EVIDENCE_MISSING",
+            "NO_GO_REMOTE8I_PUBLIC_SUMMARY_PRIVACY_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, approval_py)
+
+        for pattern in (
+            "ingest_remote8i_next_controlled_movement_execution_approval",
+            "--evidence",
+            "--out-dir",
+            "REMOTE-8I controlled movement execution",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, approval_tool)
+
+        for pattern in (
+            "test_remote8i_clean_approval_is_redacted_and_requires_manual_execution_record",
+            "test_remote8i_clean_rejection_is_valid_but_not_executable",
+            "test_remote8i_missing_evidence_returns_no_go",
+            "test_remote8i_blockers_prevent_execution_approval",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, approval_test)
+
+        approval_manifest = product_manifest["remoteNextControlledMovementExecutionApproval"]
+        self.assertEqual(approval_manifest["phase"], "REMOTE-8I")
+        self.assertEqual(approval_manifest["version"], "remote-next-controlled-movement-execution-approval-v1")
+        self.assertEqual(
+            approval_manifest["tool"],
+            "backend/sqx-edge-tool/tools/remote_next_controlled_movement_execution_approval.py",
+        )
+        self.assertEqual(
+            approval_manifest["doc"],
+            "docs/REMOTE_8I_NEXT_CONTROLLED_MOVEMENT_EXECUTION_APPROVAL.md",
+        )
+        self.assertEqual(
+            approval_manifest["example"],
+            "docs/examples/remote8i_next_controlled_movement_execution_approval.local.example.json",
+        )
+        self.assertEqual(approval_manifest["sourceStatusRequired"], "GO_REMOTE8H_NEXT_CONTROLLED_MOVEMENT_PACKAGE_READY")
+        self.assertIn(
+            "approve_or_reject_next_controlled_movement_execution",
+            approval_manifest["validRequestedActions"],
+        )
+        self.assertIn("approve_execution_record", approval_manifest["validExecutionDecisions"])
+        self.assertIn("reject_execution", approval_manifest["validExecutionDecisions"])
+        self.assertIn("defer_execution", approval_manifest["validExecutionDecisions"])
+        self.assertIn("executionRecordRequired", approval_manifest["requiredChecks"])
+        self.assertIn("trafficExpanded", approval_manifest["zeroExecutionMetrics"])
+        self.assertFalse(approval_manifest["privacy"]["rawEmailsReturned"])
+        self.assertFalse(approval_manifest["privacy"]["decisionRationaleReturned"])
+        self.assertFalse(approval_manifest["approval"]["automationAllowed"])
+        self.assertFalse(approval_manifest["approval"]["executionPerformedNow"])
+        self.assertTrue(approval_manifest["approval"]["requiresSeparateExecutionRecord"])
+        self.assertEqual(approval_manifest["nextPhaseIfApproved"], "REMOTE-8J-manual-execution-record")
+        self.assertEqual(approval_manifest["nextPhaseIfRejected"], "REMOTE-8H-or-8G-replan")
+        self.assertEqual(approval_manifest["nextPhaseIfDeferred"], "REMOTE-8I-revisit-execution-approval")
+
+        combined_public = "\n".join([
+            remote_8i, roadmap, governance, architecture, readme, approval_py, approval_tool,
+        ])
+        for forbidden in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            "CLOUDFLARE_API_TOKEN=",
+            "SQX_REMOTE_SESSION_SECRET=",
+            "SQX_REMOTE_PAYMENT_WEBHOOK_SECRET=",
+            "sk_" + "live_",
+            "pk_" + "live_",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, combined_public)
+
+    def test_remote_8j_manual_execution_gate_is_wired(self):
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        architecture = ARCHITECTURE_DOC.read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        remote_8j = REMOTE_8J_NEXT_CONTROLLED_MOVEMENT_MANUAL_EXECUTION_DOC.read_text(encoding="utf-8-sig")
+        execution_py = (TOOL_ROOT / "core" / "remote_next_controlled_movement_manual_execution.py").read_text(
+            encoding="utf-8-sig"
+        )
+        execution_tool = (TOOL_ROOT / "tools" / "remote_next_controlled_movement_manual_execution.py").read_text(
+            encoding="utf-8-sig"
+        )
+        execution_test = (TOOL_ROOT / "test_remote_next_controlled_movement_manual_execution.py").read_text(
+            encoding="utf-8-sig"
+        )
+        product_manifest = json.loads((TOOL_ROOT / "config" / "product_manifest.json").read_text(encoding="utf-8-sig"))
+
+        for path in (
+            REMOTE_8J_NEXT_CONTROLLED_MOVEMENT_MANUAL_EXECUTION_DOC,
+            REMOTE_8J_NEXT_CONTROLLED_MOVEMENT_MANUAL_EXECUTION_EXAMPLE,
+            TOOL_ROOT / "core" / "remote_next_controlled_movement_manual_execution.py",
+            TOOL_ROOT / "tools" / "remote_next_controlled_movement_manual_execution.py",
+            TOOL_ROOT / "test_remote_next_controlled_movement_manual_execution.py",
+        ):
+            with self.subTest(path=path):
+                self.assertTrue(path.is_file(), path)
+
+        for pattern in (
+            "REMOTE-8J - Next Controlled Movement Manual Execution Record",
+            "remote-next-controlled-movement-manual-execution-v1",
+            ".local/remote_service/remote8j_next_controlled_movement_manual_execution",
+            "GO_REMOTE8J_NEXT_CONTROLLED_MOVEMENT_MANUAL_EXECUTION_RECORDED",
+            "record.automationAllowed = false",
+            "REMOTE-8K - Post Execution Monitoring",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_8j)
+
+        for pattern in (
+            "Current phase completed: REMOTE-8H cycle bridge",
+            "Current implementation phase: REMOTE-8H private package evidence",
+            "Next Controlled Movement Manual Execution Gate",
+            "remote-next-controlled-movement-manual-execution-v1",
+            "ignored `.local/remote_service/remote8j_next_controlled_movement_manual_execution*` evidence",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Artifacts added in REMOTE-8J",
+            "docs/REMOTE_8J_NEXT_CONTROLLED_MOVEMENT_MANUAL_EXECUTION.md",
+            "backend/sqx-edge-tool/core/remote_next_controlled_movement_manual_execution.py",
+            "backend/sqx-edge-tool/tools/remote_next_controlled_movement_manual_execution.py",
+            "backend/sqx-edge-tool/test_remote_next_controlled_movement_manual_execution.py",
+            "REMOTE-8K - Post Execution Monitoring",
+            "Next Controlled Movement Manual Execution Gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "Estado comercial: REMOTE-8H cycle bridge",
+            "Siguiente paso recomendado: rellenar evidencia privada REMOTE-8H",
+            "REMOTE-8J fija `remote-next-controlled-movement-manual-execution-v1`",
+            "backend/sqx-edge-tool/tools/remote_next_controlled_movement_manual_execution.py",
+            "Next Controlled Movement Manual Execution Gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "REMOTE-8J next controlled movement manual execution",
+            "remote-next-controlled-movement-manual-execution-v1",
+            ".local/remote_service/remote8j_next_controlled_movement_manual_execution.local.json",
+            "Even on GO, `postExecutionGate.furtherExpansionAllowedNow` stays false",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, architecture)
+
+        for pattern in (
+            "REMOTE_NEXT_CONTROLLED_MOVEMENT_MANUAL_EXECUTION_VERSION",
+            "\"remote-next-controlled-movement-manual-execution-v1\"",
+            "REQUIRED_SOURCE_STATUS = \"GO_REMOTE8I_NEXT_CONTROLLED_MOVEMENT_EXECUTION_APPROVED\"",
+            "REQUIRED_SOURCE_DECISION = \"approve_execution_record\"",
+            "VALID_MOVEMENT_TYPES",
+            "MANUAL_COUNT_METRICS",
+            "ZERO_AUTOMATION_METRICS",
+            "build_remote8j_manual_execution_summary",
+            "ingest_remote8j_next_controlled_movement_manual_execution",
+            "NO_GO_REMOTE8J_MANUAL_EXECUTION_EVIDENCE_MISSING",
+            "NO_GO_REMOTE8J_PUBLIC_SUMMARY_PRIVACY_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, execution_py)
+
+        for pattern in (
+            "ingest_remote8j_next_controlled_movement_manual_execution",
+            "--evidence",
+            "--out-dir",
+            "REMOTE-8J manual controlled movement execution",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, execution_tool)
+
+        for pattern in (
+            "test_remote8j_clean_manual_execution_record_is_redacted_and_monitoring_ready",
+            "test_remote8j_missing_evidence_returns_no_go",
+            "test_remote8j_blockers_prevent_manual_execution_record",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, execution_test)
+
+        execution_manifest = product_manifest["remoteNextControlledMovementManualExecution"]
+        self.assertEqual(execution_manifest["phase"], "REMOTE-8J")
+        self.assertEqual(execution_manifest["version"], "remote-next-controlled-movement-manual-execution-v1")
+        self.assertEqual(
+            execution_manifest["tool"],
+            "backend/sqx-edge-tool/tools/remote_next_controlled_movement_manual_execution.py",
+        )
+        self.assertEqual(
+            execution_manifest["doc"],
+            "docs/REMOTE_8J_NEXT_CONTROLLED_MOVEMENT_MANUAL_EXECUTION.md",
+        )
+        self.assertEqual(
+            execution_manifest["example"],
+            "docs/examples/remote8j_next_controlled_movement_manual_execution.local.example.json",
+        )
+        self.assertEqual(
+            execution_manifest["sourceStatusRequired"],
+            "GO_REMOTE8I_NEXT_CONTROLLED_MOVEMENT_EXECUTION_APPROVED",
+        )
+        self.assertEqual(execution_manifest["sourceDecisionRequired"], "approve_execution_record")
+        self.assertIn(
+            "record_next_controlled_movement_manual_execution",
+            execution_manifest["validRequestedActions"],
+        )
+        self.assertIn("add_1_2_users", execution_manifest["validMovementTypes"])
+        self.assertEqual(execution_manifest["maxNewUsers"], 2)
+        self.assertIn("tester_free", execution_manifest["validEntitlementKinds"])
+        self.assertIn("manualExecutionOnly", execution_manifest["requiredChecks"])
+        self.assertIn("invitesSentManually", execution_manifest["manualCountMetrics"])
+        self.assertIn("trafficExpanded", execution_manifest["zeroAutomationMetrics"])
+        self.assertFalse(execution_manifest["privacy"]["rawEmailsReturned"])
+        self.assertFalse(execution_manifest["privacy"]["messageBodyReturned"])
+        self.assertFalse(execution_manifest["record"]["automationAllowed"])
+        self.assertFalse(execution_manifest["record"]["furtherExpansionAllowedNow"])
+        self.assertTrue(execution_manifest["record"]["monitoringRequired"])
+        self.assertTrue(execution_manifest["record"]["rollbackAndPauseRemainActive"])
+        self.assertEqual(execution_manifest["nextPhase"], "REMOTE-8K-post-execution-monitoring")
+
+        combined_public = "\n".join([
+            remote_8j, roadmap, governance, architecture, readme, execution_py, execution_tool,
+        ])
+        for forbidden in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            "CLOUDFLARE_API_TOKEN=",
+            "SQX_REMOTE_SESSION_SECRET=",
+            "SQX_REMOTE_PAYMENT_WEBHOOK_SECRET=",
+            "sk_" + "live_",
+            "pk_" + "live_",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, combined_public)
+
+    def test_remote_8k_monitoring_gate_is_wired(self):
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        architecture = ARCHITECTURE_DOC.read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        remote_8k = REMOTE_8K_NEXT_CONTROLLED_MOVEMENT_MONITORING_DOC.read_text(encoding="utf-8-sig")
+        monitoring_py = (TOOL_ROOT / "core" / "remote_next_controlled_movement_monitoring.py").read_text(
+            encoding="utf-8-sig"
+        )
+        monitoring_tool = (TOOL_ROOT / "tools" / "remote_next_controlled_movement_monitoring.py").read_text(
+            encoding="utf-8-sig"
+        )
+        monitoring_test = (TOOL_ROOT / "test_remote_next_controlled_movement_monitoring.py").read_text(
+            encoding="utf-8-sig"
+        )
+        product_manifest = json.loads((TOOL_ROOT / "config" / "product_manifest.json").read_text(encoding="utf-8-sig"))
+
+        for path in (
+            REMOTE_8K_NEXT_CONTROLLED_MOVEMENT_MONITORING_DOC,
+            REMOTE_8K_NEXT_CONTROLLED_MOVEMENT_MONITORING_EXAMPLE,
+            TOOL_ROOT / "core" / "remote_next_controlled_movement_monitoring.py",
+            TOOL_ROOT / "tools" / "remote_next_controlled_movement_monitoring.py",
+            TOOL_ROOT / "test_remote_next_controlled_movement_monitoring.py",
+        ):
+            with self.subTest(path=path):
+                self.assertTrue(path.is_file(), path)
+
+        for pattern in (
+            "REMOTE-8K - Next Controlled Movement Post Execution Monitoring",
+            "remote-next-controlled-movement-monitoring-v1",
+            ".local/remote_service/remote8k_next_controlled_movement_monitoring",
+            "GO_REMOTE8K_NEXT_CONTROLLED_MOVEMENT_MONITORING_CLEAN",
+            "decision.automationAllowed = false",
+            "decision.furtherExpansionAllowedNow = false",
+            "REMOTE-8L - Post Monitoring Decision Review",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_8k)
+
+        for pattern in (
+            "Current phase completed: REMOTE-8H cycle bridge",
+            "Current implementation phase: REMOTE-8H private package evidence",
+            "Next Controlled Movement Monitoring Gate",
+            "remote-next-controlled-movement-monitoring-v1",
+            "ignored `.local/remote_service/remote8k_next_controlled_movement_monitoring*` evidence",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Artifacts added in REMOTE-8K",
+            "docs/REMOTE_8K_NEXT_CONTROLLED_MOVEMENT_MONITORING.md",
+            "backend/sqx-edge-tool/core/remote_next_controlled_movement_monitoring.py",
+            "backend/sqx-edge-tool/tools/remote_next_controlled_movement_monitoring.py",
+            "backend/sqx-edge-tool/test_remote_next_controlled_movement_monitoring.py",
+            "REMOTE-8L - Post Monitoring Decision Review",
+            "Next Controlled Movement Monitoring Gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "Estado comercial: REMOTE-8H cycle bridge",
+            "Siguiente paso recomendado: rellenar evidencia privada REMOTE-8H",
+            "REMOTE-8K fija `remote-next-controlled-movement-monitoring-v1`",
+            "backend/sqx-edge-tool/tools/remote_next_controlled_movement_monitoring.py",
+            "Next Controlled Movement Monitoring Gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "REMOTE-8K next controlled movement post execution monitoring",
+            "remote-next-controlled-movement-monitoring-v1",
+            ".local/remote_service/remote8k_next_controlled_movement_monitoring.local.json",
+            "Even on GO, `decision.furtherExpansionAllowedNow` stays false",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, architecture)
+
+        for pattern in (
+            "REMOTE_NEXT_CONTROLLED_MOVEMENT_MONITORING_VERSION",
+            "\"remote-next-controlled-movement-monitoring-v1\"",
+            "REQUIRED_SOURCE_STATUS = \"GO_REMOTE8J_NEXT_CONTROLLED_MOVEMENT_MANUAL_EXECUTION_RECORDED\"",
+            "MIN_OBSERVATION_HOURS = 24",
+            "VALID_REQUESTED_DECISIONS",
+            "REQUIRED_SIGNALS",
+            "ZERO_TOLERANCE_METRICS",
+            "build_remote8k_monitoring_summary",
+            "ingest_remote8k_next_controlled_movement_monitoring",
+            "NO_GO_REMOTE8K_MONITORING_EVIDENCE_MISSING",
+            "NO_GO_REMOTE8K_PUBLIC_SUMMARY_PRIVACY_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, monitoring_py)
+
+        for pattern in (
+            "ingest_remote8k_next_controlled_movement_monitoring",
+            "--evidence",
+            "--out-dir",
+            "REMOTE-8K post execution monitoring",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, monitoring_tool)
+
+        for pattern in (
+            "test_remote8k_clean_monitoring_is_redacted_and_ready_for_decision_review",
+            "test_remote8k_missing_evidence_returns_no_go",
+            "test_remote8k_blockers_prevent_next_decision_review",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, monitoring_test)
+
+        monitoring_manifest = product_manifest["remoteNextControlledMovementMonitoring"]
+        self.assertEqual(monitoring_manifest["phase"], "REMOTE-8K")
+        self.assertEqual(monitoring_manifest["version"], "remote-next-controlled-movement-monitoring-v1")
+        self.assertEqual(
+            monitoring_manifest["tool"],
+            "backend/sqx-edge-tool/tools/remote_next_controlled_movement_monitoring.py",
+        )
+        self.assertEqual(
+            monitoring_manifest["doc"],
+            "docs/REMOTE_8K_NEXT_CONTROLLED_MOVEMENT_MONITORING.md",
+        )
+        self.assertEqual(
+            monitoring_manifest["example"],
+            "docs/examples/remote8k_next_controlled_movement_monitoring.local.example.json",
+        )
+        self.assertEqual(
+            monitoring_manifest["sourceStatusRequired"],
+            "GO_REMOTE8J_NEXT_CONTROLLED_MOVEMENT_MANUAL_EXECUTION_RECORDED",
+        )
+        self.assertEqual(monitoring_manifest["minimumObservationHours"], 24)
+        self.assertIn("prepare_next_decision_review", monitoring_manifest["validRequestedDecisions"])
+        self.assertIn("add_1_2_users", monitoring_manifest["validMovementTypes"])
+        self.assertEqual(monitoring_manifest["maxExecutedUsers"], 2)
+        self.assertIn("tester_free", monitoring_manifest["validEntitlementKinds"])
+        self.assertIn("workspaceIsolationClean", monitoring_manifest["requiredSignals"])
+        self.assertIn("trafficExpanded", monitoring_manifest["zeroToleranceMetrics"])
+        self.assertFalse(monitoring_manifest["privacy"]["rawEmailsReturned"])
+        self.assertFalse(monitoring_manifest["privacy"]["protectedUrlReturned"])
+        self.assertFalse(monitoring_manifest["privacy"]["privateNotesReturned"])
+        self.assertFalse(monitoring_manifest["decision"]["automationAllowed"])
+        self.assertFalse(monitoring_manifest["decision"]["furtherExpansionAllowedNow"])
+        self.assertTrue(monitoring_manifest["decision"]["requiresOperatorApprovalForNextMovement"])
+        self.assertEqual(monitoring_manifest["nextPhase"], "REMOTE-8L-post-monitoring-decision-review")
+
+        combined_public = "\n".join([
+            remote_8k, roadmap, governance, architecture, readme, monitoring_py, monitoring_tool,
+        ])
+        for forbidden in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            "CLOUDFLARE_API_TOKEN=",
+            "SQX_REMOTE_SESSION_SECRET=",
+            "SQX_REMOTE_PAYMENT_WEBHOOK_SECRET=",
+            "sk_" + "live_",
+            "pk_" + "live_",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, combined_public)
+
+    def test_remote_8l_post_monitoring_decision_review_gate_is_wired(self):
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        architecture = ARCHITECTURE_DOC.read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        remote_8l = REMOTE_8L_POST_MONITORING_DECISION_REVIEW_DOC.read_text(encoding="utf-8-sig")
+        decision_py = (TOOL_ROOT / "core" / "remote_post_monitoring_decision_review.py").read_text(
+            encoding="utf-8-sig"
+        )
+        decision_tool = (TOOL_ROOT / "tools" / "remote_post_monitoring_decision_review.py").read_text(
+            encoding="utf-8-sig"
+        )
+        decision_test = (TOOL_ROOT / "test_remote_post_monitoring_decision_review.py").read_text(
+            encoding="utf-8-sig"
+        )
+        product_manifest = json.loads((TOOL_ROOT / "config" / "product_manifest.json").read_text(encoding="utf-8-sig"))
+
+        for path in (
+            REMOTE_8L_POST_MONITORING_DECISION_REVIEW_DOC,
+            REMOTE_8L_POST_MONITORING_DECISION_REVIEW_EXAMPLE,
+            TOOL_ROOT / "core" / "remote_post_monitoring_decision_review.py",
+            TOOL_ROOT / "tools" / "remote_post_monitoring_decision_review.py",
+            TOOL_ROOT / "test_remote_post_monitoring_decision_review.py",
+        ):
+            with self.subTest(path=path):
+                self.assertTrue(path.is_file(), path)
+
+        for pattern in (
+            "REMOTE-8L - Post Monitoring Decision Review",
+            "remote-post-monitoring-decision-review-v1",
+            ".local/remote_service/remote8l_post_monitoring_decision_review",
+            "GO_REMOTE8L_POST_MONITORING_DECISION_REVIEW_READY",
+            "decision.automationAllowed = false",
+            "decision.executionAllowedNow = false",
+            "decision.furtherExpansionAllowedNow = false",
+            "REMOTE-8H - Next Controlled Movement Package",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_8l)
+
+        for pattern in (
+            "Current phase completed: REMOTE-8H cycle bridge",
+            "Current implementation phase: REMOTE-8H private package evidence",
+            "Post Monitoring Decision Review Gate",
+            "remote-post-monitoring-decision-review-v1",
+            "ignored `.local/remote_service/remote8l_post_monitoring_decision_review*` evidence",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Artifacts added in REMOTE-8L",
+            "docs/REMOTE_8L_POST_MONITORING_DECISION_REVIEW.md",
+            "backend/sqx-edge-tool/core/remote_post_monitoring_decision_review.py",
+            "backend/sqx-edge-tool/tools/remote_post_monitoring_decision_review.py",
+            "backend/sqx-edge-tool/test_remote_post_monitoring_decision_review.py",
+            "Post Monitoring Decision Review Gate",
+            "routes back to REMOTE-8H package preparation",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "Estado comercial: REMOTE-8H cycle bridge",
+            "Siguiente paso recomendado: rellenar evidencia privada REMOTE-8H",
+            "REMOTE-8L fija `remote-post-monitoring-decision-review-v1`",
+            "backend/sqx-edge-tool/tools/remote_post_monitoring_decision_review.py",
+            "Post Monitoring Decision Review Gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "REMOTE-8L post monitoring decision review",
+            "remote-post-monitoring-decision-review-v1",
+            ".local/remote_service/remote8l_post_monitoring_decision_review.local.json",
+            "Even on GO, `decision.automationAllowed`, `decision.executionAllowedNow` and `decision.furtherExpansionAllowedNow` stay false",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, architecture)
+
+        for pattern in (
+            "REMOTE_POST_MONITORING_DECISION_REVIEW_VERSION",
+            "\"remote-post-monitoring-decision-review-v1\"",
+            "CLEAN_SOURCE_STATUS = \"GO_REMOTE8K_NEXT_CONTROLLED_MOVEMENT_MONITORING_CLEAN\"",
+            "BLOCKED_SOURCE_STATUS = \"NO_GO_REMOTE8K_NEXT_CONTROLLED_MOVEMENT_MONITORING_BLOCKED\"",
+            "REQUIRED_SOURCE_REQUESTED_DECISION = \"prepare_next_decision_review\"",
+            "MIN_OBSERVATION_HOURS = 24",
+            "VALID_SELECTED_DECISIONS",
+            "REQUIRED_CHECKS",
+            "ZERO_EXECUTION_METRICS",
+            "build_remote8l_decision_review_summary",
+            "ingest_remote8l_post_monitoring_decision_review",
+            "NO_GO_REMOTE8L_DECISION_REVIEW_EVIDENCE_MISSING",
+            "NO_GO_REMOTE8L_PUBLIC_SUMMARY_PRIVACY_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, decision_py)
+
+        for pattern in (
+            "ingest_remote8l_post_monitoring_decision_review",
+            "--evidence",
+            "--out-dir",
+            "REMOTE-8L post monitoring decision review",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, decision_tool)
+
+        for pattern in (
+            "test_remote8l_clean_decision_review_is_redacted_and_prepares_next_package",
+            "test_remote8l_missing_evidence_returns_no_go",
+            "test_remote8l_blockers_prevent_next_movement_package",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, decision_test)
+
+        decision_manifest = product_manifest["remotePostMonitoringDecisionReview"]
+        self.assertEqual(decision_manifest["phase"], "REMOTE-8L")
+        self.assertEqual(decision_manifest["version"], "remote-post-monitoring-decision-review-v1")
+        self.assertEqual(
+            decision_manifest["tool"],
+            "backend/sqx-edge-tool/tools/remote_post_monitoring_decision_review.py",
+        )
+        self.assertEqual(
+            decision_manifest["doc"],
+            "docs/REMOTE_8L_POST_MONITORING_DECISION_REVIEW.md",
+        )
+        self.assertEqual(
+            decision_manifest["example"],
+            "docs/examples/remote8l_post_monitoring_decision_review.local.example.json",
+        )
+        self.assertEqual(decision_manifest["cleanSourceStatus"], "GO_REMOTE8K_NEXT_CONTROLLED_MOVEMENT_MONITORING_CLEAN")
+        self.assertEqual(
+            decision_manifest["blockedSourceStatus"],
+            "NO_GO_REMOTE8K_NEXT_CONTROLLED_MOVEMENT_MONITORING_BLOCKED",
+        )
+        self.assertEqual(decision_manifest["requiredSourceRequestedDecisionForNextMovement"], "prepare_next_decision_review")
+        self.assertEqual(decision_manifest["minimumObservationHours"], 24)
+        self.assertIn("prepare_next_controlled_movement", decision_manifest["validSelectedDecisions"])
+        self.assertIn("add_1_2_users", decision_manifest["validMovementTypes"])
+        self.assertEqual(decision_manifest["maxReviewedUsers"], 2)
+        self.assertIn("tester_free", decision_manifest["validEntitlementKinds"])
+        self.assertIn("remote8kMonitoringReviewed", decision_manifest["requiredChecks"])
+        self.assertIn("trafficExpanded", decision_manifest["zeroExecutionMetrics"])
+        self.assertFalse(decision_manifest["privacy"]["rawEmailsReturned"])
+        self.assertFalse(decision_manifest["privacy"]["decisionRationaleReturned"])
+        self.assertFalse(decision_manifest["privacy"]["privateNotesReturned"])
+        self.assertFalse(decision_manifest["decision"]["automationAllowed"])
+        self.assertFalse(decision_manifest["decision"]["executionAllowedNow"])
+        self.assertFalse(decision_manifest["decision"]["furtherExpansionAllowedNow"])
+        self.assertTrue(decision_manifest["decision"]["requiresSeparateNextPhase"])
+        self.assertEqual(decision_manifest["nextPhaseOnPrepareNextMovement"], "REMOTE-8H-next-controlled-movement-package")
+
+        combined_public = "\n".join([
+            remote_8l, roadmap, governance, architecture, readme, decision_py, decision_tool,
+        ])
+        for forbidden in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            "CLOUDFLARE_API_TOKEN=",
+            "SQX_REMOTE_SESSION_SECRET=",
+            "SQX_REMOTE_PAYMENT_WEBHOOK_SECRET=",
+            "sk_" + "live_",
+            "pk_" + "live_",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, combined_public)
+
+    def test_remote_sug1_deployment_hardening_review_keeps_windows_pilot_active(self):
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        architecture = ARCHITECTURE_DOC.read_text(encoding="utf-8-sig")
+        remote_sug1 = REMOTE_SUG1_DEPLOYMENT_HARDENING_REVIEW_DOC.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(REMOTE_SUG1_DEPLOYMENT_HARDENING_REVIEW_DOC.is_file())
+
+        for pattern in (
+            "REMOTE-SUG1 - Deployment Hardening Review",
+            "Windows pilot first, Docker/Linux later",
+            "Zero ingress",
+            "Cloudflare Tunnel remains the only public path",
+            "Root `Dockerfile`, root `docker-compose.yml` and root `.dockerignore`",
+            "StrategyQuant X is currently treated as a Windows/local resource",
+            "Future REMOTE-9 Direction",
+            "material de diagnostico/propuestas/",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_sug1)
+
+        for pattern in (
+            "REMOTE-SUG1 - Deployment Hardening Review",
+            "REMOTE-9 - Containerization / Dedicated Linux Host",
+            "Windows",
+            "Docker/Ubuntu is deferred until REMOTE-9",
+            "Deployment Hardening Review Gate",
+            "Containerization Deferral Gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "Current phase completed: REMOTE-8H cycle bridge",
+            "Current implementation phase: REMOTE-8H private package evidence",
+            "Local proposals rule",
+            "Deployment Hardening Review Gate",
+            "Containerization Deferral Gate",
+            "Windows pilot",
+            "Docker/Linux deferred to REMOTE-9",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "active pilot host remains the Windows laptop",
+            "Docker/Linux is a future hardening option",
+            "REMOTE-SUG1 deployment hardening decision",
+            "REMOTE-9 future containerization",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, architecture)
+
+        for pattern in (
+            "Estado de despliegue: REMOTE-SUG1",
+            "Windows laptop + API localhost + Cloudflare Tunnel",
+            "Docker/Linux queda como ruta futura REMOTE-9",
+            "no se debe anadir `Dockerfile`, `docker-compose.yml` ni `.dockerignore` en la raiz",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for root_artifact in ("Dockerfile", "docker-compose.yml", "docker-compose.yaml", ".dockerignore"):
+            with self.subTest(root_artifact=root_artifact):
+                self.assertFalse((PROJECT_ROOT / root_artifact).exists(), root_artifact)
+
+    def test_remote_ops1_laptop_readiness_drill_is_gated_and_redacted(self):
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        architecture = ARCHITECTURE_DOC.read_text(encoding="utf-8-sig")
+        remote_ops1 = REMOTE_OPS1_LAPTOP_READINESS_DOC.read_text(encoding="utf-8-sig")
+        example = REMOTE_OPS1_LAPTOP_READINESS_EXAMPLE.read_text(encoding="utf-8-sig")
+        core = (TOOL_ROOT / "core" / "remote_ops1_laptop_readiness.py").read_text(encoding="utf-8-sig")
+        tool = (TOOL_ROOT / "tools" / "remote_ops1_laptop_readiness.py").read_text(encoding="utf-8-sig")
+        tests = (TOOL_ROOT / "test_remote_ops1_laptop_readiness.py").read_text(encoding="utf-8-sig")
+        product_manifest = json.loads((TOOL_ROOT / "config" / "product_manifest.json").read_text(encoding="utf-8-sig"))
+
+        for artifact in (
+            REMOTE_OPS1_LAPTOP_READINESS_DOC,
+            REMOTE_OPS1_LAPTOP_READINESS_EXAMPLE,
+            TOOL_ROOT / "core" / "remote_ops1_laptop_readiness.py",
+            TOOL_ROOT / "tools" / "remote_ops1_laptop_readiness.py",
+            TOOL_ROOT / "test_remote_ops1_laptop_readiness.py",
+        ):
+            with self.subTest(artifact=str(artifact)):
+                self.assertTrue(artifact.is_file())
+
+        for pattern in (
+            "REMOTE-OPS1 - Laptop Production Readiness Drill",
+            "remote-ops1-laptop-readiness-v1",
+            ".local/remote_service/remote_ops1_laptop_readiness",
+            "GO_REMOTE_OPS1_LAPTOP_READY",
+            "NO_GO_REMOTE_OPS1_LAPTOP_READINESS_BLOCKED",
+            "REMOTE-8H private package evidence",
+            "`readiness.executionAllowedNow = false`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_ops1)
+
+        for pattern in (
+            "Current phase completed: REMOTE-OPS1",
+            "Current implementation phase: REMOTE-OPS1 private laptop readiness evidence",
+            "Historical remote anchor: Current phase completed: REMOTE-8H cycle bridge",
+            "Laptop Production Readiness Drill Gate",
+            "remote-ops1-laptop-readiness-v1",
+            ".local/remote_service/remote_ops1_laptop_readiness",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "REMOTE-OPS1 - Laptop Production Readiness Drill",
+            "Laptop Production Readiness Drill Gate",
+            "GO_REMOTE_OPS1_LAPTOP_READY",
+            "NO_GO_REMOTE_OPS1_LAPTOP_READINESS_BLOCKED",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "REMOTE-OPS1 laptop production readiness drill",
+            "remote_ops1_laptop_readiness.py",
+            "remote_ops1_laptop_readiness.public.json",
+            "GO_REMOTE_OPS1_LAPTOP_READY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, architecture)
+
+        for pattern in (
+            "Estado comercial: REMOTE-OPS1",
+            "Siguiente paso recomendado: rellenar evidencia privada REMOTE-OPS1",
+            "REMOTE-OPS1 fija `remote-ops1-laptop-readiness-v1`",
+            "Operativa privada REMOTE-OPS1",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "REMOTE_OPS1_LAPTOP_READINESS_VERSION",
+            "REQUIRED_CHECKS",
+            "ZERO_RISK_METRICS",
+            "build_remote_ops1_laptop_readiness_summary",
+            "ingest_remote_ops1_laptop_readiness",
+            "NO_GO_REMOTE_OPS1_LAPTOP_READINESS_EVIDENCE_MISSING",
+            "NO_GO_REMOTE_OPS1_PUBLIC_SUMMARY_PRIVACY_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, core)
+
+        for pattern in (
+            "Validate a redacted REMOTE-OPS1 laptop readiness drill.",
+            "ingest_remote_ops1_laptop_readiness",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, tool)
+
+        for pattern in (
+            "test_remote_ops1_clean_readiness_is_redacted_and_non_executing",
+            "test_remote_ops1_missing_evidence_returns_no_go",
+            "test_remote_ops1_blockers_prevent_laptop_ready",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, tests)
+
+        manifest = product_manifest["remoteOps1LaptopReadiness"]
+        self.assertEqual(manifest["phase"], "REMOTE-OPS1")
+        self.assertEqual(manifest["version"], "remote-ops1-laptop-readiness-v1")
+        self.assertEqual(manifest["nextPhaseOnGo"], "REMOTE-8H-private-package-evidence")
+        self.assertFalse(manifest["readiness"]["executionAllowedNow"])
+        self.assertFalse(manifest["readiness"]["userExpansionAllowedNow"])
+        self.assertTrue(manifest["readiness"]["requiresRemote8hEvidenceBeforeMovement"])
+        self.assertFalse(manifest["privacy"]["rawEmailsReturned"])
+        self.assertFalse(manifest["privacy"]["protectedUrlReturned"])
+        self.assertFalse(manifest["privacy"]["cloudflareIdentifiersReturned"])
+        self.assertFalse(manifest["privacy"]["localPathsReturned"])
+        self.assertFalse(manifest["privacy"]["privateEvidenceCommitted"])
+        self.assertIn("noUsersInvited", manifest["requiredChecks"])
+        self.assertIn("publicUrlsShared", manifest["zeroRiskMetrics"])
+
+        combined_public = "\n".join([
+            remote_ops1, example, roadmap, governance, architecture, readme, core, tool, tests,
+        ])
+        for forbidden in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            "CLOUDFLARE_API_TOKEN=",
+            "SQX_REMOTE_SESSION_SECRET=",
+            "SQX_REMOTE_PAYMENT_WEBHOOK_SECRET=",
+            "sk_" + "live_",
+            "pk_" + "live_",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, combined_public)
+
+    def test_remote_1_laptop_server_baseline_is_documented_and_local_only(self):
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        architecture = ARCHITECTURE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        remote_1 = REMOTE_1_LAPTOP_SERVER_BASELINE_DOC.read_text(encoding="utf-8-sig")
+        preflight = REMOTE_SERVICE_PREFLIGHT_SCRIPT.read_text(encoding="utf-8-sig")
+        start_server = REMOTE_SERVICE_START_SERVER_SCRIPT.read_text(encoding="utf-8-sig")
+        watchdog = REMOTE_SERVICE_WATCHDOG_SCRIPT.read_text(encoding="utf-8-sig")
+        startup_task = REMOTE_SERVICE_INSTALL_STARTUP_TASK_SCRIPT.read_text(encoding="utf-8-sig")
+
+        for path in (
+            REMOTE_1_LAPTOP_SERVER_BASELINE_DOC,
+            REMOTE_SERVICE_PREFLIGHT_SCRIPT,
+            REMOTE_SERVICE_START_SERVER_SCRIPT,
+            REMOTE_SERVICE_WATCHDOG_SCRIPT,
+            REMOTE_SERVICE_INSTALL_STARTUP_TASK_SCRIPT,
+        ):
+            with self.subTest(path=path):
+                self.assertTrue(path.is_file(), path)
+
+        for pattern in (
+            "REMOTE-1 - Laptop Server Baseline",
+            "No public ports are opened in REMOTE-1",
+            "127.0.0.1:5050",
+            "remote_service_preflight.ps1 -RequireSqxReady",
+            "remote_service_watchdog.ps1 -Once -NoStart",
+            "Cloudflare Tunnel, Access policy and domain wiring are blocked until REMOTE-2",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_1)
+
+        for pattern in (
+            "Laptop Server Baseline Gate",
+            "localhost backend",
+            ".local/remote_service/",
+            "REMOTE-1 - laptop server baseline",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "tools/remote_service_preflight.ps1",
+            "tools/remote_service_start_server.ps1",
+            "tools/remote_service_watchdog.ps1",
+            "tools/remote_service_install_startup_task.ps1",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+                self.assertIn(pattern, architecture)
+
+        for pattern in (
+            "REMOTE-1 fija la base de portatil servidor",
+            "tools\\remote_service_preflight.ps1",
+            "tools\\remote_service_watchdog.ps1 -Once -NoStart",
+            "REMOTE-2 fija el tunel protegido",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "RequireSqxReady",
+            "sqx_data_db",
+            "template_capa1",
+            "template_capa2",
+            "output_dir",
+            "Invoke-RestMethod",
+            "/api/health",
+            "Refusing non-local API URL",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, preflight)
+
+        for pattern in (
+            'HostAddress = "127.0.0.1"',
+            "REMOTE-1 only allows localhost API binding",
+            "SQX_REMOTE_SERVICE_MODE",
+            "api\\server.py",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, start_server)
+
+        for pattern in (
+            "Start-Process",
+            "remote_service_start_server.ps1",
+            ".local\\remote_service",
+            "watchdog.log",
+            "REMOTE-1 watchdog only accepts localhost API URLs",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, watchdog)
+
+        for pattern in (
+            "Register-ScheduledTask",
+            "New-ScheduledTaskTrigger -AtLogOn",
+            "New-ScheduledTaskTrigger -AtStartup",
+            "remote_service_watchdog.ps1",
+            "SQX Edge Remote Service Watchdog",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, startup_task)
+
+        combined_scripts = "\n".join([preflight, start_server, watchdog, startup_task])
+        for forbidden in (
+            "0.0.0.0",
+            "ngrok",
+            "cloudflared tunnel run",
+            "CLOUDFLARE_API_TOKEN",
+            "VERCEL_TOKEN",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, combined_scripts)
+
+    def test_remote_2_cloudflare_tunnel_access_is_documented_and_secret_safe(self):
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        architecture = ARCHITECTURE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        remote_2 = REMOTE_2_CLOUDFLARE_TUNNEL_ACCESS_DOC.read_text(encoding="utf-8-sig")
+        example = json.loads(REMOTE_TUNNEL_EXAMPLE_EVIDENCE.read_text(encoding="utf-8-sig"))
+        preflight = REMOTE_TUNNEL_PREFLIGHT_SCRIPT.read_text(encoding="utf-8-sig")
+        runner = REMOTE_TUNNEL_RUN_SCRIPT.read_text(encoding="utf-8-sig")
+        smoke = REMOTE_TUNNEL_SMOKE_SCRIPT.read_text(encoding="utf-8-sig")
+        preview_smoke = REMOTE_LINK_PREVIEW_SMOKE_SCRIPT.read_text(encoding="utf-8-sig")
+        startup_task = REMOTE_TUNNEL_INSTALL_STARTUP_TASK_SCRIPT.read_text(encoding="utf-8-sig")
+
+        for path in (
+            REMOTE_2_CLOUDFLARE_TUNNEL_ACCESS_DOC,
+            REMOTE_TUNNEL_EXAMPLE_EVIDENCE,
+            REMOTE_TUNNEL_PREFLIGHT_SCRIPT,
+            REMOTE_TUNNEL_RUN_SCRIPT,
+            REMOTE_TUNNEL_SMOKE_SCRIPT,
+            REMOTE_LINK_PREVIEW_SMOKE_SCRIPT,
+            REMOTE_TUNNEL_INSTALL_STARTUP_TASK_SCRIPT,
+        ):
+            with self.subTest(path=path):
+                self.assertTrue(path.is_file(), path)
+
+        for pattern in (
+            "REMOTE-2 - Cloudflare Tunnel And Access",
+            "No router ports are opened",
+            "GO_REMOTE2_TUNNEL_ACCESS_READY_NO_GIT_LEAK",
+            "NO_GO_REMOTE2_PRIVATE_TUNNEL_ACCESS_EVIDENCE_MISSING",
+            ".local/remote_service/cloudflare_tunnel.local.json",
+            "Cloudflare Access must intercept anonymous users before any SQX Edge body is visible",
+            "tools\\remote_link_preview_smoke.ps1 -ProtectedUrl",
+            "Application paths",
+            "Access policies",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_2)
+
+        for pattern in (
+            "Cloudflare Tunnel Access Gate",
+            "backend bound to localhost",
+            "no public URL in Git",
+            "REMOTE-2 - Cloudflare Tunnel and Access gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "tools/remote_tunnel_preflight.ps1",
+            "tools/remote_tunnel_run.ps1",
+            "tools/remote_tunnel_smoke.ps1",
+            "tools/remote_link_preview_smoke.ps1",
+            "tools/remote_tunnel_install_startup_task.ps1",
+            "docs/examples/remote_tunnel.local.example.json",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+                self.assertIn(pattern, architecture)
+
+        for pattern in (
+            "REMOTE-2 fija el tunel protegido",
+            "tools\\remote_tunnel_preflight.ps1 -RequireEvidence",
+            "tools\\remote_tunnel_smoke.ps1 -ProtectedUrl",
+            "Siguiente paso recomendado: rellenar evidencia privada REMOTE-8H",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        self.assertEqual(example["phase"], "REMOTE-2")
+        self.assertEqual(example["targetUrl"], "http://127.0.0.1:5050")
+        for key in (
+            "hostnameConfiguredPrivately",
+            "customDomainOwnedPrivately",
+            "cloudflaredAuthenticatedPrivately",
+            "tunnelCreatedPrivately",
+            "tunnelRouteConfiguredPrivately",
+            "cloudflareAccessApplicationCreatedPrivately",
+            "cloudflareAccessPolicyCreatedPrivately",
+            "accessBlocksAnonymous",
+            "accessAllowsApprovedIdentity",
+            "publicRepoContainsHostname",
+            "publicRepoContainsCredentials",
+            "publicRepoContainsProviderIds",
+            "publicRepoContainsAccessPolicyIds",
+        ):
+            with self.subTest(key=key):
+                self.assertIn(key, example)
+                self.assertIs(example[key], False)
+
+        for pattern in (
+            "GO_REMOTE2_TUNNEL_ACCESS_READY_NO_GIT_LEAK",
+            "NO_GO_REMOTE2_PRIVATE_TUNNEL_ACCESS_EVIDENCE_MISSING",
+            "RequireEvidence",
+            "remote_service_preflight.ps1",
+            "targetUrlLocalOnly",
+            "cloudflaredInstalled",
+            "accessBlocksAnonymous",
+            "accessAllowsApprovedIdentity",
+            "publicRepoContainsHostname",
+            "Test-SensitiveEvidenceText",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, preflight)
+
+        for pattern in (
+            "cloudflared",
+            "remote_tunnel_preflight.ps1",
+            "-CloudflaredPath",
+            "REMOTE-2 preflight did not return GO. Tunnel run blocked.",
+            "tunnel",
+            "--config",
+            "run",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, runner)
+
+        for pattern in (
+            "ProtectedUrl",
+            "REMOTE-2 smoke requires an https protected URL",
+            "cloudflare_access_anonymous_smoke",
+            "Cloudflare Access",
+            "appBodyVisibleToAnonymous",
+            "backendLocalOnlyVisibleToAnonymous",
+            "local_api_only",
+            "<protected-hostname>",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, smoke)
+
+        for pattern in (
+            "ROOT-PREVIEW1",
+            "ProtectedUrl",
+            "remote_link_preview_smoke",
+            "link-preview",
+            "/dashboard",
+            "sqx-social-preview.png",
+            "rootPreviewPublic",
+            "rootPreviewCacheable",
+            "dashboardProtected",
+            "previewPublic",
+            "previewCacheable",
+            "imageCacheable",
+            "robotsPublic",
+            "faviconPublic",
+            "previewLeaksAppOrPrivateState",
+            "<protected-hostname>",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, preview_smoke)
+
+        for pattern in (
+            "Register-ScheduledTask",
+            "remote_tunnel_run.ps1",
+            "SQX Edge Cloudflare Tunnel",
+            "New-ScheduledTaskTrigger -AtLogOn",
+            "New-ScheduledTaskTrigger -AtStartup",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, startup_task)
+
+        combined_public = "\n".join([remote_2, json.dumps(example), preflight, runner, smoke, preview_smoke, startup_task, roadmap, architecture])
+        for forbidden in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            "https://sqx" + "-edge",
+            "CLOUDFLARE_API_TOKEN=",
+            "CLOUDFLARE_ACCOUNT_ID=",
+            "CLOUDFLARE_ZONE_ID=",
+            "-----BEGIN PRIVATE KEY-----",
+            "sk_live_",
+            "pk_live_",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, combined_public)
+
+    def test_remote_runbook1_operator_start_stop_is_visual_and_secret_safe(self):
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        architecture = ARCHITECTURE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        remote_1 = REMOTE_1_LAPTOP_SERVER_BASELINE_DOC.read_text(encoding="utf-8-sig")
+        remote_2 = REMOTE_2_CLOUDFLARE_TUNNEL_ACCESS_DOC.read_text(encoding="utf-8-sig")
+        runbook = REMOTE_RUNBOOK1_OPERATOR_START_STOP_DOC.read_text(encoding="utf-8-sig")
+        start_ps1 = REMOTE_OPERATOR_START_SCRIPT.read_text(encoding="utf-8-sig")
+        stop_ps1 = REMOTE_OPERATOR_STOP_SCRIPT.read_text(encoding="utf-8-sig")
+        status_ps1 = REMOTE_OPERATOR_STATUS_SCRIPT.read_text(encoding="utf-8-sig")
+        start_bat = REMOTE_START_BAT.read_text(encoding="utf-8-sig")
+        stop_bat = REMOTE_STOP_BAT.read_text(encoding="utf-8-sig")
+
+        for path in (
+            REMOTE_RUNBOOK1_OPERATOR_START_STOP_DOC,
+            REMOTE_OPERATOR_START_SCRIPT,
+            REMOTE_OPERATOR_STOP_SCRIPT,
+            REMOTE_OPERATOR_STATUS_SCRIPT,
+            REMOTE_OPERATOR_MONITOR_HTA,
+            REMOTE_OPERATOR_PROBE_SCRIPT,
+            REMOTE_START_BAT,
+            REMOTE_STOP_BAT,
+        ):
+            with self.subTest(path=path):
+                self.assertTrue(path.is_file(), path)
+
+        for pattern in (
+            "REMOTE-RUNBOOK1 - Operator Start/Stop",
+            "START_SQX_EDGE_REMOTE.bat",
+            "STOP_SQX_EDGE_REMOTE.bat",
+            "visual monitor",
+            "Backend and Tunnel status",
+            "STOP_SQX_EDGE_REMOTE.bat",
+            "servicios detenidos",
+            "OK todo en marcha",
+            ".local/remote_service/",
+            "REMOTE-ACCEPT1",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, runbook)
+
+        for pattern in (
+            "Remote Operator Runbook Gate",
+            "START_SQX_EDGE_REMOTE.bat",
+            "STOP_SQX_EDGE_REMOTE.bat",
+            "tools/remote_operator_status.ps1",
+            "tools/remote_operator_monitor.hta",
+            "tools/remote_operator_probe.ps1",
+            "visual monitor opens visibly",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "REMOTE-RUNBOOK1 - Operator Start/Stop",
+            "tools/remote_operator_start.ps1",
+            "tools/remote_operator_stop.ps1",
+            "tools/remote_operator_status.ps1",
+            "tools/remote_operator_monitor.hta",
+            "tools/remote_operator_probe.ps1",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "REMOTE-RUNBOOK1 operator start/stop",
+            "visible HTA operator monitor",
+            "Arrancar",
+            "Detener",
+            "protected Cloudflare URL",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, architecture)
+
+        for pattern in (
+            "Arranque operador REMOTE-RUNBOOK1",
+            "START_SQX_EDGE_REMOTE.bat",
+            "STOP_SQX_EDGE_REMOTE.bat",
+            "monitor visual visible de Backend/Tunnel",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        self.assertIn("START_SQX_EDGE_REMOTE.bat", remote_1)
+        self.assertIn("START_SQX_EDGE_REMOTE.bat", remote_2)
+
+        for pattern in (
+            "mshta.exe",
+            "remote_operator_monitor.hta",
+            "SQX_REMOTE_MODE=start",
+            "--start",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, start_bat)
+        for pattern in (
+            "mshta.exe",
+            "remote_operator_monitor.hta",
+            "SQX_REMOTE_MODE=stop",
+            "--stop",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, stop_bat)
+
+        for pattern in (
+            "127.0.0.1:5050",
+            "remote_service_start_server.ps1",
+            "remote_tunnel_run.ps1",
+            "cloudflared-config.local.yml",
+            ".local\\remote_service",
+            "WindowStyle Hidden",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, start_ps1)
+
+        for pattern in (
+            "api\\server.py",
+            "cloudflared-config.local.yml",
+            "Stop-Process",
+            "127.0.0.1:5050",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, stop_ps1)
+
+        for forbidden in (
+            "-WindowStyle Hidden -File \"%ROOT%tools\\remote_operator_status.ps1\"",
+            "START_SQX_EDGE.bat            Launcher interno/fallback",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, "\n".join([start_bat, stop_bat, readme]))
+
+        hta = REMOTE_OPERATOR_MONITOR_HTA.read_text(encoding="utf-8-sig")
+        for pattern in (
+            "mshta",
+            "remote_operator_start.ps1",
+            "remote_operator_stop.ps1",
+            "remote_operator_probe.ps1",
+            "servicios detenidos",
+            "suppresses the startup OK notification",
+            "Arrancar",
+            "Detener",
+            "En marcha",
+            "Detenido",
+            "Espere...",
+            "--stop",
+            "--start",
+            "SQX_REMOTE_MODE",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, "\n".join([hta, runbook]))
+
+        for pattern in (
+            "System.Windows.Forms",
+            "NotifyIcon",
+            "Timer",
+            "Arrancar",
+            "Detener",
+            "En marcha",
+            "Detenido",
+            "Espere...",
+            "Set-ButtonsForState",
+            "OK todo en marcha",
+            "Backend/Tunnel",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, status_ps1)
+
+        combined_public = "\n".join([runbook, start_ps1, stop_ps1, status_ps1, hta, start_bat, stop_bat, readme, roadmap, architecture])
+        for forbidden in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            "https://sqx" + "-edge",
+            "CLOUDFLARE_API_TOKEN=",
+            "CLOUDFLARE_ACCOUNT_ID=",
+            "CLOUDFLARE_ZONE_ID=",
+            "-----BEGIN PRIVATE KEY-----",
+            "sk_live_",
+            "pk_live_",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, combined_public)
+
+    def test_remote_ops1b_cloudflare_operator_handoff_is_documented_and_secret_safe(self):
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        architecture = ARCHITECTURE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        ops1 = REMOTE_OPS1_LAPTOP_READINESS_DOC.read_text(encoding="utf-8-sig")
+        handoff_doc = (PROJECT_ROOT / "docs" / "REMOTE_OPS1B_CLOUDFLARE_OPERATOR_HANDOFF.md").read_text(encoding="utf-8-sig")
+        handoff_script = REMOTE_TUNNEL_OPERATOR_HANDOFF_SCRIPT.read_text(encoding="utf-8-sig")
+        config_example = REMOTE_CLOUDFLARED_CONFIG_EXAMPLE.read_text(encoding="utf-8-sig")
+        startup_task = REMOTE_TUNNEL_INSTALL_STARTUP_TASK_SCRIPT.read_text(encoding="utf-8-sig")
+        preflight = REMOTE_TUNNEL_PREFLIGHT_SCRIPT.read_text(encoding="utf-8-sig")
+
+        for path in (
+            PROJECT_ROOT / "docs" / "REMOTE_OPS1B_CLOUDFLARE_OPERATOR_HANDOFF.md",
+            REMOTE_TUNNEL_OPERATOR_HANDOFF_SCRIPT,
+            REMOTE_CLOUDFLARED_CONFIG_EXAMPLE,
+        ):
+            with self.subTest(path=path):
+                self.assertTrue(path.is_file(), path)
+
+        for pattern in (
+            "REMOTE-OPS1B - Cloudflare Operator Handoff",
+            "tools/remote_tunnel_operator_handoff.ps1",
+            "docs/examples/cloudflared-config.local.example.yml",
+            ".local/remote_service/cloudflare_tunnel_operator_handoff.local.md",
+            "GO_REMOTE2_TUNNEL_ACCESS_READY_NO_GIT_LEAK",
+            "GO_REMOTE_OPS1_LAPTOP_READY",
+            "Cloudflare Access self-hosted applications",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, handoff_doc)
+
+        for pattern in (
+            "Cloudflare Operator Handoff Gate",
+            "REMOTE-OPS1B",
+            "tracked files must contain placeholders only",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "REMOTE-OPS1B - Cloudflare Operator Handoff",
+            "tools/remote_tunnel_operator_handoff.ps1",
+            "docs/examples/cloudflared-config.local.example.yml",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "remote_tunnel_operator_handoff.ps1",
+            "cloudflared-config.local.example.yml",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, architecture)
+                self.assertIn(pattern, ops1)
+
+        for pattern in (
+            "LaunchLogin",
+            "cloudflare_tunnel.local.json",
+            "cloudflare_tunnel_operator_handoff.local.md",
+            "cloudflared-config.local.yml.template",
+            "run_cloudflared_tunnel_login",
+            "externalMutationPerformed",
+            "originCertPresentPrivately",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, handoff_script)
+
+        for pattern in (
+            "hostname: <private-protected-hostname>",
+            "service: http://127.0.0.1:5050",
+            "http_status:404",
+            "<FULL-PATH-TO-TUNNEL-CREDENTIALS-JSON>",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, config_example)
+
+        for pattern in (
+            "CloudflaredPath",
+            "CloudflaredConfig",
+            "TunnelName",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, startup_task)
+
+        self.assertIn("originCertPresentPrivately", preflight)
+
+        combined_public = "\n".join([
+            handoff_doc,
+            handoff_script,
+            config_example,
+            governance,
+            roadmap,
+            architecture,
+            readme,
+            ops1,
+        ])
+        for forbidden in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            "https://sqx" + "-edge",
+            "CLOUDFLARE_API_TOKEN=",
+            "CLOUDFLARE_ACCOUNT_ID=",
+            "CLOUDFLARE_ZONE_ID=",
+            "-----BEGIN PRIVATE KEY-----",
+            "sk_live_",
+            "pk_live_",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, combined_public)
 
     def test_project_governance_defines_agent_ownership_and_m46_entry(self):
         governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
@@ -844,7 +6129,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Current phase completed: T10l - Vercel Route Investigation.", governance)
         self.assertIn("M100 - execute exactly the M99-approved controlled commercial movement", governance)
         self.assertIn("Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.", governance)
-        self.assertIn("The institutional analyzer is exposed as a normal SQX tab", governance)
+        self.assertIn("Template Maker is the active Capa 1 scoring and C2 generation surface", governance)
+        self.assertIn("Capa 2 comparison/relationships belong to Champion vs Challenger", governance)
         self.assertIn("Asset detail/category rows expose quick actions", governance)
         self.assertIn("docs/PG7_PROJECT_GENERATOR_BUYER_CFX_HANDOFF.md", governance)
         self.assertIn("docs/T1_CLOUD_TESTER_ARCHITECTURE_CONTRACT.md", governance)
@@ -889,7 +6175,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Done; see `docs/SB5_STRATEGY_BUILDER_PROJECT_GENERATOR_PREFILL.md`", next_steps)
         self.assertIn("Phase SB6: add Strategy Builder review checklist and Project Generator save-as-preset handoff", next_steps)
         self.assertIn("Done; see `docs/SB6_STRATEGY_BUILDER_PRESET_HANDOFF.md`", next_steps)
-        self.assertIn("Phase SB7: add Strategy Builder SQX Views validation-pack handoff", next_steps)
+        self.assertIn("Phase SB7: add Strategy Builder View CORR1 handoff", next_steps)
         self.assertIn("Done; see `docs/SB7_STRATEGY_BUILDER_VIEWS_HANDOFF.md`", next_steps)
         self.assertIn("Phase SB8: add Strategy Builder handoff audit trail and buyer workflow polish", next_steps)
         self.assertIn("Done; see `docs/SB8_STRATEGY_BUILDER_AUDIT_WORKFLOW.md`", next_steps)
@@ -919,7 +6205,10 @@ class DashboardStaticTestCase(unittest.TestCase):
             "js/modules/core.js",
             "js/modules/config.js",
             "js/modules/storage.js",
+            "js/modules/modal-registry.js",
             "js/modules/state-backup.js",
+            "js/modules/remote-state.js",
+            "js/modules/sqx-readiness.js",
             "js/modules/license.js",
             "js/modules/ui.js",
             "js/modules/formatters.js",
@@ -933,13 +6222,19 @@ class DashboardStaticTestCase(unittest.TestCase):
             "js/modules/renderers.js",
             "js/modules/charts.js",
             "js/modules/strategies.js",
-            "js/modules/analyzer.js",
+            "vendor/jszip.min.js",
+            "js/modules/exit-policy.js",
+            "js/modules/template-maker-worker-client.js",
+            "js/modules/template-maker.js",
+            "js/modules/template-maker-ui.js",
             "js/modules/home.js",
             "js/modules/mtf-evidence.js",
             "js/modules/support.js",
             "js/modules/fulfillment.js",
             "js/modules/customer-cockpit.js",
             "js/modules/workflow.js",
+            "js/modules/edge-factory.js",
+            "js/modules/edge-factory-ui.js",
             "js/modules/view-creator.js",
             "js/modules/project-generator-core.js",
             "js/modules/project-generator-config.js",
@@ -959,6 +6254,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         core_js = (APP_ROOT / "js" / "modules" / "core.js").read_text(encoding="utf-8-sig")
         config_js = (APP_ROOT / "js" / "modules" / "config.js").read_text(encoding="utf-8-sig")
         storage_js = (APP_ROOT / "js" / "modules" / "storage.js").read_text(encoding="utf-8-sig")
+        modal_registry_js = (APP_ROOT / "js" / "modules" / "modal-registry.js").read_text(encoding="utf-8-sig")
         state_backup_js = (APP_ROOT / "js" / "modules" / "state-backup.js").read_text(encoding="utf-8-sig")
         license_js = (APP_ROOT / "js" / "modules" / "license.js").read_text(encoding="utf-8-sig")
         ui_js = (APP_ROOT / "js" / "modules" / "ui.js").read_text(encoding="utf-8-sig")
@@ -973,13 +6269,19 @@ class DashboardStaticTestCase(unittest.TestCase):
         renderers_js = (APP_ROOT / "js" / "modules" / "renderers.js").read_text(encoding="utf-8-sig")
         charts_js = (APP_ROOT / "js" / "modules" / "charts.js").read_text(encoding="utf-8-sig")
         strategies_js = (APP_ROOT / "js" / "modules" / "strategies.js").read_text(encoding="utf-8-sig")
-        analyzer_js = (APP_ROOT / "js" / "modules" / "analyzer.js").read_text(encoding="utf-8-sig")
+        exit_policy_js = (APP_ROOT / "js" / "modules" / "exit-policy.js").read_text(encoding="utf-8-sig")
+        template_maker_worker_client_js = (APP_ROOT / "js" / "modules" / "template-maker-worker-client.js").read_text(encoding="utf-8-sig")
+        template_maker_worker_js = (APP_ROOT / "js" / "workers" / "template-maker-worker.js").read_text(encoding="utf-8-sig")
+        template_maker_js = (APP_ROOT / "js" / "modules" / "template-maker.js").read_text(encoding="utf-8-sig")
+        template_maker_ui_js = (APP_ROOT / "js" / "modules" / "template-maker-ui.js").read_text(encoding="utf-8-sig")
         home_js = (APP_ROOT / "js" / "modules" / "home.js").read_text(encoding="utf-8-sig")
         mtf_evidence_js = (APP_ROOT / "js" / "modules" / "mtf-evidence.js").read_text(encoding="utf-8-sig")
         support_js = (APP_ROOT / "js" / "modules" / "support.js").read_text(encoding="utf-8-sig")
         fulfillment_js = (APP_ROOT / "js" / "modules" / "fulfillment.js").read_text(encoding="utf-8-sig")
         customer_cockpit_js = (APP_ROOT / "js" / "modules" / "customer-cockpit.js").read_text(encoding="utf-8-sig")
         workflow_js = (APP_ROOT / "js" / "modules" / "workflow.js").read_text(encoding="utf-8-sig")
+        edge_factory_js = (APP_ROOT / "js" / "modules" / "edge-factory.js").read_text(encoding="utf-8-sig")
+        edge_factory_ui_js = (APP_ROOT / "js" / "modules" / "edge-factory-ui.js").read_text(encoding="utf-8-sig")
         view_creator_js = (APP_ROOT / "js" / "modules" / "view-creator.js").read_text(encoding="utf-8-sig")
         project_generator_core_js = (APP_ROOT / "js" / "modules" / "project-generator-core.js").read_text(encoding="utf-8-sig")
         project_generator_config_js = (APP_ROOT / "js" / "modules" / "project-generator-config.js").read_text(encoding="utf-8-sig")
@@ -997,23 +6299,46 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("registerModule", core_js)
         self.assertIn("SQX.config", config_js)
         self.assertIn("SQX.storage", storage_js)
+        self.assertIn("SQX.modalRegistry", modal_registry_js)
+        self.assertIn('id="sqx-decision-backdrop"', self.html)
+        self.assertIn('id="tf-select-backdrop"', self.html)
+        self.assertIn("tf-select-backdrop", modal_registry_js)
+        self.assertIn("buildTimeframeSelectionTrace", dashboard_js)
         self.assertIn("SQX.stateBackup", state_backup_js)
         self.assertIn("window.SQX.stateBackup.init()", main_js)
         self.assertIn('id="state-backup-now"', self.html)
         self.assertIn('id="state-backup-restore"', self.html)
         self.assertIn('id="state-restore-list"', self.html)
-        self.assertIn('id="wf-plan-v2-summary"', self.html)
+        self.assertNotIn('id="wf-plan-v2-summary"', self.html)
+        self.assertNotIn("Plan operativo actual", self.html)
         self.assertIn('id="priority-tf-selector"', self.html)
         self.assertNotIn("Matriz Completa", self.html)
         self.assertIn("SQX.license", license_js)
         self.assertIn("SQX.ui", ui_js)
         self.assertIn("SQX.formatters", formatters_js)
-        self.assertIn("SQX.analyzer", analyzer_js)
-        self.assertIn("SQX.registerModule('analyzer'", analyzer_js)
-        self.assertIn("window.SQX.analyzer.init()", main_js)
-        self.assertIn('id="tab-analyzer"', self.html)
-        self.assertIn('id="analyzer-file-input"', self.html)
-        self.assertIn('href="css/analyzer.css"', self.html)
+        self.assertIn("SQX.exitPolicy", exit_policy_js)
+        self.assertIn("sqx-exit-policy-v1", exit_policy_js)
+        self.assertIn("exit_after_trading_days", exit_policy_js)
+        self.assertIn("SQX.templateMaker", template_maker_js)
+        self.assertIn("SQX.templateMakerWorker", template_maker_worker_client_js)
+        self.assertIn("template-maker-worker.js", template_maker_worker_client_js)
+        self.assertIn("parseCSV", template_maker_worker_js)
+        self.assertIn("parseSQX", template_maker_worker_js)
+        self.assertIn("buildDiversityClusters", template_maker_worker_js)
+        self.assertIn("../../vendor/jszip.min.js", template_maker_worker_js)
+        self.assertIn("SQX.templateMakerWorker.parseSQX", template_maker_js)
+        self.assertIn("SQX.templateMakerWorker.buildDiversityClusters", template_maker_js)
+        self.assertIn("setProgressHandler", template_maker_js)
+        self.assertIn("SQX.registerModule('template-maker'", template_maker_js)
+        self.assertIn("SQX.templateMakerUI", template_maker_ui_js)
+        self.assertIn("SQX.registerModule('template-maker-ui'", template_maker_ui_js)
+        self.assertIn("window.SQX.templateMakerUI.init()", main_js)
+        self.assertIn('id="tab-templatemaker"', self.html)
+        self.assertIn('id="tm-csv-input"', self.html)
+        self.assertIn('id="tm-sqx-input"', self.html)
+        self.assertNotIn('id="tab-analyzer"', self.html)
+        self.assertNotIn('id="analyzer-file-input"', self.html)
+        self.assertNotIn('href="css/analyzer.css"', self.html)
         self.assertIn("SQX.championChallengerCore", champion_core_js)
         self.assertIn("computeTemporalHealth", champion_core_js)
         self.assertIn("detectDirection", champion_core_js)
@@ -1087,29 +6412,13 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("window.SQX.championChallenger.init()", main_js)
         self.assertIn("window.SQX.strategyBuilder.init()", main_js)
         self.assertIn('id="tab-cvc"', self.html)
-        self.assertIn('id="tab-strategybuilder"', self.html)
-        self.assertIn('id="sb-build-btn"', self.html)
-        self.assertIn('id="sb-send-views-btn"', self.html)
-        self.assertIn('id="sb-prepare-cleaner-btn"', self.html)
-        self.assertIn('id="sb-prepare-buyer-pack-btn"', self.html)
-        self.assertIn('id="sb-buyer-session-btn"', self.html)
-        self.assertIn('id="sb-buyer-summary-btn"', self.html)
-        self.assertIn('id="sb-buyer-notes-btn"', self.html)
-        self.assertIn('id="sb-buyer-support-case-btn"', self.html)
-        self.assertIn('id="sb-buyer-resolution-btn"', self.html)
-        self.assertIn('id="sb-evidence-index-btn"', self.html)
-        self.assertIn('id="sb-workflow-steps"', self.html)
-        self.assertIn('id="sb-audit-list"', self.html)
-        self.assertIn('id="sb-import-btn"', self.html)
-        self.assertIn('id="sb-import-file"', self.html)
-        self.assertIn('id="sb-send-pg-btn"', self.html)
-        self.assertIn('id="sb-prepare-preset-btn"', self.html)
-        self.assertIn('id="sb-review-list"', self.html)
-        self.assertIn('id="sb-package-preview"', self.html)
+        self.assertNotIn('id="tab-strategybuilder"', self.html)
+        self.assertNotIn('id="sb-build-btn"', self.html)
+        self.assertNotIn('data-tab="strategybuilder"', self.html)
         self.assertIn('id="cvc-run-btn"', self.html)
         self.assertIn('id="cvc-export-btn"', self.html)
-        self.assertIn('id="cvc-handoff-btn"', self.html)
-        self.assertIn('id="cvc-handoff-preview"', self.html)
+        self.assertNotIn('id="cvc-handoff-btn"', self.html)
+        self.assertNotIn('id="cvc-handoff-preview"', self.html)
         self.assertIn('id="cvc-filter-health-ok"', self.html)
         self.assertIn('id="cvc-filter-egt-v2-ok"', self.html)
         self.assertIn('id="cvc-filter-coherence-ok"', self.html)
@@ -1134,27 +6443,82 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("SQX.fulfillment", fulfillment_js)
         self.assertIn("SQX.customerCockpit", customer_cockpit_js)
         self.assertIn("SQX.workflow", workflow_js)
+        self.assertIn("SQX.edgeFactory", edge_factory_js)
+        self.assertIn("SQX.edgeFactoryUI", edge_factory_ui_js)
+        self.assertIn("sqx_edge_factory_state_v1", edge_factory_js)
+        self.assertIn("recordPlanMining", edge_factory_js)
+        self.assertIn("recordProjectGeneration", edge_factory_js)
+        self.assertIn("recordTemplateMakerAnalysis", edge_factory_js)
+        self.assertIn("recordC2Template", edge_factory_js)
+        self.assertIn("contextSummary", edge_factory_js)
+        self.assertIn("recordProjectPrefill", dashboard_js)
+        self.assertIn("pgRecordEdgeFactoryGeneration", (APP_ROOT / "js" / "project-generator-main.js").read_text(encoding="utf-8-sig"))
+        self.assertIn("recordEdgeFactoryAnalysis", template_maker_ui_js)
         self.assertIn("SQX.viewCreator", view_creator_js)
         self.assertIn("buildViewXml", view_creator_js)
         self.assertIn("BUYER_READY_TEMPLATE_DEFINITIONS", view_creator_js)
-        self.assertIn("BUYER_PROFILE_PACK_DEFINITIONS", view_creator_js)
-        self.assertIn("VALIDATION_WORKFLOW_PACK_DEFINITIONS", view_creator_js)
+        self.assertIn("metricTags", view_creator_js)
+        self.assertIn("oosTag", view_creator_js)
+        self.assertIn("oosOptions", view_creator_js)
+        self.assertIn("objective", view_creator_js)
+        self.assertIn("nextAction", view_creator_js)
+        self.assertIn("setActiveViewGuide", view_creator_js)
+        self.assertIn("updateConfigSummary", view_creator_js)
+        self.assertIn("views-template-select", view_creator_js)
         self.assertIn("buildBuyerReadyTemplatePack", view_creator_js)
-        self.assertIn("buildBuyerProfilePack", view_creator_js)
-        self.assertIn("buildAllBuyerProfilePacks", view_creator_js)
-        self.assertIn("buildValidationWorkflowPack", view_creator_js)
-        self.assertIn("buildAllValidationWorkflowPacks", view_creator_js)
-        self.assertIn("renderValidationWorkflowPacks", view_creator_js)
+        self.assertNotIn("BUYER_PROFILE_PACK_DEFINITIONS", view_creator_js)
+        self.assertNotIn("VALIDATION_WORKFLOW_PACK_DEFINITIONS", view_creator_js)
+        self.assertNotIn("buildBuyerProfilePack", view_creator_js)
+        self.assertNotIn("buildAllBuyerProfilePacks", view_creator_js)
+        self.assertNotIn("buildValidationWorkflowPack", view_creator_js)
+        self.assertNotIn("buildAllValidationWorkflowPacks", view_creator_js)
+        self.assertNotIn("renderValidationWorkflowPacks", view_creator_js)
         self.assertIn("presetImportPreviewFromText", view_creator_js)
         self.assertIn("presetImportPreviewHtml", view_creator_js)
         self.assertIn("presetImportPreviewSummary", view_creator_js)
         self.assertIn('id="vc-template-list"', self.html)
-        self.assertIn('id="vc-export-template-pack-btn"', self.html)
-        self.assertIn('id="vc-profile-list"', self.html)
-        self.assertIn('id="vc-profile-count"', self.html)
-        self.assertIn('id="vc-workflow-pack-list"', self.html)
-        self.assertIn('id="vc-workflow-pack-count"', self.html)
-        self.assertIn('id="vc-import-preview"', self.html)
+        self.assertIn("views-guide-flow", self.html)
+        self.assertIn("Confirma la view CORR1", self.html)
+        self.assertIn("Solo esta view forma parte del contrato activo", self.html)
+        self.assertIn("Revisa la configuración", self.html)
+        self.assertIn("Comprueba la vista", self.html)
+        self.assertIn("Exporta e importa en SQX", self.html)
+        self.assertIn('id="vc-active-guide"', self.html)
+        self.assertIn('id="vc-guide-title"', self.html)
+        self.assertIn('id="vc-summary-view"', self.html)
+        self.assertIn('id="vc-advanced-config"', self.html)
+        self.assertIn('id="vc-metrics-details"', self.html)
+        self.assertIn("<span>Paso 3</span>", self.html)
+        self.assertIn("<strong>Comprueba la vista</strong>", self.html)
+        self.assertIn('class="views-preview-subtitle"', self.html)
+        self.assertNotIn("Paso 3 · Comprueba la vista", self.html)
+        self.assertIn("Ajustes avanzados", self.html)
+        self.assertIn("Editar métricas avanzadas", self.html)
+        self.assertNotIn('id="vc-saved-details"', self.html)
+        self.assertNotIn('id="vc-advanced-actions"', self.html)
+        self.assertNotIn("Mis presets", self.html)
+        self.assertNotIn("Acciones avanzadas", self.html)
+        self.assertNotIn("Guardar como preset", self.html)
+        self.assertNotIn("sampleType=127", self.html)
+        self.assertNotIn("Ejemplos buyer-ready", self.html)
+        self.assertNotIn("Packs por perfil", self.html)
+        self.assertNotIn("Flujos por activo/validacion", self.html)
+        self.assertNotIn('id="vc-profile-list"', self.html)
+        self.assertNotIn('id="vc-workflow-pack-list"', self.html)
+        dashboard_css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")
+        self.assertNotIn("views-profile-card", dashboard_css)
+        self.assertNotIn("views-workflow-card", dashboard_css)
+        self.assertNotIn("views-template-tier", dashboard_css)
+        self.assertIn('id="tm-files-input" accept=".csv,.sqx,.zip" multiple', self.html)
+        for pattern in (
+            "function planIngestFiles",
+            "function expandZipBundle",
+            "getCandidateReadySummary",
+            "advancedCapa2AnalysisActive: false",
+        ):
+            with self.subTest(template_maker_pattern=pattern):
+                self.assertIn(pattern, template_maker_js + template_maker_ui_js)
+        self.assertIn("return SQX.templateMaker.ingestFiles(list);", template_maker_ui_js)
         self.assertIn("SQX.projectGenerator", project_generator_core_js)
         self.assertIn("SQX.projectGenerator", project_generator_config_js)
         self.assertIn("SQX.projectGenerator", project_generator_dom_js)
@@ -1210,7 +6574,6 @@ class DashboardStaticTestCase(unittest.TestCase):
             "exportCsvRows",
             "dedupeImportedStrategies",
             "consolidateJson",
-            "consolidatedPopupHtml",
             "manualStrategyFromValues",
             "autoDetectTemplate",
             "parseCSV",
@@ -1224,6 +6587,8 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(export=export):
                 self.assertIn(export, strategies_js)
                 self.assertIn(f"SQX_STRATEGIES.{export}", dashboard_js)
+        self.assertIn("consolidatedPopupHtml", strategies_js)
+        self.assertNotIn("SQX_STRATEGIES.consolidatedPopupHtml", dashboard_js)
 
     def test_dashboard_home_logic_delegates_to_home_module(self):
         dashboard_js = (APP_ROOT / "js" / "dashboard.js").read_text(encoding="utf-8-sig")
@@ -1248,12 +6613,27 @@ class DashboardStaticTestCase(unittest.TestCase):
         support_js = (APP_ROOT / "js" / "modules" / "support.js").read_text(encoding="utf-8-sig")
         server_py = (TOOL_ROOT / "api" / "server.py").read_text(encoding="utf-8-sig")
         support_py = (TOOL_ROOT / "core" / "support_diagnostics.py").read_text(encoding="utf-8-sig")
+        incidents_py = (TOOL_ROOT / "core" / "support_incidents.py").read_text(encoding="utf-8-sig")
+        governance = (PROJECT_ROOT / "docs" / "PROJECT_GOVERNANCE.md").read_text(encoding="utf-8-sig")
+        roadmap = (PROJECT_ROOT / "docs" / "REMOTE_SERVICE_ROADMAP.md").read_text(encoding="utf-8-sig")
+        remote8c_doc = (PROJECT_ROOT / "docs" / "REMOTE_8C_FIRST_USER_OBSERVATION.md").read_text(encoding="utf-8-sig")
+        support_tool = TOOL_ROOT / "tools" / "remote_support_status.py"
+        support_ps1 = PROJECT_ROOT / "tools" / "remote_support_status.ps1"
         product_manifest = json.loads((TOOL_ROOT / "config" / "product_manifest.json").read_text(encoding="utf-8-sig"))
 
         expected_ids = [
             "support-panel",
             "support-diagnostic-btn",
             "support-diagnostic-status",
+            "support-incident-category",
+            "support-incident-severity",
+            "support-incident-summary",
+            "support-incident-steps",
+            "support-incident-expected",
+            "support-incident-actual",
+            "support-incident-include-diagnostic",
+            "support-incident-submit",
+            "support-incident-status",
         ]
         for element_id in expected_ids:
             with self.subTest(element_id=element_id):
@@ -1264,6 +6644,9 @@ class DashboardStaticTestCase(unittest.TestCase):
             "downloadJson",
             "fetchDiagnostics",
             "generateDiagnostics",
+            "collectIncidentPayload",
+            "submitIncident",
+            "setIncidentStatus",
             "setStatus",
         ]:
             with self.subTest(export=export):
@@ -1272,11 +6655,21 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("js/modules/support.js", self.html)
         self.assertIn("window.SQX.support.init()", main_js)
         self.assertIn("/api/support/diagnostics", server_py)
+        self.assertIn("/api/support/incidents", server_py)
         self.assertIn("build_support_diagnostics", server_py)
+        self.assertIn("build_support_incident", server_py)
+        self.assertIn("support-incident-v1", incidents_py)
+        self.assertTrue(support_tool.is_file())
+        self.assertTrue(support_ps1.is_file())
+        self.assertIn("Support Intake Gate", governance)
+        self.assertIn("WAIT-3 / REMOTE-SUPPORT1", roadmap)
+        self.assertIn(".local/remote_service/support_cases/", remote8c_doc)
         self.assertIn("safe_to_send", support_py)
         self.assertIn("license_payload", support_py)
         self.assertIn("strategy_files", support_py)
         self.assertEqual(product_manifest["support"]["diagnosticsEndpoint"], "/api/support/diagnostics")
+        self.assertEqual(product_manifest["support"]["incidentEndpoint"], "/api/support/incidents")
+        self.assertEqual(product_manifest["support"]["incidentSchemaVersion"], "support-incident-v1")
         self.assertTrue(product_manifest["support"]["safeToSend"])
 
     def test_mtf_evidence_module_and_ui_are_wired(self):
@@ -2037,6 +7430,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         )
 
     def test_dashboard_navigation_delegates_to_ui_module(self):
+        app_config_js = (APP_ROOT / "js" / "app-config.js").read_text(encoding="utf-8-sig")
         dashboard_js = (APP_ROOT / "js" / "dashboard.js").read_text(encoding="utf-8-sig")
         ui_js = (APP_ROOT / "js" / "modules" / "ui.js").read_text(encoding="utf-8-sig")
 
@@ -2053,20 +7447,371 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(export=export):
                 self.assertIn(export, ui_js)
                 self.assertIn(f"SQX_UI_MODULE.{export}", dashboard_js)
+        self.assertIn("tabs-collapse-toggle", app_config_js)
+        self.assertIn("navCollapsed", app_config_js)
+        self.assertIn("tab-icon", app_config_js)
+        self.assertIn("tab-label", app_config_js)
+
+    def test_dashboard_brand_assets_are_integrated(self):
+        css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        brand_root = APP_ROOT / "assets" / "brand"
+        expected_assets = [
+            "sqx-app-icon.png",
+            "sqx-app-icon-256.png",
+            "sqx-favicon.png",
+            "sqx-internal-pipeline-icon.png",
+            "sqx-social-preview.png",
+            "sqx-tab-watermark.png",
+        ]
+        for asset in expected_assets:
+            with self.subTest(asset=asset):
+                path = brand_root / asset
+                self.assertTrue(path.exists(), f"missing brand asset {asset}")
+                self.assertGreater(path.stat().st_size, 1000, f"brand asset {asset} should not be empty")
+
+        self.assertIn('class="brand-mark"', self.html)
+        self.assertIn('property="og:type" content="website"', self.html)
+        self.assertIn('property="og:site_name" content="SQX Edge Suite"', self.html)
+        self.assertIn('property="og:image:width" content="1200"', self.html)
+        self.assertIn('property="og:image:height" content="630"', self.html)
+        self.assertIn('name="twitter:title" content="SQX Edge Suite | Plataforma Pro para SQX Traders"', self.html)
+        self.assertIn("assets/brand/sqx-favicon.png", self.html)
+        self.assertIn("assets/brand/sqx-app-icon-256.png", self.html)
+        self.assertIn("assets/brand/sqx-social-preview.png", self.html)
+        self.assertIn("../assets/brand/sqx-favicon.png", css)
+        self.assertIn("../assets/brand/sqx-internal-pipeline-icon.png", css)
+        self.assertIn("../assets/brand/sqx-tab-watermark.png", css)
+        self.assertIn("material de diagnostico/imagenes_prompts/", governance)
+        self.assertIn("app/assets/brand/", governance)
+        self.assertIn("Link Preview Trust Gate", governance)
 
     def test_workflow_shell_delegates_to_workflow_module(self):
         main_js = (APP_ROOT / "js" / "main.js").read_text(encoding="utf-8-sig")
         workflow_js = (APP_ROOT / "js" / "modules" / "workflow.js").read_text(encoding="utf-8-sig")
+        dashboard_js = (APP_ROOT / "js" / "dashboard.js").read_text(encoding="utf-8-sig")
+        css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")
+        ui_manifest = json.loads((TOOL_ROOT / "config" / "ui_manifest.json").read_text(encoding="utf-8-sig"))
+        manifest_js = (APP_ROOT / "js" / "manifest-data.js").read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        ux_nav = (PROJECT_ROOT / "docs" / "UX_NAV_TAB_OPTIMIZATION_PLAN.md").read_text(encoding="utf-8-sig")
+        wfco_doc = WFCO_EDGE_FACTORY_DOC.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(WFCO_EDGE_FACTORY_DOC.is_file())
+        self.assertIn("Current phase completed: WFCO-1 - Edge Factory Shell", governance)
+        self.assertIn("Edge Factory Experience Gate", governance)
+        self.assertIn("Current phase completed: WFCO-3 - Content Overhaul", governance)
+        self.assertIn("Current phase completed: WFCO-4 - Portfolio Lab MVP", governance)
+        self.assertIn("Current phase completed: WFCO-5 - Visual Polish And Desktop QA", governance)
+        self.assertIn("Edge Factory Content Gate", governance)
+        self.assertIn("Portfolio Lab Decision Gate", governance)
+        self.assertIn("Edge Factory Desktop QA Gate", governance)
+        self.assertIn("Active experience track: `WFCO - Edge Factory`", ux_nav)
+        self.assertIn("Desktop PC browser is the product target", wfco_doc)
+        self.assertIn("| WFCO-3 | Completed |", wfco_doc)
+        self.assertIn("| WFCO-4 | Completed |", wfco_doc)
+        self.assertIn("| WFCO-5 | Completed |", wfco_doc)
 
         expected_exports = [
+            "activateWorkflowPanel",
             "bindChecklist",
+            "bindCommandCenter",
+            "bindStepDetails",
             "bindSubtabs",
             "init",
+            "renderCommandCenter",
             "resolveChecklistKey",
+            "toggleWorkflowStepDetail",
         ]
         for export in expected_exports:
             with self.subTest(export=export):
                 self.assertIn(export, workflow_js)
+
+        tabs = ui_manifest["tabs"]
+        self.assertEqual(tabs[0]["id"], "workflow")
+        self.assertTrue(tabs[0]["active"])
+        self.assertEqual(tabs[0]["label"], "Edge Factory")
+        self.assertEqual(tabs[0].get("icon"), "EF")
+        self.assertEqual(
+            [tab["id"] for tab in tabs],
+            [
+                "workflow",
+                "activos",
+                "pipeline",
+                "views",
+                "projectgen",
+                "templatemaker",
+                "estrategias",
+                "cvc",
+                "filtros",
+                "inicio",
+            ],
+        )
+        self.assertEqual(
+            {tab["id"]: tab["label"] for tab in tabs},
+            {
+                "workflow": "Edge Factory",
+                "activos": "Activos",
+                "pipeline": "Mining Control",
+                "views": "View CORR1",
+                "projectgen": "Project Generator",
+                "templatemaker": "Template Maker",
+                "estrategias": "Strategy Control",
+                "cvc": "Champion vs Challenger",
+                "filtros": "BlockSettings Info",
+                "inicio": "Control Panel",
+            },
+        )
+        self.assertEqual(
+            {tab["id"]: tab.get("icon") for tab in tabs},
+            {
+                "workflow": "EF",
+                "activos": "A",
+                "pipeline": "M",
+                "views": "V",
+                "projectgen": "P",
+                "templatemaker": "T",
+                "estrategias": "S",
+                "cvc": "CvC",
+                "filtros": "B",
+                "inicio": "C",
+            },
+        )
+        self.assertFalse(tabs[0].get("hiddenInPrimary", False))
+        self.assertFalse(tabs[-1].get("hiddenInPrimary", False))
+        for tab in tabs[1:-1]:
+            with self.subTest(hidden_primary=tab["id"]):
+                self.assertTrue(tab.get("hiddenInPrimary"), tab)
+        self.assertEqual(ui_manifest["storageKeys"]["edgeFactoryState"], "sqx_edge_factory_state_v1")
+        blocksettings = ui_manifest["blockSettingsInfo"]
+        self.assertEqual(blocksettings["title"], "BlockSettings Info")
+        self.assertEqual(len(blocksettings["capa1"]), 7)
+        self.assertEqual(blocksettings["capa2"]["blockSetting"], "BS_Filtros_v6 / BS_Filtros_v6_D1")
+        self.assertEqual(
+            [item["displayBlockSetting"] for item in blocksettings["capa1"]],
+            [
+                "BS_Tendencia_v6",
+                "BS_Momentum_v6",
+                "BS_Volatilidad_v6 · intraday BS_Volatilidad_v6_intraday_v6",
+                "BS_Regimen_v6",
+                "BS_Volumen_v6 · intraday BS_Volumen_v6_intraday_v6",
+                "BS_SoporteResistencia_v6 · intraday BS_SoporteResistencia_v6_intraday_v6",
+                "BS_Estadistico_v6",
+            ],
+        )
+        self.assertIn("blockSettingsCatalog", ui_manifest)
+        self.assertEqual(len(ui_manifest["blockSettingsCatalog"]["entries"]), 29)
+        self.assertEqual(ui_manifest["capa2Recommendations"]["recommendations"]["H1"], "BS_Filtros_v6")
+        self.assertEqual(ui_manifest["capa2Recommendations"]["recommendations"]["D1"], "BS_Filtros_v6_D1")
+        self.assertIn("blockSettingsInfo", manifest_js)
+        self.assertIn('"label": "Edge Factory"', manifest_js)
+        self.assertIn('"hiddenInPrimary": true', manifest_js)
+        self.assertIn('"label": "BlockSettings Info"', manifest_js)
+        self.assertIn('"icon": "B"', manifest_js)
+        self.assertIn('id="tab-filtros" class="tab-content" style="display:none"', self.html)
+        self.assertIn('class="blocksettings-info" id="filtros-view"', self.html)
+        self.assertIn("renderBlockSettingCapa1Card", (APP_ROOT / "js" / "dashboard.js").read_text(encoding="utf-8-sig"))
+        self.assertIn("BS_Filtros_v6", manifest_js)
+        self.assertIn("BS_Filtros_v6_D1", manifest_js)
+        self.assertNotIn("Umbrales recomendados para la segunda fase de filtrado", self.html)
+        self.assertNotIn("categorias", [tab["id"] for tab in tabs])
+        self.assertNotIn("priority", [tab["id"] for tab in tabs])
+        self.assertNotIn("strategybuilder", [tab["id"] for tab in tabs])
+        self.assertIn('"id": "workflow"', manifest_js)
+        self.assertNotIn('"id": "categorias"', manifest_js)
+        self.assertNotIn('"id": "priority"', manifest_js)
+        self.assertNotIn('"id": "strategybuilder"', manifest_js)
+        self.assertIn('id="tab-inicio" class="tab-content" style="display:none"', self.html)
+        self.assertIn("Panel de estado", self.html)
+        self.assertIn('id="home-method-map"', self.html)
+        self.assertIn("Ruta metodologica", self.html)
+        self.assertIn("Vista obligatoria", self.html)
+        self.assertIn("Secuencia recomendada", self.html)
+        self.assertIn('data-home-tab="workflow"', self.html)
+        self.assertNotIn("SQX Edge Control Center", self.html)
+        self.assertIn('id="tab-workflow" class="tab-content"', self.html)
+        self.assertIn('id="edge-factory-shell"', self.html)
+        self.assertIn('id="edge-tool-drawer"', self.html)
+        self.assertIn('data-edge-mode="basic"', self.html)
+        self.assertIn('data-edge-mode="advanced"', self.html)
+        self.assertIn("Modo básico", self.html)
+        self.assertIn("Modo avanzado", self.html)
+        self.assertIn("SQ default / configurable", self.html)
+        self.assertIn("perfil SQX destino", self.html)
+        self.assertIn("data-edge-advanced-only", self.html)
+        self.assertEqual(self.html.count('class="edge-manual-check" data-edge-advanced-only'), 8)
+        self.assertIn('<details class="edge-methodology-advanced" data-edge-advanced-only>', self.html)
+        self.assertIn('<div class="edge-tool-drawer" id="edge-tool-drawer" hidden data-edge-advanced-only>', self.html)
+        self.assertIn('<details class="edge-advanced-custom" data-edge-advanced-only>', self.html)
+        self.assertIn(
+            ".edge-factory-shell.edge-mode-basic [data-edge-advanced-only] { display:none !important; }",
+            (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig"),
+        )
+        self.assertIn('class="edge-factory-command-strip"', self.html)
+        self.assertIn('data-edge-signal="asset"', self.html)
+        self.assertIn('data-edge-signal="portfolio"', self.html)
+        self.assertIn('id="edge-portfolio-lab"', self.html)
+        self.assertIn('id="edge-portfolio-threshold"', self.html)
+        self.assertIn('id="edge-portfolio-export-csv"', self.html)
+        self.assertIn("Contrato Forward/Foward", self.html)
+        self.assertIn("Edge Factory", self.html)
+        self.assertIn("Modo básico: del activo al template C2", self.html)
+        self.assertIn("Haz: valida estado remoto.", self.html)
+        self.assertIn("Certificar Capa 1", self.html)
+        self.assertIn('data-edge-context="asset"', self.html)
+        self.assertIn('data-edge-context="capa1-generate"', self.html)
+        self.assertIn('data-edge-context="c2-template"', self.html)
+        self.assertIn("Custom libre avanzado", self.html)
+        self.assertIn('data-edge-tool="projectgen"', self.html)
+        self.assertIn('data-edge-stage="portfolio"', self.html)
+        self.assertEqual(self.html.count('class="edge-stage-card" data-edge-stage='), 8)
+        self.assertEqual(self.html.count('class="edge-stage-context" data-edge-context='), 8)
+        self.assertIn("edgeFactoryUI.init", main_js)
+        self.assertIn("edge-factory", (APP_ROOT / "js" / "modules" / "index.js").read_text(encoding="utf-8-sig"))
+        self.assertIn("sqx_edge_factory_state_v1", (APP_ROOT / "js" / "modules" / "remote-state.js").read_text(encoding="utf-8-sig"))
+        pipeline_tab = self.html.split('id="tab-pipeline"', 1)[1].split('id="tab-projectgen"', 1)[0]
+        workflow_overview = self.html.split('id="wf-overview"', 1)[1].split('id="wf-capa1"', 1)[0]
+        workflow_pipeline = self.html.split('id="wf-pipeline-flow-details"', 1)[1].split('</details>', 1)[0]
+        self.assertNotIn('id="ps-current-pipeline-status"', pipeline_tab)
+        self.assertNotIn('id="ps-orphans-card"', pipeline_tab)
+        self.assertNotIn('id="ps-plan-user-preview"', pipeline_tab)
+        self.assertNotIn("Estado actual del pipeline", pipeline_tab)
+        self.assertNotIn("Foco operativo", pipeline_tab)
+        self.assertNotIn("Precarga desde Por Activo", pipeline_tab)
+        self.assertNotIn("Plan extendido", pipeline_tab)
+        self.assertNotIn("2026-05-02", pipeline_tab)
+        self.assertNotIn("TEMPLATE LINEAR cerrada", pipeline_tab)
+        self.assertNotIn("0.621529 ATR+LR", pipeline_tab)
+        self.assertIn('id="ps-command-strip"', pipeline_tab)
+        self.assertIn("Ruta operativa de Mining Control", pipeline_tab)
+        self.assertIn("Plan mining", pipeline_tab)
+        self.assertIn("Project Generator", pipeline_tab)
+        self.assertNotIn("<strong>Embudo</strong>", pipeline_tab)
+        self.assertIn("Champion vs Challenger", pipeline_tab)
+        self.assertIn('id="ps-plan-card"', pipeline_tab)
+        self.assertIn('id="ps-funnel-card"', pipeline_tab)
+        self.assertIn('id="ps-plan-reset-plan"', pipeline_tab)
+        self.assertIn('id="ps-project-zero-state"', pipeline_tab)
+        self.assertIn("Reset plan mining", pipeline_tab)
+        self.assertIn("Borra todos los minings, incluido el plan base", pipeline_tab)
+        self.assertIn("Proyecto limpio", pipeline_tab)
+        self.assertIn("+ Mining", pipeline_tab)
+        self.assertIn("+ Fase", pipeline_tab)
+        self.assertNotIn("Detectados en prioridad operativa", pipeline_tab)
+        self.assertNotIn("SQX Priority", pipeline_tab)
+        self.assertNotIn("Estado actual del pipeline", workflow_overview)
+        self.assertNotIn("TEMPLATE LINEAR cerrada", workflow_overview)
+        self.assertNotIn("Vista SQX recomendada", self.html)
+        self.assertIn('id="wf-pipeline-flow-details" open', self.html)
+        self.assertIn("Filosofía y flujo completo del pipeline", self.html)
+        self.assertIn("Primero demostrar edge, despues hacerlo operable", workflow_pipeline)
+        self.assertIn("retests pasivos", workflow_pipeline)
+        self.assertNotIn("<h2>Filosofía del Proceso</h2>", workflow_overview)
+        self.assertIn('data-wf-detail-target="wf-sqx-views-required-detail"', workflow_pipeline)
+        self.assertIn('<div class="step-num">0</div>', workflow_pipeline)
+        self.assertIn("View CORR1 activa", workflow_pipeline)
+        self.assertIn('id="workflow-views-handoff"', workflow_pipeline)
+        self.assertIn('id="workflow-command-center"', self.html)
+        self.assertIn('id="wf-command-progress-label"', self.html)
+        self.assertIn('data-check="command-center-diagnostico"', self.html)
+        self.assertIn('data-check="command-center-estrategias"', self.html)
+        self.assertIn('data-check="command-center-cvc"', self.html)
+        self.assertNotIn('data-check="command-center-builder"', self.html)
+        self.assertIn("Champion vs Challenger", self.html)
+        self.assertNotIn("> Strategy Builder</label>", self.html)
+        self.assertIn('data-home-tab="projectgen"', self.html)
+        self.assertNotIn('data-home-tab="strategybuilder"', self.html)
+        self.assertNotIn('data-home-tab="priority"', self.html)
+        self.assertNotIn('data-home-tab="categorias"', self.html)
+        self.assertNotIn('data-subtab="wf-setup"', self.html)
+        self.assertNotIn('data-subtab="wf-capa1"', self.html)
+        self.assertNotIn('id="wf-setup" class="subtab-content"', self.html)
+        self.assertNotIn('id="wf-setup-global-details"', self.html)
+        self.assertNotIn("Validación OOS 2010-2017 (retest pasivo)", self.html)
+        self.assertNotIn("Validación Forward 2024-2026 (retest pasivo)", self.html)
+        self.assertIn('id="wf-pipeline-flow-details"', self.html)
+        self.assertIn('data-wf-detail-target="wf-capa1-tree-detail"', self.html)
+        self.assertIn('id="wf-capa1-tree-detail"', self.html)
+        self.assertIn('workflow-tree-children', self.html)
+        self.assertIn("workflow-config-node", self.html)
+        self.assertIn("workflow-robustness-grid", self.html)
+        self.assertIn("Period: 2017.10 - 2025.01", self.html)
+        self.assertIn("OOS1: 2023.01 - 2025.01", self.html)
+        self.assertIn("TICK REAL", self.html)
+        self.assertIn("Randomly skip trades 10%: OFF", self.html)
+        self.assertIn("Apply optimized parameters to strategy: OFF", self.html)
+        self.assertIn("Walk-Forward type: Simulated IS, Simulated OOS (fastest)", self.html)
+        self.assertIn("FOWARD 2025-Actualidad", self.html)
+        self.assertIn("OOS2: 2026.01 - Actualidad", self.html)
+        self.assertIn("DatabankExport de Forward", self.html)
+        self.assertIn('data-wf-detail-target="wf-pipeline-mining2-tree-detail"', workflow_pipeline)
+        self.assertIn('id="wf-pipeline-mining2-tree-detail"', workflow_pipeline)
+        self.assertIn("Mining 2 - Capa 2 sobre Template", self.html)
+        self.assertIn("Edge: NO RANDOM (template fijo)", self.html)
+        self.assertIn("PF &gt;= 1.20", self.html)
+        self.assertIn("Randomly skip trades 10%: ON", self.html)
+        self.assertIn("Randomize slippage: ON", self.html)
+        self.assertIn("Entry levels: ON", self.html)
+        self.assertIn("WF Ret/DD Ratio &gt;= 5", self.html)
+        self.assertIn('data-workflow-subtab-target="wf-capa2"', workflow_pipeline)
+        self.assertIn("Material operativo extendido", workflow_pipeline)
+        workflow_capa2 = self.html.split('id="wf-capa2"', 1)[1].split('id="wf-diff"', 1)[0]
+        workflow_rules = self.html.split('id="wf-rules"', 1)[1].split("<!-- ── Scripts:", 1)[0]
+        self.assertIn("Checklist operativo Capa 2", workflow_capa2)
+        self.assertIn('data-subtab="wf-capa2">Checklist C2</div>', self.html)
+        self.assertIn('data-subtab="wf-diff">Comparativa Capas</div>', self.html)
+        self.assertNotIn("Capa 2 — Cheatsheet operativo", workflow_capa2)
+        self.assertNotIn("Config Base Builder Capa 2", workflow_capa2)
+        self.assertNotIn("Orden de ejecución Capa 2", workflow_capa2)
+        self.assertNotIn("wf-capa2-mining2-tree-detail", workflow_capa2)
+        self.assertIn("Checklist de aplicación Capa 2", workflow_capa2)
+        self.assertIn("Embudo esperado Capa 2", workflow_capa2)
+        self.assertNotIn("Reglas de oro Capa 2", workflow_capa2)
+        self.assertIn("Reglas de oro Capa 2", workflow_rules)
+        self.assertLess(workflow_capa2.index("Checklist de aplicación Capa 2"), workflow_capa2.index("Embudo esperado Capa 2"))
+        self.assertLess(workflow_capa2.index("Embudo esperado Capa 2"), workflow_capa2.index("Configuraciones opcionales según objetivo"))
+        self.assertIn("Configuraciones opcionales según objetivo", workflow_capa2)
+        self.assertIn('class="views-handoff-copy"', self.html)
+        self.assertNotIn('<div class="stat-num">14</div><div class="stat-label">Minings Plan</div>', self.html)
+        self.assertIn(".workflow-command-center", (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig"))
+        self.assertIn(".ps-command-strip", (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig"))
+        self.assertIn("setPhaseMetaUser", dashboard_js)
+        self.assertIn("window.setPhaseMetaUser = setPhaseMetaUser", dashboard_js)
+        self.assertIn("window.addMiningUser = addMiningUser", dashboard_js)
+        self.assertIn("window.addPlanMiningFromCandidate = addPlanMiningFromCandidate", dashboard_js)
+        self.assertIn("window.resetPlanMiningUserState = resetPlanMiningUserState", dashboard_js)
+        self.assertIn("window.resetProjectWorkingData = resetProjectWorkingData", dashboard_js)
+        self.assertIn("editPlanPhaseClick", dashboard_js)
+        self.assertIn("resetPlanPhaseClick", dashboard_js)
+        self.assertIn("Reset fase", dashboard_js)
+        self.assertIn("resetPlanMiningUserState", dashboard_js)
+        self.assertIn("baseDisabled:true", dashboard_js)
+        self.assertIn("hiddenBaseMinings: PLAN_MININGS.map", dashboard_js)
+        self.assertIn("source: source || 'manual'", dashboard_js)
+        self.assertIn("addPlanMiningFromCandidate", dashboard_js)
+        self.assertIn("phases.length ? phases : [1]", dashboard_js)
+        self.assertIn("Plan mining vacío", dashboard_js)
+        self.assertIn("source === 'asset-card'", dashboard_js)
+        self.assertIn("TARJETA", dashboard_js)
+        self.assertIn("MANUAL", dashboard_js)
+        self.assertIn("ps-plan-reset-plan", dashboard_js)
+        self.assertIn("resetProjectWorkingData", dashboard_js)
+        self.assertNotIn("renderPsOperationalFocus", dashboard_js)
+        self.assertNotIn("getOperationalFocusModel", dashboard_js)
+        self.assertNotIn("Foco operativo", dashboard_js)
+        self.assertNotIn("No hay mining activo que dirigir", dashboard_js)
+        self.assertIn("!!PLAN_USER.phases[p] || allMinings.some", dashboard_js)
+        self.assertIn("Fase sin minings todavia", dashboard_js)
+        self.assertIn(".ps-empty-phase-row", css)
+        self.assertIn("planNums.concat(miningsWithStrats)", dashboard_js)
+        self.assertIn("STRATEGIES_DELETED = STRATEGIES.map(strategyKey)", dashboard_js)
+        self.assertIn("SQX_STORAGE_KEYS.workflowChecklist", dashboard_js)
+        self.assertIn("SQX_STORAGE_KEYS.viewCreatorPresets", dashboard_js)
+        self.assertIn("sqx_pg_custom_presets_v1", dashboard_js)
+        self.assertIn("phaseMeta: activePlanPhases", dashboard_js)
+        self.assertIn("planMinings: activePlanMinings", dashboard_js)
+        self.assertIn("strategies: visibleStrategies", dashboard_js)
+        self.assertNotIn("auto-sync con SQX Priority", dashboard_js)
 
         self.assertIn("window.SQX.workflow.init()", main_js)
         self.assertNotIn("CHECKLIST_STATE", main_js)
@@ -2144,28 +7889,16 @@ class DashboardStaticTestCase(unittest.TestCase):
             "customPresetIdFromName",
             "customPresetPackageType",
             "customPresetPackageVersion",
-            "customProfileFamilyCardsHtml",
-            "customProfileFamilyCountLabel",
             "customProjectPresetImportPreview",
             "customProjectPresetImportPreviewFromText",
             "customProjectPresetImportPreviewHtml",
             "customProjectPresetImportPreviewSummary",
             "customProjectPresetCountLabel",
             "customProjectPresetOptionsHtml",
-            "customStarterProfileCardsHtml",
-            "customStarterProfileCountLabel",
-            "customStarterProfileToPreset",
             "deleteCustomProjectPreset",
-            "findCustomProjectPreset",
-            "findCustomProfileFamily",
-            "findCustomStarterProfile",
-            "getCustomProfileFamilies",
             "getCustomProjectPresets",
-            "getCustomStarterProfiles",
-            "buildAllCustomProfileFamilyPack",
-            "buildCustomProfileFamilyPack",
+            "findCustomProjectPreset",
             "buildCustomProjectPresetPackage",
-            "buildCustomStarterProfilePack",
             "importCustomProjectPresetPackage",
             "importCustomProjectPresetPackageFromText",
             "generateAllConfirmMessage",
@@ -2220,20 +7953,14 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("SQX_PG_MODULE.generateAllConfirmMessage", project_generator_main_js)
         self.assertIn("SQX_PG_MODULE.generateAllResultLines", project_generator_main_js)
         self.assertIn("SQX_PG_MODULE.configSaveBody", project_generator_main_js)
-        self.assertIn("SQX_PG_MODULE.buildCustomStarterProfilePack", project_generator_main_js)
-        self.assertIn("SQX_PG_MODULE.buildCustomProfileFamilyPack", project_generator_main_js)
-        self.assertIn("SQX_PG_MODULE.buildAllCustomProfileFamilyPack", project_generator_main_js)
-        self.assertIn("SQX_PG_MODULE.customStarterProfileCardsHtml", project_generator_main_js)
-        self.assertIn("SQX_PG_MODULE.customProfileFamilyCardsHtml", project_generator_main_js)
-        self.assertIn("SQX_PG_MODULE.customStarterProfileToPreset", project_generator_main_js)
         self.assertIn("SQX_PG_MODULE.buildCustomProjectPresetPackage", project_generator_main_js)
         self.assertIn("SQX_PG_MODULE.customProjectPresetImportPreviewFromText", project_generator_main_js)
         self.assertIn("SQX_PG_MODULE.customProjectPresetImportPreviewHtml", project_generator_main_js)
         self.assertIn("SQX_PG_MODULE.importCustomProjectPresetPackageFromText", project_generator_main_js)
-        self.assertIn('id="pg-custom-starter-list"', self.html)
-        self.assertIn('id="pg-custom-export-starter-profiles"', self.html)
-        self.assertIn('id="pg-custom-family-list"', self.html)
-        self.assertIn('id="pg-custom-export-family-profiles"', self.html)
+        self.assertNotIn('id="pg-custom-starter-list"', self.html)
+        self.assertNotIn('id="pg-custom-export-starter-profiles"', self.html)
+        self.assertNotIn('id="pg-custom-family-list"', self.html)
+        self.assertNotIn('id="pg-custom-export-family-profiles"', self.html)
         self.assertIn('id="pg-custom-export-presets"', self.html)
         self.assertIn('id="pg-custom-import-presets"', self.html)
         self.assertIn('id="pg-custom-import-presets-file"', self.html)
@@ -2243,7 +7970,10 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("SQX_PG_MODULE.validateSqxShouldApply", project_generator_main_js)
         self.assertIn("SQX_PG_MODULE.enrichMiningsWithSymbolInfo", project_generator_main_js)
         self.assertIn("SQX_PG_MODULE.outputState", project_generator_main_js)
-        self.assertIn("SQX_PG_MODULE.openOutputSuccessStatus", project_generator_main_js)
+        self.assertIn("function pgDownloadOutputBundle(names)", project_generator_main_js)
+        self.assertIn("function pgDownloadAllOutput()", project_generator_main_js)
+        self.assertIn("function pgDeleteSelectedOutputFiles()", project_generator_main_js)
+        self.assertIn("function pgDeleteSelectedMinings()", project_generator_main_js)
         self.assertIn("SQX_PG_MODULE.cleanerNoSelectionStatus", project_generator_main_js)
         self.assertIn("SQX_PG_MODULE.cleanerResultTrace", project_generator_main_js)
         self.assertIn("const SQX_PG_DOM = SQX_PG_MODULE.dom", project_generator_main_js)
@@ -2318,6 +8048,9 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("info.textContent = '🔍 Escaneando...'", project_generator_main_js)
         self.assertNotIn("'Procesando ' + CLN_SELECTED.size", project_generator_main_js)
         self.assertIn("openOutputFolder: pgOpenOutputFolder", project_generator_main_js)
+        self.assertIn("downloadSelectedOutputFiles: pgDownloadSelectedOutputFiles", project_generator_main_js)
+        self.assertIn("deleteSelectedOutputFiles: pgDeleteSelectedOutputFiles", project_generator_main_js)
+        self.assertIn("deleteSelectedMinings: pgDeleteSelectedMinings", project_generator_main_js)
         self.assertNotIn("document.getElementById('pg-open-output').addEventListener('click', async function", project_generator_main_js)
         self.assertNotIn("pgLog('📁 Abierta carpeta output'", project_generator_main_js)
         self.assertNotIn("pg-output-empty", project_generator_main_js)
@@ -2483,7 +8216,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("project_generator.generate", product_manifest["features"])
         self.assertIn("strategy_cleaner.apply", product_manifest["features"])
         self.assertIn("*", product_manifest["accessLevels"]["internal"]["features"])
-        self.assertEqual(product_manifest["upgrade"]["headline"], "SQX Edge Pro")
+        self.assertEqual(product_manifest["upgrade"]["headline"], "SQX Edge Suite Pro")
         self.assertIn("24 EUR/mes", json.dumps(product_manifest["upgrade"], ensure_ascii=False))
         self.assertEqual(product_manifest["upgrade"]["checkout"]["primaryProvider"], "Lemon Squeezy")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["fallbackProvider"], "Gumroad")
@@ -2813,6 +8546,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("flex-wrap:wrap", css)
         self.assertIn("#ps-plan-table", css)
         self.assertIn("overflow-x:auto", css)
+        self.assertIn("#tab-pipeline .ps-phase-head", css)
+        self.assertIn("#tab-pipeline .ps-phase-copy", css)
         self.assertIn("#tab-pipeline .ps-funnel-step", css)
         self.assertIn("flex-wrap:wrap", css)
 
@@ -2826,7 +8561,8 @@ class DashboardStaticTestCase(unittest.TestCase):
             "window.quickAddToPlan",
             "window.quickToProjectGen",
             "catBase = String(cat || '').replace(/_S$/, '')",
-            "window.promoteOrphanToPlan(key)",
+            "performQuickAddToPlan(asset, catBase, selectedTf, dir, trace)",
+            "openTimeframeSelection({ action: 'plan'",
             "writeCustomProjectInputs(document, config)",
             "renderPsHealth()",
             "ps-funnel-graph",
@@ -2849,16 +8585,12 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, css)
 
-    def test_pg7_project_generator_buyer_cfx_handoff_is_wired(self):
+    def test_ux_nav2_project_generator_removed_commercial_panels(self):
         pg_config = (APP_ROOT / "js" / "modules" / "project-generator-config.js").read_text(encoding="utf-8-sig")
         pg_bindings = (APP_ROOT / "js" / "modules" / "project-generator-bindings.js").read_text(encoding="utf-8-sig")
         pg_main = (APP_ROOT / "js" / "project-generator-main.js").read_text(encoding="utf-8-sig")
-        css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")
-        pg7_doc = PG7_PROJECT_GENERATOR_DOC.read_text(encoding="utf-8-sig")
-        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
-        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
 
-        for element_id in [
+        removed_html = [
             "pg-buyer-handoff-card",
             "pg-buyer-name",
             "pg-buyer-context",
@@ -2867,58 +8599,39 @@ class DashboardStaticTestCase(unittest.TestCase):
             "pg-buyer-handoff-download",
             "pg-buyer-handoff-summary",
             "pg-buyer-handoff-notes",
-        ]:
-            with self.subTest(element_id=element_id):
-                self.assertIn(f'id="{element_id}"', self.html)
+            "pg-custom-starter-list",
+            "pg-custom-export-starter-profiles",
+            "pg-custom-family-list",
+            "pg-custom-export-family-profiles",
+            "Perfiles starter",
+            "Familias por objetivo",
+            "Entrega comprador .cfx",
+        ]
+        for pattern in removed_html:
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, self.html)
 
-        for pattern in [
+        removed_js_patterns = [
             "normalizeBuyerCfxHandoffInput",
             "buyerCfxHandoffSummary",
             "buyerCfxHandoffMarkdown",
             "buyerCfxHandoffFilename",
-            "No promete rentabilidad",
-        ]:
-            with self.subTest(pattern=pattern):
-                self.assertIn(pattern, pg_config)
-
-        for pattern in [
             "renderBuyerCfxHandoff",
             "copyBuyerCfxHandoff",
             "downloadBuyerCfxHandoff",
-            "pg-buyer-handoff-refresh",
-        ]:
-            with self.subTest(pattern=pattern):
-                self.assertIn(pattern, pg_bindings)
-
-        for pattern in [
             "pgRenderBuyerCfxHandoff",
             "pgCopyBuyerCfxHandoff",
             "pgDownloadBuyerCfxHandoff",
-            "buyerCfxHandoffMarkdown",
-            "buyerCfxHandoffFilename",
-        ]:
+            "customStarterProfileCardsHtml",
+            "customProfileFamilyCardsHtml",
+            "buildCustomStarterProfilePack",
+            "buildCustomProfileFamilyPack",
+            "buildAllCustomProfileFamilyPack",
+        ]
+        combined_js = "\n".join([pg_config, pg_bindings, pg_main])
+        for pattern in removed_js_patterns:
             with self.subTest(pattern=pattern):
-                self.assertIn(pattern, pg_main)
-
-        for pattern in [
-            ".pg-buyer-handoff-card",
-            ".pg-buyer-handoff-grid",
-            ".pg-buyer-handoff-notes",
-            ".pg-buyer-actions",
-        ]:
-            with self.subTest(pattern=pattern):
-                self.assertIn(pattern, css)
-
-        for pattern in [
-            "PG7 Project Generator Buyer .cfx Handoff",
-            "No backend endpoint is added.",
-            "No remote API call is made.",
-            "No profitability or financial-result claim is made.",
-            "Phase PG7: add buyer-specific `.cfx` handoff notes",
-            "Project Generator buyer handoff track",
-        ]:
-            with self.subTest(pattern=pattern):
-                self.assertTrue(pattern in pg7_doc or pattern in next_steps or pattern in governance, pattern)
+                self.assertNotIn(pattern, combined_js)
 
     def test_t1_cloud_tester_architecture_contract_is_documented(self):
         t1 = T1_CLOUD_TESTER_DOC.read_text(encoding="utf-8-sig")
@@ -3043,7 +8756,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "src/lib/security-hardening.ts",
             "src/lib/deployment-protection.ts",
             "src/lib/security-headers.ts",
-            "src/middleware.ts",
+            "cloudflare/worker-entry.js",
         ]
         for rel_path in expected_files:
             with self.subTest(rel_path=rel_path):
@@ -3095,16 +8808,16 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, access_contract)
 
-        middleware = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "middleware.ts").read_text(encoding="utf-8-sig")
+        worker_entry = (TESTER_PORTAL_TEMPLATE_ROOT / "cloudflare" / "worker-entry.js").read_text(encoding="utf-8-sig")
         session_prototype = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "lib" / "session-prototype.ts").read_text(encoding="utf-8-sig")
         for pattern in (
             "SECURITY_HEADERS",
-            "isProtectedPath",
-            "hasPrototypeSession",
-            "buildLoginUrl",
+            "requireSessionPage",
+            "hasSession",
+            "redirect(`/login?next=${encodeURIComponent(next)}`)",
         ):
             with self.subTest(pattern=pattern):
-                self.assertIn(pattern, middleware)
+                self.assertIn(pattern, worker_entry)
         for pattern in (
             "PROTECTED_PREFIXES",
             "\"/portal\"",
@@ -3117,7 +8830,7 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, session_prototype)
 
         cron_route = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "app" / "api" / "cron" / "expire-testers" / "route.ts").read_text(encoding="utf-8-sig")
-        self.assertIn("process.env.CRON_SECRET", cron_route)
+        self.assertIn("readRuntimeEnv(\"CRON_SECRET\")", cron_route)
         self.assertIn("dry-run", cron_route)
         self.assertIn("T6 owns real renewal state changes", cron_route)
 
@@ -3135,7 +8848,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         combined_template_text = "\n".join(
             path.read_text(encoding="utf-8-sig")
             for path in TESTER_PORTAL_TEMPLATE_ROOT.rglob("*")
-            if path.is_file() and "node_modules" not in path.parts and ".next" not in path.parts
+            if path.is_file() and TESTER_PORTAL_IGNORED_TEXT_SCAN_PARTS.isdisjoint(path.parts)
         )
         forbidden_patterns = [
             SENSITIVE_LITERAL_FORBIDDEN,
@@ -3270,7 +8983,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         login_page = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "app" / "login" / "page.tsx").read_text(encoding="utf-8-sig")
         login_route = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "app" / "api" / "auth" / "login" / "route.ts").read_text(encoding="utf-8-sig")
         logout_route = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "app" / "api" / "auth" / "logout" / "route.ts").read_text(encoding="utf-8-sig")
-        middleware = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "middleware.ts").read_text(encoding="utf-8-sig")
+        worker_entry = (TESTER_PORTAL_TEMPLATE_ROOT / "cloudflare" / "worker-entry.js").read_text(encoding="utf-8-sig")
         session_prototype_path = TESTER_PORTAL_TEMPLATE_ROOT / "src" / "lib" / "session-prototype.ts"
         session_prototype = session_prototype_path.read_text(encoding="utf-8-sig")
 
@@ -3307,7 +9020,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "DEMO_TESTER_EMAIL_ENV = \"T4_DEMO_TESTER_EMAIL\"",
             "DEMO_ACCESS_CODE_ENV = \"T4_DEMO_ACCESS_CODE\"",
             "isDemoLoginEnabled",
-            "process.env[DEMO_LOGIN_FLAG] === \"true\"",
+            "isRuntimeEnvEnabled(DEMO_LOGIN_FLAG)",
             "PROTECTED_PREFIXES = [\"/portal\", \"/admin\", \"/api/tester\", \"/api/admin\"]",
             "SESSION_COOKIE_CONTRACT.name",
             "httpOnly: SESSION_COOKIE_CONTRACT.httpOnly",
@@ -3337,15 +9050,15 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("applySessionCookie", login_route)
         self.assertIn("NextResponse.redirect", login_route)
         self.assertIn("clearSessionCookie", logout_route)
-        self.assertIn("buildLoginUrl", middleware)
-        self.assertIn("hasPrototypeSession", middleware)
-        self.assertIn("isProtectedPath", middleware)
-        self.assertNotIn("new URL(\"/expired\"", middleware)
+        self.assertIn("loginPage", worker_entry)
+        self.assertIn("hasSession", worker_entry)
+        self.assertIn("requireSessionPage", worker_entry)
+        self.assertNotIn("new URL(\"/expired\"", worker_entry)
 
         combined_template_text = "\n".join(
             path.read_text(encoding="utf-8-sig")
             for path in TESTER_PORTAL_TEMPLATE_ROOT.rglob("*")
-            if path.is_file() and "node_modules" not in path.parts and ".next" not in path.parts
+            if path.is_file() and TESTER_PORTAL_IGNORED_TEXT_SCAN_PARTS.isdisjoint(path.parts)
         )
         forbidden_patterns = [
             SENSITIVE_LITERAL_FORBIDDEN,
@@ -3435,7 +9148,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         combined_template_text = "\n".join(
             path.read_text(encoding="utf-8-sig")
             for path in TESTER_PORTAL_TEMPLATE_ROOT.rglob("*")
-            if path.is_file() and "node_modules" not in path.parts and ".next" not in path.parts
+            if path.is_file() and TESTER_PORTAL_IGNORED_TEXT_SCAN_PARTS.isdisjoint(path.parts)
         )
         for pattern in (
             SENSITIVE_LITERAL_FORBIDDEN,
@@ -3558,7 +9271,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         combined_template_text = "\n".join(
             path.read_text(encoding="utf-8-sig")
             for path in TESTER_PORTAL_TEMPLATE_ROOT.rglob("*")
-            if path.is_file() and "node_modules" not in path.parts and ".next" not in path.parts
+            if path.is_file() and TESTER_PORTAL_IGNORED_TEXT_SCAN_PARTS.isdisjoint(path.parts)
         )
         for pattern in (
             SENSITIVE_LITERAL_FORBIDDEN,
@@ -3696,7 +9409,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         combined_template_text = "\n".join(
             path.read_text(encoding="utf-8-sig")
             for path in TESTER_PORTAL_TEMPLATE_ROOT.rglob("*")
-            if path.is_file() and "node_modules" not in path.parts and ".next" not in path.parts
+            if path.is_file() and TESTER_PORTAL_IGNORED_TEXT_SCAN_PARTS.isdisjoint(path.parts)
         )
         for pattern in (
             SENSITIVE_LITERAL_FORBIDDEN,
@@ -3731,7 +9444,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         deployment_protection_path = TESTER_PORTAL_TEMPLATE_ROOT / "src" / "lib" / "deployment-protection.ts"
         security_hardening = security_hardening_path.read_text(encoding="utf-8-sig")
         deployment_protection = deployment_protection_path.read_text(encoding="utf-8-sig")
-        middleware = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "middleware.ts").read_text(encoding="utf-8-sig")
+        worker_entry = (TESTER_PORTAL_TEMPLATE_ROOT / "cloudflare" / "worker-entry.js").read_text(encoding="utf-8-sig")
         security_headers = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "lib" / "security-headers.ts").read_text(encoding="utf-8-sig")
         health_route = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "app" / "api" / "health" / "route.ts").read_text(encoding="utf-8-sig")
         portal_page = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "app" / "portal" / "page.tsx").read_text(encoding="utf-8-sig")
@@ -3809,18 +9522,26 @@ class DashboardStaticTestCase(unittest.TestCase):
         for pattern in (
             "isGlobalKillSwitchEnabled",
             "isKillSwitchExemptPath",
-            "global_kill_switch_enabled",
+            "globalKillSwitch",
             "evaluateRateLimit",
             "buildRateLimitKey",
             "rate_limit_exceeded",
-            "Retry-After",
-            "X-RateLimit-Limit",
-            "X-RateLimit-Remaining",
-            "X-RateLimit-Reset",
-            "applySecurityHeaders",
+            "resetAt",
+            "remaining",
+            "limit",
         ):
             with self.subTest(pattern=pattern):
-                self.assertIn(pattern, middleware)
+                self.assertIn(pattern, security_hardening)
+
+        for pattern in (
+            "SECURITY_HEADERS",
+            "Strict-Transport-Security",
+            "Cross-Origin-Opener-Policy",
+            "Cross-Origin-Resource-Policy",
+            "Content-Security-Policy",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, worker_entry)
 
         for pattern in (
             "Strict-Transport-Security",
@@ -3871,7 +9592,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         combined_template_text = "\n".join(
             path.read_text(encoding="utf-8-sig")
             for path in TESTER_PORTAL_TEMPLATE_ROOT.rglob("*")
-            if path.is_file() and "node_modules" not in path.parts and ".next" not in path.parts
+            if path.is_file() and TESTER_PORTAL_IGNORED_TEXT_SCAN_PARTS.isdisjoint(path.parts)
         )
         for pattern in (
             SENSITIVE_LITERAL_FORBIDDEN,
@@ -3934,9 +9655,8 @@ class DashboardStaticTestCase(unittest.TestCase):
             "T8_RATE_LIMIT_ENABLED=\"false\"",
             "DEPLOYMENT_PROTECTION_CHECKLIST",
             "Vercel Deployment Protection enabled",
-            "global_kill_switch_enabled",
+            "globalKillSwitch",
             "rate_limit_exceeded",
-            "X-RateLimit-Limit",
             "vercel.json must keep framework=nextjs",
             ".vercel/project.json is local machine state",
             "recommendedDeployCommand",
@@ -8135,7 +13855,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertEqual(package["devDependencies"]["@opennextjs/cloudflare"], "latest")
         self.assertEqual(package["devDependencies"]["wrangler"], "latest")
 
-        self.assertEqual(wrangler["main"], ".open-next/worker.js")
+        self.assertEqual(wrangler["main"], "cloudflare/worker-entry.js")
         self.assertEqual(wrangler["assets"]["directory"], ".open-next/assets")
         self.assertEqual(wrangler["assets"]["binding"], "ASSETS")
         self.assertIn("nodejs_compat", wrangler["compatibility_flags"])
@@ -8423,33 +14143,61 @@ class DashboardStaticTestCase(unittest.TestCase):
         package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
         proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "next-proxy-migration-proof.mjs"
         proof = proof_path.read_text(encoding="utf-8-sig")
-        middleware_path = TESTER_PORTAL_TEMPLATE_ROOT / "src" / "middleware.ts"
-        middleware = middleware_path.read_text(encoding="utf-8-sig")
+        worker_entry_path = TESTER_PORTAL_TEMPLATE_ROOT / "cloudflare" / "worker-entry.js"
+        worker_entry = worker_entry_path.read_text(encoding="utf-8-sig")
+        security_hardening = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "lib" / "security-hardening.ts").read_text(encoding="utf-8-sig")
 
         self.assertTrue(T10AH_NEXT_PROXY_MIGRATION_DOC.is_file())
         self.assertTrue(proof_path.is_file())
-        self.assertTrue(middleware_path.is_file())
+        self.assertTrue(worker_entry_path.is_file())
+        self.assertFalse((TESTER_PORTAL_TEMPLATE_ROOT / "src" / "middleware.ts").exists())
         self.assertFalse((TESTER_PORTAL_TEMPLATE_ROOT / "src" / "proxy.ts").exists())
         self.assertEqual(
             package["scripts"]["proof:next-proxy-migration"],
             "node scripts/next-proxy-migration-proof.mjs",
         )
+        self.assertEqual(
+            package["scripts"]["proof:cloudflare-provider-project-preflight"],
+            "node scripts/cloudflare-provider-project-preflight-proof.mjs",
+        )
+        self.assertEqual(
+            package["scripts"]["proof:cloudflare-project-shell"],
+            "node scripts/cloudflare-project-shell-proof.mjs",
+        )
+        self.assertEqual(
+            package["scripts"]["proof:cloudflare-auth-handoff"],
+            "node scripts/cloudflare-auth-handoff-proof.mjs",
+        )
+        self.assertEqual(
+            package["scripts"]["proof:cloudflare-shell-evidence-ingest"],
+            "node scripts/cloudflare-shell-evidence-ingest-proof.mjs",
+        )
+        self.assertEqual(
+            package["scripts"]["proof:cloudflare-shell-evidence-capture"],
+            "node scripts/cloudflare-shell-evidence-capture-proof.mjs",
+        )
+        self.assertEqual(
+            package["scripts"]["proof:cloudflare-readonly-shell-capture"],
+            "node scripts/cloudflare-readonly-shell-capture-proof.mjs",
+        )
+        self.assertEqual(
+            package["scripts"]["proof:cloudflare-shell-evidence-ingest"],
+            "node scripts/cloudflare-shell-evidence-ingest-proof.mjs",
+        )
 
         for pattern in (
-            "export function middleware",
-            "export const config",
             "SECURITY_HEADERS",
-            "isProtectedPath",
-            "hasPrototypeSession",
-            "buildLoginUrl",
-            "global_kill_switch_enabled",
-            "rate_limit_exceeded",
-            "X-RateLimit-Limit",
-            "matcher",
+            "requireSessionPage",
+            "hasSession",
+            "loginPage",
+            "downloadTool",
         ):
             with self.subTest(pattern=pattern):
-                self.assertIn(pattern, middleware)
-        self.assertNotIn("export function proxy", middleware)
+                self.assertIn(pattern, worker_entry)
+        for pattern in ("globalKillSwitch", "rate_limit_exceeded", "evaluateRateLimit"):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, security_hardening)
+        self.assertNotIn("export function proxy", worker_entry)
 
         for pattern in (
             "T10ah Next Proxy Migration Gate",
@@ -8466,9 +14214,9 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for pattern in (
             'phase: "T10ah"',
-            'result: "NO_GO_NEXT_PROXY_MIGRATION_BLOCKED_BY_OPENNEXT_NODE_MIDDLEWARE_UNSUPPORTED"',
+            'result: "GO_GLOBAL_MIDDLEWARE_REMOVED_FOR_CLOUDFLARE_RUNTIME_STABILITY"',
             'attemptedConvention: "next_proxy_file_convention"',
-            'retainedConvention: "next_middleware_file_convention_for_cloudflare_compatibility"',
+            'retainedConvention: "route_level_session_checks_and_next_static_headers"',
             "proxyPresent:",
             "middlewarePresent:",
             'proxyPath: "src/proxy.ts"',
@@ -8500,24 +14248,24 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("fetch(", proof)
 
         for pattern in (
-            "Current phase completed: T10ah - Next Proxy Migration Gate.",
-            "T10ai - prepare the Cloudflare provider-project preflight without deployment or tester URL",
+            "Current phase completed: T10ah - Next Proxy Migration Gate. Historical anchor only; superseded by T10ai.",
+            "Next implementation phase: T10ai - prepare the Cloudflare provider-project preflight without deployment or tester URL. Historical anchor only; superseded by T10aj.",
             "docs/T10AH_NEXT_PROXY_MIGRATION.md",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, governance)
 
         for pattern in (
-            "Current completed phase: T10ah - Next Proxy Migration Gate.",
+            "Current completed phase: T10ah - Next Proxy Migration Gate. Historical anchor only; superseded by T10ai.",
             "Phase T10ah: evaluate and block the Next.js middleware-to-proxy migration for the current Cloudflare route. Done",
-            "Phase T10ai: prepare the Cloudflare provider-project preflight without deployment or tester URL.",
+            "Phase T10ai: prepare the Cloudflare provider-project preflight without deployment or tester URL. Done",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, next_steps)
 
         for pattern in (
             "T10ah anade `proof:next-proxy-migration`",
-            "T10ai para preparar el preflight de proyecto Cloudflare",
+            "T10ai anade `proof:cloudflare-provider-project-preflight`",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, readme)
@@ -8531,14 +14279,14 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, changelog)
 
         for pattern in (
-            "src/middleware.ts",
+            "cloudflare/worker-entry.js",
             "scripts/next-proxy-migration-proof.mjs",
             "T10ah proof",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, template_readme)
 
-        combined_t10ah_text = "\n".join([t10ah, governance, next_steps, readme, changelog, template_readme, proof, middleware])
+        combined_t10ah_text = "\n".join([t10ah, governance, next_steps, readme, changelog, template_readme, proof, worker_entry])
         for pattern in (
             "@gmail.com",
             "@hotmail.com",
@@ -8554,6 +14302,5580 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_t10ah_text)
+
+    def test_t10ai_cloudflare_provider_project_preflight_is_documented_and_safe(self):
+        t10ai = T10AI_CLOUDFLARE_PROVIDER_PROJECT_PREFLIGHT_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        wrangler = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "wrangler.jsonc").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "cloudflare-provider-project-preflight-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10AI_CLOUDFLARE_PROVIDER_PROJECT_PREFLIGHT_DOC.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:cloudflare-provider-project-preflight"],
+            "node scripts/cloudflare-provider-project-preflight-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+        self.assertEqual(wrangler["name"], "sqx-edge-tester-portal-preview")
+        self.assertEqual(wrangler["main"], "cloudflare/worker-entry.js")
+        self.assertIn("nodejs_compat", wrangler["compatibility_flags"])
+        for key in ("account_id", "zone_id", "routes", "route", "custom_domain"):
+            with self.subTest(key=key):
+                self.assertNotIn(key, wrangler)
+
+        for pattern in (
+            "T10ai Cloudflare Provider Project Preflight",
+            "Cloudflare Workers Next.js guide",
+            "Cloudflare Workers Wrangler deploy command",
+            "OpenNext Cloudflare CLI",
+            "GO_CLOUDFLARE_PROVIDER_PROJECT_PREFLIGHT_READY_NO_DEPLOY",
+            "project_name_proposal=sqx-edge-tester-portal-preview",
+            "tester_branch=tester-preview",
+            "deploy_script=absent until exact approval",
+            "npx wrangler deploy",
+            "Cloudflare project creation",
+            "Cloudflare Access application creation",
+            "No Cloudflare project was created.",
+            "No Cloudflare deployment was created.",
+            "No tester URL was shared.",
+            "T10aj_cloudflare_project_shell_exact_approval_or_keep_local",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10ai)
+
+        for pattern in (
+            'phase: "T10ai"',
+            'result: "GO_CLOUDFLARE_PROVIDER_PROJECT_PREFLIGHT_READY_NO_DEPLOY"',
+            'provider: "Cloudflare"',
+            'selectedRuntime: "cloudflare_workers_opennext_nextjs_runtime"',
+            "projectNameProposal:",
+            'productionBranch: "main"',
+            'testerBranch: "tester-preview"',
+            "accessApplicationRequiredBeforeAnyUrl: true",
+            'accessLoginMethod: "one-time-pin-or-equivalent-idp"',
+            "testerEmailsStoredInProviderOnly: true",
+            "appAuthInnerGateStillRequired: true",
+            "deploymentCommandIntentionallyAbsent: true",
+            "allowedOperatorCommandsAfterExplicitApproval",
+            "forbiddenOperatorCommandsUntilExactApproval",
+            "wranglerConfigReady:",
+            "wranglerConfigHasNoProviderBinding:",
+            "safeLocalScriptsReady:",
+            "deployScriptPublished:",
+            "forbiddenDeployFragmentsPresent:",
+            "envPlaceholdersOnly:",
+            "devVarsPlaceholderOnly:",
+            "generatedArtifactsIgnored:",
+            "localVercelMetadataIgnored:",
+            "cloudflareProjectCreated: false",
+            "cloudflareDeploymentCreated: false",
+            "cloudflareAccessApplicationCreated: false",
+            "cloudflareAccessPolicyCreated: false",
+            "githubRepositoryConnectedToCloudflare: false",
+            "cloudflareTokenCommitted: false",
+            "cloudflareAccountIdCommitted: false",
+            "testerUrlPublished: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            "productionDatabaseConnected: false",
+            'nextGate: "T10aj_cloudflare_project_shell_exact_approval_or_keep_local"',
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: T10ai - Cloudflare Provider Project Preflight. Historical anchor only; superseded by T10aj.",
+            "Next implementation phase: T10aj - create or verify a Cloudflare project shell only with exact approval, otherwise keep the route local. Historical anchor only; superseded by T10ak.",
+            "T10aj - Cloudflare Project Shell Gate. Historical anchor only; superseded by T10ajb.",
+            "docs/T10AI_CLOUDFLARE_PROVIDER_PROJECT_PREFLIGHT.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10ai - Cloudflare Provider Project Preflight. Historical anchor only; superseded by T10aj.",
+            "Phase T10ai: prepare the Cloudflare provider-project preflight without deployment or tester URL. Done",
+            "Phase T10aj: create or verify a Cloudflare project shell only with exact approval",
+            "Phase T10ajb: resolve Cloudflare authentication or manually verify/create the provider shell without deployment. Done",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10ai anade `proof:cloudflare-provider-project-preflight`",
+            "T10aj anade `proof:cloudflare-project-shell`",
+            "T10ajb anade `proof:cloudflare-auth-handoff`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10ai Cloudflare Provider Project Preflight",
+            "proof:cloudflare-provider-project-preflight",
+            "GO_CLOUDFLARE_PROVIDER_PROJECT_PREFLIGHT_READY_NO_DEPLOY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/cloudflare-provider-project-preflight-proof.mjs",
+            "npm run proof:cloudflare-provider-project-preflight",
+            "GO_CLOUDFLARE_PROVIDER_PROJECT_PREFLIGHT_READY_NO_DEPLOY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10ai_text = "\n".join([t10ai, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE_API_TOKEN=",
+            "CLOUDFLARE_ACCOUNT_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10ai_text)
+
+    def test_t10aj_cloudflare_project_shell_gate_is_documented_and_safe(self):
+        t10aj = T10AJ_CLOUDFLARE_PROJECT_SHELL_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "cloudflare-project-shell-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10AJ_CLOUDFLARE_PROJECT_SHELL_DOC.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:cloudflare-project-shell"],
+            "node scripts/cloudflare-project-shell-proof.mjs",
+        )
+        self.assertEqual(
+            package["scripts"]["proof:cloudflare-auth-handoff"],
+            "node scripts/cloudflare-auth-handoff-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+
+        for pattern in (
+            "T10aj Cloudflare Project Shell Gate",
+            "Exact Approval Captured",
+            "sqx-edge-tester-portal-preview",
+            "Cloudflare Workers Wrangler commands",
+            "result=not_authenticated",
+            "deploy_command=publishes_worker",
+            "setup_command=configures_project_files",
+            "NO_GO_CLOUDFLARE_PROJECT_SHELL_NOT_VERIFIED_NO_AUTH_NO_DEPLOY_PATH",
+            "No Cloudflare project was created.",
+            "No Cloudflare deployment was created.",
+            "No Cloudflare Access application was created.",
+            "No Cloudflare Access policy was created.",
+            "No tester URL was published.",
+            "No tester accounts were created.",
+            "T10ajb_cloudflare_auth_or_manual_shell_verification_no_deploy",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10aj)
+
+        for pattern in (
+            "T10ajb: resolve Cloudflare authentication or manually verify/create the provider shell without deployment.",
+            "T10ak: create Cloudflare Access application and policy only with exact approval after shell verification.",
+            "T10al: execute one controlled Workers deployment only after shell + Access policy are verified.",
+            "T10am: run protected-route E2E smoke before sharing any URL.",
+            "T10an: prepare private tester onboarding packet without committing tester emails or URL.",
+            "T11: roll out to up to 10 testers with monitored access and manual renewal.",
+            "T12: monitor abuse, failed logins, access patterns and continue/stop decision.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10aj)
+
+        for pattern in (
+            'phase: "T10aj"',
+            'result: "NO_GO_CLOUDFLARE_PROJECT_SHELL_NOT_VERIFIED_NO_AUTH_NO_DEPLOY_PATH"',
+            'provider: "Cloudflare"',
+            'requestedProjectShellName: "sqx-edge-tester-portal-preview"',
+            "userExactApprovalCaptured: true",
+            'approvedAction: "create_or_verify_cloudflare_project_shell_only"',
+            'localWranglerWhoamiResult: "not_authenticated"',
+            "cloudflareApiTokenPresentLocally: false",
+            "cloudflareAccountIdPresentLocally: false",
+            "noDeployShellCreationPathVerified: false",
+            "wranglerSetupIsLocalConfigurationOnly: true",
+            "wranglerDeployWouldCreateDeployment: true",
+            "dryRunDoesNotCreateProviderShell: true",
+            "wranglerConfigNameMatchesRequestedShell:",
+            "packageScriptReady:",
+            "t10xxPlanMemorized:",
+            "governanceUpdated:",
+            "cloudflareProjectCreated: false",
+            "cloudflareProjectVerified: false",
+            "cloudflareDeploymentCreated: false",
+            "cloudflareAccessApplicationCreated: false",
+            "cloudflareAccessPolicyCreated: false",
+            "githubRepositoryConnectedToCloudflare: false",
+            "cloudflareTokenCommitted: false",
+            "cloudflareAccountIdCommitted: false",
+            "testerUrlPublished: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            "productionDatabaseConnected: false",
+            'nextGate: "T10ajb_cloudflare_auth_or_manual_shell_verification_no_deploy"',
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: T10aj - Cloudflare Project Shell Gate. Historical anchor only; superseded by T10ajb.",
+            "Next implementation phase: T10ajb - resolve Cloudflare authentication or manually verify/create the provider shell without deployment. Historical anchor only; superseded by T10ajc.",
+            "T10ajc - Cloudflare Shell Evidence Ingest",
+            "docs/T10AJ_CLOUDFLARE_PROJECT_SHELL.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10aj - Cloudflare Project Shell Gate. Historical anchor only; superseded by T10ajb.",
+            "Phase T10aj: create or verify a Cloudflare project shell only with exact approval",
+            "Phase T10ajb: resolve Cloudflare authentication or manually verify/create the provider shell without deployment. Done",
+            "Phase T10ajc: ingest authenticated or manual Cloudflare shell evidence without deployment",
+            "Phase T10ak: create Cloudflare Access application and policy only with exact approval after the provider shell is verified.",
+            "Phase T10al: execute one controlled Cloudflare Workers deployment only after shell + Access policy are verified",
+            "Phase T10am: run protected-route E2E smoke",
+            "Phase T10an: prepare private tester onboarding packet",
+            "Phase T11: roll out to up to 10 testers",
+            "Phase T12: monitor abuse, failed logins, access patterns",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10aj anade `proof:cloudflare-project-shell`",
+            "T10ajb anade `proof:cloudflare-auth-handoff`",
+            "T10ajc anade `proof:cloudflare-shell-evidence-ingest`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10aj Cloudflare Project Shell Gate",
+            "proof:cloudflare-project-shell",
+            "NO_GO_CLOUDFLARE_PROJECT_SHELL_NOT_VERIFIED_NO_AUTH_NO_DEPLOY_PATH",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/cloudflare-project-shell-proof.mjs",
+            "npm run proof:cloudflare-project-shell",
+            "NO_GO_CLOUDFLARE_PROJECT_SHELL_NOT_VERIFIED_NO_AUTH_NO_DEPLOY_PATH",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10aj_text = "\n".join([t10aj, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE_API_TOKEN=",
+            "CLOUDFLARE_ACCOUNT_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10aj_text)
+
+    def test_t10ajb_cloudflare_auth_handoff_is_documented_and_safe(self):
+        t10ajb = T10AJB_CLOUDFLARE_AUTH_HANDOFF_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        gitignore = (TESTER_PORTAL_TEMPLATE_ROOT / ".gitignore").read_text(encoding="utf-8-sig")
+        evidence_example_path = TESTER_PORTAL_TEMPLATE_ROOT / "cloudflare-shell-evidence.example.json"
+        evidence_example = json.loads(evidence_example_path.read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "cloudflare-auth-handoff-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10AJB_CLOUDFLARE_AUTH_HANDOFF_DOC.is_file())
+        self.assertTrue(evidence_example_path.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:cloudflare-auth-handoff"],
+            "node scripts/cloudflare-auth-handoff-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+        self.assertIn("cloudflare-shell-evidence.local.json", gitignore)
+        self.assertEqual(evidence_example["projectShellName"], "sqx-edge-tester-portal-preview")
+        self.assertFalse(evidence_example["shellVerified"])
+        self.assertFalse(evidence_example["deploymentCreated"])
+        self.assertFalse(evidence_example["accessApplicationCreated"])
+        self.assertFalse(evidence_example["accessPolicyCreated"])
+        self.assertFalse(evidence_example["testerUrlPublished"])
+        self.assertFalse(evidence_example["testerAccountsCreated"])
+        self.assertFalse(evidence_example["testerEmailsIncluded"])
+
+        for pattern in (
+            "T10ajb Cloudflare Auth Handoff",
+            "result=not_authenticated",
+            "Cloudflare API token management",
+            "Cloudflare Access application configuration",
+            "Option A: browser login",
+            "Option B: temporary local API token",
+            "Option C: manual dashboard evidence without CLI auth",
+            "cloudflare-shell-evidence.example.json",
+            "cloudflare-shell-evidence.local.json",
+            "NO_GO_CLOUDFLARE_AUTH_HANDOFF_PENDING_MANUAL_LOGIN_OR_EVIDENCE",
+            "No Cloudflare project was created.",
+            "No Cloudflare deployment was created.",
+            "No Cloudflare Access application was created.",
+            "No tester URL was published.",
+            "T10ajc_ingest_cloudflare_shell_evidence_no_deploy",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10ajb)
+
+        for pattern in (
+            'phase: "T10ajb"',
+            'result: "NO_GO_CLOUDFLARE_AUTH_HANDOFF_PENDING_MANUAL_LOGIN_OR_EVIDENCE"',
+            'provider: "Cloudflare"',
+            'requestedProjectShellName: "sqx-edge-tester-portal-preview"',
+            'localWranglerWhoamiResult: "not_authenticated"',
+            "authHandoffPrepared: true",
+            "browserLoginCommandDocumented: true",
+            "localApiTokenCommandDocumented: true",
+            "manualDashboardEvidencePathDocumented: true",
+            "evidenceExamplePresent:",
+            "evidenceExampleSafe:",
+            "localEvidenceIgnored:",
+            "packageScriptReady:",
+            "docHasNoSecretRequest:",
+            "governanceUpdated:",
+            "nextStepsUpdated:",
+            "cloudflareProjectCreated: false",
+            "cloudflareProjectVerified: false",
+            "cloudflareDeploymentCreated: false",
+            "cloudflareAccessApplicationCreated: false",
+            "cloudflareAccessPolicyCreated: false",
+            "cloudflareTokenCommitted: false",
+            "cloudflareAccountIdCommitted: false",
+            "testerUrlPublished: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            'nextGate: "T10ajc_ingest_cloudflare_shell_evidence_no_deploy"',
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: T10ajb - Cloudflare Auth Handoff. Historical anchor only; superseded by T10ajc.",
+            "Next implementation phase: T10ajc - ingest authenticated or manual Cloudflare shell evidence without deployment before T10ak. Historical anchor only; superseded by T10ajd.",
+            "T10ajc - Cloudflare Shell Evidence Ingest",
+            "docs/T10AJB_CLOUDFLARE_AUTH_HANDOFF.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10ajb - Cloudflare Auth Handoff. Historical anchor only; superseded by T10ajc.",
+            "Phase T10ajb: resolve Cloudflare authentication or manually verify/create the provider shell without deployment. Done",
+            "Phase T10ajc: ingest authenticated or manual Cloudflare shell evidence without deployment and decide whether T10ak can be unlocked. Done",
+            "Phase T10ajd: capture real Cloudflare shell evidence manually/authenticated before T10ak.",
+            "Phase T10ak: create Cloudflare Access application and policy only with exact approval after the provider shell is verified.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10ajb anade `proof:cloudflare-auth-handoff`",
+            "T10ajc anade `proof:cloudflare-shell-evidence-ingest`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10ajb Cloudflare Auth Handoff",
+            "proof:cloudflare-auth-handoff",
+            "NO_GO_CLOUDFLARE_AUTH_HANDOFF_PENDING_MANUAL_LOGIN_OR_EVIDENCE",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/cloudflare-auth-handoff-proof.mjs",
+            "cloudflare-shell-evidence.example.json",
+            "cloudflare-shell-evidence.local.json",
+            "npm run proof:cloudflare-auth-handoff",
+            "NO_GO_CLOUDFLARE_AUTH_HANDOFF_PENDING_MANUAL_LOGIN_OR_EVIDENCE",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10ajb_text = "\n".join(
+            [t10ajb, governance, next_steps, readme, changelog, template_readme, proof, json.dumps(evidence_example)]
+        )
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE_API_TOKEN=",
+            "CLOUDFLARE_ACCOUNT_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10ajb_text)
+
+    def test_t10ajc_cloudflare_shell_evidence_ingest_is_documented_and_safe(self):
+        t10ajc = T10AJC_CLOUDFLARE_SHELL_EVIDENCE_INGEST_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        gitignore = (TESTER_PORTAL_TEMPLATE_ROOT / ".gitignore").read_text(encoding="utf-8-sig")
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "cloudflare-shell-evidence-ingest-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10AJC_CLOUDFLARE_SHELL_EVIDENCE_INGEST_DOC.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertFalse((TESTER_PORTAL_TEMPLATE_ROOT / "cloudflare-shell-evidence.local.json").exists())
+        self.assertIn("cloudflare-shell-evidence.local.json", gitignore)
+        self.assertEqual(
+            package["scripts"]["proof:cloudflare-shell-evidence-ingest"],
+            "node scripts/cloudflare-shell-evidence-ingest-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+
+        for pattern in (
+            "T10ajc Cloudflare Shell Evidence Ingest",
+            "cloudflare-shell-evidence.local.json",
+            "result=missing",
+            "result=not_authenticated",
+            "Cloudflare Access policies",
+            "Cloudflare Access self-hosted applications",
+            "NO_GO_CLOUDFLARE_SHELL_EVIDENCE_MISSING_T10AK_BLOCKED",
+            "No Cloudflare project was created.",
+            "No Cloudflare deployment was created.",
+            "No Cloudflare Access application was created.",
+            "No tester URL was published.",
+            "T10ajd_capture_real_cloudflare_shell_evidence_no_deploy",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10ajc)
+
+        for pattern in (
+            "`projectShellName` is `sqx-edge-tester-portal-preview`",
+            "`shellVerified` is `true`",
+            "`deploymentCreated` is `false`",
+            "`accessApplicationCreated` is `false`",
+            "`accessPolicyCreated` is `false`",
+            "`testerUrlPublished` is `false`",
+            "`testerAccountsCreated` is `false`",
+            "`testerEmailsIncluded` is `false`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10ajc)
+
+        for pattern in (
+            'phase: "T10ajc"',
+            "NO_GO_CLOUDFLARE_SHELL_EVIDENCE_MISSING_T10AK_BLOCKED",
+            "GO_CLOUDFLARE_SHELL_EVIDENCE_VERIFIED_T10AK_READY_FOR_EXACT_APPROVAL",
+            'provider: "Cloudflare"',
+            'requestedProjectShellName: "sqx-edge-tester-portal-preview"',
+            'localEvidencePath: "cloudflare-shell-evidence.local.json"',
+            "localEvidencePresent:",
+            "localEvidenceParseError:",
+            "localEvidenceIgnored:",
+            "exampleEvidencePresent:",
+            "evidenceShellVerified:",
+            "evidenceDeploymentCreated:",
+            "evidenceAccessApplicationCreated:",
+            "evidenceAccessPolicyCreated:",
+            "evidenceCustomDomainAttached:",
+            "evidenceTesterUrlPublished:",
+            "evidenceTesterAccountsCreated:",
+            "evidenceTesterEmailsIncluded:",
+            "t10akUnlocked:",
+            "packageScriptReady:",
+            "docReady:",
+            "governanceUpdated:",
+            "nextStepsUpdated:",
+            "cloudflareProjectCreated: false",
+            "cloudflareDeploymentCreated: false",
+            "cloudflareAccessApplicationCreated: false",
+            "cloudflareAccessPolicyCreated: false",
+            "cloudflareTokenCommitted: false",
+            "cloudflareAccountIdCommitted: false",
+            "testerUrlPublished: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            'nextGate: evidenceIsGo',
+            'T10ajd_capture_real_cloudflare_shell_evidence_no_deploy',
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: T10ajc - Cloudflare Shell Evidence Ingest. Historical anchor only; superseded by T10ajd.",
+            "Next implementation phase: T10ajd - capture real Cloudflare shell evidence manually/authenticated before T10ak. Historical anchor only; superseded by T10aje.",
+            "T10ajd - Cloudflare Shell Evidence Capture Checklist",
+            "docs/T10AJC_CLOUDFLARE_SHELL_EVIDENCE_INGEST.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10ajc - Cloudflare Shell Evidence Ingest. Historical anchor only; superseded by T10ajd.",
+            "Phase T10ajc: ingest authenticated or manual Cloudflare shell evidence without deployment and decide whether T10ak can be unlocked. Done",
+            "Phase T10ajd: capture real Cloudflare shell evidence manually/authenticated before T10ak. Done",
+            "Phase T10aje: execute manual Cloudflare login/dashboard evidence capture outside git",
+            "Phase T10ak: create Cloudflare Access application and policy only with exact approval after the provider shell is verified.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10ajc anade `proof:cloudflare-shell-evidence-ingest`",
+            "T10ajd anade `proof:cloudflare-shell-evidence-capture`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10ajc Cloudflare Shell Evidence Ingest",
+            "proof:cloudflare-shell-evidence-ingest",
+            "NO_GO_CLOUDFLARE_SHELL_EVIDENCE_MISSING_T10AK_BLOCKED",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/cloudflare-shell-evidence-ingest-proof.mjs",
+            "npm run proof:cloudflare-shell-evidence-ingest",
+            "NO_GO_CLOUDFLARE_SHELL_EVIDENCE_MISSING_T10AK_BLOCKED",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10ajc_text = "\n".join([t10ajc, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE_API_TOKEN=",
+            "CLOUDFLARE_ACCOUNT_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10ajc_text)
+
+    def test_t10ajd_cloudflare_shell_evidence_capture_is_documented_and_safe(self):
+        t10ajd = T10AJD_CLOUDFLARE_SHELL_EVIDENCE_CAPTURE_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "cloudflare-shell-evidence-capture-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10AJD_CLOUDFLARE_SHELL_EVIDENCE_CAPTURE_DOC.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:cloudflare-shell-evidence-capture"],
+            "node scripts/cloudflare-shell-evidence-capture-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+
+        for pattern in (
+            "T10ajd Cloudflare Shell Evidence Capture Checklist",
+            "result=not_authenticated",
+            "Manual Capture Checklist",
+            "wrangler@latest -- login",
+            "cloudflare-shell-evidence.local.json",
+            "NO_GO_CLOUDFLARE_CAPTURE_PENDING_MANUAL_AUTH_OR_DASHBOARD_EVIDENCE",
+            "No Cloudflare project was created.",
+            "No Cloudflare deployment was created.",
+            "No Cloudflare Access application was created.",
+            "No tester URL was published.",
+            "T10aje_manual_cloudflare_evidence_capture_then_t10ajc_ingest",
+            "GO_CLOUDFLARE_SHELL_EVIDENCE_VERIFIED_T10AK_READY_FOR_EXACT_APPROVAL",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10ajd)
+
+        for pattern in (
+            '"projectShellName": "sqx-edge-tester-portal-preview"',
+            '"shellVerified": true',
+            '"deploymentCreated": false',
+            '"accessApplicationCreated": false',
+            '"accessPolicyCreated": false',
+            '"customDomainAttached": false',
+            '"testerUrlPublished": false',
+            '"testerAccountsCreated": false',
+            '"testerEmailsIncluded": false',
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10ajd)
+
+        for pattern in (
+            'phase: "T10ajd"',
+            'result: "NO_GO_CLOUDFLARE_CAPTURE_PENDING_MANUAL_AUTH_OR_DASHBOARD_EVIDENCE"',
+            'provider: "Cloudflare"',
+            'requestedProjectShellName: "sqx-edge-tester-portal-preview"',
+            'localWranglerWhoamiResult: "not_authenticated"',
+            "manualCaptureChecklistReady:",
+            "localEvidenceTemplateReady:",
+            "localEvidenceIgnored:",
+            "localEvidenceCurrentlyPresent:",
+            "packageScriptReady:",
+            "docHasNoSecretPattern:",
+            "governanceUpdated:",
+            "nextStepsUpdated:",
+            "cloudflareProjectCreated: false",
+            "cloudflareDeploymentCreated: false",
+            "cloudflareAccessApplicationCreated: false",
+            "cloudflareAccessPolicyCreated: false",
+            "cloudflareTokenCommitted: false",
+            "cloudflareAccountIdCommitted: false",
+            "testerUrlPublished: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            'nextGate: "T10aje_manual_cloudflare_evidence_capture_then_t10ajc_ingest"',
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: T10ajd - Cloudflare Shell Evidence Capture Checklist. Historical anchor only; superseded by T10aje.",
+            "Next implementation phase: T10aje - execute manual Cloudflare login/dashboard evidence capture outside git, then rerun T10ajc ingest. Historical anchor only; superseded by T10ajf.",
+            "T10aje - Cloudflare Read-Only Shell Capture",
+            "docs/T10AJD_CLOUDFLARE_SHELL_EVIDENCE_CAPTURE.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10ajd - Cloudflare Shell Evidence Capture Checklist. Historical anchor only; superseded by T10aje.",
+            "Phase T10ajd: capture real Cloudflare shell evidence manually/authenticated before T10ak. Done",
+            "Phase T10aje: execute manual Cloudflare login/dashboard evidence capture outside git, then rerun T10ajc ingest. Done",
+            "Phase T10ajf: choose exact no-deploy Cloudflare shell creation path",
+            "Phase T10ak: create Cloudflare Access application and policy only with exact approval after the provider shell is verified.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10ajd anade `proof:cloudflare-shell-evidence-capture`",
+            "T10aje anade `proof:cloudflare-readonly-shell-capture`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10ajd Cloudflare Shell Evidence Capture Checklist",
+            "proof:cloudflare-shell-evidence-capture",
+            "NO_GO_CLOUDFLARE_CAPTURE_PENDING_MANUAL_AUTH_OR_DASHBOARD_EVIDENCE",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/cloudflare-shell-evidence-capture-proof.mjs",
+            "npm run proof:cloudflare-shell-evidence-capture",
+            "NO_GO_CLOUDFLARE_CAPTURE_PENDING_MANUAL_AUTH_OR_DASHBOARD_EVIDENCE",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10ajd_text = "\n".join([t10ajd, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE_API_TOKEN=",
+            "CLOUDFLARE_ACCOUNT_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10ajd_text)
+
+    def test_t10aje_cloudflare_readonly_shell_capture_is_documented_and_safe(self):
+        t10aje = T10AJE_CLOUDFLARE_READONLY_SHELL_CAPTURE_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "cloudflare-readonly-shell-capture-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10AJE_CLOUDFLARE_READONLY_SHELL_CAPTURE_DOC.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:cloudflare-readonly-shell-capture"],
+            "node scripts/cloudflare-readonly-shell-capture-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+
+        for pattern in (
+            "T10aje Cloudflare Read-Only Shell Capture",
+            "wrangler_login=success",
+            "wrangler_whoami=authenticated",
+            "raw `whoami` output included private account details and was not committed",
+            "deployments list --name sqx-edge-tester-portal-preview --json",
+            "versions list --name sqx-edge-tester-portal-preview --json",
+            "secret list --name sqx-edge-tester-portal-preview --format json",
+            "result=worker_not_found",
+            "cloudflare_error_code=10007",
+            "NO_GO_CLOUDFLARE_WORKER_NOT_FOUND_T10AK_BLOCKED",
+            "No Cloudflare project was created.",
+            "No Cloudflare deployment was created.",
+            "No Cloudflare Access application was created.",
+            "No tester URL was published.",
+            "T10ajf_choose_shell_creation_path_or_controlled_deploy_approval",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10aje)
+
+        for pattern in (
+            "finding an exact no-deploy Cloudflare shell creation path",
+            "requesting explicit approval for one controlled deployment later",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10aje)
+
+        for pattern in (
+            'phase: "T10aje"',
+            'result: "NO_GO_CLOUDFLARE_WORKER_NOT_FOUND_T10AK_BLOCKED"',
+            'provider: "Cloudflare"',
+            'requestedProjectShellName: "sqx-edge-tester-portal-preview"',
+            "wranglerLoginSucceeded: true",
+            "wranglerWhoamiAuthenticated: true",
+            "rawWhoamiOutputCommitted: false",
+            'deploymentsListResult: "worker_not_found"',
+            'versionsListResult: "worker_not_found"',
+            'secretListResult: "worker_not_found"',
+            "cloudflareErrorCode: 10007",
+            "providerShellExists: false",
+            "t10akUnlocked: false",
+            "packageScriptReady:",
+            "docHasNoSecretPattern:",
+            "docReady:",
+            "governanceUpdated:",
+            "nextStepsUpdated:",
+            "cloudflareProjectCreated: false",
+            "cloudflareDeploymentCreated: false",
+            "cloudflareAccessApplicationCreated: false",
+            "cloudflareAccessPolicyCreated: false",
+            "cloudflareTokenCommitted: false",
+            "cloudflareAccountIdCommitted: false",
+            "testerUrlPublished: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            'nextGate: "T10ajf_choose_shell_creation_path_or_controlled_deploy_approval"',
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: T10aje - Cloudflare Read-Only Shell Capture.",
+            "Next implementation phase: T10ajf - choose exact no-deploy Cloudflare shell creation path or authorize one controlled deploy later",
+            "docs/T10AJE_CLOUDFLARE_READONLY_SHELL_CAPTURE.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10aje - Cloudflare Read-Only Shell Capture.",
+            "Phase T10aje: execute manual Cloudflare login/dashboard evidence capture outside git, then rerun T10ajc ingest. Done",
+            "Phase T10ajf: choose exact no-deploy Cloudflare shell creation path or authorize one controlled deploy later.",
+            "Phase T10ak: create Cloudflare Access application and policy only with exact approval after the provider shell is verified.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10aje anade `proof:cloudflare-readonly-shell-capture`",
+            "T10ajf anade `proof:cloudflare-shell-creation-decision`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10aje Cloudflare Read-Only Shell Capture",
+            "proof:cloudflare-readonly-shell-capture",
+            "NO_GO_CLOUDFLARE_WORKER_NOT_FOUND_T10AK_BLOCKED",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/cloudflare-readonly-shell-capture-proof.mjs",
+            "npm run proof:cloudflare-readonly-shell-capture",
+            "NO_GO_CLOUDFLARE_WORKER_NOT_FOUND_T10AK_BLOCKED",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10aje_text = "\n".join([t10aje, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE_API_TOKEN=",
+            "CLOUDFLARE_ACCOUNT_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10aje_text)
+
+    def test_t10ajf_cloudflare_shell_creation_decision_is_documented_and_safe(self):
+        t10ajf = T10AJF_CLOUDFLARE_SHELL_CREATION_DECISION_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "cloudflare-shell-creation-decision-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10AJF_CLOUDFLARE_SHELL_CREATION_DECISION_DOC.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:cloudflare-shell-creation-decision"],
+            "node scripts/cloudflare-shell-creation-decision-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+
+        for pattern in (
+            "T10ajf Cloudflare Shell Creation Decision",
+            "NO_GO_NO_INVISIBLE_CLOUDFLARE_SHELL_PATH_ACCEPTED",
+            "using `wrangler versions upload` for the first upload will fail",
+            "T10ajg_first_worker_deploy_approval_gate",
+            "npm exec --yes -- wrangler deploy --name sqx-edge-tester-portal-preview",
+            "No Cloudflare project was created.",
+            "No Cloudflare deployment was created.",
+            "No Cloudflare version was uploaded.",
+            "No Cloudflare Access application was created.",
+            "No tester URL was published.",
+            "https://developers.cloudflare.com/workers/configuration/versions-and-deployments/",
+            "https://developers.cloudflare.com/workers/configuration/previews/",
+            "https://developers.cloudflare.com/workers/wrangler/commands/workers/",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10ajf)
+
+        for pattern in (
+            'phase: "T10ajf"',
+            'result: "NO_GO_NO_INVISIBLE_CLOUDFLARE_SHELL_PATH_ACCEPTED"',
+            'provider: "Cloudflare"',
+            'requestedProjectShellName: "sqx-edge-tester-portal-preview"',
+            "providerShellExistsFromT10aje: false",
+            "noDeployShellPathAccepted: false",
+            "firstUploadRequiresWranglerDeploy: true",
+            "versionsUploadCannotCreateFirstWorker: true",
+            "versionsUploadCanReturnPreviewUrl: true",
+            "deployCreatesTrafficDeployment: true",
+            "t10akUnlocked: false",
+            "nextActionRequiresExactApproval: true",
+            'candidateNextGate: "T10ajg_first_worker_deploy_approval_gate"',
+            "packageScriptReady:",
+            "deployOrUploadScriptPublished:",
+            "docHasNoSecretPattern:",
+            "docReady:",
+            "governanceUpdated:",
+            "nextStepsUpdated:",
+            "cloudflareProjectCreated: false",
+            "cloudflareVersionUploaded: false",
+            "cloudflareDeploymentCreated: false",
+            "cloudflareAccessApplicationCreated: false",
+            "cloudflareAccessPolicyCreated: false",
+            "testerUrlPublished: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            'nextGate: "T10ajg_first_worker_deploy_approval_gate"',
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: T10ajf - Cloudflare Shell Creation Decision.",
+            "Next implementation phase: T10ajg - prepare exact approval gate for the first Cloudflare Worker deploy/shell creation without tester URL sharing",
+            "docs/T10AJF_CLOUDFLARE_SHELL_CREATION_DECISION.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10ajf - Cloudflare Shell Creation Decision.",
+            "Phase T10ajf: choose exact no-deploy Cloudflare shell creation path or authorize one controlled deploy later. Done",
+            "Phase T10ajg: prepare exact approval gate for the first Cloudflare Worker deploy/shell creation without tester URL sharing.",
+            "Phase T10aji: execute the first Cloudflare Worker deploy/shell creation only after approval",
+            "Phase T10ak: create Cloudflare Access application and policy only with exact approval after the provider shell is verified.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10ajf anade `proof:cloudflare-shell-creation-decision`",
+            "T10ajg anade `proof:cloudflare-first-deploy-approval-gate`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10ajf Cloudflare Shell Creation Decision",
+            "proof:cloudflare-shell-creation-decision",
+            "NO_GO_NO_INVISIBLE_CLOUDFLARE_SHELL_PATH_ACCEPTED",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/cloudflare-shell-creation-decision-proof.mjs",
+            "npm run proof:cloudflare-shell-creation-decision",
+            "NO_GO_NO_INVISIBLE_CLOUDFLARE_SHELL_PATH_ACCEPTED",
+            "first Worker creation requires an exact approval gate for `wrangler deploy`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10ajf_text = "\n".join([t10ajf, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE_API_TOKEN=",
+            "CLOUDFLARE_ACCOUNT_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10ajf_text)
+
+    def test_t10ajg_cloudflare_first_deploy_approval_gate_is_documented_and_safe(self):
+        t10ajg = T10AJG_CLOUDFLARE_FIRST_DEPLOY_APPROVAL_GATE_DOC.read_text(encoding="utf-8-sig")
+        t10ajf = T10AJF_CLOUDFLARE_SHELL_CREATION_DECISION_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        wrangler_config = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "wrangler.jsonc").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "cloudflare-first-deploy-approval-gate-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10AJG_CLOUDFLARE_FIRST_DEPLOY_APPROVAL_GATE_DOC.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:cloudflare-first-deploy-approval-gate"],
+            "node scripts/cloudflare-first-deploy-approval-gate-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+        self.assertNotIn("delete", package["scripts"])
+        self.assertEqual(wrangler_config["name"], "sqx-edge-tester-portal-preview")
+
+        exact_deploy_command = "npm exec --yes -- wrangler deploy --name sqx-edge-tester-portal-preview"
+        cleanup_command = "npm exec --yes -- wrangler delete sqx-edge-tester-portal-preview --force"
+        approval_phrase = (
+            "Autorizo T10ajh: ejecutar exactamente `npm exec --yes -- wrangler deploy --name "
+            "sqx-edge-tester-portal-preview` desde `templates/SQX_Edge_Tester_Portal` despues de `npm run cf:build`, "
+            "sin compartir URL tester y con inspeccion/cleanup inmediato si aparece una superficie publica no aceptada."
+        )
+
+        for pattern in (
+            "T10ajg Cloudflare First Deploy Approval Gate",
+            "GO_CLOUDFLARE_FIRST_DEPLOY_APPROVAL_GATE_READY_NO_PROVIDER_ACTION",
+            "No provider mutation was performed in this phase.",
+            exact_deploy_command,
+            cleanup_command,
+            approval_phrase,
+            "npm exec --yes -- wrangler deployments list --name sqx-edge-tester-portal-preview --json",
+            "npm exec --yes -- wrangler versions list --name sqx-edge-tester-portal-preview --json",
+            "npm exec --yes -- wrangler secret list --name sqx-edge-tester-portal-preview --format json",
+            "No Cloudflare Worker was created.",
+            "No Cloudflare deployment was created.",
+            "No Cloudflare Access application was created.",
+            "No tester URL was published.",
+            "T10ak remains blocked.",
+            "https://developers.cloudflare.com/workers/configuration/versions-and-deployments/",
+            "https://developers.cloudflare.com/workers/configuration/previews/",
+            "https://developers.cloudflare.com/workers/wrangler/commands/",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10ajg)
+
+        for pattern in (
+            'phase: "T10ajg"',
+            'result: "GO_CLOUDFLARE_FIRST_DEPLOY_APPROVAL_GATE_READY_NO_PROVIDER_ACTION"',
+            'provider: "Cloudflare"',
+            'requestedWorkerName: workerName',
+            "exactDeployCommand",
+            "approvalPhrase",
+            "cleanupCommandIfUnsafe",
+            "readOnlyPreChecks:",
+            "postDeployInspectionCommands:",
+            "firstUploadRequiresWranglerDeploy: true",
+            "previewUrlsMayBePublic: true",
+            "cloudflareAccessRequiredBeforeTesterSharing: true",
+            "externalActionPrepared: true",
+            "externalActionExecuted: false",
+            "providerMutatedInT10ajg: false",
+            "packageScriptReady",
+            "deployOrCleanupScriptPublished",
+            "wranglerConfigNameMatches",
+            "wranglerConfigMainMatches",
+            "docHasNoSecretPattern",
+            "docReady",
+            "governanceUpdated",
+            "nextStepsUpdated",
+            "cloudflareWorkerCreated: false",
+            "cloudflareVersionUploaded: false",
+            "cloudflareDeploymentCreated: false",
+            "cloudflareAccessApplicationCreated: false",
+            "cloudflareAccessPolicyCreated: false",
+            "testerUrlPublished: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            "t10akUnlocked: false",
+            'nextGate: "T10ajh_execute_first_worker_deploy_only_after_exact_approval"',
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: T10ajg - Cloudflare First Deploy Approval Gate.",
+            "Next implementation phase: T10aji - execute the first Cloudflare Worker deploy/shell creation only after approval and rollback if unsafe.",
+            "docs/T10AJG_CLOUDFLARE_FIRST_DEPLOY_APPROVAL_GATE.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10ajg - Cloudflare First Deploy Approval Gate.",
+            "Phase T10ajg: prepare exact approval gate for the first Cloudflare Worker deploy/shell creation without tester URL sharing. Done",
+            "Phase T10aji: execute the first Cloudflare Worker deploy/shell creation only after approval",
+            "Phase T10ak: create Cloudflare Access application and policy only with exact approval after the provider shell is verified.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10ajg anade `proof:cloudflare-first-deploy-approval-gate`",
+            "T10ajj anade `proof:cloudflare-route-onboarding-decision`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10ajg Cloudflare First Deploy Approval Gate",
+            "proof:cloudflare-first-deploy-approval-gate",
+            "GO_CLOUDFLARE_FIRST_DEPLOY_APPROVAL_GATE_READY_NO_PROVIDER_ACTION",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/cloudflare-first-deploy-approval-gate-proof.mjs",
+            "npm run proof:cloudflare-first-deploy-approval-gate",
+            "GO_CLOUDFLARE_FIRST_DEPLOY_APPROVAL_GATE_READY_NO_PROVIDER_ACTION",
+            "T10ajh as the only phase allowed to run the exact",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        self.assertIn(exact_deploy_command, t10ajf)
+
+        combined_t10ajg_text = "\n".join([t10ajg, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE_API_TOKEN=",
+            "CLOUDFLARE_ACCOUNT_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10ajg_text)
+
+    def test_t10ajh_cloudflare_first_deploy_readiness_is_documented_and_safe(self):
+        t10ajh = T10AJH_CLOUDFLARE_FIRST_DEPLOY_READINESS_DOC.read_text(encoding="utf-8-sig")
+        t10ajg = T10AJG_CLOUDFLARE_FIRST_DEPLOY_APPROVAL_GATE_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        package_lock = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package-lock.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "cloudflare-first-deploy-readiness-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10AJH_CLOUDFLARE_FIRST_DEPLOY_READINESS_DOC.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertTrue((TESTER_PORTAL_TEMPLATE_ROOT / "package-lock.json").is_file())
+        self.assertEqual(
+            package["scripts"]["proof:cloudflare-first-deploy-readiness"],
+            "node scripts/cloudflare-first-deploy-readiness-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+        self.assertNotIn("delete", package["scripts"])
+        self.assertEqual(package_lock["lockfileVersion"], 3)
+        self.assertIn("node_modules/next", package_lock["packages"])
+        self.assertIn("node_modules/@opennextjs/cloudflare", package_lock["packages"])
+        self.assertIn("node_modules/wrangler", package_lock["packages"])
+
+        exact_deploy_command = "npm exec --yes -- wrangler deploy --name sqx-edge-tester-portal-preview"
+        approval_phrase = (
+            "Autorizo T10ajh: ejecutar exactamente `npm exec --yes -- wrangler deploy --name "
+            "sqx-edge-tester-portal-preview` desde `templates/SQX_Edge_Tester_Portal` despues de `npm run cf:build`, "
+            "sin compartir URL tester y con inspeccion/cleanup inmediato si aparece una superficie publica no aceptada."
+        )
+
+        for pattern in (
+            "T10ajh Cloudflare First Deploy Readiness",
+            "NO_DEPLOY_EXECUTED_EXACT_APPROVAL_REQUIRED",
+            "GO_CLOUDFLARE_FIRST_DEPLOY_READY_EXACT_APPROVAL_REQUIRED_NO_PROVIDER_MUTATION",
+            "result=authenticated_redacted",
+            "raw_account_details_committed=false",
+            "worker_not_found",
+            "npm install",
+            "npm run cf:build",
+            "GO_OPENNEXT_CLOUDFLARE_BUILD_SUCCEEDED",
+            "npm audit --audit-level=high",
+            "GO_NO_HIGH_OR_CRITICAL_VULNERABILITIES",
+            "package-lock.json",
+            exact_deploy_command,
+            approval_phrase,
+            "No Cloudflare Worker was created.",
+            "No Cloudflare deployment was created.",
+            "No Cloudflare Access application was created.",
+            "No tester URL was published.",
+            "T10aji_execute_first_worker_deploy_only_after_exact_approval",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10ajh)
+
+        for pattern in (
+            'phase: "T10ajh-readiness"',
+            'result: "GO_CLOUDFLARE_FIRST_DEPLOY_READY_EXACT_APPROVAL_REQUIRED_NO_PROVIDER_MUTATION"',
+            'provider: "Cloudflare"',
+            "approvalPhrasePresentInGate",
+            "exactApprovalReceivedInThisPhase: false",
+            "deployCommandExecuted: false",
+            "providerMutatedInT10ajhReadiness: false",
+            "wranglerWhoamiAuthenticatedRedacted: true",
+            "rawWhoamiOutputCommitted: false",
+            'deploymentsListResult: "worker_not_found"',
+            'versionsListResult: "worker_not_found"',
+            'secretListResult: "worker_not_found"',
+            "localInstallCompleted: true",
+            "localBuildSucceeded: true",
+            "auditHighOrCriticalPassed: true",
+            "auditModerateFindingsRecorded: true",
+            "packageLockPresent",
+            "pinnedNextVersion",
+            "pinnedOpenNextCloudflareVersion",
+            "pinnedWranglerVersion",
+            "packageScriptReady",
+            "mutatingScriptPublished",
+            "cfBuildScriptReady",
+            "docHasNoSecretPattern",
+            "docReady",
+            "governanceUpdated",
+            "nextStepsUpdated",
+            "cloudflareWorkerCreated: false",
+            "cloudflareVersionUploaded: false",
+            "cloudflareDeploymentCreated: false",
+            "cloudflareAccessApplicationCreated: false",
+            "testerUrlPublished: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            "t10akUnlocked: false",
+            'nextGate: "T10aji_execute_first_worker_deploy_only_after_exact_approval"',
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: T10ajh - Cloudflare First Deploy Readiness. Historical anchor only; superseded by T10aji.",
+            "Next implementation phase: T10aji - execute the first Cloudflare Worker deploy/shell creation only after approval and rollback if unsafe.",
+            "docs/T10AJH_CLOUDFLARE_FIRST_DEPLOY_READINESS.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10ajh - Cloudflare First Deploy Readiness. Historical anchor only; superseded by T10aji.",
+            "Phase T10ajh: verify first Cloudflare Worker deploy readiness without deploy while waiting for exact approval. Done",
+            "Phase T10aji: execute the first Cloudflare Worker deploy/shell creation only after approval",
+            "Phase T10ak: create Cloudflare Access application and policy only with exact approval after the provider shell is verified.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10ajh anade `proof:cloudflare-first-deploy-readiness`",
+            "T10ajj anade `proof:cloudflare-route-onboarding-decision`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10ajh Cloudflare First Deploy Readiness",
+            "proof:cloudflare-first-deploy-readiness",
+            "GO_CLOUDFLARE_FIRST_DEPLOY_READY_EXACT_APPROVAL_REQUIRED_NO_PROVIDER_MUTATION",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/cloudflare-first-deploy-readiness-proof.mjs",
+            "npm run proof:cloudflare-first-deploy-readiness",
+            "GO_CLOUDFLARE_FIRST_DEPLOY_READY_EXACT_APPROVAL_REQUIRED_NO_PROVIDER_MUTATION",
+            "T10aji as the only phase allowed to run the exact deploy command",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        self.assertIn(approval_phrase, t10ajg)
+
+        combined_t10ajh_text = "\n".join([t10ajh, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE_API_TOKEN=",
+            "CLOUDFLARE_ACCOUNT_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10ajh_text)
+
+    def test_t10aji_cloudflare_first_deploy_rollback_is_documented_and_safe(self):
+        t10aji = T10AJI_CLOUDFLARE_FIRST_DEPLOY_ROLLBACK_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "cloudflare-first-deploy-rollback-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10AJI_CLOUDFLARE_FIRST_DEPLOY_ROLLBACK_DOC.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:cloudflare-first-deploy-rollback"],
+            "node scripts/cloudflare-first-deploy-rollback-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+        self.assertNotIn("delete", package["scripts"])
+
+        deploy_command = "npm exec --yes -- wrangler deploy --name sqx-edge-tester-portal-preview"
+        cleanup_command = "npm exec --yes -- wrangler delete sqx-edge-tester-portal-preview --force"
+
+        for pattern in (
+            "T10aji Cloudflare First Deploy Rollback",
+            "NO_GO_FIRST_WORKER_DEPLOY_ROLLED_BACK_WORKERS_DEV_SUBDOMAIN_REQUIRED",
+            "workers.dev` subdomain registered",
+            "Worker was deleted immediately",
+            deploy_command,
+            cleanup_command,
+            "precheck_worker_state=worker_not_found",
+            "deploy_command_exit_code=1",
+            "preview_capability_seen_after_attempt=true",
+            "post_cleanup_worker_state=worker_not_found",
+            "No Cloudflare Worker remains after cleanup.",
+            "No Cloudflare deployment remains after cleanup.",
+            "No Cloudflare Access application was created.",
+            "No tester URL was published.",
+            "T10ajj_cloudflare_route_onboarding_decision",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10aji)
+
+        for pattern in (
+            'phase: "T10aji"',
+            'result: "NO_GO_FIRST_WORKER_DEPLOY_ROLLED_BACK_WORKERS_DEV_SUBDOMAIN_REQUIRED"',
+            'provider: "Cloudflare"',
+            "broadTxxxAuthorizationRecorded: true",
+            'precheckWorkerState: "worker_not_found"',
+            "localBuildSucceeded: true",
+            "deployCommandStarted: true",
+            "deployCommandExitCode: 1",
+            "assetsUploadedBeforeFailure: true",
+            "workersDevSubdomainRequired: true",
+            "routeOrCustomDomainConfigured: false",
+            "workerDeploymentsSeenAfterAttempt: true",
+            "workerVersionsSeenAfterAttempt: true",
+            "previewCapabilitySeenAfterAttempt: true",
+            "testerUrlShared: false",
+            "cleanupCommandExecuted: true",
+            'postCleanupWorkerState: "worker_not_found"',
+            "postCleanupDeploymentsNotFound: true",
+            "postCleanupVersionsNotFound: true",
+            "postCleanupSecretsNotFound: true",
+            "rawWranglerOutputCommitted: false",
+            "packageScriptReady",
+            "mutatingScriptPublished",
+            "docHasNoSecretPattern",
+            "docReady",
+            "governanceUpdated",
+            "nextStepsUpdated",
+            "cloudflareWorkerRemains: false",
+            "cloudflareDeploymentRemains: false",
+            "cloudflareVersionRemains: false",
+            "cloudflareAccessApplicationCreated: false",
+            "cloudflareAccessPolicyCreated: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            "t10akUnlocked: false",
+            'nextGate: "T10ajj_cloudflare_route_onboarding_decision"',
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: T10aji - Cloudflare First Deploy Rollback. Historical anchor only; superseded by T10ajj.",
+            "Next implementation phase: T10ajj - decide/register the Cloudflare route or workers.dev onboarding path before any new deploy attempt. Historical anchor only; superseded by T10ajk.",
+            "docs/T10AJI_CLOUDFLARE_FIRST_DEPLOY_ROLLBACK.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10aji - Cloudflare First Deploy Rollback. Historical anchor only; superseded by T10ajj.",
+            "Phase T10aji: execute the first Cloudflare Worker deploy/shell creation only after approval",
+            "Phase T10ajj: decide/register the Cloudflare route or workers.dev onboarding path before any new deploy attempt. Done as no-deploy route decision",
+            "Phase T10ajk: configure a protected Cloudflare custom route/domain or complete dashboard `workers.dev` onboarding",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10aji anade `proof:cloudflare-first-deploy-rollback`",
+            "T10ajj anade `proof:cloudflare-route-onboarding-decision`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10aji Cloudflare First Deploy Rollback",
+            "proof:cloudflare-first-deploy-rollback",
+            "NO_GO_FIRST_WORKER_DEPLOY_ROLLED_BACK_WORKERS_DEV_SUBDOMAIN_REQUIRED",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/cloudflare-first-deploy-rollback-proof.mjs",
+            "npm run proof:cloudflare-first-deploy-rollback",
+            "NO_GO_FIRST_WORKER_DEPLOY_ROLLED_BACK_WORKERS_DEV_SUBDOMAIN_REQUIRED",
+            "T10ajj responsible for choosing the Cloudflare route/onboarding path",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10aji_text = "\n".join([t10aji, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE_API_TOKEN=",
+            "CLOUDFLARE_ACCOUNT_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10aji_text)
+
+    def test_t10ajj_cloudflare_route_onboarding_decision_is_documented_and_safe(self):
+        t10ajj = T10AJJ_CLOUDFLARE_ROUTE_ONBOARDING_DECISION_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        wrangler_config = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "wrangler.jsonc").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "cloudflare-route-onboarding-decision-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10AJJ_CLOUDFLARE_ROUTE_ONBOARDING_DECISION_DOC.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:cloudflare-route-onboarding-decision"],
+            "node scripts/cloudflare-route-onboarding-decision-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+        self.assertNotIn("delete", package["scripts"])
+        self.assertIs(wrangler_config["workers_dev"], True)
+        self.assertIs(wrangler_config["preview_urls"], False)
+
+        for pattern in (
+            "T10ajj Cloudflare Route Onboarding Decision",
+            "GO_CLOUDFLARE_ROUTE_ONBOARDING_DECISION_READY_NO_DEPLOY",
+            "custom_route_or_dashboard_workers_dev_onboarding_before_redeploy",
+            '"workers_dev": false',
+            '"preview_urls": false',
+            "deployments=worker_not_found",
+            "versions=worker_not_found",
+            "secrets=worker_not_found",
+            "No Cloudflare Worker was created.",
+            "No Cloudflare Access application was created.",
+            "No tester URL was published.",
+            "T10ajk_cloudflare_route_onboarding_or_access_precreate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10ajj)
+
+        for pattern in (
+            'phase: "T10ajj"',
+            'result: "GO_CLOUDFLARE_ROUTE_ONBOARDING_DECISION_READY_NO_DEPLOY"',
+            'provider: "Cloudflare"',
+            'liveWorkerState: "worker_not_found"',
+            "officialWorkersDevDocsChecked: true",
+            "officialPreviewUrlsDocsChecked: true",
+            "officialScriptSubdomainApiDocsChecked: true",
+            "workersDevDashboardConfigRequiredForAccountSubdomain: true",
+            "scriptSubdomainApiRequiresExistingScript: true",
+            "workersDevPublicWhenEnabled: true",
+            "cloudflareAccessRequiredBeforeTesterSharing: true",
+            'selectedRoutePath: "custom_route_or_dashboard_workers_dev_onboarding_before_redeploy"',
+            "customRoutePreferredForTesterRollout: true",
+            "workersDevPilotAllowedOnlyWithImmediateAccess: true",
+            "wranglerWorkersDevDisabled",
+            "wranglerPreviewUrlsDisabled",
+            "deployBlockedUntilRouteOnboarding: true",
+            "providerMutationExecuted: false",
+            "testerUrlShared: false",
+            "packageScriptReady",
+            "mutatingScriptPublished",
+            "docHasNoSecretPattern",
+            "docReady",
+            "governanceUpdated",
+            "nextStepsUpdated",
+            "cloudflareWorkerCreated: false",
+            "cloudflareVersionUploaded: false",
+            "cloudflareDeploymentCreated: false",
+            "cloudflareAccessApplicationCreated: false",
+            "cloudflareAccessPolicyCreated: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            "t10akUnlocked: false",
+            'nextGate: "T10ajk_cloudflare_route_onboarding_or_access_precreate"',
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: T10ajj - Cloudflare Route Onboarding Decision. Historical anchor only; superseded by T10ajk.",
+            "Next implementation phase: T10ajk - configure a protected Cloudflare custom route/domain or complete dashboard workers.dev onboarding with immediate Access precreate before any new deploy attempt. Historical anchor only; superseded by T10ajl.",
+            "T10ajj Cloudflare route onboarding decision",
+            "docs/T10AJJ_CLOUDFLARE_ROUTE_ONBOARDING_DECISION.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10ajj - Cloudflare Route Onboarding Decision. Historical anchor only; superseded by T10ajk.",
+            "Phase T10ajj: decide/register the Cloudflare route or workers.dev onboarding path before any new deploy attempt. Done as no-deploy route decision",
+            "Phase T10ajk: configure a protected Cloudflare custom route/domain or complete dashboard `workers.dev` onboarding with immediate Access precreate before any new deploy attempt. Done as guarded NO-GO",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10ajj anade `proof:cloudflare-route-onboarding-decision`",
+            "`workers_dev=false`",
+            "`preview_urls=false`",
+            "T10ajk anade `proof:cloudflare-route-access-precreate`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10ajj Cloudflare Route Onboarding Decision",
+            "proof:cloudflare-route-onboarding-decision",
+            "GO_CLOUDFLARE_ROUTE_ONBOARDING_DECISION_READY_NO_DEPLOY",
+            "workers_dev=false",
+            "preview_urls=false",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/cloudflare-route-onboarding-decision-proof.mjs",
+            "npm run proof:cloudflare-route-onboarding-decision",
+            "GO_CLOUDFLARE_ROUTE_ONBOARDING_DECISION_READY_NO_DEPLOY",
+            "T10ajk responsible for choosing a protected custom route/domain",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10ajj_text = "\n".join([t10ajj, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE_API_TOKEN=",
+            "CLOUDFLARE_ACCOUNT_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10ajj_text)
+
+    def test_t10ajk_cloudflare_route_access_precreate_is_documented_and_safe(self):
+        t10ajk = T10AJK_CLOUDFLARE_ROUTE_ACCESS_PRECREATE_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        template_gitignore = (TESTER_PORTAL_TEMPLATE_ROOT / ".gitignore").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        wrangler_config = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "wrangler.jsonc").read_text(encoding="utf-8-sig"))
+        example_evidence_path = TESTER_PORTAL_TEMPLATE_ROOT / "cloudflare-route-access-precreate.example.json"
+        example_evidence = json.loads(example_evidence_path.read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "cloudflare-route-access-precreate-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10AJK_CLOUDFLARE_ROUTE_ACCESS_PRECREATE_DOC.is_file())
+        self.assertTrue(example_evidence_path.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:cloudflare-route-access-precreate"],
+            "node scripts/cloudflare-route-access-precreate-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+        self.assertNotIn("delete", package["scripts"])
+        self.assertIs(wrangler_config["workers_dev"], True)
+        self.assertIs(wrangler_config["preview_urls"], False)
+        self.assertNotIn("routes", wrangler_config)
+        self.assertIn("cloudflare-route-access-precreate.local.json", template_gitignore)
+        self.assertEqual(example_evidence["phase"], "T10ajk")
+        self.assertFalse(example_evidence["hostnameSelected"])
+        self.assertFalse(example_evidence["zoneSelected"])
+        self.assertFalse(example_evidence["accessApplicationPrecreated"])
+        self.assertFalse(example_evidence["testerEmailsIncluded"])
+
+        for pattern in (
+            "T10ajk Cloudflare Route Access Precreate",
+            "NO_GO_CLOUDFLARE_ROUTE_HOSTNAME_REQUIRED_T10AK_BLOCKED",
+            "wrangler_auth_state=authenticated_redacted",
+            "worker_deployments_state=worker_not_found",
+            "preferred=protected_custom_domain",
+            "fallback=workers_dev_only_after_dashboard_onboarding_and_access_ready",
+            "No Cloudflare custom route/domain was created.",
+            "No public `routes` entry was committed.",
+            "No Cloudflare Access application was created.",
+            "No tester URL was published.",
+            "T10ajl_cloudflare_hostname_zone_selection_or_workers_dev_onboarding",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10ajk)
+
+        for pattern in (
+            'phase: "T10ajk"',
+            'result: "NO_GO_CLOUDFLARE_ROUTE_HOSTNAME_REQUIRED_T10AK_BLOCKED"',
+            'provider: "Cloudflare"',
+            "wranglerAuthenticatedRedacted: true",
+            'workerDeploymentsState: "worker_not_found"',
+            'workerVersionsState: "worker_not_found"',
+            'workerSecretsState: "worker_not_found"',
+            "officialRoutesDocsChecked: true",
+            "officialCustomDomainsDocsChecked: true",
+            "officialWorkersDevDocsChecked: true",
+            "officialAccessSelfHostedDocsChecked: true",
+            "officialAccessApplicationTypesDocsChecked: true",
+            "protectedCustomDomainPreferred: true",
+            "workersDevFallbackAllowedOnlyAfterDashboardOnboardingAndAccessReady: true",
+            "hostnameSelectedPrivately: false",
+            "zoneSelectedPrivately: false",
+            "accessHostnameCoverageProven: false",
+            "wranglerWorkersDevDisabled",
+            "wranglerPreviewUrlsDisabled",
+            "publicRoutesCommitted",
+            "packageScriptReady",
+            "mutatingScriptPublished",
+            "localEvidenceIgnored",
+            "exampleEvidencePublicSafe",
+            "docHasNoSecretPattern",
+            "docReady",
+            "governanceUpdated",
+            "nextStepsUpdated",
+            "cloudflareWorkerCreated: false",
+            "cloudflareRouteCreated: false",
+            "cloudflareAccessApplicationCreated: false",
+            "cloudflareAccessPolicyCreated: false",
+            "cloudflareZoneIdCommitted: false",
+            "testerUrlShared: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            "t10akUnlocked: false",
+            'nextGate: "T10ajl_cloudflare_hostname_zone_selection_or_workers_dev_onboarding"',
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: T10ajk - Cloudflare Route Access Precreate. Historical anchor only; superseded by T10ajl.",
+            "Next implementation phase: T10ajl - select private Cloudflare hostname/zone or complete workers.dev onboarding evidence before T10ak Access creation. Historical anchor only; superseded by T10ak.",
+            "T10ajk Cloudflare route access precreate",
+            "docs/T10AJK_CLOUDFLARE_ROUTE_ACCESS_PRECREATE.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10ajk - Cloudflare Route Access Precreate. Historical anchor only; superseded by T10ajl.",
+            "Phase T10ajk: configure a protected Cloudflare custom route/domain or complete dashboard `workers.dev` onboarding with immediate Access precreate before any new deploy attempt. Done as guarded NO-GO",
+            "Phase T10ajl: select private Cloudflare hostname/zone or complete dashboard `workers.dev` onboarding evidence before T10ak Access creation. Done as public-safe evidence gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10ajk anade `proof:cloudflare-route-access-precreate`",
+            "T10ajl anade `proof:cloudflare-hostname-zone-selection`",
+            "`workers_dev=false`",
+            "`preview_urls=false`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10ajk Cloudflare Route Access Precreate",
+            "proof:cloudflare-route-access-precreate",
+            "NO_GO_CLOUDFLARE_ROUTE_HOSTNAME_REQUIRED_T10AK_BLOCKED",
+            "workers_dev=false",
+            "preview_urls=false",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/cloudflare-route-access-precreate-proof.mjs",
+            "cloudflare-route-access-precreate.example.json",
+            "npm run proof:cloudflare-route-access-precreate",
+            "NO_GO_CLOUDFLARE_ROUTE_HOSTNAME_REQUIRED_T10AK_BLOCKED",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10ajk_text = "\n".join(
+            [t10ajk, governance, next_steps, readme, changelog, template_readme, proof, json.dumps(example_evidence)]
+        )
+        for pattern in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "09d8c7bf",
+            "https://sqx" + "-edge",
+            ".vercel" + ".app",
+            "sk" + "_live_",
+            "pk" + "_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE" + "_API_TOKEN=",
+            "CLOUDFLARE" + "_ACCOUNT_ID=",
+            "CLOUDFLARE" + "_ZONE_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10ajk_text)
+
+    def test_t10ajl_cloudflare_hostname_zone_selection_is_documented_and_safe(self):
+        t10ajl = T10AJL_CLOUDFLARE_HOSTNAME_ZONE_SELECTION_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        template_gitignore = (TESTER_PORTAL_TEMPLATE_ROOT / ".gitignore").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        wrangler_config = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "wrangler.jsonc").read_text(encoding="utf-8-sig"))
+        example_evidence_path = TESTER_PORTAL_TEMPLATE_ROOT / "cloudflare-hostname-zone-selection.example.json"
+        example_evidence = json.loads(example_evidence_path.read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "cloudflare-hostname-zone-selection-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10AJL_CLOUDFLARE_HOSTNAME_ZONE_SELECTION_DOC.is_file())
+        self.assertTrue(example_evidence_path.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:cloudflare-hostname-zone-selection"],
+            "node scripts/cloudflare-hostname-zone-selection-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+        self.assertNotIn("delete", package["scripts"])
+        self.assertIs(wrangler_config["workers_dev"], True)
+        self.assertIs(wrangler_config["preview_urls"], False)
+        self.assertNotIn("routes", wrangler_config)
+        self.assertIn("cloudflare-hostname-zone-selection.local.json", template_gitignore)
+        self.assertEqual(example_evidence["phase"], "T10ajl")
+        self.assertFalse(example_evidence["hostnameSelectedPrivately"])
+        self.assertFalse(example_evidence["zoneSelectedPrivately"])
+        self.assertFalse(example_evidence["hostnameBelongsToCloudflareZone"])
+        self.assertFalse(example_evidence["workersDevOnboardingComplete"])
+        self.assertFalse(example_evidence["workersDevShellTargetExists"])
+        self.assertFalse(example_evidence["workersDevAccessProtectionVerified"])
+        self.assertFalse(example_evidence["accessHostnameCanBeMatched"])
+        self.assertFalse(example_evidence["routeCanBeCreatedAfterDeploy"])
+        self.assertFalse(example_evidence["accessPrecreateAllowed"])
+        self.assertFalse(example_evidence["t10akUnlocked"])
+        self.assertFalse(example_evidence["testerUrlPublished"])
+        self.assertFalse(example_evidence["testerEmailsIncluded"])
+
+        for pattern in (
+            "T10ajl Cloudflare Hostname Zone Selection",
+            "NO_GO_PRIVATE_HOSTNAME_ZONE_EVIDENCE_REQUIRED_T10AK_BLOCKED",
+            "GO_CLOUDFLARE_HOSTNAME_ZONE_READY_T10AK_ALLOWED",
+            "T10ak_cloudflare_access_application_policy_creation",
+            "cloudflare-hostname-zone-selection.local.json",
+            "No hostname was committed.",
+            "No tester URL was published.",
+            "No tester emails were committed.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10ajl)
+
+        for pattern in (
+            'phase: "T10ajl"',
+            "NO_GO_PRIVATE_HOSTNAME_ZONE_EVIDENCE_REQUIRED_T10AK_BLOCKED",
+            "GO_CLOUDFLARE_HOSTNAME_ZONE_READY_T10AK_ALLOWED",
+            "localEvidencePresent",
+            "localEvidenceHasNoSensitiveFields",
+            "localFindings",
+            "hostnameSelectedPrivately",
+            "zoneSelectedPrivately",
+            "hostnameBelongsToCloudflareZone",
+            "workersDevOnboardingComplete",
+            "workersDevShellTargetExists",
+            "workersDevAccessProtectionVerified",
+            "accessHostnameCanBeMatched",
+            "routeCanBeCreatedAfterDeploy",
+            "accessPrecreateAllowed",
+            "wranglerWorkersDevDisabled",
+            "wranglerPreviewUrlsDisabled",
+            "publicRoutesCommitted",
+            "packageScriptReady",
+            "localEvidenceIgnored",
+            "exampleEvidencePublicSafe",
+            "docReady",
+            "governanceUpdated",
+            "nextStepsUpdated",
+            "cloudflareAccessApplicationCreated: false",
+            "cloudflareAccessPolicyCreated: false",
+            "hostnameCommitted: false",
+            "testerUrlShared: false",
+            "t10akUnlocked: localEvidenceReady",
+            'nextGate: "T10ak_cloudflare_access_application_policy_creation"',
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: T10ajl - Cloudflare Hostname Zone Selection. Historical anchor only; superseded by T10ajl2.",
+            "Next implementation phase: T10ajl2 - prepare the local operator unlock kit for private Cloudflare hostname/zone evidence before T10ak. Historical anchor only; superseded by T10ajm.",
+            "T10ajl Cloudflare hostname zone selection",
+            "docs/T10AJL_CLOUDFLARE_HOSTNAME_ZONE_SELECTION.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10ajl - Cloudflare Hostname Zone Selection. Historical anchor only; superseded by T10ajl2.",
+            "Next recommended phase: T10ajl2 - prepare the local operator unlock kit for private Cloudflare hostname/zone evidence before T10ak. Historical anchor only; superseded by T10ajm.",
+            "Next recommended phase: T10ajo - enable or verify Cloudflare Access on the existing workers.dev shell",
+            "Phase T10ajl: select private Cloudflare hostname/zone or complete dashboard `workers.dev` onboarding evidence before T10ak Access creation. Done as public-safe evidence gate",
+            "Phase T10ak: record/verify the Cloudflare Access application and policy boundary",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "Estado interno: WFCO-1 Edge Factory Shell esta aplicado",
+            "REMOTE-RILIS-STANDBY queda cerrado por confirmacion del operador el 2026-05-31",
+            "Estado comercial: REMOTE-0 inicia el giro oficial a acceso web Pro",
+            "REMOTE-PG-SESSION-FIX queda aplicado",
+            "TESTER-RILIS accede sin problema",
+            "Distribucion principal: enlace unico comercial `https://sqxedgesuite.org/`",
+            "URL de acceso comunicable: `https://sqxedgesuite.org/`",
+            "Fallback interno conservado: `dist/SQX_Edge_Tool_Portable_Tester_20260512_184709.zip`",
+            "Siguiente paso recomendado: rellenar evidencia privada REMOTE-8H",
+            "powershell -ExecutionPolicy Bypass -File tools\\clean_workspace.ps1 -Aggressive",
+            "T10ajl anade `proof:cloudflare-hostname-zone-selection`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10ajl Cloudflare Hostname Zone Selection",
+            "proof:cloudflare-hostname-zone-selection",
+            "NO_GO_PRIVATE_HOSTNAME_ZONE_EVIDENCE_REQUIRED_T10AK_BLOCKED",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/cloudflare-hostname-zone-selection-proof.mjs",
+            "cloudflare-hostname-zone-selection.example.json",
+            "npm run proof:cloudflare-hostname-zone-selection",
+            "NO_GO_PRIVATE_HOSTNAME_ZONE_EVIDENCE_REQUIRED_T10AK_BLOCKED",
+            "GO_CLOUDFLARE_HOSTNAME_ZONE_READY_T10AK_ALLOWED",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10ajl_text = "\n".join(
+            [t10ajl, governance, next_steps, readme, changelog, template_readme, proof, json.dumps(example_evidence)]
+        )
+        for pattern in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "09d8c7bf",
+            "https://sqx" + "-edge",
+            ".vercel" + ".app",
+            "sk" + "_live_",
+            "pk" + "_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE" + "_API_TOKEN=",
+            "CLOUDFLARE" + "_ACCOUNT_ID=",
+            "CLOUDFLARE" + "_ZONE_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10ajl_text)
+
+    def test_t10ajl_operator_unlock_kit_is_documented_and_safe(self):
+        operator_doc = T10AJL_OPERATOR_UNLOCK_KIT_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        prepare_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "cloudflare-hostname-zone-selection-prepare.mjs"
+        prepare = prepare_path.read_text(encoding="utf-8-sig")
+        proof = (TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "cloudflare-hostname-zone-selection-proof.mjs").read_text(
+            encoding="utf-8-sig"
+        )
+
+        self.assertTrue(T10AJL_OPERATOR_UNLOCK_KIT_DOC.is_file())
+        self.assertTrue(prepare_path.is_file())
+        self.assertEqual(
+            package["scripts"]["prepare:cloudflare-hostname-zone-selection"],
+            "node scripts/cloudflare-hostname-zone-selection-prepare.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+        self.assertNotIn("delete", package["scripts"])
+
+        for pattern in (
+            "T10ajl Operator Unlock Kit",
+            "npm run prepare:cloudflare-hostname-zone-selection -- --write",
+            "cloudflare-hostname-zone-selection.local.json",
+            "GO_CLOUDFLARE_HOSTNAME_ZONE_READY_T10AK_ALLOWED",
+            "hostnames",
+            "account IDs",
+            "zone IDs",
+            "tokens",
+            "tester emails",
+            "tester URLs",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, operator_doc)
+
+        for pattern in (
+            'phase: "T10ajl_operator_unlock_kit"',
+            "forbiddenLocalKeys",
+            "forbiddenValuePatterns",
+            "localEvidenceHasNoSensitiveFields",
+            "localFindings",
+            "writeLocalEvidence",
+            "operatorChecklist",
+            "nextProofCommand",
+            "npm run proof:cloudflare-hostname-zone-selection",
+            "T10ak_cloudflare_access_application_policy_creation",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, prepare)
+
+        for pattern in (
+            "localEvidenceHasNoSensitiveFields",
+            "forbiddenLocalKeys",
+            "forbiddenValuePatterns",
+            "localFindings",
+            "localFindings.length === 0",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+
+        for pattern in (
+            "Current phase completed: T10ajm - Workers.dev Shell Gate.",
+            "Current phase completed: T10ajl2 - Cloudflare Operator Unlock Kit. Historical anchor only; superseded by T10ajm.",
+            "docs/T10AJL_OPERATOR_UNLOCK_KIT.md",
+            "scripts/cloudflare-hostname-zone-selection-prepare.mjs",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10ajl2 - Cloudflare Operator Unlock Kit.",
+            "Phase T10ajl2: add `prepare:cloudflare-hostname-zone-selection`",
+            "create the ignored local evidence file",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10al prepara el gate exacto de deploy real controlado",
+            "T10ajl2 anade `prepare:cloudflare-hostname-zone-selection`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10ajl2 Cloudflare Operator Unlock Kit",
+            "prepare:cloudflare-hostname-zone-selection",
+            "docs/T10AJL_OPERATOR_UNLOCK_KIT.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/cloudflare-hostname-zone-selection-prepare.mjs",
+            "npm run prepare:cloudflare-hostname-zone-selection -- --write",
+            "must not contain a real hostname, zone ID, account ID, tester URL, tester emails, tokens or keys",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_operator_text = "\n".join([operator_doc, governance, next_steps, readme, changelog, template_readme])
+        for pattern in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "09d8c7bf",
+            "https://sqx" + "-edge",
+            ".vercel" + ".app",
+            "sk" + "_live_",
+            "pk" + "_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE" + "_API_TOKEN=",
+            "CLOUDFLARE" + "_ACCOUNT_ID=",
+            "CLOUDFLARE" + "_ZONE_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_operator_text)
+
+    def test_t10ajm_workers_dev_shell_gate_is_documented_and_safe(self):
+        shell_doc = T10AJM_WORKERS_DEV_SHELL_GATE_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        main_wrangler = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "wrangler.jsonc").read_text(encoding="utf-8-sig"))
+        shell_wrangler_path = TESTER_PORTAL_TEMPLATE_ROOT / "wrangler.shell.example.jsonc"
+        shell_wrangler = json.loads(shell_wrangler_path.read_text(encoding="utf-8-sig"))
+        shell_worker_path = TESTER_PORTAL_TEMPLATE_ROOT / "cloudflare" / "shell-worker.js"
+        shell_worker = shell_worker_path.read_text(encoding="utf-8-sig")
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "cloudflare-workers-dev-shell-gate-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10AJM_WORKERS_DEV_SHELL_GATE_DOC.is_file())
+        self.assertTrue(shell_worker_path.is_file())
+        self.assertTrue(shell_wrangler_path.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:cloudflare-workers-dev-shell-gate"],
+            "node scripts/cloudflare-workers-dev-shell-gate-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+        self.assertNotIn("delete", package["scripts"])
+        self.assertIs(main_wrangler["workers_dev"], True)
+        self.assertIs(main_wrangler["preview_urls"], False)
+        self.assertEqual(main_wrangler["main"], "cloudflare/worker-entry.js")
+        self.assertIs(shell_wrangler["workers_dev"], True)
+        self.assertIs(shell_wrangler["preview_urls"], False)
+        self.assertEqual(shell_wrangler["main"], "cloudflare/shell-worker.js")
+        self.assertEqual(shell_wrangler["name"], main_wrangler["name"])
+
+        for pattern in (
+            "T10ajm Workers.dev Shell Gate",
+            "GO_WORKERS_DEV_SHELL_GATE_READY_EXACT_DEPLOY_APPROVAL_REQUIRED",
+            "T10ajn_controlled_workers_dev_shell_deploy",
+            "No real tester portal was deployed.",
+            "No tester URL was published.",
+            "Main `wrangler.jsonc` keeps `workers_dev=false`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, shell_doc)
+
+        for pattern in (
+            "SQX Edge tester shell locked",
+            "status: 404",
+            "no-store",
+            "noindex",
+            "x-frame-options",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, shell_worker)
+
+        for pattern in (
+            'phase: "T10ajm"',
+            "GO_WORKERS_DEV_SHELL_GATE_READY_EXACT_DEPLOY_APPROVAL_REQUIRED",
+            "mainWranglerWorkersDevDisabled",
+            "shellConfigWorkersDevEnabled",
+            "shellReturnsLockedNoAppResponse",
+            "directDeployScriptAbsent",
+            "packageScriptReady",
+            "cloudflareWorkerCreated: false",
+            "cloudflareAccessApplicationCreated: false",
+            "cloudflareAccessPolicyCreated: false",
+            "testerUrlShared: false",
+            "t10akUnlocked: false",
+            'nextGate: "T10ajn_controlled_workers_dev_shell_deploy"',
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: T10ajm - Workers.dev Shell Gate.",
+            "Next implementation phase: T10ajn - deploy the harmless workers.dev shell only with exact approval",
+            "T10ajm Workers.dev shell gate",
+            "docs/T10AJM_WORKERS_DEV_SHELL_GATE.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10ajm - Workers.dev Shell Gate.",
+            "Phase T10ajm: prepare a controlled workers.dev shell gate",
+            "Phase T10ajn: deploy only the harmless workers.dev shell with exact approval",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10al prepara el gate exacto de deploy real controlado",
+            "T10ajm anade `proof:cloudflare-workers-dev-shell-gate`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10ajm Workers.dev Shell Gate",
+            "proof:cloudflare-workers-dev-shell-gate",
+            "wrangler.shell.example.jsonc",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/cloudflare-workers-dev-shell-gate-proof.mjs",
+            "cloudflare/shell-worker.js",
+            "wrangler.shell.example.jsonc",
+            "npm run proof:cloudflare-workers-dev-shell-gate",
+            "GO_WORKERS_DEV_SHELL_GATE_READY_EXACT_DEPLOY_APPROVAL_REQUIRED",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_shell_text = "\n".join(
+            [
+                shell_doc,
+                governance,
+                next_steps,
+                readme,
+                changelog,
+                template_readme,
+                proof,
+                shell_worker,
+                json.dumps(shell_wrangler),
+            ]
+        )
+        for pattern in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "09d8c7bf",
+            "https://sqx" + "-edge",
+            ".vercel" + ".app",
+            "sk" + "_live_",
+            "pk" + "_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE" + "_API_TOKEN=",
+            "CLOUDFLARE" + "_ACCOUNT_ID=",
+            "CLOUDFLARE" + "_ZONE_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_shell_text)
+
+    def test_t10ajn_controlled_workers_dev_shell_deploy_is_documented_and_safe(self):
+        deploy_doc = T10AJN_CONTROLLED_WORKERS_DEV_SHELL_DEPLOY_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "cloudflare-workers-dev-shell-deploy-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10AJN_CONTROLLED_WORKERS_DEV_SHELL_DEPLOY_DOC.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:cloudflare-workers-dev-shell-deploy"],
+            "node scripts/cloudflare-workers-dev-shell-deploy-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+        self.assertNotIn("cf:deploy", package["scripts"])
+        self.assertNotIn("delete", package["scripts"])
+
+        for pattern in (
+            "T10ajn Controlled Workers.dev Shell Deploy",
+            "WORKERS_DEV_SHELL_TARGET_CREATED",
+            "404 SQX Edge tester shell locked",
+            "NO_GO_ACCESS_MANUAL_ENABLE_REQUIRED_SHELL_TARGET_EXISTS",
+            "T10ajo_workers_dev_access_manual_enable_evidence",
+            "Access: Apps and Policies Write",
+            "No Cloudflare hostname, account ID, zone ID, token, tester email or tester URL is committed.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, deploy_doc)
+
+        for pattern in (
+            'phase: "T10ajn"',
+            "NO_GO_ACCESS_MANUAL_ENABLE_REQUIRED_SHELL_TARGET_EXISTS",
+            "GO_ACCESS_PROTECTED_WORKERS_DEV_SHELL_READY_FOR_T10AK",
+            "workersDevShellTargetExists",
+            "workersDevAccessProtectionVerified",
+            "accessHostnameCanBeMatched",
+            "accessPrecreateAllowed",
+            "realAppDeployed: false",
+            "testerUrlShared: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            "t10akUnlocked: accessReady",
+            'nextGate: accessReady',
+            "T10ajo_workers_dev_access_manual_enable_evidence",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: T10ajn - Controlled Workers.dev Shell Deploy.",
+            "Next implementation phase: T10ajo - enable or verify Cloudflare Access on the existing workers.dev shell",
+            "T10ajn Controlled Workers.dev shell deploy",
+            "docs/T10AJN_CONTROLLED_WORKERS_DEV_SHELL_DEPLOY.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10ajn - Controlled Workers.dev Shell Deploy.",
+            "Phase T10ajn: deploy only the harmless workers.dev shell",
+            "Phase T10ajo: enable or verify Cloudflare Access on the existing workers.dev shell",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10al prepara el gate exacto de deploy real controlado",
+            "T10ajn anade `proof:cloudflare-workers-dev-shell-deploy`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10ajn Controlled Workers.dev Shell Deploy",
+            "proof:cloudflare-workers-dev-shell-deploy",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/cloudflare-workers-dev-shell-deploy-proof.mjs",
+            "npm run proof:cloudflare-workers-dev-shell-deploy",
+            "NO_GO_ACCESS_MANUAL_ENABLE_REQUIRED_SHELL_TARGET_EXISTS",
+            "GO_ACCESS_PROTECTED_WORKERS_DEV_SHELL_READY_FOR_T10AK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_deploy_text = "\n".join(
+            [
+                deploy_doc,
+                governance,
+                next_steps,
+                readme,
+                changelog,
+                template_readme,
+                proof,
+            ]
+        )
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "09d8c7bf",
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE_API_TOKEN=",
+            "CLOUDFLARE_ACCOUNT_ID=",
+            "CLOUDFLARE_ZONE_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_deploy_text)
+
+    def test_t10ajo_workers_dev_access_verified_is_documented_and_safe(self):
+        access_doc = T10AJO_WORKERS_DEV_ACCESS_VERIFIED_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "cloudflare-workers-dev-access-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10AJO_WORKERS_DEV_ACCESS_VERIFIED_DOC.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:cloudflare-workers-dev-access"],
+            "node scripts/cloudflare-workers-dev-access-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+        self.assertNotIn("cf:deploy", package["scripts"])
+        self.assertNotIn("delete", package["scripts"])
+
+        for pattern in (
+            "T10ajo Workers.dev Access Verified",
+            "302 Cloudflare Access redirect",
+            "directShellBody=false",
+            "GO_ACCESS_PROTECTED_WORKERS_DEV_SHELL_VERIFIED_NO_APP",
+            "T10ak_cloudflare_access_application_policy_creation_or_verification",
+            "No Cloudflare hostname, account ID, zone ID, Access app ID, Access policy ID, token, tester email or tester URL is committed.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, access_doc)
+
+        for pattern in (
+            'phase: "T10ajo"',
+            "GO_ACCESS_PROTECTED_WORKERS_DEV_SHELL_VERIFIED_NO_APP",
+            "NO_GO_WORKERS_DEV_ACCESS_EVIDENCE_REQUIRED",
+            "workersDevShellTargetExists",
+            "workersDevAccessProtectionVerified",
+            "accessHostnameCanBeMatched",
+            "accessPrecreateAllowed",
+            "t10akUnlocked",
+            "realAppDeployed: false",
+            "testerUrlShared: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            "T10ak_cloudflare_access_application_policy_creation_or_verification",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: T10ajo - Workers.dev Access Verified.",
+            "Next implementation phase: T10ak - record or verify the Cloudflare Access application/policy boundary",
+            "T10ajo Workers.dev Access verified",
+            "docs/T10AJO_WORKERS_DEV_ACCESS_VERIFIED.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10ajo - Workers.dev Access Verified.",
+            "Phase T10ajo: enable or verify Cloudflare Access on the existing workers.dev shell",
+            "Phase T10ak: record/verify the Cloudflare Access application and policy boundary",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10ajo anade `proof:cloudflare-workers-dev-access`",
+            "T10ajo anade `proof:cloudflare-workers-dev-access`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10ajo Workers.dev Access Verified",
+            "proof:cloudflare-workers-dev-access",
+            "GO_ACCESS_PROTECTED_WORKERS_DEV_SHELL_VERIFIED_NO_APP",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/cloudflare-workers-dev-access-proof.mjs",
+            "npm run proof:cloudflare-workers-dev-access",
+            "GO_ACCESS_PROTECTED_WORKERS_DEV_SHELL_VERIFIED_NO_APP",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_access_text = "\n".join(
+            [
+                access_doc,
+                governance,
+                next_steps,
+                readme,
+                changelog,
+                template_readme,
+                proof,
+            ]
+        )
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "09d8c7bf",
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE_API_TOKEN=",
+            "CLOUDFLARE_ACCOUNT_ID=",
+            "CLOUDFLARE_ZONE_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_access_text)
+
+    def test_t10ak_access_policy_boundary_is_documented_and_safe(self):
+        boundary_doc = T10AK_ACCESS_POLICY_BOUNDARY_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        template_gitignore = (TESTER_PORTAL_TEMPLATE_ROOT / ".gitignore").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        example_evidence_path = TESTER_PORTAL_TEMPLATE_ROOT / "cloudflare-access-policy-boundary.example.json"
+        example_evidence = json.loads(example_evidence_path.read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "cloudflare-access-policy-boundary-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10AK_ACCESS_POLICY_BOUNDARY_DOC.is_file())
+        self.assertTrue(example_evidence_path.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertIn("cloudflare-access-policy-boundary.local.json", template_gitignore)
+        self.assertEqual(
+            package["scripts"]["proof:cloudflare-access-policy-boundary"],
+            "node scripts/cloudflare-access-policy-boundary-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+        self.assertNotIn("cf:deploy", package["scripts"])
+        self.assertNotIn("delete", package["scripts"])
+        self.assertEqual(example_evidence["phase"], "T10ak")
+        self.assertFalse(example_evidence["accessApplicationPresent"])
+        self.assertFalse(example_evidence["accessPolicyPresent"])
+        self.assertFalse(example_evidence["testerUrlPublished"])
+        self.assertFalse(example_evidence["testerEmailsIncluded"])
+        self.assertFalse(example_evidence["realAppDeployed"])
+
+        for pattern in (
+            "T10ak Access Policy Boundary",
+            "GO_ACCESS_APPLICATION_POLICY_BOUNDARY_VERIFIED_NO_APP_DEPLOY",
+            "NO_GO_ACCESS_POLICY_BOUNDARY_EVIDENCE_REQUIRED",
+            "T10al_controlled_real_app_deploy_gate",
+            "cloudflare-access-policy-boundary.local.json",
+            "302 Cloudflare Access redirect",
+            "directShellBody=false",
+            "No real app deployment.",
+            "No tester URL sharing.",
+            "No tester account creation.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, boundary_doc)
+
+        for pattern in (
+            'phase: "T10ak"',
+            "GO_ACCESS_APPLICATION_POLICY_BOUNDARY_VERIFIED_NO_APP_DEPLOY",
+            "NO_GO_ACCESS_POLICY_BOUNDARY_EVIDENCE_REQUIRED",
+            "accessApplicationPresent",
+            "accessApplicationMatchesWorkersDevShell",
+            "accessPolicyPresent",
+            "accessPolicyUsesEmailIdentity",
+            "accessPolicyAllowsOnlyApprovedPilotUsers",
+            "anonymousAccessRedirectVerified",
+            "directShellBodyBlockedForAnonymous",
+            "workersDevShellTargetExists",
+            "workersDevAccessProtectionVerified",
+            "localEvidenceHasNoSensitiveFields",
+            "localEvidenceIgnored",
+            "exampleEvidencePublicSafe",
+            "realAppDeployed: false",
+            "testerUrlShared: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            "t10alUnlocked: localBoundaryReady",
+            "T10al_controlled_real_app_deploy_gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: T10ak - Access Policy Boundary. Historical anchor only; superseded by T10al.",
+            "Next implementation phase: T10al - prepare the exact controlled real app deploy gate after Access app/policy boundary verification. Historical anchor only; superseded by T10am.",
+            "T10ak Access policy boundary",
+            "docs/T10AK_ACCESS_POLICY_BOUNDARY.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10ak - Access Policy Boundary.",
+            "Phase T10ak: record/verify the Cloudflare Access application and policy boundary",
+            "Phase T10al: prepare the exact controlled real app deploy gate after Access app/policy boundary verification. Done",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10ak anade `proof:cloudflare-access-policy-boundary`",
+            "T10ak anade `proof:cloudflare-access-policy-boundary`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10ak Access Policy Boundary",
+            "proof:cloudflare-access-policy-boundary",
+            "GO_ACCESS_APPLICATION_POLICY_BOUNDARY_VERIFIED_NO_APP_DEPLOY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/cloudflare-access-policy-boundary-proof.mjs",
+            "cloudflare-access-policy-boundary.example.json",
+            "cloudflare-access-policy-boundary.local.json",
+            "npm run proof:cloudflare-access-policy-boundary",
+            "GO_ACCESS_APPLICATION_POLICY_BOUNDARY_VERIFIED_NO_APP_DEPLOY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_boundary_text = "\n".join(
+            [
+                boundary_doc,
+                governance,
+                next_steps,
+                readme,
+                changelog,
+                template_readme,
+                proof,
+                json.dumps(example_evidence),
+            ]
+        )
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "09d8c7bf",
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE_API_TOKEN=",
+            "CLOUDFLARE_ACCOUNT_ID=",
+            "CLOUDFLARE_ZONE_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_boundary_text)
+
+    def test_t10al_controlled_real_app_deploy_gate_is_documented_and_safe(self):
+        gate_doc = T10AL_CONTROLLED_REAL_APP_DEPLOY_GATE_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        wrangler_config = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "wrangler.jsonc").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "cloudflare-controlled-real-app-deploy-gate-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10AL_CONTROLLED_REAL_APP_DEPLOY_GATE_DOC.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:cloudflare-controlled-real-app-deploy-gate"],
+            "node scripts/cloudflare-controlled-real-app-deploy-gate-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+        self.assertNotIn("cf:deploy", package["scripts"])
+        self.assertNotIn("delete", package["scripts"])
+        self.assertEqual(package["scripts"]["cf:build"], "opennextjs-cloudflare build")
+        self.assertEqual(package["scripts"]["typecheck"], "tsc --noEmit")
+        self.assertIs(wrangler_config["workers_dev"], True)
+        self.assertIs(wrangler_config["preview_urls"], False)
+        self.assertEqual(wrangler_config["main"], "cloudflare/worker-entry.js")
+        self.assertNotIn("routes", wrangler_config)
+
+        for pattern in (
+            "T10al Controlled Real App Deploy Gate",
+            "AUTORIZO T10al-deploy-real-app",
+            "npm exec -- wrangler deploy --config wrangler.jsonc",
+            "npm run proof:cloudflare-access-policy-boundary",
+            "npm run proof:cloudflare-workers-dev-access",
+            "npm run proof:cloudflare-hostname-zone-selection",
+            "npm run cf:build",
+            "npm run typecheck",
+            "Probe anonymous access with redirects disabled",
+            "Rollback Rule",
+            "GO_CONTROLLED_REAL_APP_DEPLOY_GATE_READY_EXACT_APPROVAL_REQUIRED",
+            "No real app deployment in T10al.",
+            "T10am_controlled_real_app_deploy_and_access_smoke",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, gate_doc)
+
+        for pattern in (
+            'phase: "T10al"',
+            "GO_CONTROLLED_REAL_APP_DEPLOY_GATE_READY_EXACT_APPROVAL_REQUIRED",
+            "exactApprovalPhraseDocumented",
+            "futureDeployCommandDocumented",
+            "accessBoundaryPrecheckRequired",
+            "accessProbePrecheckRequired",
+            "hostnameGatePrecheckRequired",
+            "localBuildPrecheckRequired",
+            "typecheckPrecheckRequired",
+            "postDeployAnonymousAccessRequired",
+            "rollbackRuleDocumented",
+            "wranglerWorkersDevDisabled",
+            "wranglerPreviewUrlsDisabled",
+            "wranglerMainIsOpenNextWorker",
+            "directDeployScriptAbsent",
+            "buildScriptPresent",
+            "realAppDeployed: false",
+            "deployCommandExecuted: false",
+            "testerUrlShared: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            "T10am_controlled_real_app_deploy_and_access_smoke",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: T10al - Controlled Real App Deploy Gate.",
+            "Next implementation phase: T10am - execute one controlled real app deploy only with exact approval",
+            "T10al Controlled real app deploy gate",
+            "docs/T10AL_CONTROLLED_REAL_APP_DEPLOY_GATE.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10al - Controlled Real App Deploy Gate.",
+            "Phase T10al: prepare the exact controlled real app deploy gate after Access app/policy boundary verification. Done",
+            "Next recommended phase: T10am - execute one controlled real app deploy only with exact approval",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10al prepara el gate exacto de deploy real controlado",
+            "`proof:cloudflare-controlled-real-app-deploy-gate`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10al Controlled Real App Deploy Gate",
+            "proof:cloudflare-controlled-real-app-deploy-gate",
+            "GO_CONTROLLED_REAL_APP_DEPLOY_GATE_READY_EXACT_APPROVAL_REQUIRED",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/cloudflare-controlled-real-app-deploy-gate-proof.mjs",
+            "npm run proof:cloudflare-controlled-real-app-deploy-gate",
+            "GO_CONTROLLED_REAL_APP_DEPLOY_GATE_READY_EXACT_APPROVAL_REQUIRED",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_gate_text = "\n".join(
+            [
+                gate_doc,
+                governance,
+                next_steps,
+                readme,
+                changelog,
+                template_readme,
+                proof,
+            ]
+        )
+        for pattern in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "09d8c7bf",
+            "https://sqx" + "-edge",
+            ".vercel" + ".app",
+            "sk" + "_live_",
+            "pk" + "_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE" + "_API_TOKEN=",
+            "CLOUDFLARE" + "_ACCOUNT_ID=",
+            "CLOUDFLARE" + "_ZONE_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_gate_text)
+
+    def test_t10am_controlled_real_app_deploy_result_is_documented_and_safe(self):
+        result_doc = T10AM_CONTROLLED_REAL_APP_DEPLOY_RESULT_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        template_gitignore = (TESTER_PORTAL_TEMPLATE_ROOT / ".gitignore").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        wrangler_config = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "wrangler.jsonc").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "cloudflare-real-app-deploy-result-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10AM_CONTROLLED_REAL_APP_DEPLOY_RESULT_DOC.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertIn("cloudflare-real-app-deploy.local.json", template_gitignore)
+        self.assertEqual(
+            package["scripts"]["proof:cloudflare-real-app-deploy-result"],
+            "node scripts/cloudflare-real-app-deploy-result-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+        self.assertNotIn("cf:deploy", package["scripts"])
+        self.assertNotIn("delete", package["scripts"])
+        self.assertIs(wrangler_config["workers_dev"], True)
+        self.assertIs(wrangler_config["preview_urls"], False)
+        self.assertEqual(wrangler_config["main"], "cloudflare/worker-entry.js")
+        self.assertNotIn("routes", wrangler_config)
+
+        for pattern in (
+            "T10am Controlled Real App Deploy Result",
+            "npm exec -- wrangler deploy --config wrangler.jsonc",
+            "GO_REAL_APP_VERSION_UPLOADED_NO_PUBLIC_TARGET_NO_TESTER_URL",
+            "No tester URL was published.",
+            "Rollback was not required",
+            "cloudflare-real-app-deploy.local.json",
+            "T10an_protected_tester_publication_target_gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, result_doc)
+
+        for pattern in (
+            'phase: "T10am"',
+            "GO_REAL_APP_VERSION_UPLOADED_NO_PUBLIC_TARGET_NO_TESTER_URL",
+            "NO_GO_REAL_APP_DEPLOY_RESULT_EVIDENCE_REQUIRED",
+            "localEvidenceIgnored",
+            "localEvidenceHasNoSensitiveFields",
+            "deployCommandExecuted",
+            "wranglerDeploySucceeded",
+            "versionUploaded",
+            "deploymentRecordPresent",
+            "deployTargetsCreated",
+            "workersDevPublicTargetEnabled",
+            "customDomainAdded",
+            "publicRouteAdded",
+            "anonymousAccessStillBlocked",
+            "directAppBodyVisibleToAnonymous",
+            "rollbackRequired",
+            "testerUrlShared",
+            "testerAccountsCreated",
+            "testerEmailsIncluded",
+            "T10an_protected_tester_publication_target_gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: T10am - Controlled Real App Deploy Result.",
+            "Next implementation phase: T10an - choose and verify the protected tester publication target",
+            "T10am Controlled real app deploy result",
+            "docs/T10AM_CONTROLLED_REAL_APP_DEPLOY_RESULT.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10am - Controlled Real App Deploy Result.",
+            "Phase T10am: execute the approved real app deploy",
+            "Phase T10an: choose and verify the protected tester publication target",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10am anade `proof:cloudflare-real-app-deploy-result`",
+            "version real queda subida sin target publico",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10am Controlled Real App Deploy Result",
+            "proof:cloudflare-real-app-deploy-result",
+            "GO_REAL_APP_VERSION_UPLOADED_NO_PUBLIC_TARGET_NO_TESTER_URL",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/cloudflare-real-app-deploy-result-proof.mjs",
+            "npm run proof:cloudflare-real-app-deploy-result",
+            "GO_REAL_APP_VERSION_UPLOADED_NO_PUBLIC_TARGET_NO_TESTER_URL",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_result_text = "\n".join(
+            [
+                result_doc,
+                governance,
+                next_steps,
+                readme,
+                changelog,
+                template_readme,
+                proof,
+            ]
+        )
+        for pattern in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "09d8c7bf",
+            "https://sqx" + "-edge",
+            ".vercel" + ".app",
+            "sk" + "_live_",
+            "pk" + "_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE" + "_API_TOKEN=",
+            "CLOUDFLARE" + "_ACCOUNT_ID=",
+            "CLOUDFLARE" + "_ZONE_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_result_text)
+
+    def test_t10an_protected_tester_publication_target_gate_is_documented_and_safe(self):
+        target_doc = T10AN_PROTECTED_TESTER_PUBLICATION_TARGET_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        wrangler_config = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "wrangler.jsonc").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "cloudflare-protected-tester-publication-target-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10AN_PROTECTED_TESTER_PUBLICATION_TARGET_DOC.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:cloudflare-protected-tester-publication-target"],
+            "node scripts/cloudflare-protected-tester-publication-target-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+        self.assertNotIn("cf:deploy", package["scripts"])
+        self.assertNotIn("delete", package["scripts"])
+        self.assertIs(wrangler_config["workers_dev"], True)
+        self.assertIs(wrangler_config["preview_urls"], False)
+        self.assertEqual(wrangler_config["main"], "cloudflare/worker-entry.js")
+        self.assertNotIn("routes", wrangler_config)
+
+        for pattern in (
+            "T10an Protected Tester Publication Target Gate",
+            "workers_dev_access_protected_publication_target",
+            "GO_PROTECTED_TESTER_PUBLICATION_TARGET_SELECTED_EXACT_APPROVAL_REQUIRED",
+            "AUTORIZO T10ao-publish-protected-workers-dev",
+            "npm exec -- wrangler deploy --config wrangler.jsonc",
+            "npm run proof:cloudflare-access-policy-boundary",
+            "npm run proof:cloudflare-workers-dev-access",
+            "npm run proof:cloudflare-real-app-deploy-result",
+            "workers_dev=false",
+            "preview_urls=false",
+            "No tester URL has been shared.",
+            "No tester account has been created.",
+            "T10ao_controlled_workers_dev_publication_preflight",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, target_doc)
+
+        for pattern in (
+            'phase: "T10an"',
+            "GO_PROTECTED_TESTER_PUBLICATION_TARGET_SELECTED_EXACT_APPROVAL_REQUIRED",
+            "workers_dev_access_protected_publication_target",
+            "exactApprovalPhraseDocumented",
+            "futureDeployCommandDocumented",
+            "accessBoundaryPrecheckRequired",
+            "accessProbePrecheckRequired",
+            "realAppDeployResultPrecheckRequired",
+            "t10amResultRecorded",
+            "wranglerWorkersDevStillDisabled",
+            "wranglerPreviewUrlsDisabled",
+            "wranglerHasNoRoutesCommitted",
+            "directDeployScriptAbsent",
+            "packageScriptReady",
+            "testerUrlShared: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            "externalPublicationPerformed: false",
+            "T10ao_controlled_workers_dev_publication_preflight",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: T10ao - Controlled Workers.dev Publication Preflight.",
+            "T10an - Protected Tester Publication Target Gate. Historical anchor only; superseded by T10ao.",
+            "T10an Protected tester publication target gate",
+            "docs/T10AN_PROTECTED_TESTER_PUBLICATION_TARGET_GATE.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10ao - Controlled Workers.dev Publication Preflight.",
+            "Phase T10an: choose and verify the protected tester publication target",
+            "Phase T10ao: prepare controlled `workers.dev` publication preflight",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10an selecciona `workers.dev` protegido por Cloudflare Access",
+            "T10an selecciona `workers.dev` protegido por Cloudflare Access como target tester",
+            "proof:cloudflare-protected-tester-publication-target",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10an Protected Tester Publication Target Gate",
+            "proof:cloudflare-protected-tester-publication-target",
+            "GO_PROTECTED_TESTER_PUBLICATION_TARGET_SELECTED_EXACT_APPROVAL_REQUIRED",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/cloudflare-protected-tester-publication-target-proof.mjs",
+            "npm run proof:cloudflare-protected-tester-publication-target",
+            "GO_PROTECTED_TESTER_PUBLICATION_TARGET_SELECTED_EXACT_APPROVAL_REQUIRED",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_target_text = "\n".join(
+            [
+                target_doc,
+                governance,
+                next_steps,
+                readme,
+                changelog,
+                template_readme,
+                proof,
+            ]
+        )
+        for pattern in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "09d8c7bf",
+            "https://sqx" + "-edge",
+            ".vercel" + ".app",
+            "sk" + "_live_",
+            "pk" + "_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE" + "_API_TOKEN=",
+            "CLOUDFLARE" + "_ACCOUNT_ID=",
+            "CLOUDFLARE" + "_ZONE_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_target_text)
+
+    def test_t10ao_controlled_workers_dev_publication_preflight_is_documented_and_safe(self):
+        preflight_doc = T10AO_CONTROLLED_WORKERS_DEV_PUBLICATION_PREFLIGHT_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        wrangler_config = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "wrangler.jsonc").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "cloudflare-controlled-workers-dev-publication-preflight-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10AO_CONTROLLED_WORKERS_DEV_PUBLICATION_PREFLIGHT_DOC.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:cloudflare-controlled-workers-dev-publication-preflight"],
+            "node scripts/cloudflare-controlled-workers-dev-publication-preflight-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+        self.assertNotIn("cf:deploy", package["scripts"])
+        self.assertNotIn("delete", package["scripts"])
+        self.assertIs(wrangler_config["workers_dev"], True)
+        self.assertIs(wrangler_config["preview_urls"], False)
+        self.assertEqual(wrangler_config["main"], "cloudflare/worker-entry.js")
+        self.assertNotIn("routes", wrangler_config)
+
+        for pattern in (
+            "T10ao Controlled Workers.dev Publication Preflight",
+            "GO_CONTROLLED_WORKERS_DEV_PUBLICATION_PREFLIGHT_READY_EXACT_APPROVAL_REQUIRED",
+            "AUTORIZO T10ao-publish-protected-workers-dev",
+            "npm exec -- wrangler deploy --config wrangler.jsonc",
+            "npm run proof:cloudflare-access-policy-boundary",
+            "npm run proof:cloudflare-workers-dev-access",
+            "npm run proof:cloudflare-real-app-deploy-result",
+            "npm run proof:cloudflare-protected-tester-publication-target",
+            "npm run proof:cloudflare-controlled-workers-dev-publication-preflight",
+            "workers_dev=false",
+            "preview_urls=false",
+            "T10ap_controlled_workers_dev_publication_and_access_smoke",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, preflight_doc)
+
+        for pattern in (
+            'phase: "T10ao"',
+            "GO_CONTROLLED_WORKERS_DEV_PUBLICATION_PREFLIGHT_READY_EXACT_APPROVAL_REQUIRED",
+            "workers_dev_access_protected_publication_target",
+            "exactApprovalPhraseDocumented",
+            "publicationCommandDocumented",
+            "accessBoundaryPrecheckRequired",
+            "accessProbePrecheckRequired",
+            "realAppDeployResultPrecheckRequired",
+            "protectedTargetPrecheckRequired",
+            "selfPrecheckRequired",
+            "t10anTargetSelected",
+            "wranglerWorkersDevStillDisabled",
+            "wranglerPreviewUrlsDisabled",
+            "wranglerHasNoRoutesCommitted",
+            "directDeployScriptAbsent",
+            "packageScriptReady",
+            "testerUrlShared: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            "externalPublicationPerformed: false",
+            "workersDevEnabled: false",
+            "T10ap_controlled_workers_dev_publication_and_access_smoke",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: TL1 - Tester Launch Candidate.",
+            "T10aq - Tester Access Handoff No URL Leak. Historical anchor only; superseded by T10ar.",
+            "T10ap - Controlled Workers.dev Publication Result. Historical anchor only; superseded by T10aq.",
+            "T10ao - Controlled Workers.dev Publication Preflight. Historical anchor only; superseded by T10ap.",
+            "T10ao Controlled workers.dev publication preflight",
+            "docs/T10AO_CONTROLLED_WORKERS_DEV_PUBLICATION_PREFLIGHT.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: TL1 - Tester Launch Candidate.",
+            "Phase T10ao: prepare controlled `workers.dev` publication preflight",
+            "Phase T10ap: execute controlled `workers.dev` publication",
+            "Phase T10aq: prepare tester access handoff without public URL leak",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10ao prepara el preflight de publicacion controlada",
+            "proof:cloudflare-controlled-workers-dev-publication-preflight",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10ao Controlled Workers.dev Publication Preflight",
+            "proof:cloudflare-controlled-workers-dev-publication-preflight",
+            "GO_CONTROLLED_WORKERS_DEV_PUBLICATION_PREFLIGHT_READY_EXACT_APPROVAL_REQUIRED",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/cloudflare-controlled-workers-dev-publication-preflight-proof.mjs",
+            "npm run proof:cloudflare-controlled-workers-dev-publication-preflight",
+            "GO_CONTROLLED_WORKERS_DEV_PUBLICATION_PREFLIGHT_READY_EXACT_APPROVAL_REQUIRED",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_preflight_text = "\n".join(
+            [
+                preflight_doc,
+                governance,
+                next_steps,
+                readme,
+                changelog,
+                template_readme,
+                proof,
+            ]
+        )
+        for pattern in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "09d8c7bf",
+            "https://sqx" + "-edge",
+            ".vercel" + ".app",
+            "sk" + "_live_",
+            "pk" + "_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE" + "_API_TOKEN=",
+            "CLOUDFLARE" + "_ACCOUNT_ID=",
+            "CLOUDFLARE" + "_ZONE_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_preflight_text)
+
+    def test_t10ap_controlled_workers_dev_publication_result_is_documented_and_safe(self):
+        result_doc = T10AP_CONTROLLED_WORKERS_DEV_PUBLICATION_RESULT_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        template_gitignore = (TESTER_PORTAL_TEMPLATE_ROOT / ".gitignore").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        wrangler_config = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "wrangler.jsonc").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "cloudflare-workers-dev-publication-result-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10AP_CONTROLLED_WORKERS_DEV_PUBLICATION_RESULT_DOC.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertIn("cloudflare-workers-dev-publication.local.json", template_gitignore)
+        self.assertEqual(
+            package["scripts"]["proof:cloudflare-workers-dev-publication-result"],
+            "node scripts/cloudflare-workers-dev-publication-result-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+        self.assertNotIn("cf:deploy", package["scripts"])
+        self.assertNotIn("delete", package["scripts"])
+        self.assertIs(wrangler_config["workers_dev"], True)
+        self.assertIs(wrangler_config["preview_urls"], False)
+        self.assertEqual(wrangler_config["main"], "cloudflare/worker-entry.js")
+        self.assertNotIn("routes", wrangler_config)
+
+        for pattern in (
+            "T10ap Controlled Workers.dev Publication Result",
+            "GO_CONTROLLED_WORKERS_DEV_PUBLICATION_ACCESS_PROTECTED_NO_URL_SHARED",
+            "npm exec -- wrangler deploy --config wrangler.jsonc",
+            "cloudflare-workers-dev-publication.local.json",
+            "Anonymous `/`, `/api/health` and `/portal` requests were intercepted by Cloudflare Access",
+            "No anonymous app body was visible.",
+            "No tester URL was shared.",
+            "No tester account was created.",
+            "Rollback was not required.",
+            "T10aq_tester_access_handoff_without_public_url_leak",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, result_doc)
+
+        for pattern in (
+            'phase: "T10ap"',
+            "GO_CONTROLLED_WORKERS_DEV_PUBLICATION_ACCESS_PROTECTED_NO_URL_SHARED",
+            "localEvidencePresent",
+            "localEvidenceIgnored",
+            "localEvidenceHasNoSensitiveFields",
+            "deployCommandCountIsOne",
+            "wranglerDeploySucceeded",
+            "workersDevRemoteTargetEnabled",
+            "anonymousRootAccessIntercepted",
+            "anonymousHealthAccessIntercepted",
+            "anonymousPortalAccessIntercepted",
+            "directAppBodyVisibleToAnonymous",
+            "repoWorkersDevRestoredFalseAfterDeployWithoutSecondDeploy",
+            "wranglerWorkersDevProtectedTargetEnabled",
+            "testerUrlShared",
+            "testerAccountsCreated",
+            "testerEmailsCommitted",
+            "rollbackRequired",
+            "rollbackPerformed",
+            "T10aq_tester_access_handoff_without_public_url_leak",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: TL1 - Tester Launch Candidate.",
+            "Next implementation phase: operator fills private TL1 evidence and runs `proof:tester-launch-candidate`",
+            "T10aq - Tester Access Handoff No URL Leak. Historical anchor only; superseded by T10ar.",
+            "T10ap - Controlled Workers.dev Publication Result. Historical anchor only; superseded by T10aq.",
+            "T10ap Controlled workers.dev publication result",
+            "docs/T10AP_CONTROLLED_WORKERS_DEV_PUBLICATION_RESULT.md",
+            "cloudflare-workers-dev-publication.local.json",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: TL1 - Tester Launch Candidate.",
+            "Phase T10ap: execute controlled `workers.dev` publication",
+            "Phase T10aq: prepare tester access handoff without public URL leak",
+            "Phase T10ar: private tester account activation gate without Git URL/email leak",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10aq prepara handoff controlado de acceso tester",
+            "T10ap publica el target `workers.dev`",
+            "proof:cloudflare-workers-dev-publication-result",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10ap Controlled Workers.dev Publication Result",
+            "proof:cloudflare-workers-dev-publication-result",
+            "GO_CONTROLLED_WORKERS_DEV_PUBLICATION_ACCESS_PROTECTED_NO_URL_SHARED",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/cloudflare-workers-dev-publication-result-proof.mjs",
+            "npm run proof:cloudflare-workers-dev-publication-result",
+            "GO_CONTROLLED_WORKERS_DEV_PUBLICATION_ACCESS_PROTECTED_NO_URL_SHARED",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_result_text = "\n".join(
+            [
+                result_doc,
+                governance,
+                next_steps,
+                readme,
+                changelog,
+                template_readme,
+                proof,
+            ]
+        )
+        for pattern in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "09d8c7bf",
+            "https://sqx" + "-edge",
+            ".vercel" + ".app",
+            "sk" + "_live_",
+            "pk" + "_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE" + "_API_TOKEN=",
+            "CLOUDFLARE" + "_ACCOUNT_ID=",
+            "CLOUDFLARE" + "_ZONE_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_result_text)
+
+    def test_t10aq_tester_access_handoff_is_documented_and_safe(self):
+        handoff_doc = T10AQ_TESTER_ACCESS_HANDOFF_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        template_gitignore = (TESTER_PORTAL_TEMPLATE_ROOT / ".gitignore").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        wrangler_config = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "wrangler.jsonc").read_text(encoding="utf-8-sig"))
+        example_path = TESTER_PORTAL_TEMPLATE_ROOT / "tester-access-handoff.example.json"
+        example = json.loads(example_path.read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "tester-access-handoff-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10AQ_TESTER_ACCESS_HANDOFF_DOC.is_file())
+        self.assertTrue(example_path.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertIn("tester-access-handoff.local.json", template_gitignore)
+        self.assertEqual(
+            package["scripts"]["proof:tester-access-handoff"],
+            "node scripts/tester-access-handoff-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+        self.assertNotIn("cf:deploy", package["scripts"])
+        self.assertNotIn("delete", package["scripts"])
+        self.assertIs(wrangler_config["workers_dev"], True)
+        self.assertIs(wrangler_config["preview_urls"], False)
+        self.assertEqual(wrangler_config["main"], "cloudflare/worker-entry.js")
+        self.assertNotIn("routes", wrangler_config)
+        self.assertEqual(example["phase"], "T10aq")
+        for key, value in example.items():
+            if key != "phase":
+                with self.subTest(key=key):
+                    self.assertIs(value, False)
+
+        for pattern in (
+            "T10aq Tester Access Handoff No URL Leak",
+            "GO_TESTER_ACCESS_HANDOFF_READY_NO_PUBLIC_URL_LEAK",
+            "templates/SQX_Edge_Tester_Portal/tester-access-handoff.local.json",
+            "T10ar_private_tester_account_activation_gate",
+            "This phase does not create tester accounts",
+            "does not email testers",
+            "does not publish the URL",
+            "does not run a Cloudflare deployment",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, handoff_doc)
+
+        for pattern in (
+            'phase: "T10aq"',
+            "GO_TESTER_ACCESS_HANDOFF_READY_NO_PUBLIC_URL_LEAK",
+            "publicationResultGo",
+            "handoffDocReady",
+            "localHandoffEvidenceIgnored",
+            "exampleEvidenceSafe",
+            "noDeployPerformed",
+            "testerUrlShared: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            "wranglerWorkersDevProtectedTargetEnabled",
+            "directDeployScriptAbsent",
+            "packageScriptReady",
+            "T10ar_private_tester_account_activation_gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: TL1 - Tester Launch Candidate.",
+            "Next implementation phase: operator fills private TL1 evidence and runs `proof:tester-launch-candidate`",
+            "T10aq - Tester Access Handoff No URL Leak. Historical anchor only; superseded by T10ar.",
+            "T10aq Tester access handoff no URL leak",
+            "docs/T10AQ_TESTER_ACCESS_HANDOFF_NO_URL_LEAK.md",
+            "tester-access-handoff.local.json",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: TL1 - Tester Launch Candidate.",
+            "Phase T10aq: prepare tester access handoff without public URL leak",
+            "Phase T10ar: private tester account activation gate without Git URL/email leak",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10ar prepara el gate privado de activacion de cuentas tester",
+            "T10aq prepara handoff controlado de acceso tester",
+            "proof:tester-access-handoff",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10aq Tester Access Handoff No URL Leak",
+            "proof:tester-access-handoff",
+            "GO_TESTER_ACCESS_HANDOFF_READY_NO_PUBLIC_URL_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/tester-access-handoff-proof.mjs",
+            "tester-access-handoff.example.json",
+            "npm run proof:tester-access-handoff",
+            "GO_TESTER_ACCESS_HANDOFF_READY_NO_PUBLIC_URL_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_handoff_text = "\n".join(
+            [
+                handoff_doc,
+                governance,
+                next_steps,
+                readme,
+                changelog,
+                template_readme,
+                proof,
+                json.dumps(example, indent=2),
+            ]
+        )
+        for pattern in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "09d8c7bf",
+            "https://sqx" + "-edge",
+            ".vercel" + ".app",
+            "sk" + "_live_",
+            "pk" + "_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE" + "_API_TOKEN=",
+            "CLOUDFLARE" + "_ACCOUNT_ID=",
+            "CLOUDFLARE" + "_ZONE_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_handoff_text)
+
+    def test_t10ar_private_tester_account_activation_gate_is_documented_and_safe(self):
+        activation_doc = T10AR_PRIVATE_TESTER_ACCOUNT_ACTIVATION_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        template_gitignore = (TESTER_PORTAL_TEMPLATE_ROOT / ".gitignore").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        wrangler_config = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "wrangler.jsonc").read_text(encoding="utf-8-sig"))
+        example_path = TESTER_PORTAL_TEMPLATE_ROOT / "tester-account-activation.example.json"
+        example = json.loads(example_path.read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "tester-account-activation-gate-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10AR_PRIVATE_TESTER_ACCOUNT_ACTIVATION_DOC.is_file())
+        self.assertTrue(example_path.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertIn("tester-account-activation.local.json", template_gitignore)
+        self.assertEqual(
+            package["scripts"]["proof:tester-account-activation-gate"],
+            "node scripts/tester-account-activation-gate-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+        self.assertNotIn("cf:deploy", package["scripts"])
+        self.assertNotIn("delete", package["scripts"])
+        self.assertIs(wrangler_config["workers_dev"], True)
+        self.assertIs(wrangler_config["preview_urls"], False)
+        self.assertEqual(wrangler_config["main"], "cloudflare/worker-entry.js")
+        self.assertNotIn("routes", wrangler_config)
+        self.assertEqual(example["phase"], "T10ar")
+        for key, value in example.items():
+            if key != "phase":
+                with self.subTest(key=key):
+                    self.assertIs(value, False)
+
+        for pattern in (
+            "T10ar Private Tester Account Activation Gate",
+            "GO_PRIVATE_TESTER_ACCOUNT_ACTIVATION_GATE_READY_NO_GIT_LEAK",
+            "templates/SQX_Edge_Tester_Portal/tester-account-activation.local.json",
+            "T10as_private_tester_activation_evidence_ingest",
+            "This phase does not create tester accounts",
+            "does not send invitations",
+            "does not publish the tester URL",
+            "does not run a Cloudflare deployment",
+            "15-day tester renewal cadence",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, activation_doc)
+
+        for pattern in (
+            'phase: "T10ar"',
+            "GO_PRIVATE_TESTER_ACCOUNT_ACTIVATION_GATE_READY_NO_GIT_LEAK",
+            "t10aqHandoffGo",
+            "activationDocReady",
+            "localActivationEvidenceIgnored",
+            "exampleEvidenceSafe",
+            "noDeployPerformed",
+            "testerAccountsCreated: false",
+            "testerInvitesSent: false",
+            "testerUrlShared: false",
+            "testerEmailsCommitted: false",
+            "credentialsCommitted: false",
+            "wranglerWorkersDevProtectedTargetEnabled",
+            "directDeployScriptAbsent",
+            "packageScriptReady",
+            "T10as_private_tester_activation_evidence_ingest",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: TL1 - Tester Launch Candidate.",
+            "Next implementation phase: operator fills private TL1 evidence and runs `proof:tester-launch-candidate`",
+            "T10ar Private tester account activation gate",
+            "docs/T10AR_PRIVATE_TESTER_ACCOUNT_ACTIVATION_GATE.md",
+            "tester-account-activation.local.json",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: TL1 - Tester Launch Candidate.",
+            "Phase T10ar: private tester account activation gate without Git URL/email leak",
+            "Phase T10as: private tester activation evidence ingest without Git URL/email leak",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10ar prepara el gate privado de activacion de cuentas tester",
+            "proof:tester-account-activation-gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10ar Private Tester Account Activation Gate",
+            "proof:tester-account-activation-gate",
+            "GO_PRIVATE_TESTER_ACCOUNT_ACTIVATION_GATE_READY_NO_GIT_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/tester-account-activation-gate-proof.mjs",
+            "tester-account-activation.example.json",
+            "npm run proof:tester-account-activation-gate",
+            "GO_PRIVATE_TESTER_ACCOUNT_ACTIVATION_GATE_READY_NO_GIT_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_activation_text = "\n".join(
+            [
+                activation_doc,
+                governance,
+                next_steps,
+                readme,
+                changelog,
+                template_readme,
+                proof,
+                json.dumps(example, indent=2),
+            ]
+        )
+        for pattern in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "09d8c7bf",
+            "https://sqx" + "-edge",
+            ".vercel" + ".app",
+            "sk" + "_live_",
+            "pk" + "_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE" + "_API_TOKEN=",
+            "CLOUDFLARE" + "_ACCOUNT_ID=",
+            "CLOUDFLARE" + "_ZONE_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_activation_text)
+
+    def test_t10as_private_tester_activation_evidence_ingest_is_documented_and_safe(self):
+        evidence_doc = T10AS_PRIVATE_TESTER_ACTIVATION_EVIDENCE_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        template_gitignore = (TESTER_PORTAL_TEMPLATE_ROOT / ".gitignore").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        wrangler_config = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "wrangler.jsonc").read_text(encoding="utf-8-sig"))
+        example_path = TESTER_PORTAL_TEMPLATE_ROOT / "tester-activation-evidence-ingest.example.json"
+        example = json.loads(example_path.read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "tester-activation-evidence-ingest-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10AS_PRIVATE_TESTER_ACTIVATION_EVIDENCE_DOC.is_file())
+        self.assertTrue(example_path.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertIn("tester-account-activation.local.json", template_gitignore)
+        self.assertEqual(
+            package["scripts"]["proof:tester-activation-evidence-ingest"],
+            "node scripts/tester-activation-evidence-ingest-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+        self.assertNotIn("cf:deploy", package["scripts"])
+        self.assertNotIn("delete", package["scripts"])
+        self.assertIs(wrangler_config["workers_dev"], True)
+        self.assertIs(wrangler_config["preview_urls"], False)
+        self.assertEqual(wrangler_config["main"], "cloudflare/worker-entry.js")
+        self.assertNotIn("routes", wrangler_config)
+        self.assertEqual(example["phase"], "T10as")
+        for key, value in example.items():
+            with self.subTest(key=key):
+                if key == "phase":
+                    self.assertEqual(value, "T10as")
+                elif key.endswith("Count"):
+                    self.assertEqual(value, 0)
+                else:
+                    self.assertIs(value, False)
+
+        for pattern in (
+            "T10as Private Tester Activation Evidence Ingest",
+            "NO_GO_PRIVATE_TESTER_ACTIVATION_EVIDENCE_MISSING",
+            "GO_PRIVATE_TESTER_ACTIVATION_EVIDENCE_SAFE_NO_GIT_LEAK",
+            "templates/SQX_Edge_Tester_Portal/tester-account-activation.local.json",
+            "T10at_private_tester_url_share_approval_gate",
+            "This phase does not create tester accounts",
+            "does not send invitations",
+            "does not publish the tester URL",
+            "does not rotate passwords",
+            "does not run a Cloudflare deployment",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, evidence_doc)
+
+        for pattern in (
+            'phase: "T10as"',
+            "NO_GO_PRIVATE_TESTER_ACTIVATION_EVIDENCE_MISSING",
+            "GO_PRIVATE_TESTER_ACTIVATION_EVIDENCE_SAFE_NO_GIT_LEAK",
+            "localEvidencePresent",
+            "localEvidenceErrors",
+            "localEvidenceSafe",
+            "exampleEvidenceSafe",
+            "noDeployPerformed",
+            "testerUrlShared: false",
+            "credentialsCommitted: false",
+            "testerEmailsCommitted: false",
+            "wranglerWorkersDevProtectedTargetEnabled",
+            "directDeployScriptAbsent",
+            "packageScriptReady",
+            "T10at_private_tester_url_share_approval_gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: TL1 - Tester Launch Candidate.",
+            "Next implementation phase: operator fills private TL1 evidence and runs `proof:tester-launch-candidate`",
+            "T10as Private tester activation evidence ingest",
+            "docs/T10AS_PRIVATE_TESTER_ACTIVATION_EVIDENCE_INGEST.md",
+            "tester-account-activation.local.json",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: TL1 - Tester Launch Candidate.",
+            "Next recommended phase: T10at - private tester URL share approval gate without Git URL/email leak",
+            "Phase T10as: private tester activation evidence ingest without Git URL/email leak",
+            "Phase T10at: private tester URL share approval gate without Git URL/email leak",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10as ingiere evidencia privada de activacion tester",
+            "proof:tester-activation-evidence-ingest",
+            "NO_GO_PRIVATE_TESTER_ACTIVATION_EVIDENCE_MISSING",
+            "GO_PRIVATE_TESTER_ACTIVATION_EVIDENCE_SAFE_NO_GIT_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10as Private Tester Activation Evidence Ingest",
+            "proof:tester-activation-evidence-ingest",
+            "NO_GO_PRIVATE_TESTER_ACTIVATION_EVIDENCE_MISSING",
+            "GO_PRIVATE_TESTER_ACTIVATION_EVIDENCE_SAFE_NO_GIT_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/tester-activation-evidence-ingest-proof.mjs",
+            "tester-activation-evidence-ingest.example.json",
+            "npm run proof:tester-activation-evidence-ingest",
+            "NO_GO_PRIVATE_TESTER_ACTIVATION_EVIDENCE_MISSING",
+            "GO_PRIVATE_TESTER_ACTIVATION_EVIDENCE_SAFE_NO_GIT_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_evidence_text = "\n".join(
+            [
+                evidence_doc,
+                governance,
+                next_steps,
+                readme,
+                changelog,
+                template_readme,
+                proof,
+                json.dumps(example, indent=2),
+            ]
+        )
+        for pattern in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "09d8c7bf",
+            "https://sqx" + "-edge",
+            ".vercel" + ".app",
+            "sk" + "_live_",
+            "pk" + "_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE" + "_API_TOKEN=",
+            "CLOUDFLARE" + "_ACCOUNT_ID=",
+            "CLOUDFLARE" + "_ZONE_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_evidence_text)
+
+    def test_t10at_private_tester_url_share_approval_gate_is_documented_and_safe(self):
+        approval_doc = T10AT_PRIVATE_TESTER_URL_SHARE_APPROVAL_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        template_gitignore = (TESTER_PORTAL_TEMPLATE_ROOT / ".gitignore").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        wrangler_config = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "wrangler.jsonc").read_text(encoding="utf-8-sig"))
+        example_path = TESTER_PORTAL_TEMPLATE_ROOT / "tester-url-share-approval.example.json"
+        example = json.loads(example_path.read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "tester-url-share-approval-gate-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10AT_PRIVATE_TESTER_URL_SHARE_APPROVAL_DOC.is_file())
+        self.assertTrue(example_path.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertIn("tester-url-share-approval.local.json", template_gitignore)
+        self.assertEqual(
+            package["scripts"]["proof:tester-url-share-approval-gate"],
+            "node scripts/tester-url-share-approval-gate-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+        self.assertNotIn("cf:deploy", package["scripts"])
+        self.assertNotIn("delete", package["scripts"])
+        self.assertIs(wrangler_config["workers_dev"], True)
+        self.assertIs(wrangler_config["preview_urls"], False)
+        self.assertEqual(wrangler_config["main"], "cloudflare/worker-entry.js")
+        self.assertNotIn("routes", wrangler_config)
+        self.assertEqual(example["phase"], "T10at")
+        for key, value in example.items():
+            with self.subTest(key=key):
+                if key == "phase":
+                    self.assertEqual(value, "T10at")
+                elif key.endswith("Count"):
+                    self.assertEqual(value, 0)
+                else:
+                    self.assertIs(value, False)
+
+        for pattern in (
+            "T10at Private Tester URL Share Approval Gate",
+            "NO_GO_PRIVATE_TESTER_URL_SHARE_APPROVAL_MISSING",
+            "GO_PRIVATE_TESTER_URL_SHARE_APPROVAL_READY_NO_GIT_LEAK",
+            "templates/SQX_Edge_Tester_Portal/tester-url-share-approval.local.json",
+            "T10au_private_first_tester_smoke_gate",
+            "This phase does not create tester accounts",
+            "does not send invitations",
+            "does not publish the tester URL",
+            "does not rotate passwords",
+            "does not run a Cloudflare deployment",
+            "private one-to-one channel only",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, approval_doc)
+
+        for pattern in (
+            'phase: "T10at"',
+            "NO_GO_PRIVATE_TESTER_URL_SHARE_APPROVAL_MISSING",
+            "GO_PRIVATE_TESTER_URL_SHARE_APPROVAL_READY_NO_GIT_LEAK",
+            "localApprovalPresent",
+            "localApprovalErrors",
+            "localApprovalSafe",
+            "exampleApprovalSafe",
+            "noDeployPerformed",
+            "testerUrlPublished: false",
+            "testerUrlSharedPrivately: false",
+            "credentialsCommitted: false",
+            "testerEmailsCommitted: false",
+            "wranglerWorkersDevProtectedTargetEnabled",
+            "directDeployScriptAbsent",
+            "packageScriptReady",
+            "T10au_private_first_tester_smoke_gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: TL1 - Tester Launch Candidate.",
+            "Next implementation phase: operator fills private TL1 evidence and runs `proof:tester-launch-candidate`",
+            "T10at Private tester URL share approval gate",
+            "docs/T10AT_PRIVATE_TESTER_URL_SHARE_APPROVAL_GATE.md",
+            "tester-url-share-approval.local.json",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: TL1 - Tester Launch Candidate.",
+            "Next: complete and rerun REMOTE-8K Post Execution Monitoring; complete the SQX142-AW-AI2 human AlgoWizard roundtrip.",
+            "Phase T10at: private tester URL share approval gate without Git URL/email leak",
+            "Phase T10au: private first tester smoke gate without Git URL/email leak",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10at prepara el gate privado para compartir URL tester",
+            "proof:tester-url-share-approval-gate",
+            "NO_GO_PRIVATE_TESTER_URL_SHARE_APPROVAL_MISSING",
+            "GO_PRIVATE_TESTER_URL_SHARE_APPROVAL_READY_NO_GIT_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10at Private Tester URL Share Approval Gate",
+            "proof:tester-url-share-approval-gate",
+            "NO_GO_PRIVATE_TESTER_URL_SHARE_APPROVAL_MISSING",
+            "GO_PRIVATE_TESTER_URL_SHARE_APPROVAL_READY_NO_GIT_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/tester-url-share-approval-gate-proof.mjs",
+            "tester-url-share-approval.example.json",
+            "npm run proof:tester-url-share-approval-gate",
+            "NO_GO_PRIVATE_TESTER_URL_SHARE_APPROVAL_MISSING",
+            "GO_PRIVATE_TESTER_URL_SHARE_APPROVAL_READY_NO_GIT_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_approval_text = "\n".join(
+            [
+                approval_doc,
+                governance,
+                next_steps,
+                readme,
+                changelog,
+                template_readme,
+                proof,
+                json.dumps(example, indent=2),
+            ]
+        )
+        for pattern in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "09d8c7bf",
+            "https://sqx" + "-edge",
+            ".vercel" + ".app",
+            "sk" + "_live_",
+            "pk" + "_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE" + "_API_TOKEN=",
+            "CLOUDFLARE" + "_ACCOUNT_ID=",
+            "CLOUDFLARE" + "_ZONE_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_approval_text)
+
+    def test_t10au_private_first_tester_smoke_gate_is_documented_and_safe(self):
+        smoke_doc = T10AU_PRIVATE_FIRST_TESTER_SMOKE_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        template_gitignore = (TESTER_PORTAL_TEMPLATE_ROOT / ".gitignore").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        wrangler_config = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "wrangler.jsonc").read_text(encoding="utf-8-sig"))
+        example_path = TESTER_PORTAL_TEMPLATE_ROOT / "tester-first-smoke.example.json"
+        example = json.loads(example_path.read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "tester-first-smoke-gate-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10AU_PRIVATE_FIRST_TESTER_SMOKE_DOC.is_file())
+        self.assertTrue(example_path.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertIn("tester-first-smoke.local.json", template_gitignore)
+        self.assertEqual(
+            package["scripts"]["proof:tester-first-smoke-gate"],
+            "node scripts/tester-first-smoke-gate-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+        self.assertNotIn("cf:deploy", package["scripts"])
+        self.assertNotIn("delete", package["scripts"])
+        self.assertIs(wrangler_config["workers_dev"], True)
+        self.assertIs(wrangler_config["preview_urls"], False)
+        self.assertEqual(wrangler_config["main"], "cloudflare/worker-entry.js")
+        self.assertNotIn("routes", wrangler_config)
+        self.assertEqual(example["phase"], "T10au")
+        for key, value in example.items():
+            with self.subTest(key=key):
+                if key == "phase":
+                    self.assertEqual(value, "T10au")
+                elif key.endswith("Count"):
+                    self.assertEqual(value, 0)
+                else:
+                    self.assertIs(value, False)
+
+        for pattern in (
+            "T10au Private First Tester Smoke Gate",
+            "NO_GO_PRIVATE_FIRST_TESTER_SMOKE_EVIDENCE_MISSING",
+            "GO_PRIVATE_FIRST_TESTER_SMOKE_PASSED_NO_GIT_LEAK",
+            "templates/SQX_Edge_Tester_Portal/tester-first-smoke.local.json",
+            "T10av_private_tester_cohort_expansion_gate",
+            "This phase does not create tester accounts",
+            "does not send invitations",
+            "does not publish the tester URL",
+            "does not rotate passwords",
+            "does not run a Cloudflare deployment",
+            "`tester_pro` options are visible",
+            "Admin/operator-only routes remain blocked",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, smoke_doc)
+
+        for pattern in (
+            'phase: "T10au"',
+            "NO_GO_PRIVATE_FIRST_TESTER_SMOKE_EVIDENCE_MISSING",
+            "GO_PRIVATE_FIRST_TESTER_SMOKE_PASSED_NO_GIT_LEAK",
+            "localSmokePresent",
+            "localSmokeErrors",
+            "localSmokeSafe",
+            "exampleSmokeSafe",
+            "noDeployPerformed",
+            "testerUrlPublished: false",
+            "testerEmailsCommitted: false",
+            "credentialsCommitted: false",
+            "screenshotsCommitted: false",
+            "wranglerWorkersDevProtectedTargetEnabled",
+            "directDeployScriptAbsent",
+            "packageScriptReady",
+            "T10av_private_tester_cohort_expansion_gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: TL1 - Tester Launch Candidate.",
+            "Next implementation phase: operator fills private TL1 evidence and runs `proof:tester-launch-candidate`",
+            "T10au Private first tester smoke gate",
+            "docs/T10AU_PRIVATE_FIRST_TESTER_SMOKE_GATE.md",
+            "tester-first-smoke.local.json",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: TL1 - Tester Launch Candidate.",
+            "Next: complete and rerun REMOTE-8K Post Execution Monitoring; complete the SQX142-AW-AI2 human AlgoWizard roundtrip.",
+            "Phase T10au: private first tester smoke gate without Git URL/email leak",
+            "Phase T10av: private tester cohort expansion gate without Git URL/email leak",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10au prepara el gate de primer smoke privado tester",
+            "proof:tester-first-smoke-gate",
+            "NO_GO_PRIVATE_FIRST_TESTER_SMOKE_EVIDENCE_MISSING",
+            "GO_PRIVATE_FIRST_TESTER_SMOKE_PASSED_NO_GIT_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10au Private First Tester Smoke Gate",
+            "proof:tester-first-smoke-gate",
+            "NO_GO_PRIVATE_FIRST_TESTER_SMOKE_EVIDENCE_MISSING",
+            "GO_PRIVATE_FIRST_TESTER_SMOKE_PASSED_NO_GIT_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/tester-first-smoke-gate-proof.mjs",
+            "tester-first-smoke.example.json",
+            "npm run proof:tester-first-smoke-gate",
+            "NO_GO_PRIVATE_FIRST_TESTER_SMOKE_EVIDENCE_MISSING",
+            "GO_PRIVATE_FIRST_TESTER_SMOKE_PASSED_NO_GIT_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_smoke_text = "\n".join(
+            [
+                smoke_doc,
+                governance,
+                next_steps,
+                readme,
+                changelog,
+                template_readme,
+                proof,
+                json.dumps(example, indent=2),
+            ]
+        )
+        for pattern in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "09d8c7bf",
+            "https://sqx" + "-edge",
+            ".vercel" + ".app",
+            "sk" + "_live_",
+            "pk" + "_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE" + "_API_TOKEN=",
+            "CLOUDFLARE" + "_ACCOUNT_ID=",
+            "CLOUDFLARE" + "_ZONE_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_smoke_text)
+
+    def test_t10av_private_tester_cohort_expansion_gate_is_documented_and_safe(self):
+        expansion_doc = T10AV_PRIVATE_TESTER_COHORT_EXPANSION_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        template_gitignore = (TESTER_PORTAL_TEMPLATE_ROOT / ".gitignore").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        wrangler_config = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "wrangler.jsonc").read_text(encoding="utf-8-sig"))
+        example_path = TESTER_PORTAL_TEMPLATE_ROOT / "tester-cohort-expansion.example.json"
+        example = json.loads(example_path.read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "tester-cohort-expansion-gate-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10AV_PRIVATE_TESTER_COHORT_EXPANSION_DOC.is_file())
+        self.assertTrue(example_path.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertIn("tester-cohort-expansion.local.json", template_gitignore)
+        self.assertEqual(
+            package["scripts"]["proof:tester-cohort-expansion-gate"],
+            "node scripts/tester-cohort-expansion-gate-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+        self.assertNotIn("cf:deploy", package["scripts"])
+        self.assertNotIn("delete", package["scripts"])
+        self.assertIs(wrangler_config["workers_dev"], True)
+        self.assertIs(wrangler_config["preview_urls"], False)
+        self.assertEqual(wrangler_config["main"], "cloudflare/worker-entry.js")
+        self.assertNotIn("routes", wrangler_config)
+        self.assertEqual(example["phase"], "T10av")
+        for key, value in example.items():
+            with self.subTest(key=key):
+                if key == "phase":
+                    self.assertEqual(value, "T10av")
+                elif key.endswith("Count") or key == "targetCohortSize":
+                    self.assertEqual(value, 0)
+                else:
+                    self.assertIs(value, False)
+
+        for pattern in (
+            "T10av Private Tester Cohort Expansion Gate",
+            "NO_GO_PRIVATE_TESTER_COHORT_EXPANSION_EVIDENCE_MISSING",
+            "GO_PRIVATE_TESTER_COHORT_EXPANSION_READY_NO_GIT_LEAK",
+            "templates/SQX_Edge_Tester_Portal/tester-cohort-expansion.local.json",
+            "T10aw_private_tester_feedback_intake_gate",
+            "This phase does not create tester accounts",
+            "does not send invitations",
+            "does not publish the tester URL",
+            "does not rotate passwords",
+            "does not run a Cloudflare deployment",
+            "capped between 2 and 10 testers",
+            "Feedback intake is prepared with redacted/public-safe summaries only",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, expansion_doc)
+
+        for pattern in (
+            'phase: "T10av"',
+            "NO_GO_PRIVATE_TESTER_COHORT_EXPANSION_EVIDENCE_MISSING",
+            "GO_PRIVATE_TESTER_COHORT_EXPANSION_READY_NO_GIT_LEAK",
+            "localExpansionPresent",
+            "localExpansionErrors",
+            "localExpansionSafe",
+            "exampleExpansionSafe",
+            "noDeployPerformed",
+            "testerUrlPublished: false",
+            "testerEmailsCommitted: false",
+            "credentialsCommitted: false",
+            "screenshotsCommitted: false",
+            "feedbackIdentitiesCommitted: false",
+            "wranglerWorkersDevProtectedTargetEnabled",
+            "directDeployScriptAbsent",
+            "packageScriptReady",
+            "T10aw_private_tester_feedback_intake_gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: TL1 - Tester Launch Candidate.",
+            "Next implementation phase: operator fills private TL1 evidence and runs `proof:tester-launch-candidate`",
+            "T10av Private tester cohort expansion gate",
+            "docs/T10AV_PRIVATE_TESTER_COHORT_EXPANSION_GATE.md",
+            "tester-cohort-expansion.local.json",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: TL1 - Tester Launch Candidate.",
+            "Next: complete and rerun REMOTE-8K Post Execution Monitoring; complete the SQX142-AW-AI2 human AlgoWizard roundtrip.",
+            "Phase T10av: private tester cohort expansion gate without Git URL/email leak",
+            "Phase T10aw: private tester feedback intake gate without Git URL/email leak",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10av prepara el gate de expansion privada a micro-cohorte tester",
+            "proof:tester-cohort-expansion-gate",
+            "NO_GO_PRIVATE_TESTER_COHORT_EXPANSION_EVIDENCE_MISSING",
+            "GO_PRIVATE_TESTER_COHORT_EXPANSION_READY_NO_GIT_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10av Private Tester Cohort Expansion Gate",
+            "proof:tester-cohort-expansion-gate",
+            "NO_GO_PRIVATE_TESTER_COHORT_EXPANSION_EVIDENCE_MISSING",
+            "GO_PRIVATE_TESTER_COHORT_EXPANSION_READY_NO_GIT_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/tester-cohort-expansion-gate-proof.mjs",
+            "tester-cohort-expansion.example.json",
+            "npm run proof:tester-cohort-expansion-gate",
+            "NO_GO_PRIVATE_TESTER_COHORT_EXPANSION_EVIDENCE_MISSING",
+            "GO_PRIVATE_TESTER_COHORT_EXPANSION_READY_NO_GIT_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_expansion_text = "\n".join(
+            [
+                expansion_doc,
+                governance,
+                next_steps,
+                readme,
+                changelog,
+                template_readme,
+                proof,
+                json.dumps(example, indent=2),
+            ]
+        )
+        for pattern in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "09d8c7bf",
+            "https://sqx" + "-edge",
+            ".vercel" + ".app",
+            "sk" + "_live_",
+            "pk" + "_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE" + "_API_TOKEN=",
+            "CLOUDFLARE" + "_ACCOUNT_ID=",
+            "CLOUDFLARE" + "_ZONE_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_expansion_text)
+
+    def test_t10aw_private_tester_feedback_intake_gate_is_documented_and_safe(self):
+        feedback_doc = T10AW_PRIVATE_TESTER_FEEDBACK_INTAKE_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        template_gitignore = (TESTER_PORTAL_TEMPLATE_ROOT / ".gitignore").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        wrangler_config = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "wrangler.jsonc").read_text(encoding="utf-8-sig"))
+        example_path = TESTER_PORTAL_TEMPLATE_ROOT / "tester-feedback-intake.example.json"
+        example = json.loads(example_path.read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "tester-feedback-intake-gate-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10AW_PRIVATE_TESTER_FEEDBACK_INTAKE_DOC.is_file())
+        self.assertTrue(example_path.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertIn("tester-feedback-intake.local.json", template_gitignore)
+        self.assertEqual(
+            package["scripts"]["proof:tester-feedback-intake-gate"],
+            "node scripts/tester-feedback-intake-gate-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+        self.assertNotIn("cf:deploy", package["scripts"])
+        self.assertNotIn("delete", package["scripts"])
+        self.assertIs(wrangler_config["workers_dev"], True)
+        self.assertIs(wrangler_config["preview_urls"], False)
+        self.assertEqual(wrangler_config["main"], "cloudflare/worker-entry.js")
+        self.assertNotIn("routes", wrangler_config)
+        self.assertEqual(example["phase"], "T10aw")
+        for key, value in example.items():
+            with self.subTest(key=key):
+                if key == "phase":
+                    self.assertEqual(value, "T10aw")
+                elif key.endswith("Count"):
+                    self.assertEqual(value, 0)
+                else:
+                    self.assertIs(value, False)
+
+        for pattern in (
+            "T10aw Private Tester Feedback Intake Gate",
+            "NO_GO_PRIVATE_TESTER_FEEDBACK_INTAKE_EVIDENCE_MISSING",
+            "GO_PRIVATE_TESTER_FEEDBACK_INTAKE_READY_NO_GIT_LEAK",
+            "templates/SQX_Edge_Tester_Portal/tester-feedback-intake.local.json",
+            "T10ax_private_tester_feedback_triage_gate",
+            "This phase does not create tester accounts",
+            "does not send invitations",
+            "does not publish the tester URL",
+            "does not rotate passwords",
+            "does not run a Cloudflare deployment",
+            "Raw tester feedback remains outside Git",
+            "aggregate counts and redacted themes",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, feedback_doc)
+
+        for pattern in (
+            'phase: "T10aw"',
+            "NO_GO_PRIVATE_TESTER_FEEDBACK_INTAKE_EVIDENCE_MISSING",
+            "GO_PRIVATE_TESTER_FEEDBACK_INTAKE_READY_NO_GIT_LEAK",
+            "localFeedbackPresent",
+            "localFeedbackErrors",
+            "localFeedbackSafe",
+            "exampleFeedbackSafe",
+            "noDeployPerformed",
+            "testerUrlPublished: false",
+            "testerEmailsCommitted: false",
+            "credentialsCommitted: false",
+            "screenshotsCommitted: false",
+            "rawFeedbackCommitted: false",
+            "feedbackIdentitiesCommitted: false",
+            "wranglerWorkersDevProtectedTargetEnabled",
+            "directDeployScriptAbsent",
+            "packageScriptReady",
+            "T10ax_private_tester_feedback_triage_gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: TL1 - Tester Launch Candidate.",
+            "Next implementation phase: operator fills private TL1 evidence and runs `proof:tester-launch-candidate`",
+            "T10aw Private tester feedback intake gate",
+            "docs/T10AW_PRIVATE_TESTER_FEEDBACK_INTAKE_GATE.md",
+            "tester-feedback-intake.local.json",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: TL1 - Tester Launch Candidate.",
+            "Next: complete and rerun REMOTE-8K Post Execution Monitoring; complete the SQX142-AW-AI2 human AlgoWizard roundtrip.",
+            "Phase T10aw: private tester feedback intake gate without Git URL/email leak",
+            "Phase T10ax: private tester feedback triage gate without Git URL/email leak",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10aw prepara intake privado de feedback tester",
+            "proof:tester-feedback-intake-gate",
+            "NO_GO_PRIVATE_TESTER_FEEDBACK_INTAKE_EVIDENCE_MISSING",
+            "GO_PRIVATE_TESTER_FEEDBACK_INTAKE_READY_NO_GIT_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10aw Private Tester Feedback Intake Gate",
+            "proof:tester-feedback-intake-gate",
+            "NO_GO_PRIVATE_TESTER_FEEDBACK_INTAKE_EVIDENCE_MISSING",
+            "GO_PRIVATE_TESTER_FEEDBACK_INTAKE_READY_NO_GIT_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/tester-feedback-intake-gate-proof.mjs",
+            "tester-feedback-intake.example.json",
+            "npm run proof:tester-feedback-intake-gate",
+            "NO_GO_PRIVATE_TESTER_FEEDBACK_INTAKE_EVIDENCE_MISSING",
+            "GO_PRIVATE_TESTER_FEEDBACK_INTAKE_READY_NO_GIT_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_feedback_text = "\n".join(
+            [
+                feedback_doc,
+                governance,
+                next_steps,
+                readme,
+                changelog,
+                template_readme,
+                proof,
+                json.dumps(example, indent=2),
+            ]
+        )
+        for pattern in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "09d8c7bf",
+            "https://sqx" + "-edge",
+            ".vercel" + ".app",
+            "sk" + "_live_",
+            "pk" + "_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE" + "_API_TOKEN=",
+            "CLOUDFLARE" + "_ACCOUNT_ID=",
+            "CLOUDFLARE" + "_ZONE_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_feedback_text)
+
+    def test_t10ax_private_tester_feedback_triage_gate_is_documented_and_safe(self):
+        triage_doc = T10AX_PRIVATE_TESTER_FEEDBACK_TRIAGE_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        template_gitignore = (TESTER_PORTAL_TEMPLATE_ROOT / ".gitignore").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        wrangler_config = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "wrangler.jsonc").read_text(encoding="utf-8-sig"))
+        example_path = TESTER_PORTAL_TEMPLATE_ROOT / "tester-feedback-triage.example.json"
+        example = json.loads(example_path.read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "tester-feedback-triage-gate-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10AX_PRIVATE_TESTER_FEEDBACK_TRIAGE_DOC.is_file())
+        self.assertTrue(example_path.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertIn("tester-feedback-triage.local.json", template_gitignore)
+        self.assertEqual(
+            package["scripts"]["proof:tester-feedback-triage-gate"],
+            "node scripts/tester-feedback-triage-gate-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+        self.assertNotIn("cf:deploy", package["scripts"])
+        self.assertNotIn("delete", package["scripts"])
+        self.assertIs(wrangler_config["workers_dev"], True)
+        self.assertIs(wrangler_config["preview_urls"], False)
+        self.assertEqual(wrangler_config["main"], "cloudflare/worker-entry.js")
+        self.assertNotIn("routes", wrangler_config)
+        self.assertEqual(example["phase"], "T10ax")
+        for key, value in example.items():
+            with self.subTest(key=key):
+                if key == "phase":
+                    self.assertEqual(value, "T10ax")
+                elif key.endswith("Count"):
+                    self.assertEqual(value, 0)
+                else:
+                    self.assertIs(value, False)
+
+        for pattern in (
+            "T10ax Private Tester Feedback Triage Gate",
+            "NO_GO_PRIVATE_TESTER_FEEDBACK_TRIAGE_EVIDENCE_MISSING",
+            "GO_PRIVATE_TESTER_FEEDBACK_TRIAGE_READY_NO_GIT_LEAK",
+            "templates/SQX_Edge_Tester_Portal/tester-feedback-triage.local.json",
+            "T10ay_private_tester_action_plan_gate",
+            "This phase does not create tester accounts",
+            "does not send invitations",
+            "does not publish the tester URL",
+            "does not rotate passwords",
+            "does not run a Cloudflare deployment",
+            "Feedback is grouped privately into public-safe themes",
+            "Action candidates are created privately",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, triage_doc)
+
+        for pattern in (
+            'phase: "T10ax"',
+            "NO_GO_PRIVATE_TESTER_FEEDBACK_TRIAGE_EVIDENCE_MISSING",
+            "GO_PRIVATE_TESTER_FEEDBACK_TRIAGE_READY_NO_GIT_LEAK",
+            "localTriagePresent",
+            "localTriageErrors",
+            "localTriageSafe",
+            "exampleTriageSafe",
+            "noDeployPerformed",
+            "testerUrlPublished: false",
+            "testerEmailsCommitted: false",
+            "credentialsCommitted: false",
+            "screenshotsCommitted: false",
+            "rawFeedbackCommitted: false",
+            "feedbackIdentitiesCommitted: false",
+            "privateBugDetailsCommitted: false",
+            "wranglerWorkersDevProtectedTargetEnabled",
+            "directDeployScriptAbsent",
+            "packageScriptReady",
+            "T10ay_private_tester_action_plan_gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: TL1 - Tester Launch Candidate.",
+            "Next implementation phase: operator fills private TL1 evidence and runs `proof:tester-launch-candidate`",
+            "T10ax Private tester feedback triage gate",
+            "docs/T10AX_PRIVATE_TESTER_FEEDBACK_TRIAGE_GATE.md",
+            "tester-feedback-triage.local.json",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: TL1 - Tester Launch Candidate.",
+            "Next: complete and rerun REMOTE-8K Post Execution Monitoring; complete the SQX142-AW-AI2 human AlgoWizard roundtrip.",
+            "Phase T10ax: private tester feedback triage gate without Git URL/email leak",
+            "Phase T10ay: private tester action plan gate without Git URL/email leak",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10ax prepara triage privado de feedback tester",
+            "proof:tester-feedback-triage-gate",
+            "NO_GO_PRIVATE_TESTER_FEEDBACK_TRIAGE_EVIDENCE_MISSING",
+            "GO_PRIVATE_TESTER_FEEDBACK_TRIAGE_READY_NO_GIT_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10ax Private Tester Feedback Triage Gate",
+            "proof:tester-feedback-triage-gate",
+            "NO_GO_PRIVATE_TESTER_FEEDBACK_TRIAGE_EVIDENCE_MISSING",
+            "GO_PRIVATE_TESTER_FEEDBACK_TRIAGE_READY_NO_GIT_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/tester-feedback-triage-gate-proof.mjs",
+            "tester-feedback-triage.example.json",
+            "npm run proof:tester-feedback-triage-gate",
+            "NO_GO_PRIVATE_TESTER_FEEDBACK_TRIAGE_EVIDENCE_MISSING",
+            "GO_PRIVATE_TESTER_FEEDBACK_TRIAGE_READY_NO_GIT_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_triage_text = "\n".join(
+            [
+                triage_doc,
+                governance,
+                next_steps,
+                readme,
+                changelog,
+                template_readme,
+                proof,
+                json.dumps(example, indent=2),
+            ]
+        )
+        for pattern in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "09d8c7bf",
+            "https://sqx" + "-edge",
+            ".vercel" + ".app",
+            "sk" + "_live_",
+            "pk" + "_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE" + "_API_TOKEN=",
+            "CLOUDFLARE" + "_ACCOUNT_ID=",
+            "CLOUDFLARE" + "_ZONE_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_triage_text)
+
+    def test_t10ay_private_tester_action_plan_gate_is_documented_and_safe(self):
+        action_doc = T10AY_PRIVATE_TESTER_ACTION_PLAN_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        template_gitignore = (TESTER_PORTAL_TEMPLATE_ROOT / ".gitignore").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        wrangler_config = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "wrangler.jsonc").read_text(encoding="utf-8-sig"))
+        example_path = TESTER_PORTAL_TEMPLATE_ROOT / "tester-action-plan.example.json"
+        example = json.loads(example_path.read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "tester-action-plan-gate-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10AY_PRIVATE_TESTER_ACTION_PLAN_DOC.is_file())
+        self.assertTrue(example_path.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertIn("tester-action-plan.local.json", template_gitignore)
+        self.assertEqual(
+            package["scripts"]["proof:tester-action-plan-gate"],
+            "node scripts/tester-action-plan-gate-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+        self.assertNotIn("cf:deploy", package["scripts"])
+        self.assertNotIn("delete", package["scripts"])
+        self.assertIs(wrangler_config["workers_dev"], True)
+        self.assertIs(wrangler_config["preview_urls"], False)
+        self.assertEqual(wrangler_config["main"], "cloudflare/worker-entry.js")
+        self.assertNotIn("routes", wrangler_config)
+        self.assertEqual(example["phase"], "T10ay")
+        for key, value in example.items():
+            with self.subTest(key=key):
+                if key == "phase":
+                    self.assertEqual(value, "T10ay")
+                elif key.endswith("Count"):
+                    self.assertEqual(value, 0)
+                else:
+                    self.assertIs(value, False)
+
+        for pattern in (
+            "T10ay Private Tester Action Plan Gate",
+            "NO_GO_PRIVATE_TESTER_ACTION_PLAN_EVIDENCE_MISSING",
+            "GO_PRIVATE_TESTER_ACTION_PLAN_READY_NO_GIT_LEAK",
+            "templates/SQX_Edge_Tester_Portal/tester-action-plan.local.json",
+            "T10az_private_tester_action_execution_gate",
+            "This phase does not create tester accounts",
+            "does not contact testers",
+            "does not run a Cloudflare deployment",
+            "Action candidates are converted privately",
+            "Each action has a private owner",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, action_doc)
+
+        for pattern in (
+            'phase: "T10ay"',
+            "NO_GO_PRIVATE_TESTER_ACTION_PLAN_EVIDENCE_MISSING",
+            "GO_PRIVATE_TESTER_ACTION_PLAN_READY_NO_GIT_LEAK",
+            "localActionPlanPresent",
+            "localActionPlanErrors",
+            "localActionPlanSafe",
+            "exampleActionPlanSafe",
+            "noDeployPerformed",
+            "testerUrlPublished: false",
+            "testerEmailsCommitted: false",
+            "credentialsCommitted: false",
+            "screenshotsCommitted: false",
+            "rawFeedbackCommitted: false",
+            "feedbackIdentitiesCommitted: false",
+            "privateBugDetailsCommitted: false",
+            "privateActionDetailsCommitted: false",
+            "wranglerWorkersDevProtectedTargetEnabled",
+            "directDeployScriptAbsent",
+            "packageScriptReady",
+            "T10az_private_tester_action_execution_gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: TL1 - Tester Launch Candidate.",
+            "Next implementation phase: operator fills private TL1 evidence and runs `proof:tester-launch-candidate`",
+            "T10ay Private tester action plan gate",
+            "docs/T10AY_PRIVATE_TESTER_ACTION_PLAN_GATE.md",
+            "tester-action-plan.local.json",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: TL1 - Tester Launch Candidate.",
+            "Next: complete and rerun REMOTE-8K Post Execution Monitoring; complete the SQX142-AW-AI2 human AlgoWizard roundtrip.",
+            "Phase T10ay: private tester action plan gate without Git URL/email leak",
+            "Phase T10az: private tester action execution gate without Git URL/email leak",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10ay prepara action plan privado de feedback tester",
+            "proof:tester-action-plan-gate",
+            "NO_GO_PRIVATE_TESTER_ACTION_PLAN_EVIDENCE_MISSING",
+            "GO_PRIVATE_TESTER_ACTION_PLAN_READY_NO_GIT_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10ay Private Tester Action Plan Gate",
+            "proof:tester-action-plan-gate",
+            "NO_GO_PRIVATE_TESTER_ACTION_PLAN_EVIDENCE_MISSING",
+            "GO_PRIVATE_TESTER_ACTION_PLAN_READY_NO_GIT_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/tester-action-plan-gate-proof.mjs",
+            "tester-action-plan.example.json",
+            "npm run proof:tester-action-plan-gate",
+            "NO_GO_PRIVATE_TESTER_ACTION_PLAN_EVIDENCE_MISSING",
+            "GO_PRIVATE_TESTER_ACTION_PLAN_READY_NO_GIT_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_action_text = "\n".join(
+            [
+                action_doc,
+                governance,
+                next_steps,
+                readme,
+                changelog,
+                template_readme,
+                proof,
+                json.dumps(example, indent=2),
+            ]
+        )
+        for pattern in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "09d8c7bf",
+            "https://sqx" + "-edge",
+            ".vercel" + ".app",
+            "sk" + "_live_",
+            "pk" + "_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE" + "_API_TOKEN=",
+            "CLOUDFLARE" + "_ACCOUNT_ID=",
+            "CLOUDFLARE" + "_ZONE_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_action_text)
+
+    def test_t10az_private_tester_action_execution_gate_is_documented_and_safe(self):
+        execution_doc = T10AZ_PRIVATE_TESTER_ACTION_EXECUTION_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        template_gitignore = (TESTER_PORTAL_TEMPLATE_ROOT / ".gitignore").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        wrangler_config = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "wrangler.jsonc").read_text(encoding="utf-8-sig"))
+        example_path = TESTER_PORTAL_TEMPLATE_ROOT / "tester-action-execution.example.json"
+        example = json.loads(example_path.read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "tester-action-execution-gate-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10AZ_PRIVATE_TESTER_ACTION_EXECUTION_DOC.is_file())
+        self.assertTrue(example_path.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertIn("tester-action-execution.local.json", template_gitignore)
+        self.assertEqual(
+            package["scripts"]["proof:tester-action-execution-gate"],
+            "node scripts/tester-action-execution-gate-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+        self.assertNotIn("cf:deploy", package["scripts"])
+        self.assertNotIn("delete", package["scripts"])
+        self.assertIs(wrangler_config["workers_dev"], True)
+        self.assertIs(wrangler_config["preview_urls"], False)
+        self.assertEqual(wrangler_config["main"], "cloudflare/worker-entry.js")
+        self.assertNotIn("routes", wrangler_config)
+        self.assertEqual(example["phase"], "T10az")
+        for key, value in example.items():
+            with self.subTest(key=key):
+                if key == "phase":
+                    self.assertEqual(value, "T10az")
+                elif key.endswith("Count"):
+                    self.assertEqual(value, 0)
+                else:
+                    self.assertIs(value, False)
+
+        for pattern in (
+            "T10az Private Tester Action Execution Gate",
+            "NO_GO_PRIVATE_TESTER_ACTION_EXECUTION_EVIDENCE_MISSING",
+            "GO_PRIVATE_TESTER_ACTION_EXECUTION_READY_NO_GIT_LEAK",
+            "templates/SQX_Edge_Tester_Portal/tester-action-execution.local.json",
+            "T10ba_private_tester_result_validation_gate",
+            "This phase does not create tester accounts",
+            "does not execute provider mutations",
+            "does not run a Cloudflare deployment",
+            "Execution scope is approved privately",
+            "Each executed action has private acceptance evidence",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, execution_doc)
+
+        for pattern in (
+            'phase: "T10az"',
+            "NO_GO_PRIVATE_TESTER_ACTION_EXECUTION_EVIDENCE_MISSING",
+            "GO_PRIVATE_TESTER_ACTION_EXECUTION_READY_NO_GIT_LEAK",
+            "localExecutionPresent",
+            "localExecutionErrors",
+            "localExecutionSafe",
+            "exampleExecutionSafe",
+            "noDeployPerformed",
+            "testerUrlPublished: false",
+            "testerEmailsCommitted: false",
+            "credentialsCommitted: false",
+            "screenshotsCommitted: false",
+            "rawFeedbackCommitted: false",
+            "feedbackIdentitiesCommitted: false",
+            "privateBugDetailsCommitted: false",
+            "privateActionDetailsCommitted: false",
+            "privateExecutionNotesCommitted: false",
+            "providerMutationsPerformed: false",
+            "wranglerWorkersDevProtectedTargetEnabled",
+            "directDeployScriptAbsent",
+            "packageScriptReady",
+            "T10ba_private_tester_result_validation_gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: TL1 - Tester Launch Candidate.",
+            "Next implementation phase: operator fills private TL1 evidence and runs `proof:tester-launch-candidate`",
+            "T10az Private tester action execution gate",
+            "docs/T10AZ_PRIVATE_TESTER_ACTION_EXECUTION_GATE.md",
+            "tester-action-execution.local.json",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: TL1 - Tester Launch Candidate.",
+            "Next: complete and rerun REMOTE-8K Post Execution Monitoring; complete the SQX142-AW-AI2 human AlgoWizard roundtrip.",
+            "Phase T10az: private tester action execution gate without Git URL/email leak",
+            "Phase T10ba: private tester result validation gate without Git URL/email leak",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10az prepara ejecucion privada de acciones tester",
+            "proof:tester-action-execution-gate",
+            "NO_GO_PRIVATE_TESTER_ACTION_EXECUTION_EVIDENCE_MISSING",
+            "GO_PRIVATE_TESTER_ACTION_EXECUTION_READY_NO_GIT_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10az Private Tester Action Execution Gate",
+            "proof:tester-action-execution-gate",
+            "NO_GO_PRIVATE_TESTER_ACTION_EXECUTION_EVIDENCE_MISSING",
+            "GO_PRIVATE_TESTER_ACTION_EXECUTION_READY_NO_GIT_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/tester-action-execution-gate-proof.mjs",
+            "tester-action-execution.example.json",
+            "npm run proof:tester-action-execution-gate",
+            "NO_GO_PRIVATE_TESTER_ACTION_EXECUTION_EVIDENCE_MISSING",
+            "GO_PRIVATE_TESTER_ACTION_EXECUTION_READY_NO_GIT_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_execution_text = "\n".join(
+            [
+                execution_doc,
+                governance,
+                next_steps,
+                readme,
+                changelog,
+                template_readme,
+                proof,
+                json.dumps(example, indent=2),
+            ]
+        )
+        for pattern in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "09d8c7bf",
+            "https://sqx" + "-edge",
+            ".vercel" + ".app",
+            "sk" + "_live_",
+            "pk" + "_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE" + "_API_TOKEN=",
+            "CLOUDFLARE" + "_ACCOUNT_ID=",
+            "CLOUDFLARE" + "_ZONE_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_execution_text)
+
+    def test_t10ba_private_tester_result_validation_gate_is_documented_and_safe(self):
+        result_doc = T10BA_PRIVATE_TESTER_RESULT_VALIDATION_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        template_gitignore = (TESTER_PORTAL_TEMPLATE_ROOT / ".gitignore").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        wrangler_config = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "wrangler.jsonc").read_text(encoding="utf-8-sig"))
+        example_path = TESTER_PORTAL_TEMPLATE_ROOT / "tester-result-validation.example.json"
+        example = json.loads(example_path.read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "tester-result-validation-gate-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10BA_PRIVATE_TESTER_RESULT_VALIDATION_DOC.is_file())
+        self.assertTrue(example_path.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertIn("tester-result-validation.local.json", template_gitignore)
+        self.assertEqual(
+            package["scripts"]["proof:tester-result-validation-gate"],
+            "node scripts/tester-result-validation-gate-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+        self.assertNotIn("cf:deploy", package["scripts"])
+        self.assertNotIn("delete", package["scripts"])
+        self.assertIs(wrangler_config["workers_dev"], True)
+        self.assertIs(wrangler_config["preview_urls"], False)
+        self.assertEqual(wrangler_config["main"], "cloudflare/worker-entry.js")
+        self.assertNotIn("routes", wrangler_config)
+        self.assertEqual(example["phase"], "T10ba")
+        for key, value in example.items():
+            with self.subTest(key=key):
+                if key == "phase":
+                    self.assertEqual(value, "T10ba")
+                elif key.endswith("Count"):
+                    self.assertEqual(value, 0)
+                else:
+                    self.assertIs(value, False)
+
+        for pattern in (
+            "T10ba Private Tester Result Validation Gate",
+            "NO_GO_PRIVATE_TESTER_RESULT_VALIDATION_EVIDENCE_MISSING",
+            "GO_PRIVATE_TESTER_RESULT_VALIDATION_READY_NO_GIT_LEAK",
+            "templates/SQX_Edge_Tester_Portal/tester-result-validation.local.json",
+            "T10bb_private_tester_iteration_decision_gate",
+            "This phase does not create tester accounts",
+            "does not execute provider mutations",
+            "does not run a Cloudflare deployment",
+            "Result validation scope is approved privately",
+            "Executed actions are classified privately",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, result_doc)
+
+        for pattern in (
+            'phase: "T10ba"',
+            "NO_GO_PRIVATE_TESTER_RESULT_VALIDATION_EVIDENCE_MISSING",
+            "GO_PRIVATE_TESTER_RESULT_VALIDATION_READY_NO_GIT_LEAK",
+            "localResultPresent",
+            "localResultErrors",
+            "localResultSafe",
+            "exampleResultSafe",
+            "noDeployPerformed",
+            "testerUrlPublished: false",
+            "testerEmailsCommitted: false",
+            "credentialsCommitted: false",
+            "screenshotsCommitted: false",
+            "rawFeedbackCommitted: false",
+            "feedbackIdentitiesCommitted: false",
+            "privateBugDetailsCommitted: false",
+            "privateActionDetailsCommitted: false",
+            "privateExecutionNotesCommitted: false",
+            "privateResultNotesCommitted: false",
+            "providerMutationsPerformed: false",
+            "wranglerWorkersDevProtectedTargetEnabled",
+            "directDeployScriptAbsent",
+            "packageScriptReady",
+            "T10bb_private_tester_iteration_decision_gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: TL1 - Tester Launch Candidate.",
+            "Next implementation phase: operator fills private TL1 evidence and runs `proof:tester-launch-candidate`",
+            "T10ba Private tester result validation gate",
+            "docs/T10BA_PRIVATE_TESTER_RESULT_VALIDATION_GATE.md",
+            "tester-result-validation.local.json",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: TL1 - Tester Launch Candidate.",
+            "Next: complete and rerun REMOTE-8K Post Execution Monitoring; complete the SQX142-AW-AI2 human AlgoWizard roundtrip.",
+            "Phase T10ba: private tester result validation gate without Git URL/email leak",
+            "Phase T10bb: private tester iteration decision gate without Git URL/email leak",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10ba prepara validacion privada de resultados tester",
+            "proof:tester-result-validation-gate",
+            "NO_GO_PRIVATE_TESTER_RESULT_VALIDATION_EVIDENCE_MISSING",
+            "GO_PRIVATE_TESTER_RESULT_VALIDATION_READY_NO_GIT_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10ba Private Tester Result Validation Gate",
+            "proof:tester-result-validation-gate",
+            "NO_GO_PRIVATE_TESTER_RESULT_VALIDATION_EVIDENCE_MISSING",
+            "GO_PRIVATE_TESTER_RESULT_VALIDATION_READY_NO_GIT_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/tester-result-validation-gate-proof.mjs",
+            "tester-result-validation.example.json",
+            "npm run proof:tester-result-validation-gate",
+            "NO_GO_PRIVATE_TESTER_RESULT_VALIDATION_EVIDENCE_MISSING",
+            "GO_PRIVATE_TESTER_RESULT_VALIDATION_READY_NO_GIT_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_result_text = "\n".join(
+            [
+                result_doc,
+                governance,
+                next_steps,
+                readme,
+                changelog,
+                template_readme,
+                proof,
+                json.dumps(example, indent=2),
+            ]
+        )
+        for pattern in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "09d8c7bf",
+            "https://sqx" + "-edge",
+            ".vercel" + ".app",
+            "sk" + "_live_",
+            "pk" + "_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE" + "_API_TOKEN=",
+            "CLOUDFLARE" + "_ACCOUNT_ID=",
+            "CLOUDFLARE" + "_ZONE_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_result_text)
+
+    def test_t10bb_private_tester_iteration_decision_gate_is_documented_and_safe(self):
+        decision_doc = T10BB_PRIVATE_TESTER_ITERATION_DECISION_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        template_gitignore = (TESTER_PORTAL_TEMPLATE_ROOT / ".gitignore").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        wrangler_config = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "wrangler.jsonc").read_text(encoding="utf-8-sig"))
+        example_path = TESTER_PORTAL_TEMPLATE_ROOT / "tester-iteration-decision.example.json"
+        example = json.loads(example_path.read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "tester-iteration-decision-gate-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10BB_PRIVATE_TESTER_ITERATION_DECISION_DOC.is_file())
+        self.assertTrue(example_path.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertIn("tester-iteration-decision.local.json", template_gitignore)
+        self.assertEqual(
+            package["scripts"]["proof:tester-iteration-decision-gate"],
+            "node scripts/tester-iteration-decision-gate-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+        self.assertNotIn("cf:deploy", package["scripts"])
+        self.assertNotIn("delete", package["scripts"])
+        self.assertIs(wrangler_config["workers_dev"], True)
+        self.assertIs(wrangler_config["preview_urls"], False)
+        self.assertEqual(wrangler_config["main"], "cloudflare/worker-entry.js")
+        self.assertNotIn("routes", wrangler_config)
+        self.assertEqual(example["phase"], "T10bb")
+        self.assertIn(
+            example["decision"],
+            {
+                "repeat_validation",
+                "execute_fixes",
+                "expand_micro_cohort",
+                "pause_tester_access",
+                "prepare_next_tester_cycle",
+                "escalate_commercial_readiness",
+            },
+        )
+        for key, value in example.items():
+            with self.subTest(key=key):
+                if key in {"phase", "decision"}:
+                    continue
+                if key.endswith("Count"):
+                    self.assertEqual(value, 0)
+                else:
+                    self.assertIs(value, False)
+
+        for pattern in (
+            "T10bb Private Tester Iteration Decision Gate",
+            "NO_GO_PRIVATE_TESTER_ITERATION_DECISION_EVIDENCE_MISSING",
+            "GO_PRIVATE_TESTER_ITERATION_DECISION_READY_NO_GIT_LEAK",
+            "templates/SQX_Edge_Tester_Portal/tester-iteration-decision.local.json",
+            "T10bc_private_tester_next_iteration_gate",
+            "This phase does not create tester accounts",
+            "does not execute provider mutations",
+            "does not run a Cloudflare deployment",
+            "decision is one of",
+            "selected decision has private owner",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, decision_doc)
+
+        for pattern in (
+            'phase: "T10bb"',
+            "NO_GO_PRIVATE_TESTER_ITERATION_DECISION_EVIDENCE_MISSING",
+            "GO_PRIVATE_TESTER_ITERATION_DECISION_READY_NO_GIT_LEAK",
+            "localDecisionPresent",
+            "localDecisionErrors",
+            "localDecisionSafe",
+            "exampleDecisionSafe",
+            "noDeployPerformed",
+            "testerUrlPublished: false",
+            "testerEmailsCommitted: false",
+            "credentialsCommitted: false",
+            "screenshotsCommitted: false",
+            "rawFeedbackCommitted: false",
+            "feedbackIdentitiesCommitted: false",
+            "privateBugDetailsCommitted: false",
+            "privateActionDetailsCommitted: false",
+            "privateExecutionNotesCommitted: false",
+            "privateResultNotesCommitted: false",
+            "privateDecisionNotesCommitted: false",
+            "providerMutationsPerformed: false",
+            "wranglerWorkersDevProtectedTargetEnabled",
+            "directDeployScriptAbsent",
+            "packageScriptReady",
+            "T10bc_private_tester_next_iteration_gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: TL1 - Tester Launch Candidate.",
+            "Next implementation phase: operator fills private TL1 evidence and runs `proof:tester-launch-candidate`",
+            "T10bb Private tester iteration decision gate",
+            "docs/T10BB_PRIVATE_TESTER_ITERATION_DECISION_GATE.md",
+            "tester-iteration-decision.local.json",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: TL1 - Tester Launch Candidate.",
+            "Next: complete and rerun REMOTE-8K Post Execution Monitoring; complete the SQX142-AW-AI2 human AlgoWizard roundtrip.",
+            "Phase T10bb: private tester iteration decision gate without Git URL/email leak",
+            "Phase T10bc: private tester next iteration gate without Git URL/email leak",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10bb prepara decision privada de iteracion tester",
+            "proof:tester-iteration-decision-gate",
+            "NO_GO_PRIVATE_TESTER_ITERATION_DECISION_EVIDENCE_MISSING",
+            "GO_PRIVATE_TESTER_ITERATION_DECISION_READY_NO_GIT_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10bb Private Tester Iteration Decision Gate",
+            "proof:tester-iteration-decision-gate",
+            "NO_GO_PRIVATE_TESTER_ITERATION_DECISION_EVIDENCE_MISSING",
+            "GO_PRIVATE_TESTER_ITERATION_DECISION_READY_NO_GIT_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/tester-iteration-decision-gate-proof.mjs",
+            "tester-iteration-decision.example.json",
+            "npm run proof:tester-iteration-decision-gate",
+            "NO_GO_PRIVATE_TESTER_ITERATION_DECISION_EVIDENCE_MISSING",
+            "GO_PRIVATE_TESTER_ITERATION_DECISION_READY_NO_GIT_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_decision_text = "\n".join(
+            [
+                decision_doc,
+                governance,
+                next_steps,
+                readme,
+                changelog,
+                template_readme,
+                proof,
+                json.dumps(example, indent=2),
+            ]
+        )
+        for pattern in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "09d8c7bf",
+            "https://sqx" + "-edge",
+            ".vercel" + ".app",
+            "sk" + "_live_",
+            "pk" + "_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE" + "_API_TOKEN=",
+            "CLOUDFLARE" + "_ACCOUNT_ID=",
+            "CLOUDFLARE" + "_ZONE_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_decision_text)
+
+    def test_t10bc_private_tester_next_iteration_gate_is_documented_and_safe(self):
+        iteration_doc = T10BC_PRIVATE_TESTER_NEXT_ITERATION_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        template_gitignore = (TESTER_PORTAL_TEMPLATE_ROOT / ".gitignore").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        wrangler_config = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "wrangler.jsonc").read_text(encoding="utf-8-sig"))
+        example_path = TESTER_PORTAL_TEMPLATE_ROOT / "tester-next-iteration.example.json"
+        example = json.loads(example_path.read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "tester-next-iteration-gate-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10BC_PRIVATE_TESTER_NEXT_ITERATION_DOC.is_file())
+        self.assertTrue(example_path.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertIn("tester-next-iteration.local.json", template_gitignore)
+        self.assertEqual(
+            package["scripts"]["proof:tester-next-iteration-gate"],
+            "node scripts/tester-next-iteration-gate-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+        self.assertNotIn("cf:deploy", package["scripts"])
+        self.assertNotIn("delete", package["scripts"])
+        self.assertIs(wrangler_config["workers_dev"], True)
+        self.assertIs(wrangler_config["preview_urls"], False)
+        self.assertEqual(wrangler_config["main"], "cloudflare/worker-entry.js")
+        self.assertNotIn("routes", wrangler_config)
+        self.assertEqual(example["phase"], "T10bc")
+        self.assertIn(
+            example["iterationMode"],
+            {
+                "repeat_validation",
+                "execute_fixes",
+                "expand_micro_cohort",
+                "pause_tester_access",
+                "prepare_next_tester_cycle",
+                "escalate_commercial_readiness",
+            },
+        )
+        for key, value in example.items():
+            with self.subTest(key=key):
+                if key in {"phase", "iterationMode"}:
+                    continue
+                if key.endswith("Count"):
+                    self.assertEqual(value, 0)
+                else:
+                    self.assertIs(value, False)
+
+        for pattern in (
+            "T10bc Private Tester Next Iteration Gate",
+            "NO_GO_PRIVATE_TESTER_NEXT_ITERATION_EVIDENCE_MISSING",
+            "GO_PRIVATE_TESTER_NEXT_ITERATION_READY_NO_GIT_LEAK",
+            "templates/SQX_Edge_Tester_Portal/tester-next-iteration.local.json",
+            "T10bd_private_tester_next_iteration_execution_gate",
+            "This phase does not create tester accounts",
+            "does not execute provider mutations",
+            "does not run a Cloudflare deployment",
+            "iteration mode is one of",
+            "selected next iteration has private scope",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, iteration_doc)
+
+        for pattern in (
+            'phase: "T10bc"',
+            "NO_GO_PRIVATE_TESTER_NEXT_ITERATION_EVIDENCE_MISSING",
+            "GO_PRIVATE_TESTER_NEXT_ITERATION_READY_NO_GIT_LEAK",
+            "localIterationPresent",
+            "localIterationErrors",
+            "localIterationSafe",
+            "exampleIterationSafe",
+            "noDeployPerformed",
+            "testerUrlPublished: false",
+            "testerEmailsCommitted: false",
+            "credentialsCommitted: false",
+            "screenshotsCommitted: false",
+            "rawFeedbackCommitted: false",
+            "feedbackIdentitiesCommitted: false",
+            "privateBugDetailsCommitted: false",
+            "privateActionDetailsCommitted: false",
+            "privateExecutionNotesCommitted: false",
+            "privateResultNotesCommitted: false",
+            "privateDecisionNotesCommitted: false",
+            "privateIterationPlanCommitted: false",
+            "privateSupportNotesCommitted: false",
+            "providerMutationsPerformed: false",
+            "testerAccountsCreated: false",
+            "wranglerWorkersDevProtectedTargetEnabled",
+            "directDeployScriptAbsent",
+            "packageScriptReady",
+            "T10bd_private_tester_next_iteration_execution_gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: TL1 - Tester Launch Candidate.",
+            "Next implementation phase: operator fills private TL1 evidence and runs `proof:tester-launch-candidate`",
+            "T10bc Private tester next iteration gate",
+            "docs/T10BC_PRIVATE_TESTER_NEXT_ITERATION_GATE.md",
+            "tester-next-iteration.local.json",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: TL1 - Tester Launch Candidate.",
+            "Next: complete and rerun REMOTE-8K Post Execution Monitoring; complete the SQX142-AW-AI2 human AlgoWizard roundtrip.",
+            "Phase T10bc: private tester next iteration gate without Git URL/email leak",
+            "Phase T10bd: private tester next iteration execution gate without Git URL/email leak",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10bc prepara siguiente iteracion privada tester",
+            "proof:tester-next-iteration-gate",
+            "NO_GO_PRIVATE_TESTER_NEXT_ITERATION_EVIDENCE_MISSING",
+            "GO_PRIVATE_TESTER_NEXT_ITERATION_READY_NO_GIT_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10bc Private Tester Next Iteration Gate",
+            "proof:tester-next-iteration-gate",
+            "NO_GO_PRIVATE_TESTER_NEXT_ITERATION_EVIDENCE_MISSING",
+            "GO_PRIVATE_TESTER_NEXT_ITERATION_READY_NO_GIT_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/tester-next-iteration-gate-proof.mjs",
+            "tester-next-iteration.example.json",
+            "npm run proof:tester-next-iteration-gate",
+            "NO_GO_PRIVATE_TESTER_NEXT_ITERATION_EVIDENCE_MISSING",
+            "GO_PRIVATE_TESTER_NEXT_ITERATION_READY_NO_GIT_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_iteration_text = "\n".join(
+            [
+                iteration_doc,
+                governance,
+                next_steps,
+                readme,
+                changelog,
+                template_readme,
+                proof,
+                json.dumps(example, indent=2),
+            ]
+        )
+        for pattern in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "09d8c7bf",
+            "https://sqx" + "-edge",
+            ".vercel" + ".app",
+            "sk" + "_live_",
+            "pk" + "_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE" + "_API_TOKEN=",
+            "CLOUDFLARE" + "_ACCOUNT_ID=",
+            "CLOUDFLARE" + "_ZONE_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_iteration_text)
+
+    def test_tl1_tester_launch_candidate_is_documented_and_safe(self):
+        launch_doc = TL1_TESTER_LAUNCH_CANDIDATE_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        template_gitignore = (TESTER_PORTAL_TEMPLATE_ROOT / ".gitignore").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        wrangler_config = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "wrangler.jsonc").read_text(encoding="utf-8-sig"))
+        example_path = TESTER_PORTAL_TEMPLATE_ROOT / "tester-launch-candidate.example.json"
+        example = json.loads(example_path.read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "tester-launch-candidate-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(TL1_TESTER_LAUNCH_CANDIDATE_DOC.is_file())
+        self.assertTrue(example_path.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertIn("tester-launch-candidate.local.json", template_gitignore)
+        self.assertEqual(
+            package["scripts"]["proof:tester-launch-candidate"],
+            "node scripts/tester-launch-candidate-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+        self.assertNotIn("cf:deploy", package["scripts"])
+        self.assertNotIn("delete", package["scripts"])
+        self.assertIs(wrangler_config["workers_dev"], True)
+        self.assertIs(wrangler_config["preview_urls"], False)
+        self.assertEqual(wrangler_config["main"], "cloudflare/worker-entry.js")
+        self.assertNotIn("routes", wrangler_config)
+        self.assertEqual(example["phase"], "TL1")
+        self.assertIn(example["launchMode"], {"hold", "first_private_tester", "micro_cohort", "pause"})
+        for key, value in example.items():
+            with self.subTest(key=key):
+                if key in {"phase", "launchMode"}:
+                    continue
+                if key.endswith("Count"):
+                    self.assertEqual(value, 0)
+                else:
+                    self.assertIs(value, False)
+
+        for pattern in (
+            "TL1 Tester Launch Candidate",
+            "freezes the fine-grained T10 tester gates",
+            "NO_GO_TESTER_LAUNCH_PRIVATE_EVIDENCE_MISSING",
+            "GO_TESTER_LAUNCH_CANDIDATE_READY_NO_GIT_LEAK",
+            "templates/SQX_Edge_Tester_Portal/tester-launch-candidate.local.json",
+            "does not create tester accounts",
+            "does not deploy",
+            "Protected Cloudflare Access path is verified privately",
+            "Next Real Action",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, launch_doc)
+
+        for pattern in (
+            'phase: "TL1"',
+            "NO_GO_TESTER_LAUNCH_PRIVATE_EVIDENCE_MISSING",
+            "GO_TESTER_LAUNCH_CANDIDATE_READY_NO_GIT_LEAK",
+            "localLaunchPresent",
+            "localLaunchErrors",
+            "localLaunchSafe",
+            "exampleLaunchSafe",
+            "noDeployPerformed",
+            "testerUrlPublished: false",
+            "testerEmailsCommitted: false",
+            "credentialsCommitted: false",
+            "screenshotsCommitted: false",
+            "rawFeedbackCommitted: false",
+            "privateNotesCommitted: false",
+            "providerMutationsPerformed: false",
+            "testerAccountsCreated: false",
+            "wranglerWorkersDevProtectedTargetEnabled",
+            "directDeployScriptAbsent",
+            "packageScriptReady",
+            "fill_private_launch_candidate_evidence_and_run_single_proof",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: TL1 - Tester Launch Candidate.",
+            "Next implementation phase: operator fills private TL1 evidence and runs `proof:tester-launch-candidate`",
+            "TL1 Tester launch candidate",
+            "docs/TL1_TESTER_LAUNCH_CANDIDATE.md",
+            "tester-launch-candidate.local.json",
+            "freezes further T10 micro-gates",
+            "`TLxx`: tester launch macro decisions",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: TL1 - Tester Launch Candidate.",
+            "Next: complete and rerun REMOTE-8K Post Execution Monitoring; complete the SQX142-AW-AI2 human AlgoWizard roundtrip.",
+            "Phase T10bd: private tester next iteration execution gate without Git URL/email leak. Paused in favor of TL1 macro launch candidate.",
+            "Phase TL1: tester launch candidate. Done as single macro go/no-go",
+            "Next real action: fill ignored private TL1 evidence",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "TL1 resume el lanzamiento tester",
+            "proof:tester-launch-candidate",
+            "NO_GO_TESTER_LAUNCH_PRIVATE_EVIDENCE_MISSING",
+            "GO_TESTER_LAUNCH_CANDIDATE_READY_NO_GIT_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "TL1 Tester Launch Candidate",
+            "proof:tester-launch-candidate",
+            "NO_GO_TESTER_LAUNCH_PRIVATE_EVIDENCE_MISSING",
+            "GO_TESTER_LAUNCH_CANDIDATE_READY_NO_GIT_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/tester-launch-candidate-proof.mjs",
+            "tester-launch-candidate.example.json",
+            "npm run proof:tester-launch-candidate",
+            "NO_GO_TESTER_LAUNCH_PRIVATE_EVIDENCE_MISSING",
+            "GO_TESTER_LAUNCH_CANDIDATE_READY_NO_GIT_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_launch_text = "\n".join(
+            [
+                launch_doc,
+                governance,
+                next_steps,
+                readme,
+                changelog,
+                template_readme,
+                proof,
+                json.dumps(example, indent=2),
+            ]
+        )
+        for pattern in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "09d8c7bf",
+            "https://sqx" + "-edge",
+            ".vercel" + ".app",
+            "sk" + "_live_",
+            "pk" + "_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE" + "_API_TOKEN=",
+            "CLOUDFLARE" + "_ACCOUNT_ID=",
+            "CLOUDFLARE" + "_ZONE_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_launch_text)
 
     def test_phase46_operational_visual_polish_is_present(self):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")
@@ -10836,6 +22158,37 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, tool_text)
+
+    def test_workspace_cleanup_script_keeps_portable_runtime_and_private_evidence_safe(self):
+        script = CLEAN_WORKSPACE_SCRIPT.read_text(encoding="utf-8-sig")
+
+        for pattern in (
+            "Resolve-InRepo",
+            "Refusing to clean outside repository",
+            "Remove-PycacheOutsideEmbeddedRuntime",
+            "\\backend\\sqx-edge-tool\\runtime\\",
+            "\\backend\\sqx-edge-tool\\venv\\",
+            "SQX_Edge_Tool_Portable_Tester_*.zip",
+            "latest tester delivery",
+            "templates\\SQX_Edge_Tester_Portal\\.open-next",
+            "templates\\SQX_Edge_Tester_Portal\\.next",
+            "templates\\SQX_Edge_Tester_Portal\\node_modules",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, script)
+
+        for forbidden in (
+            "license_keys",
+            "licenses_private",
+            "commercial-private",
+            "private-commercial",
+            "cloudflare-access-policy-boundary.local.json",
+            "tester-launch-candidate.local.json",
+            "backend\\sqx-edge-tool\\runtime",
+            "backend\\sqx-edge-tool\\venv",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(f'Remove-RepoItem "{forbidden}', script)
 
 
 if __name__ == "__main__":

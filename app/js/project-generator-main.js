@@ -4,7 +4,7 @@
 const SQX_PG_MODULE = (window.SQX && window.SQX.projectGenerator) || {};
 const SQX_PG_DOM = SQX_PG_MODULE.dom || {};
 const SQX_PG_BINDINGS = SQX_PG_MODULE.bindings || {};
-const PG_API = (window.SQX_CONFIG && window.SQX_CONFIG.apiBase()) || '';
+const PG_API_INITIAL = (window.SQX_CONFIG && window.SQX_CONFIG.apiBase()) || '';
 const PG_STATE = {
   aliases: {},
   config: {},
@@ -16,10 +16,31 @@ const PG_STATE = {
   outputDir: '',
   outputFiles: [],
   planCount: 0,
+  generationMode: '',
+  selectedMiningNums: new Set(),
+  selectedOutputNames: new Set(),
 };
 const PG_ALIAS_MIN_SCORE = (window.SQX_CONFIG && window.SQX_CONFIG.value('projectGenerator.aliasSuggestMinScore', 80)) || 80;
 const pgApiInline = document.getElementById('pg-api-base-inline');
-if (pgApiInline && PG_API) pgApiInline.textContent = PG_API;
+if (pgApiInline) pgApiInline.textContent = 'Servicio preparado';
+
+function pgApiBase() {
+  return (window.SQX_CONFIG && window.SQX_CONFIG.apiBase && window.SQX_CONFIG.apiBase()) || PG_API_INITIAL || '';
+}
+
+function pgConnectionDiagnostic(error) {
+  const diag = window.SQX_CONFIG && window.SQX_CONFIG.diagnostics ? window.SQX_CONFIG.diagnostics() : {};
+  const origin = (window.location && window.location.origin) || '';
+  const apiBase = String(diag.apiBase || pgApiBase() || '');
+  const apiLabel = origin && apiBase.indexOf(origin) === 0 ? apiBase.replace(origin, 'mismo-origen') : (apiBase || 'sin-api');
+  const online = typeof navigator !== 'undefined' && typeof navigator.onLine === 'boolean' ? (navigator.onLine ? 'online' : 'offline') : 'online-desconocido';
+  const errorName = error && error.name ? String(error.name) : 'Error';
+  return 'Diagnóstico seguro: API ' + apiLabel
+    + ' · config ' + (diag.configVersion || (window.SQX_CONFIG && window.SQX_CONFIG.version) || 'sin-version')
+    + ' · pagina ' + ((diag.host || (window.location && window.location.host)) || 'sin-host')
+    + ' · red ' + online
+    + ' · error ' + errorName + '.';
+}
 
 function pgEsc(value) {
   return SQX_PG_DOM.escapeHtml ? SQX_PG_DOM.escapeHtml(value) : SQX_PG_MODULE.escapeHtml(value);
@@ -35,6 +56,45 @@ function pgTrace(title, detail, level) {
 
 function pgSetSettingsOpen(open) {
   if (SQX_PG_DOM.setSettingsOpen) SQX_PG_DOM.setSettingsOpen(document, open);
+}
+
+function pgSetStepOpen(id, open) {
+  const el = pgDom(id);
+  if (!el || String(el.tagName || '').toLowerCase() !== 'details') return false;
+  el.open = !!open;
+  return true;
+}
+
+function pgSetGenerationMode(mode) {
+  const normalized = mode === 'manual' ? 'manual' : (mode === 'methodological' ? 'methodological' : '');
+  PG_STATE.generationMode = normalized;
+  document.querySelectorAll('[data-pg-mode]').forEach(btn => {
+    const active = btn.dataset.pgMode === normalized;
+    btn.classList.toggle('is-active', active);
+    btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+  });
+
+  const methodPanel = pgDom('pg-mode-methodological-panel');
+  const manualPanel = pgDom('pg-mode-manual-panel');
+  const placeholder = pgDom('pg-mode-placeholder');
+  if (methodPanel) methodPanel.hidden = normalized !== 'methodological';
+  if (manualPanel) manualPanel.hidden = normalized !== 'manual';
+  if (placeholder) placeholder.hidden = !!normalized;
+
+  const status = normalized === 'manual'
+    ? 'Modo activo: Generación manual · Custom libre.'
+    : (normalized === 'methodological'
+      ? 'Modo activo: Generación metodológica · Minings del plan.'
+      : 'Elige un modo en el Paso 3 para mostrar su panel de trabajo.');
+  pgSetText('pg-generation-mode-status', status);
+
+  if (normalized) {
+    pgSetStepOpen('pg-step-generate', true);
+    const target = normalized === 'manual' ? manualPanel : methodPanel;
+    if (target && target.scrollIntoView) {
+      window.setTimeout(() => target.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
+    }
+  }
 }
 
 function pgFocusSettingsField(id) {
@@ -104,6 +164,54 @@ function pgReadCustomInputs() {
   return SQX_PG_DOM.readCustomProjectInputs ? SQX_PG_DOM.readCustomProjectInputs(document) : {};
 }
 
+function pgSelectedCapa2Blocksetting() {
+  return pgInputValue('pg-capa2-bs').trim();
+}
+
+function pgApplyCapa2Selection(payload, capa) {
+  const data = payload || {};
+  const selected = pgSelectedCapa2Blocksetting();
+  if (Number(capa || data.capa || 1) === 2 && selected) {
+    data.blocksetting_capa2 = selected;
+  }
+  return data;
+}
+
+function pgReadTargetProfile() {
+  const id = pgInputValue('pg-target-profile') || 'sq_default_exact';
+  const custom = {
+    brokerPostfix: pgTrimmedInputValue('pg-target-postfix'),
+    symbol: pgTrimmedInputValue('pg-target-symbol'),
+    brokerId: pgTrimmedInputValue('pg-target-broker-id'),
+    sourceId: pgTrimmedInputValue('pg-target-source-id'),
+    brokerName: pgTrimmedInputValue('pg-target-broker-name'),
+    timezone: pgTrimmedInputValue('pg-target-timezone'),
+  };
+  const payload = { id };
+  if (id === 'custom_user_broker') {
+    payload.custom = custom;
+  }
+  return payload;
+}
+
+function pgApplyTargetProfile(payload) {
+  const data = payload || {};
+  data.target_profile = pgReadTargetProfile();
+  return data;
+}
+
+function pgUpdateTargetProfileUi() {
+  const id = pgInputValue('pg-target-profile') || 'sq_default_exact';
+  const custom = pgDom('pg-target-custom-fields');
+  if (custom) custom.hidden = id !== 'custom_user_broker';
+  const warning = id === 'custom_user_broker'
+    ? 'Modo remapeo: usa símbolo exacto o sufijo, Broker ID y Source ID del Data Manager del usuario destino. Úsalo cuando el SQX del usuario tenga nombres de broker propios.'
+    : (id === 'sqxedge_darwinex'
+      ? 'Perfil para SQX Edge/local SQX142 con símbolos Darwinex. El Retest 1/OOS2 usa velas Dukascopy con recurso Darwinex; no usar si el Data Manager sólo tiene símbolos sin sufijo.'
+      : 'Perfil para usuarios cuyo Data Manager tenga el símbolo exacto sin sufijo y Broker profile SQ default. Si tu SQX local usa _darwinex, elige SQX Edge / Darwinex.');
+  pgSetText('pg-target-profile-warning', warning);
+}
+
 function pgSetCustomStatus(text, level) {
   if (SQX_PG_DOM.setCustomProjectStatus) {
     SQX_PG_DOM.setCustomProjectStatus(document, { text, level });
@@ -133,28 +241,6 @@ function pgRenderCustomPresets(selectedId) {
   return presets;
 }
 
-function pgRenderCustomStarterProfiles() {
-  const profiles = SQX_PG_MODULE.getCustomStarterProfiles ? SQX_PG_MODULE.getCustomStarterProfiles() : [];
-  if (SQX_PG_MODULE.customStarterProfileCountLabel) {
-    pgSetText('pg-custom-starter-count', SQX_PG_MODULE.customStarterProfileCountLabel(profiles.length));
-  }
-  if (SQX_PG_MODULE.customStarterProfileCardsHtml) {
-    pgSetHtml('pg-custom-starter-list', SQX_PG_MODULE.customStarterProfileCardsHtml(profiles));
-  }
-  return profiles;
-}
-
-function pgRenderCustomProfileFamilies() {
-  const families = SQX_PG_MODULE.getCustomProfileFamilies ? SQX_PG_MODULE.getCustomProfileFamilies() : [];
-  if (SQX_PG_MODULE.customProfileFamilyCountLabel) {
-    pgSetText('pg-custom-family-count', SQX_PG_MODULE.customProfileFamilyCountLabel(families.length));
-  }
-  if (SQX_PG_MODULE.customProfileFamilyCardsHtml) {
-    pgSetHtml('pg-custom-family-list', SQX_PG_MODULE.customProfileFamilyCardsHtml(families));
-  }
-  return families;
-}
-
 function pgDownloadJson(filename, payload) {
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -167,86 +253,104 @@ function pgDownloadJson(filename, payload) {
   URL.revokeObjectURL(url);
 }
 
-function pgDownloadText(filename, text, type) {
-  const blob = new Blob([text || ''], { type: type || 'text/plain' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  URL.revokeObjectURL(url);
-}
-
-function pgBuyerCfxHandoffInput() {
-  return {
-    buyerName: pgTrimmedInputValue('pg-buyer-name'),
-    context: pgInputValue('pg-buyer-context'),
-    config: pgReadCustomInputs(),
-    outputDir: PG_STATE.outputDir,
-    outputFiles: PG_STATE.outputFiles,
-  };
-}
-
-function pgRenderBuyerCfxHandoff() {
-  if (!SQX_PG_MODULE.buyerCfxHandoffMarkdown) return null;
-  const input = pgBuyerCfxHandoffInput();
-  const summary = SQX_PG_MODULE.buyerCfxHandoffSummary(input);
-  const notes = SQX_PG_MODULE.buyerCfxHandoffMarkdown(input);
-  pgSetText('pg-buyer-handoff-summary', summary);
-  const notesEl = pgDom('pg-buyer-handoff-notes');
-  if (notesEl) notesEl.value = notes;
-  return { input, notes, summary };
-}
-
-async function pgCopyBuyerCfxHandoff() {
-  const handoff = pgRenderBuyerCfxHandoff();
-  if (!handoff) return;
-  const notesEl = pgDom('pg-buyer-handoff-notes');
-  const text = (notesEl && notesEl.value) || handoff.notes;
-  try {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      await navigator.clipboard.writeText(text);
-    } else if (notesEl) {
-      notesEl.focus();
-      notesEl.select();
-      document.execCommand('copy');
-    }
-    pgLog('Notas handoff .cfx copiadas.', 'ok');
-  } catch (e) {
-    pgLog('No se pudieron copiar las notas: ' + e.message, 'err');
-  }
-}
-
-function pgDownloadBuyerCfxHandoff() {
-  const handoff = pgRenderBuyerCfxHandoff();
-  if (!handoff || !SQX_PG_MODULE.buyerCfxHandoffFilename) return;
-  pgDownloadText(SQX_PG_MODULE.buyerCfxHandoffFilename(handoff.input), handoff.notes, 'text/markdown');
-  pgLog('Notas handoff .cfx descargadas.', 'ok');
-}
-
 function pgUpdateMiningSummary(count) {
   pgSetText('pg-minings-count', SQX_PG_MODULE.miningsCountLabel(count));
-  pgSetText('pg-bulk-count', SQX_PG_MODULE.bulkGenerateLabel(count));
+}
+
+function pgSelectedMiningMap() {
+  const map = {};
+  PG_STATE.selectedMiningNums.forEach(num => { map[num] = true; });
+  return map;
+}
+
+function pgSelectedOutputMap() {
+  const map = {};
+  PG_STATE.selectedOutputNames.forEach(name => { map[name] = true; });
+  return map;
+}
+
+function pgUpdateSelectedOutputCount() {
+  pgSetText('pg-output-selected-count', SQX_PG_MODULE.selectedOutputCountLabel
+    ? SQX_PG_MODULE.selectedOutputCountLabel(PG_STATE.selectedOutputNames.size)
+    : (PG_STATE.selectedOutputNames.size + ' seleccionados'));
+}
+
+function pgSyncSelectedOutputs() {
+  const valid = new Set((PG_STATE.outputFiles || []).map(file => String(file.name || '')));
+  Array.from(PG_STATE.selectedOutputNames).forEach(name => {
+    if (!valid.has(name)) PG_STATE.selectedOutputNames.delete(name);
+  });
+  pgUpdateSelectedOutputCount();
+}
+
+function pgUpdateSelectedMiningCount() {
+  pgSetText('pg-selected-count', SQX_PG_MODULE.selectedMiningCountLabel(PG_STATE.selectedMiningNums.size));
+}
+
+function pgSyncSelectedMinings() {
+  const valid = new Set((PG_STATE.minings || []).map(mining => parseInt(mining.num, 10)));
+  Array.from(PG_STATE.selectedMiningNums).forEach(num => {
+    if (!valid.has(num)) PG_STATE.selectedMiningNums.delete(num);
+  });
+  pgUpdateSelectedMiningCount();
 }
 
 function pgRenderMiningsList(infos) {
-  pgSetHtml('pg-minings-table', SQX_PG_MODULE.miningRowsHtml(infos));
-  document.querySelectorAll('button[data-pg-gen]').forEach(btn => {
-    btn.addEventListener('click', () => pgGenerateOne(parseInt(btn.dataset.pgGen,10), parseInt(btn.dataset.pgCapa,10)));
+  pgSyncSelectedMinings();
+  pgSetHtml('pg-minings-table', SQX_PG_MODULE.miningRowsHtml(infos, pgSelectedMiningMap()));
+  document.querySelectorAll('input[data-pg-mining-check]').forEach(input => {
+    input.addEventListener('change', () => {
+      const num = parseInt(input.dataset.pgMiningCheck, 10);
+      if (input.checked) PG_STATE.selectedMiningNums.add(num);
+      else PG_STATE.selectedMiningNums.delete(num);
+      pgUpdateSelectedMiningCount();
+    });
   });
+  pgUpdateSelectedMiningCount();
 }
 
 function pgRenderOutputState(output) {
+  PG_STATE.outputFiles = output.files || PG_STATE.outputFiles || [];
+  pgSyncSelectedOutputs();
+  if (SQX_PG_MODULE.outputState && output && output.files) {
+    output.html = SQX_PG_MODULE.outputListHtml(output.files, pgSelectedOutputMap());
+  }
   pgSetText('pg-output-count', output.countLabel);
   pgSetHtml('pg-output-list', output.html);
-  pgRenderBuyerCfxHandoff();
+  pgSetText('pg-open-output', 'Descargar todo ZIP');
+  document.querySelectorAll('input[data-pg-output-check]').forEach(input => {
+    input.addEventListener('change', () => {
+      const name = input.dataset.pgOutputCheck || '';
+      if (input.checked) PG_STATE.selectedOutputNames.add(name);
+      else PG_STATE.selectedOutputNames.delete(name);
+      pgUpdateSelectedOutputCount();
+    });
+  });
+  document.querySelectorAll('button[data-pg-output-download]').forEach(btn => {
+    btn.addEventListener('click', () => pgDownloadOutputFile(btn.dataset.pgOutputDownload));
+  });
+  document.querySelectorAll('button[data-pg-output-delete]').forEach(btn => {
+    btn.addEventListener('click', () => pgDeleteOutputFiles([btn.dataset.pgOutputDelete]));
+  });
+  pgUpdateSelectedOutputCount();
+}
+
+function pgResetGeneratedCfxSession(detail) {
+  const resetState = detail && detail.resetState
+    ? detail.resetState
+    : SQX_PG_MODULE.markGeneratedOutputReset(PG_STATE.outputFiles || [], { reason: 'plan-mining-reset' });
+  PG_STATE.outputFiles = [];
+  PG_STATE.selectedOutputNames.clear();
+  pgRenderOutputState(SQX_PG_MODULE.outputState({ output_dir: PG_STATE.outputDir, files: [] }, resetState));
+  const log = pgDom('pg-log');
+  if (log) log.textContent = '[Plan Mining reiniciado: .cfx generados vacíos para la nueva sesión.]';
+  pgRenderOnboarding();
+  return resetState;
 }
 
 function pgGetOnboardingState() {
   return SQX_PG_MODULE.computeOnboardingState({
-    apiBase: PG_API,
+    apiBase: pgApiBase(),
     connected: PG_STATE.connected,
     configState: PG_STATE.config,
     dbInput: pgInputValue('pg-sqx-db'),
@@ -264,7 +368,32 @@ function pgRenderOnboarding() {
 }
 
 async function pgFetch(path, options) {
-  return SQX_PG_MODULE.fetchJson(PG_API, path, options);
+  return SQX_PG_MODULE.fetchJson(pgApiBase(), path, options);
+}
+
+function pgIsRemoteSessionRequired(error) {
+  return SQX_PG_MODULE.isRemoteSessionRequiredError
+    ? SQX_PG_MODULE.isRemoteSessionRequiredError(error)
+    : String((error && error.message) || '').toLowerCase().includes('remote_session_required');
+}
+
+function pgHandleRemoteSessionRequired(error) {
+  const message = 'Sesión SQX Edge Suite pendiente o caducada. Pulsa Acceso DASHBOARD en Bienvenida para crear la sesión de app y el workspace antes de generar o descargar .cfx.';
+  pgLog(message, 'err');
+  pgSetStatus('down', 'Sesión de app requerida', 'Acceso Cloudflare OK, pero falta activar la sesión interna de SQX Edge Suite. No se fuerza navegación desde Project Generator para evitar bucles de bienvenida.', {
+    error: (error && (error.code || error.message)) || 'remote_session_required'
+  });
+  return true;
+}
+
+function pgHandleFetchError(error, title, traceTitle) {
+  if (pgIsRemoteSessionRequired(error)) {
+    pgHandleRemoteSessionRequired(error);
+    return true;
+  }
+  if (title) pgLog(title + ': ' + error.message, 'err');
+  if (traceTitle) pgTrace(traceTitle, error.message, 'err');
+  return false;
 }
 
 function pgSetStatus(state, title, desc, meta) {
@@ -277,7 +406,7 @@ function pgSetStatus(state, title, desc, meta) {
     PG_STATE.lastTraceState = state;
     pgTrace(
       state === 'up' ? 'Backend conectado' : 'Backend desconectado',
-      state === 'up' ? ((meta && meta.sqx_path) || 'API local operativa') : desc,
+      state === 'up' ? 'Conexiones internas OK' : desc,
       state === 'up' ? 'ok' : 'err'
     );
   }
@@ -286,22 +415,28 @@ function pgSetStatus(state, title, desc, meta) {
 }
 
 async function pgCheckHealth() {
-  pgSetStatus('loading', 'Comprobando…', 'GET ' + PG_API + '/health');
+  pgSetStatus('loading', 'Comprobando…', 'Validando conexiones internas del servicio');
   try {
     const h = await pgFetch('/health');
     PG_STATE.connected = true;
     const tplOk = h.templates_capa1_exists && h.templates_capa2_exists;
     pgSetStatus('up',
-      '🟢 Backend conectado · v' + h.version,
-      'SQX path: ' + (h.sqx_path || '(no set)') + ' · Templates: ' + (tplOk ? 'C1+C2 OK' : '⚠ alguno falta'),
+      'Servicio conectado · v' + h.version,
+      'Conexiones internas: ' + (tplOk ? 'SQX, templates y workspace OK' : 'revisión requerida en templates'),
       h);
     await pgLoadAll();
   } catch(e) {
+    if (pgIsRemoteSessionRequired(e)) {
+      pgHandleRemoteSessionRequired(e);
+      return;
+    }
     PG_STATE.connected = false;
+    const diagnostic = pgConnectionDiagnostic(e);
     pgSetStatus('down',
-      '🔴 Backend desconectado',
-      'Lanza "backend/sqx-edge-tool/run-web.bat" para arrancar la API local (' + PG_API + '). Detalle: ' + e.message,
+      'Servicio desconectado',
+      'El servicio no responde. Reintenta o registra incidencia desde Control Panel. Detalle: ' + e.message + '. ' + diagnostic,
       { error: e.message });
+    await pgLoadMinings();
   }
 }
 
@@ -309,20 +444,80 @@ async function pgLoadAll() {
   await Promise.all([pgLoadConfig(), pgLoadMinings(), pgLoadOutput()]);
 }
 
+function pgNormalizePlanMining(mining) {
+  const data = mining || {};
+  return {
+    num: parseInt(data.num, 10),
+    phase: parseInt(data.phase, 10) || 0,
+    asset: String(data.asset || '').trim().toUpperCase(),
+    tf: String(data.tf || '').trim().toUpperCase(),
+    bs: String(data.bs || data.blocksetting || '').trim(),
+    dir: String(data.dir || data.direction || 'long').trim(),
+    name: data.name || '',
+    source: data.source || '',
+    blocksetting: data.blocksetting || data.blocksetting_trace || null,
+    _user: !!data._user,
+  };
+}
+
+function pgActivePlanMinings() {
+  let sourceAvailable = false;
+  let minings = [];
+  try {
+    if (typeof window.getPlanMinings === 'function') {
+      sourceAvailable = true;
+      minings = window.getPlanMinings();
+    } else if (Array.isArray(window.PLAN_ALL)) {
+      sourceAvailable = true;
+      minings = window.PLAN_ALL;
+    } else if (Array.isArray(window.PLAN_MININGS)) {
+      sourceAvailable = true;
+      minings = window.PLAN_MININGS;
+    }
+  } catch (_err) {
+    minings = [];
+  }
+  return {
+    sourceAvailable,
+    minings: (minings || []).map(pgNormalizePlanMining).filter(mining => {
+      return mining.num && mining.asset && mining.tf && mining.bs && mining.dir;
+    }).sort((a, b) => a.num - b.num),
+  };
+}
+
 async function pgLoadConfig() {
   try {
     const c = await pgFetch('/config');
     PG_STATE.config = c || {};
     pgWriteConfigInputs(c);
+    pgUpdateTargetProfileUi();
     PG_STATE.aliases = c.asset_aliases || {};
     pgRenderAliases();
     pgRenderOnboarding();
-  } catch(e) { pgLog('Error cargando config: ' + e.message, 'err'); }
+  } catch(e) {
+    if (pgHandleFetchError(e, 'Error cargando config')) return;
+  }
 }
 
 function pgRenderAliases() {
   const tbl = document.getElementById('pg-aliases-table');
   if (!tbl) return;
+  const activePlan = pgActivePlanMinings();
+  if (activePlan.sourceAvailable) {
+    tbl.innerHTML = SQX_PG_MODULE.aliasTableHtml(activePlan.minings, PG_STATE.aliases);
+    tbl.querySelectorAll('input[data-pg-alias]').forEach(inp => {
+      inp.addEventListener('change', function(){
+        const k = this.dataset.pgAlias;
+        const v = this.value.trim();
+        if (v) PG_STATE.aliases[k] = v;
+        else delete PG_STATE.aliases[k];
+      });
+    });
+    tbl.querySelectorAll('button[data-pg-suggest-asset]').forEach(btn => {
+      btn.addEventListener('click', () => pgSuggestForAsset(btn.dataset.pgSuggestAsset));
+    });
+    return;
+  }
   pgFetch('/minings').then(minings => {
     tbl.innerHTML = SQX_PG_MODULE.aliasTableHtml(minings, PG_STATE.aliases);
     tbl.querySelectorAll('input[data-pg-alias]').forEach(inp => {
@@ -383,16 +578,55 @@ async function pgSuggestAll() {
 
 async function pgLoadMinings() {
   try {
-    const minings = await pgFetch('/minings');
+    const activePlan = pgActivePlanMinings();
+    const minings = activePlan.sourceAvailable ? activePlan.minings : await pgFetch('/minings');
     PG_STATE.minings = minings;
     PG_STATE.planCount = minings.length;
     pgUpdateMiningSummary(minings.length);
+    pgRenderMiningsList(minings);
     const infos = await SQX_PG_MODULE.enrichMiningsWithSymbolInfo(minings, async asset => {
       return (await pgFetch('/symbol-info/' + asset)).info;
     });
+    PG_STATE.minings = infos;
     pgRenderMiningsList(infos);
     pgRenderOnboarding();
-  } catch(e) { pgLog('Error cargando minings: ' + e.message, 'err'); }
+  } catch(e) {
+    PG_STATE.minings = [];
+    PG_STATE.planCount = 0;
+    pgUpdateMiningSummary(0);
+    pgRenderMiningsList([]);
+    pgLog('Error cargando minings: ' + e.message, 'err');
+  }
+}
+
+function pgFindMining(num) {
+  const miningNum = parseInt(num, 10);
+  return (PG_STATE.minings || []).find(mining => parseInt(mining.num, 10) === miningNum) || null;
+}
+
+function pgProjectNameFromMining(mining) {
+  const num = String(mining.num || 0).padStart(2, '0');
+  const dir = SQX_PG_MODULE.directionLabel(mining.dir).replace(/[^A-Z0-9]/g, '');
+  return ['Mining' + num, mining.asset, mining.tf, mining.bs, dir].filter(Boolean).join('_');
+}
+
+function pgCustomPayloadFromMining(mining, capa) {
+  return pgApplyTargetProfile(pgApplyCapa2Selection({
+    name: mining.name || pgProjectNameFromMining(mining),
+    asset: mining.asset,
+    tf: mining.tf,
+    bs: mining.bs,
+    dir: mining.dir,
+    capa,
+  }, capa));
+}
+
+async function pgGenerateMiningRequest(mining, capa) {
+  if (mining && mining._user) {
+    const customResult = await pgFetch('/generate-custom', { method:'POST', body: pgCustomPayloadFromMining(mining, capa) });
+    return Object.assign({}, customResult, { mining: mining.num });
+  }
+  return await pgFetch('/generate', { method:'POST', body: pgApplyTargetProfile(pgApplyCapa2Selection({ mining: mining.num, capa }, capa)) });
 }
 
 async function pgLoadOutput() {
@@ -403,18 +637,58 @@ async function pgLoadOutput() {
     PG_STATE.outputFiles = output.files;
     pgRenderOutputState(output);
     pgRenderOnboarding();
-  } catch(e) { pgLog('Error cargando output: ' + e.message, 'err'); }
+  } catch(e) {
+    if (pgHandleFetchError(e, 'Error cargando output')) return;
+  }
+}
+
+function pgRecordEdgeFactoryGeneration(capa, mode, minings, results, extra) {
+  try {
+    if (!window.SQX || !window.SQX.edgeFactory || typeof window.SQX.edgeFactory.recordProjectGeneration !== 'function') return;
+    window.SQX.edgeFactory.recordProjectGeneration(Object.assign({
+      capa: parseInt(capa, 10) || 1,
+      mode: mode || 'methodology',
+      minings: Array.isArray(minings) ? minings : [],
+      results: Array.isArray(results) ? results : [],
+      outputFiles: PG_STATE.outputFiles || [],
+      generatedAt: new Date().toISOString()
+    }, extra || {}));
+    if (window.SQX.edgeFactoryUI && typeof window.SQX.edgeFactoryUI.renderState === 'function') {
+      window.SQX.edgeFactoryUI.renderState();
+    }
+  } catch(e) {
+    console.warn('Edge Factory generation handoff skipped:', e && e.message ? e.message : e);
+  }
+}
+
+function pgRecordEdgeFactoryDownload(kind, files, capa) {
+  try {
+    if (!window.SQX || !window.SQX.edgeFactory || typeof window.SQX.edgeFactory.recordDownloadRequest !== 'function') return;
+    window.SQX.edgeFactory.recordDownloadRequest({
+      kind: kind || 'cfx',
+      capa: capa == null ? null : capa,
+      files: files || []
+    });
+  } catch(e) {
+    console.warn('Edge Factory download handoff skipped:', e && e.message ? e.message : e);
+  }
 }
 
 async function pgGenerateOne(mining, capa) {
-  pgLog(SQX_PG_MODULE.generateOneStartMessage(mining, capa), 'info');
+  const planMining = pgFindMining(mining) || pgNormalizePlanMining({ num: mining, asset: '', tf: '', bs: '', dir: 'long' });
+  pgLog(SQX_PG_MODULE.generateOneStartMessage(planMining.num, capa), 'info');
   try {
-    const r = await pgFetch('/generate', { method:'POST', body: { mining, capa } });
-    const result = SQX_PG_MODULE.generateOneResult(r, mining, capa);
+    const r = await pgGenerateMiningRequest(planMining, capa);
+    const result = SQX_PG_MODULE.generateOneResult(r, planMining.num, capa);
     pgLog(result.logText, result.logLevel);
     pgTrace(result.traceTitle, result.traceDetail, result.traceLevel);
-    if (r.ok) await pgLoadOutput();
+    if (r.ok) {
+      await pgLoadOutput();
+      pgRecordEdgeFactoryGeneration(capa, 'methodology-one', [planMining], [Object.assign({}, r, { mining: planMining.num })]);
+      pgLog('Archivo listo en .cfx generados: pulsa Descargar en la fila o Descargar todo ZIP.', 'info');
+    }
   } catch(e) {
+    if (pgHandleFetchError(e)) return;
     const result = SQX_PG_MODULE.generateErrorResult(e.message, 'Error generando proyecto');
     pgLog(result.logText, result.logLevel);
     pgTrace(result.traceTitle, result.traceDetail, result.traceLevel);
@@ -422,7 +696,7 @@ async function pgGenerateOne(mining, capa) {
 }
 
 async function pgGenerateCustom() {
-  const body = pgReadCustomInputs();
+  const body = pgApplyTargetProfile(pgApplyCapa2Selection(pgReadCustomInputs()));
   if (!body.asset || !body.tf) {
     const status = SQX_PG_MODULE.generateCustomMissingStatus();
     pgSetCustomStatus(status.text, status.level);
@@ -437,8 +711,23 @@ async function pgGenerateCustom() {
     pgSetCustomStatus(result.text, result.level);
     pgLog(result.logText, result.logLevel);
     pgTrace(result.traceTitle, result.traceDetail, result.traceLevel);
-    if (r.ok) await pgLoadOutput();
+    if (r.ok) {
+      if (r.project_name) pgSetInputValue('pg-custom-name', r.project_name);
+      await pgLoadOutput();
+      pgRecordEdgeFactoryGeneration(body.capa || 1, 'manual', [], [r], { custom: Object.assign({}, body, { name: r.project_name || body.name }) });
+      pgLog('Archivo listo en .cfx generados: pulsa Descargar en la fila o Descargar todo ZIP.', 'info');
+      if (r.visual_guide_pdf) {
+        if (r.visual_guide_pdf.ok) {
+          pgLog('PDF guia visual listo: ' + r.visual_guide_pdf.filename + ' (output/pdf).', 'ok');
+          pgTrace('PDF guia visual generado', r.visual_guide_pdf.filename, 'ok');
+        } else {
+          pgLog('PDF guia visual no generado: ' + (r.visual_guide_pdf.error || 'error desconocido'), 'err');
+          pgTrace('PDF guia visual no generado', r.visual_guide_pdf.error || 'error desconocido', 'err');
+        }
+      }
+    }
   } catch(e) {
+    if (pgHandleFetchError(e)) return;
     const result = SQX_PG_MODULE.generateCustomResult({ ok:false, error:e.message }, body);
     pgSetCustomStatus(result.text, result.level);
     pgLog(result.logText, result.logLevel);
@@ -477,7 +766,6 @@ function pgLoadCustomPreset() {
   pgSetCustomStatus('Preset cargado: ' + preset.name, 'ok');
   pgLog('Preset custom cargado: ' + preset.name, 'info');
   pgTrace('Preset custom cargado', preset.name, 'info');
-  pgRenderBuyerCfxHandoff();
 }
 
 function pgDeleteCustomPreset() {
@@ -505,110 +793,6 @@ function pgExportCustomPresets() {
   pgSetCustomStatus('Pack exportado: ' + pack.presets.length + ' presets.', 'ok');
   pgSetCustomPackStatus('Pack JSON listo para otra instalacion.');
   pgLog('Pack de presets custom exportado: ' + pack.presets.length + ' presets.', 'ok');
-}
-
-function pgLoadCustomStarterProfile(id) {
-  const profile = SQX_PG_MODULE.findCustomStarterProfile && SQX_PG_MODULE.findCustomStarterProfile(id);
-  if (!profile) {
-    pgSetCustomStatus('No se encontro el perfil starter seleccionado.', 'err');
-    return;
-  }
-  pgWriteCustomInputs(profile.config);
-  pgSetCustomStatus('Perfil starter cargado: ' + profile.name, 'ok');
-  pgSetCustomPackStatus('Ajusta cualquier campo y genera el custom libre.');
-  pgLog('Perfil starter cargado: ' + profile.name, 'info');
-  pgTrace('Perfil starter cargado', profile.name, 'info');
-  pgRenderBuyerCfxHandoff();
-}
-
-function pgSaveCustomStarterProfile(id) {
-  const preset = SQX_PG_MODULE.customStarterProfileToPreset && SQX_PG_MODULE.customStarterProfileToPreset(id);
-  if (!preset) {
-    pgSetCustomStatus('No se pudo guardar el perfil starter.', 'err');
-    return;
-  }
-  const result = SQX_PG_MODULE.importCustomProjectPresetPackage({ presets: [preset] });
-  pgRenderCustomPresets(preset.id);
-  pgSetCustomStatus('Starter guardado como preset: ' + preset.name, 'ok');
-  pgSetCustomPackStatus('Preset disponible en el selector local.');
-  pgLog('Starter guardado como preset: ' + preset.name + ' (' + result.presets.length + ' totales).', 'ok');
-  pgTrace('Starter guardado como preset', preset.name, 'ok');
-}
-
-function pgExportCustomStarterProfiles() {
-  if (!SQX_PG_MODULE.buildCustomStarterProfilePack) return;
-  const pack = SQX_PG_MODULE.buildCustomStarterProfilePack();
-  pgDownloadJson('sqx-custom-starter-profiles-v1.json', pack);
-  pgSetCustomStatus('Pack starter exportado: ' + pack.presets.length + ' perfiles.', 'ok');
-  pgSetCustomPackStatus('Pack starter listo para importar como presets custom.');
-  pgLog('Pack starter custom exportado: ' + pack.presets.length + ' perfiles.', 'ok');
-}
-
-function pgLoadCustomProfileFamily(id) {
-  const family = SQX_PG_MODULE.findCustomProfileFamily && SQX_PG_MODULE.findCustomProfileFamily(id);
-  if (!family || !family.profiles.length) {
-    pgSetCustomStatus('No se encontro la familia de perfiles seleccionada.', 'err');
-    return;
-  }
-  const first = family.profiles[0];
-  pgWriteCustomInputs(first.config);
-  pgSetCustomStatus('Familia cargada: ' + family.name + ' · primer perfil: ' + first.name, 'ok');
-  pgSetCustomPackStatus('Guarda el pack completo o ajusta el primer perfil antes de generar.');
-  pgLog('Familia custom cargada: ' + family.name, 'info');
-  pgTrace('Familia custom cargada', family.name, 'info');
-  pgRenderBuyerCfxHandoff();
-}
-
-function pgSaveCustomProfileFamily(id) {
-  const family = SQX_PG_MODULE.findCustomProfileFamily && SQX_PG_MODULE.findCustomProfileFamily(id);
-  const pack = SQX_PG_MODULE.buildCustomProfileFamilyPack && SQX_PG_MODULE.buildCustomProfileFamilyPack(id);
-  if (!family || !pack || !pack.presets.length) {
-    pgSetCustomStatus('No se pudo guardar la familia de perfiles.', 'err');
-    return;
-  }
-  const result = SQX_PG_MODULE.importCustomProjectPresetPackage(pack);
-  pgRenderCustomPresets(pack.presets[0] && pack.presets[0].id);
-  pgSetCustomStatus('Familia guardada: ' + family.name + ' · ' + pack.presets.length + ' presets.', 'ok');
-  pgSetCustomPackStatus('Pack disponible en el selector de presets custom.');
-  pgLog('Familia custom guardada: ' + family.name + ' (' + result.presets.length + ' totales).', 'ok');
-  pgTrace('Familia custom guardada', family.name, 'ok');
-}
-
-function pgExportCustomProfileFamily(id) {
-  const family = SQX_PG_MODULE.findCustomProfileFamily && SQX_PG_MODULE.findCustomProfileFamily(id);
-  const pack = SQX_PG_MODULE.buildCustomProfileFamilyPack && SQX_PG_MODULE.buildCustomProfileFamilyPack(id);
-  if (!family || !pack) {
-    pgSetCustomStatus('No se pudo exportar la familia de perfiles.', 'err');
-    return;
-  }
-  pgDownloadJson('sqx-custom-profile-family-' + family.id + '.json', pack);
-  pgSetCustomStatus('Familia exportada: ' + family.name + '.', 'ok');
-  pgSetCustomPackStatus('Pack de familia listo para otra instalacion.');
-  pgLog('Familia custom exportada: ' + family.name + ' · ' + pack.presets.length + ' presets.', 'ok');
-}
-
-function pgExportCustomProfileFamilies() {
-  if (!SQX_PG_MODULE.buildAllCustomProfileFamilyPack) return;
-  const pack = SQX_PG_MODULE.buildAllCustomProfileFamilyPack();
-  pgDownloadJson('sqx-custom-profile-families-v1.json', pack);
-  pgSetCustomStatus('Pack de familias exportado: ' + pack.presets.length + ' presets.', 'ok');
-  pgSetCustomPackStatus('Familias listas para importar como presets custom.');
-  pgLog('Pack de familias custom exportado: ' + pack.presets.length + ' presets.', 'ok');
-}
-
-function pgHandleCustomStarterProfileClick(event) {
-  const target = event && event.target;
-  if (!target || !target.dataset) return;
-  if (target.dataset.pgStarterLoad) pgLoadCustomStarterProfile(target.dataset.pgStarterLoad);
-  if (target.dataset.pgStarterSave) pgSaveCustomStarterProfile(target.dataset.pgStarterSave);
-}
-
-function pgHandleCustomProfileFamilyClick(event) {
-  const target = event && event.target;
-  if (!target || !target.dataset) return;
-  if (target.dataset.pgFamilyLoad) pgLoadCustomProfileFamily(target.dataset.pgFamilyLoad);
-  if (target.dataset.pgFamilySave) pgSaveCustomProfileFamily(target.dataset.pgFamilySave);
-  if (target.dataset.pgFamilyExport) pgExportCustomProfileFamily(target.dataset.pgFamilyExport);
 }
 
 function pgOpenImportCustomPresets() {
@@ -653,23 +837,94 @@ function pgImportCustomPresets(event) {
 }
 
 async function pgGenerateAll(capa) {
-  if (!confirm(SQX_PG_MODULE.generateAllConfirmMessage(capa, PG_STATE.planCount))) return;
-  pgLog(SQX_PG_MODULE.generateAllStartMessage(capa), 'info');
-  try {
-    const r = await pgFetch('/generate-all', { method:'POST', body: { capa } });
-    const summary = SQX_PG_MODULE.generateAllResultSummary(r);
-    const trace = SQX_PG_MODULE.generateAllTrace(capa, r);
-    pgLog(summary.text, summary.level);
-    pgTrace(trace.title, trace.detail, trace.level);
-    SQX_PG_MODULE.generateAllResultLines(r.results).forEach(line => {
-      pgLog(line.text, line.level);
-    });
-    await pgLoadOutput();
-  } catch(e) {
-    const result = SQX_PG_MODULE.generateErrorResult(e.message, 'Error en generacion masiva');
-    pgLog(result.logText, result.logLevel);
-    pgTrace(result.traceTitle, result.traceDetail, result.traceLevel);
+  const minings = (PG_STATE.minings || []).slice();
+  if (!minings.length) {
+    pgLog('No hay minings activos en Plan Mining para generar.', 'err');
+    return;
   }
+  if (!confirm(SQX_PG_MODULE.generateAllConfirmMessage(capa, minings.length))) return;
+  pgLog(SQX_PG_MODULE.generateAllStartMessage(capa), 'info');
+  const results = [];
+  for (const mining of minings) {
+    try {
+      pgLog(SQX_PG_MODULE.generateOneStartMessage(mining.num, capa), 'info');
+      const r = await pgGenerateMiningRequest(mining, capa);
+      results.push(Object.assign({}, r, { mining: mining.num }));
+    } catch(e) {
+      if (pgHandleFetchError(e)) return;
+      results.push({ ok:false, mining:mining.num, error:e.message });
+    }
+  }
+  const okCount = results.filter(result => result.ok).length;
+  const summaryPayload = { ok: okCount === results.length, ok_count: okCount, fail_count: results.length - okCount, results };
+  const summary = SQX_PG_MODULE.generateAllResultSummary(summaryPayload);
+  const trace = SQX_PG_MODULE.generateAllTrace(capa, summaryPayload);
+  pgLog(summary.text, summary.level);
+  pgTrace(trace.title, trace.detail, trace.level);
+  SQX_PG_MODULE.generateAllResultLines(results).forEach(line => {
+    pgLog(line.text, line.level);
+  });
+  await pgLoadOutput();
+  pgRecordEdgeFactoryGeneration(capa, 'methodology-all', minings, results);
+  pgLog('Generación terminada. Descarga desde .cfx generados con Descargar, Descargar seleccionados o Descargar todo ZIP.', 'info');
+}
+
+async function pgGenerateSelected(capa) {
+  const selected = (PG_STATE.minings || []).filter(mining => PG_STATE.selectedMiningNums.has(parseInt(mining.num, 10)));
+  if (!selected.length) {
+    pgLog('Selecciona al menos un mining del plan antes de generar.', 'err');
+    return;
+  }
+  if (!confirm(SQX_PG_MODULE.generateAllConfirmMessage(capa, selected.length))) return;
+  pgLog('Generando seleccionados · Capa ' + capa + '…', 'info');
+  const results = [];
+  for (const mining of selected) {
+    try {
+      pgLog(SQX_PG_MODULE.generateOneStartMessage(mining.num, capa), 'info');
+      const r = await pgGenerateMiningRequest(mining, capa);
+      results.push(Object.assign({}, r, { mining: mining.num }));
+    } catch(e) {
+      if (pgHandleFetchError(e)) return;
+      results.push({ ok:false, mining:mining.num, error:e.message });
+    }
+  }
+  const okCount = results.filter(result => result.ok).length;
+  const summary = SQX_PG_MODULE.generateAllResultSummary({ ok_count: okCount, fail_count: results.length - okCount });
+  pgLog(summary.text, summary.level);
+  SQX_PG_MODULE.generateAllResultLines(results).forEach(line => {
+    pgLog(line.text, line.level);
+  });
+  await pgLoadOutput();
+  pgRecordEdgeFactoryGeneration(capa, 'methodology-selected', selected, results);
+  pgLog('Generación terminada. Descarga desde .cfx generados con Descargar, Descargar seleccionados o Descargar todo ZIP.', 'info');
+}
+
+function pgSelectAllMinings() {
+  (PG_STATE.minings || []).forEach(mining => PG_STATE.selectedMiningNums.add(parseInt(mining.num, 10)));
+  pgRenderMiningsList(PG_STATE.minings);
+}
+
+function pgClearSelectedMinings() {
+  PG_STATE.selectedMiningNums.clear();
+  pgRenderMiningsList(PG_STATE.minings);
+}
+
+function pgDeleteSelectedMinings() {
+  const selected = Array.from(PG_STATE.selectedMiningNums).filter(Boolean).sort((a, b) => a - b);
+  if (!selected.length) {
+    pgLog('Selecciona al menos un mining del plan antes de borrar.', 'err');
+    return;
+  }
+  if (typeof window.removePlanMiningsByNums !== 'function') {
+    pgLog('Borrado de selección no disponible en este contexto.', 'err');
+    return;
+  }
+  if (!confirm('Borrar ' + selected.length + ' mining(s) seleccionados del Plan Mining? Esta acción afecta al plan activo del workspace.')) return;
+  const summary = window.removePlanMiningsByNums(selected) || {};
+  PG_STATE.selectedMiningNums.clear();
+  pgLoadMinings();
+  pgRenderAliases();
+  pgLog('Plan Mining actualizado: ' + (summary.removed || 0) + ' mining(s) borrados de la selección.', summary.removed ? 'ok' : 'err');
 }
 
 async function pgSaveConfig() {
@@ -729,23 +984,124 @@ async function pgValidateSqxPath() {
   }
 }
 
+function pgOutputDownloadUrl(path) {
+  return (pgApiBase() || '') + path;
+}
+
+function pgStartBrowserDownload(url) {
+  window.location.assign(url);
+}
+
+function pgFilenameFromDisposition(headerValue, fallback) {
+  const header = String(headerValue || '');
+  const utf = header.match(/filename\*=UTF-8''([^;]+)/i);
+  if (utf && utf[1]) return decodeURIComponent(utf[1].replace(/"/g, ''));
+  const plain = header.match(/filename="?([^";]+)"?/i);
+  return plain && plain[1] ? plain[1] : fallback;
+}
+
+async function pgDownloadOutputBundle(names) {
+  const selected = (names || []).map(name => String(name || '').trim()).filter(Boolean);
+  if (!selected.length) {
+    pgLog('No hay .cfx seleccionados para descargar.', 'err');
+    return;
+  }
+  try {
+    const response = await fetch(pgOutputDownloadUrl('/output/download-selected'), {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ files: selected })
+    });
+    if (!response.ok) {
+      let message = 'HTTP ' + response.status;
+      let code = '';
+      try {
+        const data = await response.json();
+        code = data.error || '';
+        message = data.message || data.error || message;
+      } catch (_err) {}
+      const error = new Error(message);
+      error.status = response.status;
+      error.code = code;
+      throw error;
+    }
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = pgFilenameFromDisposition(response.headers.get('Content-Disposition'), selected.length === 1 ? selected[0] : 'sqx-edge-suite-cfx-selected.zip');
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    pgRecordEdgeFactoryDownload(selected.length === 1 ? 'cfx' : 'cfx-zip', selected);
+    pgLog('Descarga solicitada: ' + selected.length + ' .cfx. El navegador la guardará en Descargas.', 'ok');
+  } catch(e) {
+    if (pgHandleFetchError(e)) return;
+    pgLog('Error descargando .cfx seleccionado(s): ' + e.message, 'err');
+  }
+}
+
+function pgDownloadOutputFile(name) {
+  const clean = String(name || '').trim();
+  if (!clean) {
+    pgLog('No hay archivo .cfx seleccionado para descargar.', 'err');
+    return;
+  }
+  pgStartBrowserDownload(pgOutputDownloadUrl('/output/download/' + encodeURIComponent(clean)));
+  pgRecordEdgeFactoryDownload('cfx', [clean]);
+  pgLog('Descarga solicitada: ' + clean + '. El navegador la guardará en su carpeta Descargas configurada.', 'ok');
+}
+
+function pgDownloadAllOutput() {
+  if (!(PG_STATE.outputFiles || []).length) {
+    pgLog('No hay .cfx generados para descargar.', 'err');
+    return;
+  }
+  pgStartBrowserDownload(pgOutputDownloadUrl('/output/download-all'));
+  pgRecordEdgeFactoryDownload('cfx-zip', PG_STATE.outputFiles || []);
+  pgLog('Descarga ZIP solicitada. El navegador la guardará en su carpeta Descargas configurada.', 'ok');
+}
+
+function pgDownloadSelectedOutputFiles() {
+  const selected = Array.from(PG_STATE.selectedOutputNames).filter(Boolean);
+  if (!selected.length) {
+    pgDownloadAllOutput();
+    return;
+  }
+  pgDownloadOutputBundle(selected);
+}
+
+async function pgDeleteOutputFiles(names) {
+  const selected = (names || []).map(name => String(name || '').trim()).filter(Boolean);
+  if (!selected.length) {
+    pgLog('Selecciona al menos un .cfx generado antes de borrar.', 'err');
+    return;
+  }
+  if (!confirm('Borrar ' + selected.length + ' archivo(s) .cfx generado(s) del output activo?')) return;
+  try {
+    const result = await pgFetch('/output/delete', { method:'POST', body: { files: selected } });
+    selected.forEach(name => PG_STATE.selectedOutputNames.delete(name));
+    pgLog('Output actualizado: ' + (result.deleted || []).length + ' .cfx borrado(s).', result.ok ? 'ok' : 'err');
+    await pgLoadOutput();
+  } catch(e) {
+    if (pgHandleFetchError(e)) return;
+    pgLog('Error borrando .cfx generado(s): ' + e.message, 'err');
+  }
+}
+
+function pgDeleteSelectedOutputFiles() {
+  pgDeleteOutputFiles(Array.from(PG_STATE.selectedOutputNames));
+}
+
 async function pgOpenOutputFolder() {
   if (!PG_STATE.connected) {
     const status = SQX_PG_MODULE.openOutputDisconnectedStatus();
     pgLog(status.logText, status.logLevel);
     return;
   }
-  try {
-    const outputDir = PG_STATE.outputDir || (await pgFetch('/output')).output_dir;
-    await pgFetch('/open-folder', { method:'POST', body: { path: outputDir } });
-    const status = SQX_PG_MODULE.openOutputSuccessStatus(outputDir);
-    pgLog(status.logText, status.logLevel);
-    pgTrace(status.traceTitle, status.traceDetail, status.traceLevel);
-  } catch(e) {
-    const status = SQX_PG_MODULE.openOutputErrorStatus(e.message);
-    pgLog(status.logText, status.logLevel);
-    pgTrace(status.traceTitle, status.traceDetail, status.traceLevel);
-  }
+  pgDownloadAllOutput();
 }
 
 async function pgRunOnboardingAction() {
@@ -805,10 +1161,14 @@ async function pgRunOnboardingTertiaryAction() {
 (function pgInit(){
   const refresh = document.getElementById('pg-status-refresh');
   if (!refresh) return; // tab no está en el HTML
-  pgRenderCustomStarterProfiles();
-  pgRenderCustomProfileFamilies();
   pgRenderCustomPresets();
-  pgRenderBuyerCfxHandoff();
+  pgSetGenerationMode('');
+  pgUpdateTargetProfileUi();
+  ['pg-target-profile', 'pg-target-postfix', 'pg-target-symbol', 'pg-target-broker-id', 'pg-target-source-id', 'pg-target-broker-name', 'pg-target-timezone'].forEach(id => {
+    const el = pgDom(id);
+    if (el) el.addEventListener(id === 'pg-target-profile' ? 'change' : 'input', pgUpdateTargetProfileUi);
+  });
+  pgLoadMinings();
 
   // ── Strategy Cleaner ──
   const CLN_STATE = {
@@ -919,16 +1279,14 @@ async function pgRunOnboardingTertiaryAction() {
   SQX_PG_BINDINGS.bindProjectGeneratorEvents(document, {
     autodetectSqx: pgAutodetectSqx,
     checkHealth: pgCheckHealth,
-    copyBuyerCfxHandoff: pgCopyBuyerCfxHandoff,
     deleteCustomPreset: pgDeleteCustomPreset,
-    downloadBuyerCfxHandoff: pgDownloadBuyerCfxHandoff,
-    exportCustomStarterProfiles: pgExportCustomStarterProfiles,
-    exportCustomProfileFamilies: pgExportCustomProfileFamilies,
+    deleteSelectedMinings: pgDeleteSelectedMinings,
+    deleteSelectedOutputFiles: pgDeleteSelectedOutputFiles,
+    downloadSelectedOutputFiles: pgDownloadSelectedOutputFiles,
     exportCustomPresets: pgExportCustomPresets,
-    generateAll: pgGenerateAll,
+    clearSelectedMinings: pgClearSelectedMinings,
     generateCustom: pgGenerateCustom,
-    handleCustomStarterProfileClick: pgHandleCustomStarterProfileClick,
-    handleCustomProfileFamilyClick: pgHandleCustomProfileFamilyClick,
+    generateSelected: pgGenerateSelected,
     importCustomPresets: pgImportCustomPresets,
     loadCustomPreset: pgLoadCustomPreset,
     loadConfig: pgLoadConfig,
@@ -938,9 +1296,10 @@ async function pgRunOnboardingTertiaryAction() {
     runOnboardingAction: pgRunOnboardingAction,
     runOnboardingSecondaryAction: pgRunOnboardingSecondaryAction,
     runOnboardingTertiaryAction: pgRunOnboardingTertiaryAction,
-    renderBuyerCfxHandoff: pgRenderBuyerCfxHandoff,
     saveCustomPreset: pgSaveCustomPreset,
     saveConfig: pgSaveConfig,
+    selectAllMinings: pgSelectAllMinings,
+    setGenerationMode: pgSetGenerationMode,
     setSettingsOpen: pgSetSettingsOpen,
     suggestAll: pgSuggestAll,
     validateSqxPath: pgValidateSqxPath,
@@ -955,4 +1314,15 @@ async function pgRunOnboardingTertiaryAction() {
     checkHealth: pgCheckHealth,
     renderOnboarding: pgRenderOnboarding,
   });
+  SQX_PG_MODULE.getCurrentOutputFiles = () => (PG_STATE.outputFiles || []).slice();
+  SQX_PG_MODULE.resetGeneratedCfxSession = pgResetGeneratedCfxSession;
+  window.addEventListener('sqx:project-generator-output-reset', event => {
+    pgResetGeneratedCfxSession(event && event.detail);
+  });
+  window.addEventListener('sqx:plan-minings-changed', () => {
+    pgLoadMinings();
+    pgRenderAliases();
+    pgRenderOnboarding();
+  });
+  window.pgActivateProjectGenerationMode = pgSetGenerationMode;
 })();

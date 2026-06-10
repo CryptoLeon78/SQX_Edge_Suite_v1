@@ -40,6 +40,10 @@ assert.equal(SQX.domain.getSqxConfig({ cats: { trend: { dir: 'L/S' } } }).code, 
 assert.equal(SQX.domain.getSqxConfig({ cats: { trend: { dir: 'L' }, trend_S: { dir: 'S' } } }).code, 'B');
 assert.equal(SQX.domain.tfMatch('M15,H1,H4', 'H1'), true);
 assert.equal(SQX.domain.assetMatchesSqxFilter(asset, 'C'), true);
+assert.equal(SQX.domain.assetMatchesSqxFilter({ type: 'forex', cats: { trend: { dir: 'L/S' } } }, 'D'), true);
+assert.equal(SQX.domain.assetMatchesSqxFilter({ type: 'oro', cats: { trend_S: { dir: 'S' } } }, 'D'), false);
+assert.equal(SQX.domain.resolveSqxDirection('D', 'L/S'), 'S');
+assert.equal(SQX.domain.isShortBlockedAsset({ type: 'index' }), true);
 
 const scores = {
   EURUSD: {

@@ -20,6 +20,8 @@ const aliasResolution = cvc.resolveColumnAliases([
   '# trades',
   'Trades Long',
   'Trades Short',
+  'Avg. Bars in Trade',
+  'Avg. Trades Per Month',
   'Unknown Col',
 ]);
 assert.equal(aliasResolution.columns.strategy_name, 0);
@@ -29,6 +31,8 @@ assert.equal(aliasResolution.columns.return_drawdown, 3);
 assert.equal(aliasResolution.columns.trades, 4);
 assert.equal(aliasResolution.columns.trades_long, 5);
 assert.equal(aliasResolution.columns.trades_short, 6);
+assert.equal(aliasResolution.columns.avg_bars, 7);
+assert.equal(aliasResolution.columns.avg_trades_per_month, 8);
 assert.equal(aliasResolution.unknown.length, 1);
 
 assert.equal(cvc.parseNumber('1,42').value, 1.42);
@@ -82,6 +86,30 @@ assert.equal(shortDirection.source, 'name_pattern');
 const defaultDirection = cvc.detectDirection({ strategy_name: 'Neutral Candidate', symbol: 'EURUSD' });
 assert.equal(defaultDirection.direction, 'long_only');
 assert.equal(defaultDirection.warning, 'direction_defaulted');
+
+const meanRevertArch = cvc.detectArchetype({
+  strategy_name: 'AUDCAD short fade',
+  entry_indicators: 'ATR SuperTrend RSI',
+  avg_bars: 10.5,
+  avg_trades_per_month: 16,
+});
+assert.equal(meanRevertArch.archetype, 'MEAN_REVERT');
+assert.equal(meanRevertArch.confidence, 'medium');
+
+const scalperArch = cvc.detectArchetype({
+  entry_indicators: 'RSI',
+  avg_bars: 2.5,
+  avg_trades_per_month: 45,
+});
+assert.equal(scalperArch.archetype, 'SCALPER');
+assert.equal(scalperArch.confidence, 'high');
+
+const timeline = cvc.buildOosTimeline({ symbol: 'NASDAQ', block_count: 4 }, { now: '2026-05' });
+assert.equal(timeline.ok, true);
+assert.equal(timeline.profile, 'indices');
+assert.equal(timeline.blocks.length, 4);
+assert.equal(timeline.blocks[0].start, '2018-01');
+assert.equal(timeline.blocks[3].end, '2026-04');
 
 const incompleteChampion = cvc.parseStrategyCsv('Strategy Name,Symbol,PF\nOnly,EURUSD,1.2', { role: 'champion' });
 assert.equal(incompleteChampion.ok, false);

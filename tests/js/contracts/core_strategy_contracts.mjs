@@ -26,7 +26,7 @@ const manual = SQX.strategies.manualStrategyFromValues({
   mining: '17',
   asset: 'EURUSD',
   tf: 'H1',
-  blocksetting: 'BS_Tendencia',
+  blocksetting: 'BS_Tendencia_v6',
   template: 'PHASE17',
   direction: 'L',
   indicators: 'EMA, MACD',

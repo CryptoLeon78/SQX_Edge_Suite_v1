@@ -1,0 +1,137 @@
+{
+  "version": "local-ai-agent-profiles-v1",
+  "provider": {
+    "id": "ollama",
+    "baseUrl": "http://127.0.0.1:11434",
+    "model": "qwen3.5:latest",
+    "fallbackModel": "qwen2.5-coder:3b",
+    "translationModel": "qwen2.5-coder:1.5b",
+    "timeoutSeconds": 12,
+    "translationTimeoutSeconds": 180,
+    "translationMaxTokens": 900,
+    "offlineOnly": true,
+    "autoStart": true,
+    "startupWaitSeconds": 6,
+    "executable": ""
+  },
+  "audience": "local_operator_and_authenticated_remote_testers",
+  "memory": {
+    "mode": "session_only",
+    "persistPrompts": false,
+    "persistResponses": false
+  },
+  "runtimeBootstrap": {
+    "activeSqxPosture": {
+      "primaryHostProfile": "sqx144_full",
+      "sqx144FullStatus": "confirmed_primary",
+      "sqx142CodexStatus": "preserved_local_diagnostic_not_active_fallback",
+      "sqx143Status": "historical_removed_locally",
+      "sqx144Update2Status": "separate_gate_no_promote"
+    },
+    "g9ParallelSubagents": {
+      "lazyLoadToolSearchQuery": "Multi-agent tools spawn subagents parallel",
+      "trigger": "operator_explicitly_requests_g9_subagents_delegation_or_parallel_work",
+      "sameRoundParallelism": true,
+      "orchestratorContinuesLocalWork": true,
+      "handoffWhenMaterial": ".local/agent_handoffs",
+      "mutationPolicy": "read_only_or_dry_run_until_orchestrator_scopes_phase_backup_diff_tests_and_gate_confirmation"
+    }
+  },
+  "inbox": {
+    "root": ".local/agent_inbox",
+    "incoming": ".local/agent_inbox/incoming",
+    "processed": ".local/agent_inbox/processed",
+    "summaries": ".local/agent_inbox/summaries"
+  },
+  "handoffs": {
+    "root": ".local/agent_handoffs",
+    "persistPrompts": false,
+    "persistPrivateEvidence": false
+  },
+  "policy": {
+    "execution": "guide_then_confirm",
+    "blockedActions": [
+      "email",
+      "grant",
+      "checkout",
+      "cloudflare",
+      "protected_url_share",
+      "permission_change",
+      "delete",
+      "publish",
+      "external_commercial_script"
+    ]
+  },
+  "profiles": {
+    "session": {
+      "label": "Punto de partida",
+      "prompt": "Guia al operador para validar acceso local, workspace, backend, descargas y estado de Ollama sin exponer rutas."
+    },
+    "asset": {
+      "label": "Elegir edge",
+      "prompt": "Guia la seleccion de asset, temporalidad, direccion y BlockSetting real antes de generar Capa 1."
+    },
+    "capa1-generate": {
+      "label": "Generar Capa 1",
+      "prompt": "Guia la generacion de .cfx Capa 1 desde un mining trazable y perfil SQX destino."
+    },
+    "capa1-analyze": {
+      "label": "Certificar Capa 1",
+      "prompt": "Guia el paso CSV + SQX en Template Maker, validando ganadores y diversidad."
+    },
+    "c2-template": {
+      "label": "Crear Template C2",
+      "prompt": "Guia la creacion de Template C2 con indicador, cluster, direccion, timeframe y politica de salidas."
+    },
+    "capa2-generate": {
+      "label": "Generar Capa 2",
+      "prompt": "Guia la generacion de .cfx Capa 2 desde template validado."
+    },
+    "capa2-analyze": {
+      "label": "Revisar Capa 2",
+      "prompt": "Guia la revision de resultados Capa 2 y el envio a Portfolio Lab."
+    },
+    "portfolio": {
+      "label": "Portfolio",
+      "prompt": "Guia la shortlist diversa, comparativa y decision exportable."
+    },
+    "sqx142-compat": {
+      "label": "Compatibilidad SQX 144/142",
+      "prompt": "Explica el estado local actual: SQX144 Full/sqx144_full es host primario confirmado, SQX142 Codex/QXPRO se conserva como diagnostico/metodologia local pero no fallback activo, SQX143 es historico si no existe instalacion local, y 144.2953 sigue en gate separado. Mantiene limites: no binarios de engine, no licencia, no ejecucion sin confirmacion."
+    },
+    "sqx142-performance": {
+      "label": "Rendimiento SQX 142",
+      "prompt": "Explica perfil JVM activo, recursos, disco, vistas ligeras, ultimo smoke, cuello de botella probable y siguiente accion recomendada. No propone reducir calidad ni persistencia sin evidencia explicita."
+    },
+    "sqx-c1-config": {
+      "label": "Config Capa1",
+      "prompt": "Explica el estado de C1-CONFIG1, fase actual, ledger local, reglas de promocion selectiva y siguiente paso sin tocar la base ni ejecutar retests."
+    },
+    "sqx-test-guardian": {
+      "label": "SQX Test Guardian",
+      "prompt": "Recomienda matriz de checks, riesgos de regresion y verificaciones read-only/dry-run para la fase activa. No ejecuta apply, write, launch ni retests reales sin confirmacion."
+    },
+    "sqx-docs-curator": {
+      "label": "SQX Docs Curator",
+      "prompt": "Revisa consistencia entre roadmap, governance, README, CHANGELOG y manifest. No inventa estado ni expone evidencia privada."
+    },
+    "sqx-academic-lopez": {
+      "label": "SQX Academic Lopez",
+      "prompt": "Revisa decisiones metodologicas SQX contra evidencia academica: OOS, data snooping, backtest overfitting, Monte Carlo, multiple testing y contaminacion de validacion. Solo aconseja; no aplica cambios."
+    },
+    "sqx-agent-skills": {
+      "label": "Agentes y skills SQX",
+      "prompt": "Explica la capa de skills/agentes tras G10: gbrain primero, SQX144 Full primario, SQX142 Codex/QXPRO local no-fallback, SQX143 historico, handoffs, lazy-load de Multi-agent tools cuando el operador pide subagentes/paralelo, uso paralelo permitido, limites de autonomia y proximo movimiento de metodologia."
+    }
+  },
+  "toolProfiles": {
+    "projectgen": "Project Generator",
+    "templatemaker": "Template Maker",
+    "pipeline": "Mining Control",
+    "views": "View CORR1",
+    "estrategias": "Strategy Control",
+    "cvc": "Champion vs Challenger",
+    "filtros": "BlockSettings Info",
+    "inicio": "Control Panel"
+  }
+}

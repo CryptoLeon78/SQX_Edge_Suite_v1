@@ -128,6 +128,21 @@ assert.equal(longShortEgt.direction, 'long_short');
 assert.equal(longShortEgt.verdict, 'RISK');
 assert.ok(longShortEgt.failed_regimes.includes('BEAR'));
 
+const shortOnlyEgt = regime.assessEgtV2({
+  primary_metric: 'CAGR/Max DD',
+  metrics_by_block: {
+    1: { 'CAGR/Max DD': 0.4 },
+    2: { 'CAGR/Max DD': 0.3 },
+    3: { 'CAGR/Max DD': 2.8 },
+    4: { 'CAGR/Max DD': 2.6 },
+    5: { 'CAGR/Max DD': 0.7 },
+    6: { 'CAGR/Max DD': 0.6 },
+  },
+}, regimeBlocks, { thresholds: { direction: 'short_only' } });
+assert.equal(shortOnlyEgt.direction, 'short_only');
+assert.equal(shortOnlyEgt.verdict, 'STRONG');
+assert.equal(shortOnlyEgt.thresholds.BEAR.strong, 2.5);
+
 const coherentLong = regime.assessDirectionalCoherence({
   primary_metric: 'CAGR/Max DD',
   metrics_by_block: {
@@ -170,6 +185,44 @@ const brokenLongShort = regime.assessDirectionalCoherence({
 }, regimeBlocks, { direction: 'long_short' });
 assert.equal(brokenLongShort.verdict, 'BROKEN');
 assert.ok(brokenLongShort.flags.includes('BROKEN_BEAR'));
+
+const meanRevertShort = regime.assessDirectionalCoherence({
+  primary_metric: 'CAGR/Max DD',
+  metrics_by_block: {
+    1: { 'Net Profit': 100 },
+    2: { 'Net Profit': 95 },
+    3: { 'Net Profit': -20 },
+    4: { 'Net Profit': 105 },
+    5: { 'Net Profit': 110 },
+    6: { 'Net Profit': 120 },
+  },
+}, [
+  { idx: 1, group: 'RANGE' },
+  { idx: 2, group: 'RANGE' },
+  { idx: 3, group: 'BEAR' },
+  { idx: 4, group: 'RANGE' },
+  { idx: 5, group: 'RANGE' },
+  { idx: 6, group: 'RANGE' },
+], { direction: 'short_only' });
+assert.equal(meanRevertShort.verdict, 'OK_MEAN_REVERT');
+assert.ok(meanRevertShort.flags.includes('MEAN_REVERT_SHORT'));
+
+const volPositive = regime.computeVolatilityCoherence({
+  primary_metric: 'CAGR/Max DD',
+  metrics_by_block: {
+    1: { 'Net Profit': 10 },
+    2: { 'Net Profit': 20 },
+    3: { 'Net Profit': 30 },
+    4: { 'Net Profit': 40 },
+  },
+}, [
+  { idx: 1, group: 'RANGE', volatility: 0.05 },
+  { idx: 2, group: 'RANGE', volatility: 0.10 },
+  { idx: 3, group: 'RANGE', volatility: 0.15 },
+  { idx: 4, group: 'RANGE', volatility: 0.20 },
+], { minBlocks: 4 });
+assert.equal(volPositive.verdict, 'VOL_POSITIVE');
+assert.ok(volPositive.correlation > 0.9);
 
 const minTradesEgt = regime.assessEgtV2(strongOos, regimeBlocks, { minTradesPerBlock: 100 });
 assert.equal(minTradesEgt.verdict, 'UNKNOWN');

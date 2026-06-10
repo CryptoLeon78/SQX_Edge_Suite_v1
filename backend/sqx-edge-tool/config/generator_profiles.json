@@ -1,37 +1,249 @@
 {
-  "version": 1,
+  "version": 2,
   "defaultBrokerPostfix": "_darwinex",
+  "brokerProfiles": {
+    "darwinex": {
+      "id": "darwinex",
+      "label": "Darwinex / SQX Edge",
+      "brokerPostfix": "_darwinex",
+      "brokerId": 4,
+      "sourceId": 4,
+      "brokerName": "[[Darwinex]]",
+      "brokerDescription": "Darwinex CFDs",
+      "timezone": "EETUS",
+      "precision": "TICK",
+      "stripCustomBlockResources": true,
+      "stripInstrumentResources": true
+    },
+    "dukascopy_oos2": {
+      "id": "dukascopy_oos2",
+      "label": "Dukascopy OOS2",
+      "brokerPostfix": "_dukascopy",
+      "brokerId": 3,
+      "sourceId": 2,
+      "inheritInstrumentFromData": true,
+      "brokerName": "[[Dukascopy]]",
+      "brokerDescription": "Dukascopy",
+      "timezone": "EETUS",
+      "precision": "TICK"
+    }
+  },
+  "targetProfiles": {
+    "sq_default_exact": {
+      "id": "sq_default_exact",
+      "label": "SQ default / símbolo exacto",
+      "brokerProfile": "darwinex",
+      "mode": "sq_default_exact_symbol",
+      "brokerPostfix": "",
+      "brokerId": -1,
+      "sourceId": 0,
+      "brokerName": "SQ default",
+      "brokerDescription": "SQ default",
+      "timezone": "EETUS",
+      "precision": "TICK",
+      "dataType": 1,
+      "symbolTemplate": "{asset}",
+      "forceExactSymbol": true,
+      "stripCustomBlockResources": false,
+      "warning": "Perfil recomendado para usuarios que abren el .cfx en su SQX local con símbolos sin sufijo y Broker profile SQ default. Retest 1/OOS2 sigue usando Dukascopy por metodología."
+    },
+    "sqxedge_darwinex": {
+      "id": "sqxedge_darwinex",
+      "label": "SQX Edge Suite / Darwinex",
+      "brokerProfile": "darwinex",
+      "mode": "server_default",
+      "warning": "Perfil recomendado para el servidor SQX Edge Suite. Si el SQX destino del usuario no tiene Darwinex/data compatible, usa remapeo personalizado."
+    },
+    "custom_user_broker": {
+      "id": "custom_user_broker",
+      "label": "Broker del usuario / remapeo manual",
+      "brokerProfile": "darwinex",
+      "mode": "custom_override",
+      "stripCustomBlockResources": false,
+      "warning": "Usa este modo cuando el usuario abrirá el .cfx en un SQX con otro broker. Requiere sufijo o símbolo compatible con su Data Manager."
+    }
+  },
+  "crossBrokerRetests": {
+    "1": {
+      "Retest-Task1.xml": {
+        "brokerProfile": "dukascopy_oos2",
+        "executionBrokerProfileForTargets": {
+          "sqxedge_darwinex": "darwinex"
+        },
+        "period": "RETEST_1_C1",
+        "label": "Retest 1 / OOS2 Dukascopy 2010.01.01-2017.10.02",
+        "boundToAvailableData": true,
+        "minCoverageDays": 730
+      }
+    },
+    "2": {
+      "AutomaticRetest-Task7.xml": {
+        "brokerProfile": "dukascopy_oos2",
+        "executionBrokerProfileForTargets": {
+          "sqxedge_darwinex": "darwinex"
+        },
+        "period": "RETEST_1_C1",
+        "label": "Capa2 Retest 1 / Capa1 historical Dukascopy 2010.01.01-2017.10.02",
+        "boundToAvailableData": true,
+        "minCoverageDays": 730
+      }
+    }
+  },
   "retestPeriods": {
     "BUILD": [
       "2017.10.02",
       "2023.12.31"
     ],
+    "BUILD_C1": [
+      "2017.10.02",
+      "2023.01.01"
+    ],
+    "ROBUSTNESS_C1": [
+      "2017.10.02",
+      "2023.12.31"
+    ],
+    "ROBUSTNESS_C2": [
+      "2017.10.02",
+      "2023.12.31"
+    ],
     "RETEST_0": [
       "2017.10.02",
-      "2026.04.30"
+      "2025.01.01"
+    ],
+    "RETEST_0_C1": [
+      "2017.10.02",
+      "2025.01.01"
     ],
     "RETEST_1": [
       "2010.01.01",
-      "2016.12.31"
+      "2017.10.02"
+    ],
+    "RETEST_1_C1": [
+      "2010.01.01",
+      "2017.10.02"
     ],
     "FOWARD": [
-      "2024.01.01",
+      "2025.01.01",
       "2026.04.30"
+    ],
+    "FOWARD_C1": [
+      "2025.01.01",
+      "2026.04.08"
+    ]
+  },
+  "tradingTimeRanges": {
+    "capa1": {
+      "M5": [
+        "02:00",
+        "22:00"
+      ],
+      "M15": [
+        "02:00",
+        "22:00"
+      ],
+      "M30": [
+        "02:00",
+        "22:00"
+      ],
+      "H1": [
+        "02:00",
+        "22:00"
+      ],
+      "H4": [
+        "04:00",
+        "20:00"
+      ]
+    },
+    "capa2": {
+      "M5": [
+        "02:00",
+        "22:00"
+      ],
+      "M15": [
+        "02:00",
+        "22:00"
+      ],
+      "M30": [
+        "02:00",
+        "22:00"
+      ],
+      "H1": [
+        "02:00",
+        "22:00"
+      ],
+      "H4": [
+        "04:00",
+        "20:00"
+      ]
+    }
+  },
+  "disableTradingTimeRanges": {
+    "1": [
+      "AutomaticRetest-Task1.xml",
+      "AutomaticRetest-Task8.xml",
+      "AutomaticRetest-Task3.xml",
+      "AutomaticRetest-Task6.xml",
+      "AutomaticRetest-Task5.xml",
+      "AutomaticRetest-Task7.xml",
+      "AutomaticRetest-Task4.xml"
+    ],
+    "2": [
+      "AutomaticRetest-Task2.xml",
+      "AutomaticRetest-Task1.xml",
+      "AutomaticRetest-Task8.xml",
+      "AutomaticRetest-Task3.xml",
+      "AutomaticRetest-Task6.xml",
+      "AutomaticRetest-Task5.xml",
+      "AutomaticRetest-Task4.xml",
+      "Optimize-Task1.xml"
     ]
   },
   "taskPeriodMaps": {
     "1": {
-      "Build-Task1.xml": "BUILD",
-      "Retest-Task3.xml": "RETEST_0",
-      "Retest-Task1.xml": "RETEST_1",
-      "Retest-Task2.xml": "FOWARD"
+      "Build-Task1.xml": "BUILD_C1",
+      "Retest-Task3.xml": "RETEST_0_C1",
+      "Retest-Task1.xml": "RETEST_1_C1",
+      "AutomaticRetest-Task2.xml": "ROBUSTNESS_C1",
+      "AutomaticRetest-Task1.xml": "ROBUSTNESS_C1",
+      "AutomaticRetest-Task8.xml": "ROBUSTNESS_C1",
+      "AutomaticRetest-Task3.xml": "ROBUSTNESS_C1",
+      "AutomaticRetest-Task6.xml": "ROBUSTNESS_C1",
+      "AutomaticRetest-Task5.xml": "ROBUSTNESS_C1",
+      "AutomaticRetest-Task7.xml": "ROBUSTNESS_C1",
+      "AutomaticRetest-Task4.xml": "ROBUSTNESS_C1",
+      "Retest-Task2.xml": "FOWARD_C1"
     },
     "2": {
-      "Build-Task1.xml": "BUILD",
-      "Retest-Task1.xml": "RETEST_0",
-      "AutomaticRetest-Task7.xml": "RETEST_1",
-      "Retest-Task2.xml": "FOWARD",
-      "Optimize-Task1.xml": "BUILD"
+      "Build-Task1.xml": "BUILD_C1",
+      "Retest-Task1.xml": "RETEST_0_C1",
+      "AutomaticRetest-Task7.xml": "RETEST_1_C1",
+      "AutomaticRetest-Task2.xml": "ROBUSTNESS_C2",
+      "AutomaticRetest-Task1.xml": "ROBUSTNESS_C2",
+      "AutomaticRetest-Task8.xml": "ROBUSTNESS_C2",
+      "AutomaticRetest-Task3.xml": "ROBUSTNESS_C2",
+      "AutomaticRetest-Task6.xml": "ROBUSTNESS_C2",
+      "AutomaticRetest-Task5.xml": "ROBUSTNESS_C2",
+      "AutomaticRetest-Task4.xml": "ROBUSTNESS_C2",
+      "Retest-Task2.xml": "FOWARD_C1",
+      "Optimize-Task1.xml": "ROBUSTNESS_C2"
+    }
+  },
+  "adaptiveSpreadStress": {
+    "1": {
+      "AutomaticRetest-Task8.xml": {
+        "label": "MC 2 adaptive spread stress",
+        "method": "RandomizeSpread",
+        "minMultiplier": 2,
+        "maxMultiplier": 5
+      }
+    },
+    "2": {
+      "AutomaticRetest-Task8.xml": {
+        "label": "Capa2 MC 2 adaptive spread stress",
+        "method": "RandomizeSpread",
+        "minMultiplier": 2,
+        "maxMultiplier": 5
+      }
     }
   },
   "autodetect": {
@@ -55,6 +267,8 @@
       "H"
     ],
     "versionFolders": [
+      "SQX_144_Full",
+      "SQX_144",
       "SQX_142",
       "SQX_141",
       "SQX_140"

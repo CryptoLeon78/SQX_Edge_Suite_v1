@@ -292,6 +292,22 @@
     return renderPanel();
   }
 
+  function readLicenseFile(file) {
+    if (!file) return Promise.reject(new Error('license file is required'));
+    if (file.text) return file.text();
+    return new Promise(function(resolve, reject) {
+      var reader = new FileReader();
+      reader.onload = function() { resolve(String(reader.result || '')); };
+      reader.onerror = function() { reject(new Error('license file could not be read')); };
+      reader.readAsText(file);
+    });
+  }
+
+  async function importLicenseFile(file) {
+    var text = await readLicenseFile(file);
+    return importLicenseText(text);
+  }
+
   async function clearLicense() {
     remove(storageKey);
     try {
@@ -305,9 +321,26 @@
 
   function bindPanel() {
     var input = byId('license-key-input');
+    var fileInput = byId('license-file-input');
     var importBtn = byId('license-import-btn');
     var clearBtn = byId('license-clear-btn');
     var feedback = byId('license-feedback');
+
+    if (fileInput) {
+      fileInput.addEventListener('change', async function() {
+        var file = fileInput.files && fileInput.files[0];
+        if (!file) return;
+        try {
+          await importLicenseFile(file);
+          if (input) input.value = '';
+          if (feedback) feedback.textContent = 'Licencia firmada importada desde archivo y verificada.';
+        } catch (err) {
+          if (feedback) feedback.textContent = 'No se pudo importar el archivo de licencia: ' + err.message;
+        } finally {
+          fileInput.value = '';
+        }
+      });
+    }
 
     if (importBtn && input) {
       importBtn.addEventListener('click', async function() {
@@ -341,7 +374,9 @@
     currentStatus: currentStatus,
     fetchJson: fetchJson,
     hasFeature: hasFeature,
+    importLicenseFile: importLicenseFile,
     importLicenseText: importLicenseText,
+    readLicenseFile: readLicenseFile,
     renderPanel: renderPanel,
     refreshBackendStatus: refreshBackendStatus,
     storageKey: storageKey,

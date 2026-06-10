@@ -1,4 +1,75 @@
-import { assert, Element, createLoadedSandbox } from './harness.mjs';
+import fs from 'node:fs';
+import path from 'node:path';
+import { assert, Element, createLoadedSandbox, repoRoot } from './harness.mjs';
+
+const html = fs.readFileSync(path.join(repoRoot, 'app/SQX_Dashboard_v6.html'), 'utf8');
+const dashboardCss = fs.readFileSync(path.join(repoRoot, 'app/css/dashboard.css'), 'utf8');
+const projectGeneratorMain = fs.readFileSync(path.join(repoRoot, 'app/js/project-generator-main.js'), 'utf8');
+const edgeFactoryUi = fs.readFileSync(path.join(repoRoot, 'app/js/modules/edge-factory-ui.js'), 'utf8');
+
+assert.ok(html.includes('id="tab-projectgen"'), 'Project Generator tab panel should render');
+assert.ok(html.includes('pg-guide-flow'), 'Project Generator should expose guided step flow');
+assert.ok(html.includes('Conexión del servicio'), 'Project Generator should explain service connection step');
+assert.ok(html.includes('Entorno SQX'), 'Project Generator should expose remote-safe SQX environment step');
+assert.ok(html.includes('Elige generación'), 'Project Generator should expose generation choice step');
+assert.ok(html.includes('Genera y revisa'), 'Project Generator should expose generation review step');
+assert.ok(html.includes('PASO 5'), 'Project Generator should expose result/log step');
+assert.ok(html.includes('Plan Mining'), 'Project Generator should clarify Plan Mining path');
+assert.ok(html.includes('Custom libre'), 'Project Generator should preserve custom generation path');
+assert.ok(html.includes('Custom libre avanzado'), 'Custom libre should remain an Advanced Edge Factory escape hatch');
+assert.ok(html.includes('id="edge-basic-generate-pair"'), 'Basic route should expose a single Capa1+Capa2 browser download action');
+assert.ok(html.includes('id="edge-basic-blocksetting-family"'), 'Basic route should let operators choose the Capa1 BlockSetting family');
+assert.ok(edgeFactoryUi.includes("'edge-basic-blocksetting-family'"), 'Basic route should resolve BlockSettings from the selected family');
+assert.ok(edgeFactoryUi.includes("basicFetchJson('/generate-pair'"), 'Basic route should use the atomic generate-pair endpoint');
+assert.ok(edgeFactoryUi.includes("target_profile: { id: 'sqxedge_darwinex' }"), 'Basic route should always generate against the SQX Edge / Darwinex target profile');
+assert.ok(!edgeFactoryUi.includes('blocksetting_capa2: selection.bs'), 'Basic route should let Capa2 use the backend-recommended Capa2 BlockSetting');
+assert.ok(edgeFactoryUi.includes("return base + '/api';"), 'Edge Factory should normalize origin-only API bases before calling backend endpoints');
+assert.ok(edgeFactoryUi.includes('downloadBasicFiles'), 'Basic route should download the generated pair through the browser');
+assert.ok(html.includes('pg-service-readiness-grid'), 'Project Generator should show a route-free service readiness summary');
+assert.ok(html.includes('class="pg-operator-config" hidden'), 'Project Generator should hide operator path configuration from user-facing UI');
+assert.ok(!html.includes('id="pg-api-base-inline"'), 'Project Generator should not render raw API base in the user-facing hero');
+assert.equal((html.match(/<details class="pg-step-panel/g) || []).length, 5, 'Project Generator should render 5 collapsible step panels');
+assert.ok(html.includes('pg-step-summary'), 'Project Generator steps should use summary headers');
+assert.doesNotMatch(html, /<details class="pg-step-panel[^>]*\sopen\b/, 'Project Generator steps should start closed by default');
+assert.ok(html.includes('id="pg-mode-methodological"'), 'Project Generator should expose methodological generation mode');
+assert.ok(html.includes('id="pg-mode-manual"'), 'Project Generator should expose manual generation mode');
+assert.ok(html.includes('id="pg-mode-methodological-panel"'), 'Project Generator should render methodological workspace');
+assert.ok(html.includes('id="pg-mode-manual-panel"'), 'Project Generator should render manual workspace');
+assert.ok(html.includes('id="pg-mode-placeholder"'), 'Project Generator should render an empty mode placeholder');
+assert.ok(html.includes('id="pg-open-output"'), 'Project Generator should keep output download action inside generation step');
+assert.ok(html.includes('id="pg-custom-generate"'), 'Project Generator should keep custom generate action');
+assert.ok(html.includes('id="pg-custom-visual-guide-pdf"'), 'Project Generator should ask whether to generate the visual PDF guide for a custom project');
+assert.ok(html.indexOf('id="pg-custom-generate"') > html.indexOf('id="pg-mode-manual-panel"'), 'Custom libre should live inside the manual generation workspace');
+assert.ok(!html.includes('id="pg-gen-all-c1"'), 'Project Generator should remove Capa 1 bulk-all action');
+assert.ok(!html.includes('id="pg-gen-all-c2"'), 'Project Generator should remove Capa 2 bulk-all action');
+assert.doesNotMatch(html, /Generación masiva/, 'Project Generator should remove the visual bulk generation block');
+assert.ok(html.includes('id="pg-generate-selected-c1"'), 'Project Generator should generate selected Plan Mining rows in Capa 1');
+assert.ok(html.includes('id="pg-generate-selected-c2"'), 'Project Generator should generate selected Plan Mining rows in Capa 2');
+assert.ok(html.includes('id="pg-capa2-bs"'), 'Project Generator should expose the real Capa 2 BlockSetting selector');
+assert.ok(html.includes('id="pg-target-profile"'), 'Project Generator should expose target SQX profile selector');
+assert.ok(html.includes('id="pg-target-custom-fields"'), 'Project Generator should expose user-broker remap fields');
+assert.ok(html.includes('id="pg-target-symbol"'), 'Project Generator should allow exact target symbol remap for arbitrary brokers');
+assert.ok(html.includes('Retest 1/OOS2 conserva velas Dukascopy'), 'Project Generator should explain protected Dukascopy OOS2 retest');
+assert.ok(html.includes('id="pg-select-all-minings"'), 'Project Generator should allow selecting all Plan Mining rows');
+assert.ok(html.includes('id="pg-custom-save-preset"'), 'Project Generator should keep custom preset save action');
+assert.ok(html.includes('id="pg-custom-import-presets-file"'), 'Project Generator should keep preset pack import input');
+assert.ok(html.includes('id="pg-aliases-suggest"'), 'Project Generator should keep alias suggestion action');
+assert.ok(html.includes('id="cln-scan"'), 'Strategy Cleaner should remain available during Project Generator pass');
+assert.ok(!html.includes('id="pg-custom-starter-list"'), 'retired starter profile list must not return');
+assert.ok(!html.includes('id="pg-custom-family-list"'), 'retired objective family list must not return');
+assert.ok(!html.includes('id="pg-buyer-handoff-card"'), 'retired buyer handoff card must not return');
+assert.ok(!dashboardCss.includes('export-btn::before'), 'Export buttons must not render decorative pseudo-symbols');
+assert.doesNotMatch(html, /↻|📂|📦/, 'Project Generator controls should avoid decorative symbols in button text');
+assert.ok(html.includes('Descargar todo ZIP'), 'Project Generator output CTA should clearly download all files as ZIP');
+assert.ok(projectGeneratorMain.includes('window.location.assign(url)'), 'Project Generator GET downloads should use native browser navigation');
+assert.ok(projectGeneratorMain.includes('Archivo listo en .cfx generados'), 'Project Generator should explain generated files must be downloaded from the output list');
+assert.ok(!projectGeneratorMain.includes('pgDownloadGeneratedResults'), 'Project Generator should not attempt automatic downloads after async generation');
+assert.ok(projectGeneratorMain.includes('function pgApiBase()'), 'Project Generator should resolve API base dynamically');
+assert.ok(projectGeneratorMain.includes('function pgConnectionDiagnostic'), 'Project Generator should expose safe connection diagnostics on fetch failures');
+assert.ok(projectGeneratorMain.includes('Diagnóstico seguro: API'), 'Project Generator error copy should include safe diagnostics for remote support');
+assert.ok(!projectGeneratorMain.includes('const PG_API ='), 'Project Generator should not freeze the API base at script load');
+assert.ok(projectGeneratorMain.includes("pgSetInputValue('pg-custom-name', r.project_name)"), 'Project Generator should reflect backend canonical custom project name after generation');
+assert.ok(projectGeneratorMain.includes("Object.assign({}, body, { name: r.project_name || body.name })"), 'Project Generator should hand off canonical custom project name to Edge Factory');
 
 const { SQX, document, sandbox } = createLoadedSandbox();
 const PG = SQX.projectGenerator;
@@ -7,8 +78,9 @@ assert.equal(PG.escapeHtml('<x>'), '&lt;x&gt;');
 assert.equal(PG.dom.escapeHtml('<x>'), '&lt;x&gt;');
 [
   'pg-sqx-path', 'pg-sqx-db', 'pg-sqx-projects', 'pg-output-dir', 'pg-tpl-c1', 'pg-tpl-c2',
+  'pg-target-profile', 'pg-target-postfix', 'pg-target-symbol', 'pg-target-broker-id', 'pg-target-source-id', 'pg-target-broker-name', 'pg-target-timezone',
   'pg-custom-name', 'pg-custom-asset', 'pg-custom-tf', 'pg-custom-bs',
-  'pg-custom-dir', 'pg-custom-capa', 'pg-custom-template', 'pg-custom-status'
+  'pg-custom-dir', 'pg-custom-capa', 'pg-custom-template', 'pg-custom-visual-guide-pdf', 'pg-custom-status'
 ].forEach(id => {
   document.add(new Element(id));
 });
@@ -18,12 +90,28 @@ document.getElementById('pg-sqx-projects').value = ' C:/SQX/projects ';
 document.getElementById('pg-output-dir').value = ' C:/out ';
 document.getElementById('pg-tpl-c1').value = ' C1.cfx ';
 document.getElementById('pg-tpl-c2').value = ' C2.cfx ';
+document.getElementById('pg-target-profile').value = 'custom_user_broker';
+document.getElementById('pg-target-postfix').value = ' _custom ';
+document.getElementById('pg-target-symbol').value = ' EURUSD_custom ';
+document.getElementById('pg-target-broker-id').value = ' 42 ';
+document.getElementById('pg-target-source-id').value = ' 43 ';
+document.getElementById('pg-target-broker-name').value = ' [[CustomBroker]] ';
+document.getElementById('pg-target-timezone').value = ' EETUS ';
 const domConfig = PG.dom.readConfigInputs(document, { EURUSD: 'EURUSD_M1' });
 assert.equal(domConfig.sqxPath, 'C:/SQX');
+assert.equal(domConfig.targetProfile, 'custom_user_broker');
+assert.equal(domConfig.targetProfileCustom.brokerPostfix, '_custom');
+assert.equal(domConfig.targetProfileCustom.symbol, 'EURUSD_custom');
+assert.equal(domConfig.targetProfileCustom.brokerId, '42');
+assert.equal(domConfig.targetProfileCustom.sourceId, '43');
 assert.equal(domConfig.assetAliases.EURUSD, 'EURUSD_M1');
-PG.dom.writeConfigInputs(document, { sqx_path: 'D:/SQX', output_dir: 'D:/out' });
+PG.dom.writeConfigInputs(document, { sqx_path: 'D:/SQX', output_dir: 'D:/out', target_profile: 'custom_user_broker', target_profile_custom: { brokerPostfix: '_user', symbol: 'EURUSD_user', brokerId: 7, sourceId: 8, brokerName: '[[UserBroker]]', timezone: 'EETUS' } });
 assert.equal(document.getElementById('pg-sqx-path').value, 'D:/SQX');
 assert.equal(document.getElementById('pg-output-dir').value, 'D:/out');
+assert.equal(document.getElementById('pg-target-profile').value, 'custom_user_broker');
+assert.equal(document.getElementById('pg-target-postfix').value, '_user');
+assert.equal(document.getElementById('pg-target-symbol').value, 'EURUSD_user');
+assert.equal(String(document.getElementById('pg-target-broker-id').value), '7');
 PG.dom.applySqxFields(document, { sqxPath: 'E:/SQX', dataDb: 'E:/db', projectsDir: 'E:/projects' });
 assert.equal(document.getElementById('pg-sqx-db').value, 'E:/db');
 document.getElementById('pg-custom-name').value = ' Custom EURUSD H1 ';
@@ -33,100 +121,84 @@ document.getElementById('pg-custom-bs').value = '';
 document.getElementById('pg-custom-dir').value = 'both';
 document.getElementById('pg-custom-capa').value = '2';
 document.getElementById('pg-custom-template').value = ' C2.cfx ';
+document.getElementById('pg-custom-visual-guide-pdf').checked = true;
 const customInputs = PG.dom.readCustomProjectInputs(document);
 assert.equal(customInputs.asset, 'EURUSD');
 assert.equal(customInputs.tf, 'H1');
 assert.equal(customInputs.bs, 'BS_Custom');
 assert.equal(customInputs.capa, 2);
 assert.equal(customInputs.template, 'C2.cfx');
+assert.equal(customInputs.visual_guide_pdf, true);
 assert.equal(PG.dom.setCustomProjectStatus(document, { text: 'Generado', level: 'ok' }), true);
 assert.equal(document.getElementById('pg-custom-status').textContent, 'Generado');
 assert.equal(document.getElementById('pg-custom-status').classList.contains('is-ok'), true);
-PG.dom.writeCustomProjectInputs(document, { name: 'Preset EURUSD', asset: 'GBPUSD', tf: 'M15', bs: 'BS_Momentum', dir: 'short', capa: 2, template: 'Tpl.cfx' });
+PG.dom.writeCustomProjectInputs(document, { name: 'Preset EURUSD', asset: 'GBPUSD', tf: 'M15', bs: 'BS_Momentum_v6', dir: 'short', capa: 2, template: 'Tpl.cfx', visual_guide_pdf: true });
 assert.equal(document.getElementById('pg-custom-asset').value, 'GBPUSD');
 assert.equal(document.getElementById('pg-custom-dir').value, 'short');
+assert.equal(document.getElementById('pg-custom-visual-guide-pdf').checked, true);
 [
   'pg-status-refresh', 'pg-settings-toggle', 'pg-settings-save', 'pg-settings-reload',
   'pg-onboarding-action', 'pg-onboarding-secondary', 'pg-onboarding-tertiary',
-  'pg-autodetect', 'pg-aliases-suggest', 'pg-validate', 'pg-gen-all-c1',
-  'pg-gen-all-c2', 'pg-custom-generate', 'pg-custom-save-preset', 'pg-custom-load-preset',
+  'pg-autodetect', 'pg-aliases-suggest', 'pg-validate', 'pg-mode-methodological',
+  'pg-mode-manual', 'pg-custom-generate', 'pg-custom-save-preset', 'pg-custom-load-preset',
   'pg-custom-delete-preset', 'pg-output-refresh', 'pg-open-output', 'pg-log-clear',
-  'pg-custom-starter-list', 'pg-custom-export-starter-profiles',
-  'pg-custom-family-list', 'pg-custom-export-family-profiles',
   'pg-custom-export-presets', 'pg-custom-import-presets', 'pg-custom-import-presets-file',
-  'pg-buyer-name', 'pg-buyer-context', 'pg-buyer-handoff-refresh',
-  'pg-buyer-handoff-copy', 'pg-buyer-handoff-download',
+  'pg-select-all-minings', 'pg-clear-selected-minings', 'pg-generate-selected-c1', 'pg-generate-selected-c2',
   'pg-settings-body', 'pg-log'
 ].forEach(id => document.add(new Element(id)));
 let checkHealthCalls = 0;
-let generateAllCapa = 0;
+let generateSelectedCapa = 0;
+let generationMode = '';
+let selectedAllCalls = 0;
+let clearSelectedCalls = 0;
 let generateCustomCalls = 0;
 let saveCustomPresetCalls = 0;
 let loadCustomPresetCalls = 0;
 let deleteCustomPresetCalls = 0;
-let starterProfileClickCalls = 0;
-let exportStarterProfileCalls = 0;
-let profileFamilyClickCalls = 0;
-let exportProfileFamilyCalls = 0;
 let exportCustomPresetCalls = 0;
 let openImportCustomPresetCalls = 0;
 let importCustomPresetCalls = 0;
-let renderBuyerHandoffCalls = 0;
-let copyBuyerHandoffCalls = 0;
-let downloadBuyerHandoffCalls = 0;
 PG.bindings.bindProjectGeneratorEvents(document, {
   checkHealth: () => { checkHealthCalls++; },
-  copyBuyerCfxHandoff: () => { copyBuyerHandoffCalls++; },
-  downloadBuyerCfxHandoff: () => { downloadBuyerHandoffCalls++; },
-  exportCustomStarterProfiles: () => { exportStarterProfileCalls++; },
-  exportCustomProfileFamilies: () => { exportProfileFamilyCalls++; },
   exportCustomPresets: () => { exportCustomPresetCalls++; },
-  generateAll: capa => { generateAllCapa = capa; },
+  clearSelectedMinings: () => { clearSelectedCalls++; },
   generateCustom: () => { generateCustomCalls++; },
+  generateSelected: capa => { generateSelectedCapa = capa; },
   importCustomPresets: () => { importCustomPresetCalls++; },
-  handleCustomStarterProfileClick: () => { starterProfileClickCalls++; },
-  handleCustomProfileFamilyClick: () => { profileFamilyClickCalls++; },
   saveCustomPreset: () => { saveCustomPresetCalls++; },
   loadCustomPreset: () => { loadCustomPresetCalls++; },
   deleteCustomPreset: () => { deleteCustomPresetCalls++; },
   openImportCustomPresets: () => { openImportCustomPresetCalls++; },
-  renderBuyerCfxHandoff: () => { renderBuyerHandoffCalls++; },
+  selectAllMinings: () => { selectedAllCalls++; },
+  setGenerationMode: mode => { generationMode = mode; },
   setSettingsOpen: open => { document.getElementById('pg-settings-body').style.display = open ? 'block' : 'none'; },
 });
 document.getElementById('pg-status-refresh').click();
-document.getElementById('pg-gen-all-c2').click();
+document.getElementById('pg-mode-methodological').click();
+document.getElementById('pg-select-all-minings').click();
+document.getElementById('pg-clear-selected-minings').click();
+document.getElementById('pg-generate-selected-c1').click();
 document.getElementById('pg-custom-generate').click();
 document.getElementById('pg-custom-save-preset').click();
 document.getElementById('pg-custom-load-preset').click();
 document.getElementById('pg-custom-delete-preset').click();
-document.getElementById('pg-custom-starter-list').dispatch('click', { target: new Element('', [], { pgStarterLoad: 'forex-h1-balanced' }) });
-document.getElementById('pg-custom-export-starter-profiles').click();
-document.getElementById('pg-custom-family-list').dispatch('click', { target: new Element('', [], { pgFamilySave: 'buyer-first-setup' }) });
-document.getElementById('pg-custom-export-family-profiles').click();
 document.getElementById('pg-custom-export-presets').click();
 document.getElementById('pg-custom-import-presets').click();
 document.getElementById('pg-custom-import-presets-file').dispatch('change');
-document.getElementById('pg-buyer-handoff-refresh').click();
-document.getElementById('pg-buyer-handoff-copy').click();
-document.getElementById('pg-buyer-handoff-download').click();
 document.getElementById('pg-custom-asset').dispatch('input');
 document.getElementById('pg-custom-dir').dispatch('change');
 assert.equal(checkHealthCalls, 1);
-assert.equal(generateAllCapa, 2);
+assert.equal(generationMode, 'methodological');
+assert.equal(generateSelectedCapa, 1);
+assert.equal(selectedAllCalls, 1);
+assert.equal(clearSelectedCalls, 1);
 assert.equal(generateCustomCalls, 1);
 assert.equal(saveCustomPresetCalls, 1);
 assert.equal(loadCustomPresetCalls, 1);
 assert.equal(deleteCustomPresetCalls, 1);
-assert.equal(starterProfileClickCalls, 1);
-assert.equal(exportStarterProfileCalls, 1);
-assert.equal(profileFamilyClickCalls, 1);
-assert.equal(exportProfileFamilyCalls, 1);
 assert.equal(exportCustomPresetCalls, 1);
 assert.equal(openImportCustomPresetCalls, 1);
 assert.equal(importCustomPresetCalls, 1);
-assert.equal(renderBuyerHandoffCalls, 3);
-assert.equal(copyBuyerHandoffCalls, 1);
-assert.equal(downloadBuyerHandoffCalls, 1);
 document.getElementById('pg-log').textContent = 'old';
 document.getElementById('pg-log-clear').click();
 assert.equal(document.getElementById('pg-log').textContent, '[esperando primera acción…]');
@@ -161,6 +233,8 @@ const pgReadyState = PG.computeOnboardingState({
 assert.equal(pgReadyState.completed, 4);
 assert.equal(pgReadyState.current, null);
 assert.equal(pgReadyState.tertiaryAction, 'refresh');
+assert.equal(pgReadyState.steps[0].detail, 'Servicio preparado');
+assert.ok(!JSON.stringify(pgReadyState).includes('C:/SQX'), 'Project Generator onboarding state should not expose local SQX paths');
 
 [
   'pg-onboarding-progress', 'pg-onboarding-title', 'pg-onboarding-desc',
@@ -178,6 +252,7 @@ const prepared = PG.prepareRequestOptions({ body: { alpha: 1 }, headers: { Accep
 assert.equal(prepared.body, '{"alpha":1}');
 assert.equal(prepared.headers['Content-Type'], 'application/json');
 assert.equal(prepared.headers.Accept, 'application/json');
+assert.equal(prepared.credentials, 'include', 'Project Generator API requests should include remote session cookies');
 
 let fetchUrl = '';
 let fetchOptions = null;
@@ -188,10 +263,38 @@ const jsonResult = await PG.fetchJson('http://api.local', '/health', { method: '
 });
 assert.equal(fetchUrl, 'http://api.local/health');
 assert.equal(fetchOptions.body, '{"ok":true}');
+assert.equal(fetchOptions.credentials, 'include');
 assert.equal(jsonResult.version, '20');
 await assert.rejects(
   () => PG.fetchJson('', '/bad', {}, async () => ({ ok: false, status: 500, text: async () => 'boom' })),
   /boom/
+);
+await assert.rejects(
+  () => PG.fetchJson('', '/remote-only', {}, async () => ({
+    ok: false,
+    status: 403,
+    text: async () => '{"ok":false,"error":"remote_session_required","message":"Create a valid SQX Edge Suite app session before using Project Generator remotely."}'
+  })),
+  error => {
+    assert.equal(error.status, 403);
+    assert.equal(error.code, 'remote_session_required');
+    assert.equal(PG.isRemoteSessionRequiredError(error), true);
+    return /valid SQX Edge Suite app session/.test(error.message);
+  }
+);
+assert.equal(PG.isRemoteSessionRequiredError(new Error('remote_session_required')), true);
+assert.match(projectGeneratorMain, /pgHandleRemoteSessionRequired/);
+assert.match(projectGeneratorMain, /Sesión SQX Edge Suite pendiente o caducada/);
+assert.match(projectGeneratorMain, /No se fuerza navegación desde Project Generator/);
+assert.doesNotMatch(
+  projectGeneratorMain,
+  /window\.location\.assign\(pgRemoteSessionUrl\(\)\)/,
+  'Project Generator passive polling must not force Welcome redirects before the app session exists'
+);
+assert.doesNotMatch(
+  projectGeneratorMain,
+  /sqx_remote_welcome_dismissed_v1/,
+  'Project Generator must not clear the Welcome dismissal flag; Welcome owns remote session navigation'
 );
 
 document.add(new Element('pg-status-banner', ['pg-status-loading']));
@@ -236,11 +339,12 @@ const miningHtml = PG.miningRowsHtml([{
   num: 7,
   asset: 'EURUSD',
   tf: 'H1',
-  bs: 'BS_Tendencia',
+  bs: 'BS_Tendencia_v6',
   dir: 'long',
   _info: { source: 'db', instrument: 'EURUSD_M1', spread: 1.2, swap_long: -1, swap_short: 0.5 },
 }]);
-assert.match(miningHtml, /data-pg-gen="7"/);
+assert.doesNotMatch(miningHtml, /data-pg-gen=/);
+assert.doesNotMatch(miningHtml, /&#128202;|&#128203;|📦/);
 assert.match(miningHtml, /pgm-dir long/);
 assert.match(miningHtml, /EURUSD_M1/);
 const outputHtml = PG.outputListHtml([{ name: 'M07.cfx', size_kb: 12, mtime: 1770000000 }]);
@@ -248,7 +352,16 @@ assert.match(outputHtml, /M07\.cfx/);
 assert.match(outputHtml, /12 KB/);
 assert.match(PG.outputListHtml([]), /No hay \.cfx/);
 assert.equal(PG.miningsCountLabel(4), '4 minings');
+assert.equal(PG.selectedMiningCountLabel(1), '1 seleccionado');
+assert.equal(PG.selectedMiningCountLabel(2), '2 seleccionados');
 assert.equal(PG.bulkGenerateLabel(4), '4 minings · Capa 1 + Capa 2');
+assert.equal(PG.normalizeDirection('L'), 'long');
+assert.equal(PG.directionLabel('S'), 'SHORT');
+assert.match(miningHtml, /BS_Tendencia_v6/);
+const miningRowsHtml = PG.miningRowsHtml([{ num: 9, asset: 'XAUUSD', tf: 'H1', bs: 'BS_Tendencia_v6', dir: 'L', _user: true, source: 'manual' }], { 9: true });
+assert.match(miningRowsHtml, /data-pg-mining-check="9" checked/);
+assert.match(miningRowsHtml, /USER/);
+assert.match(PG.miningRowsHtml([], {}), /Plan Mining vac/);
 const enrichedMinings = await PG.enrichMiningsWithSymbolInfo(
   [{ asset: 'EURUSD' }, { asset: 'FAIL' }],
   async asset => {
@@ -262,21 +375,44 @@ const outputState = PG.outputState({ output_dir: 'C:/out', files: [{ name: 'A.cf
 assert.equal(outputState.outputDir, 'C:/out');
 assert.equal(outputState.countLabel, '1 archivos');
 assert.match(outputState.html, /A\.cfx/);
+const resetState = PG.markGeneratedOutputReset([{ name: 'OLD.cfx', size_kb: 2, mtime: 1770000000 }], { now: 1770000000500 });
+assert.equal(resetState.reason, 'plan-mining-reset');
+assert.deepEqual(
+  PG.filterOutputFilesSinceReset([
+    { name: 'OLD.cfx', size_kb: 2, mtime: 1770000000 },
+    { name: 'NEW.cfx', size_kb: 2, mtime: 1770000020 },
+  ], resetState).map(file => file.name),
+  ['NEW.cfx']
+);
+const resetOutputState = PG.outputState({
+  output_dir: 'C:/out',
+  files: [
+    { name: 'OLD.cfx', size_kb: 2, mtime: 1770000000 },
+    { name: 'NEW.cfx', size_kb: 2, mtime: 1770000020 },
+  ],
+}, resetState);
+assert.equal(resetOutputState.countLabel, '1 archivos');
+assert.doesNotMatch(resetOutputState.html, /OLD\.cfx/);
+assert.match(resetOutputState.html, /NEW\.cfx/);
 assert.equal(PG.openOutputDisconnectedStatus().logText, 'Backend desconectado');
+assert.equal(PG.openOutputSuccessStatus('C:/out').logText, 'Descarga output solicitada');
 assert.equal(PG.openOutputSuccessStatus('C:/out').traceDetail, 'C:/out');
-assert.equal(PG.openOutputErrorStatus('denied').logText, 'Error abrir carpeta: denied');
+assert.equal(PG.openOutputRemoteWorkspaceStatus('workspace://outputs').traceDetail, 'workspace://outputs');
+assert.equal(PG.openOutputErrorStatus('denied').logText, 'Error preparando descarga: denied');
 assert.match(PG.messageHtml('Error <x>', 'error'), /&lt;x&gt;/);
 
 assert.equal(PG.generateOneStartMessage(3, 2), 'Generando Mining 3 · Capa 2…');
 const generateOneOk = PG.generateOneResult({ ok: true, filename: 'M03.cfx' }, 3, 2);
 assert.equal(generateOneOk.logText, '✓ M03.cfx');
 assert.equal(generateOneOk.traceDetail, 'Mining 3 · Capa 2 · M03.cfx');
+assert.match(PG.generateOneResult({ ok: true, filename: 'M03.cfx', data_available: false }, 3, 2).logText, /sin historico en data\.db/);
 assert.equal(PG.generateOneResult({ ok: false, error: 'bad template' }, 3, 1).traceLevel, 'err');
 assert.equal(PG.generateCustomStartMessage({ asset: 'EURUSD', tf: 'H1', capa: 2 }), 'Generando custom EURUSD H1 · Capa 2…');
 assert.equal(PG.generateCustomMissingStatus().level, 'err');
-const generateCustomOk = PG.generateCustomResult({ ok: true, filename: 'Custom_EURUSD_H1_Capa1.cfx', project_name: 'Custom_EURUSD_H1', capa: 1 }, { asset: 'EURUSD' });
-assert.equal(generateCustomOk.text, 'Generado: Custom_EURUSD_H1_Capa1.cfx');
+const generateCustomOk = PG.generateCustomResult({ ok: true, filename: 'Custom_EURUSD_H1_LS_Capa1.cfx', project_name: 'Custom_EURUSD_H1_LS', capa: 1 }, { asset: 'EURUSD' });
+assert.equal(generateCustomOk.text, 'Generado: Custom_EURUSD_H1_LS_Capa1.cfx');
 assert.equal(generateCustomOk.traceTitle, 'Custom libre generado');
+assert.match(PG.generateCustomResult({ ok: true, filename: 'Custom_USDJPY_H4.cfx', data_available: false }, { asset: 'USDJPY' }).traceDetail, /sin historico en data\.db/);
 assert.equal(PG.generateCustomResult({ ok: false, error: 'missing asset' }, {}).level, 'err');
 assert.equal(PG.generateErrorResult('offline').logText, '✗ Error: offline');
 assert.equal(PG.generateAllConfirmMessage(1, 12), '¿Generar 12 minings en Capa 1? Sobrescribe los existentes en output/.');
@@ -298,10 +434,15 @@ const configBody = PG.configSaveBody({
   outputDir: 'C:/out',
   templateCapa1: 'C1.cfx',
   templateCapa2: 'C2.cfx',
+  targetProfile: 'custom_user_broker',
+  targetProfileCustom: { brokerPostfix: '_user', brokerId: '7', sourceId: '8' },
   assetAliases: { EURUSD: 'EURUSD_M1' },
 });
 assert.equal(configBody.sqx_path, 'C:/SQX');
 assert.equal(configBody.sqx_data_db, 'C:/SQX/data.db');
+assert.equal(configBody.target_profile, 'custom_user_broker');
+assert.equal(configBody.target_profile_custom.brokerPostfix, '_user');
+assert.equal(configBody.target_profile_custom.sourceId, '8');
 assert.equal(configBody.asset_aliases.EURUSD, 'EURUSD_M1');
 const configStatus = PG.configSaveStatus({ updated_keys: ['sqx_path', 'output_dir'] });
 assert.equal(configStatus.message, '✓ Guardado: sqx_path, output_dir');
@@ -359,44 +500,12 @@ assert.match(PG.customProjectPresetImportPreviewHtml(importPreview), /reemplaza/
 assert.match(PG.customProjectPresetOptionsHtml(savedCustom.presets), /EURUSD H1 Core/);
 assert.equal(PG.customProjectPresetCountLabel(1), '1 guardado');
 assert.equal(PG.findCustomProjectPreset('eurusd-h1-core', sandbox.localStorage).config.asset, 'EURUSD');
-const buyerHandoffInput = {
-  buyerName: 'Cliente Pro',
-  context: 'setup',
-  generatedAt: '2026-05-09T19:00:00.000Z',
-  outputDir: 'C:/out',
-  config: { name: 'Custom_EURUSD_H1', asset: 'eurusd', tf: 'h1', bs: 'BS_Tendencia', dir: 'both', capa: 1 },
-  outputFiles: [{ name: 'Custom_EURUSD_H1_Capa1.cfx', size_kb: 24 }],
-};
-const buyerHandoff = PG.normalizeBuyerCfxHandoffInput(buyerHandoffInput);
-assert.equal(buyerHandoff.contextLabel, 'Setup Assist');
-assert.equal(buyerHandoff.config.asset, 'EURUSD');
-assert.equal(PG.buyerCfxHandoffFilename(buyerHandoffInput), 'sqx-cfx-handoff-cliente-pro-eurusd-h1-2026-05-09.md');
-assert.match(PG.buyerCfxHandoffSummary(buyerHandoffInput), /Setup Assist: EURUSD H1/);
-const buyerHandoffMd = PG.buyerCfxHandoffMarkdown(buyerHandoffInput);
-assert.match(buyerHandoffMd, /# SQX Edge - Entrega \.cfx comprador/);
-assert.match(buyerHandoffMd, /Custom_EURUSD_H1_Capa1\.cfx/);
-assert.match(buyerHandoffMd, /No promete rentabilidad/);
-const starterProfiles = PG.getCustomStarterProfiles();
-assert.equal(starterProfiles.length, 8);
-assert.equal(PG.customStarterProfileCountLabel(starterProfiles.length), '8 perfiles listos');
-assert.equal(PG.findCustomStarterProfile('forex-h1-balanced').config.asset, 'EURUSD');
-assert.equal(PG.findCustomStarterProfile('forex-h4-swing').guidance.includes('menos operaciones'), true);
-assert.equal(PG.customStarterProfileToPreset('forex-h1-balanced').id, 'starter-forex-h1-balanced');
-assert.match(PG.customStarterProfileCardsHtml(starterProfiles), /data-pg-starter-load="forex-h1-balanced"/);
-const starterPack = PG.buildCustomStarterProfilePack();
-assert.equal(starterPack.type, 'sqx-edge.project-generator-custom-presets');
-assert.equal(starterPack.presets.length, 8);
-const profileFamilies = PG.getCustomProfileFamilies();
-assert.equal(profileFamilies.length, 4);
-assert.equal(PG.customProfileFamilyCountLabel(profileFamilies.length), '4 familias listas');
-assert.equal(PG.findCustomProfileFamily('buyer-first-setup').profiles.length, 3);
-assert.match(PG.customProfileFamilyCardsHtml(profileFamilies), /data-pg-family-save="buyer-first-setup"/);
-const buyerFamilyPack = PG.buildCustomProfileFamilyPack('buyer-first-setup');
-assert.equal(buyerFamilyPack.type, 'sqx-edge.project-generator-custom-presets');
-assert.equal(buyerFamilyPack.presets.length, 3);
-assert.equal(buyerFamilyPack.presets[0].id, 'family-buyer-first-setup-forex-h1-balanced');
-const allFamilyPack = PG.buildAllCustomProfileFamilyPack();
-assert.ok(allFamilyPack.presets.length >= 12);
+assert.equal(PG.getCustomStarterProfiles, undefined);
+assert.equal(PG.buildCustomStarterProfilePack, undefined);
+assert.equal(PG.getCustomProfileFamilies, undefined);
+assert.equal(PG.buildCustomProfileFamilyPack, undefined);
+assert.equal(PG.normalizeBuyerCfxHandoffInput, undefined);
+assert.equal(PG.buyerCfxHandoffMarkdown, undefined);
 assert.equal(PG.deleteCustomProjectPreset('eurusd-h1-core', sandbox.localStorage).deleted, true);
 assert.equal(PG.deleteCustomProjectPreset('gbpusd-m15-short', sandbox.localStorage).deleted, true);
 assert.equal(PG.getCustomProjectPresets(sandbox.localStorage).length, 0);

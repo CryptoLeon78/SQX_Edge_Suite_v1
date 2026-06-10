@@ -28,7 +28,7 @@ PowerShell confirmed the terminal process was open and responsive:
 
 ```text
 ProcessName: terminal64
-Path: C:\Program Files\Dukascopy MetaTrader 5\terminal64.exe
+Path: <private local Dukascopy MT5 terminal path>
 MainWindowTitle: Dukascopy MetaTrader 5 - Netting - EURUSD,H1
 Responding: True
 ```

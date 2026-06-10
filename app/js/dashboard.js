@@ -101,6 +101,15 @@ function hmCls(r) {
 function dirCls(d) {
   return SQX_FORMATTERS.assetDirectionClass ? SQX_FORMATTERS.assetDirectionClass(d) : d==='L' ? 'dir-long' : d==='S' ? 'dir-short' : 'dir-both';
 }
+function dashboardEsc(value) {
+  if (SQX_FORMATTERS.escapeHtml) return SQX_FORMATTERS.escapeHtml(value);
+  return String(value == null ? '' : value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
 
 // SQX Config: A = Both + Entry Symmetry, B = Both sin symmetry, C = Only Long, D = Only Short
 function getSqxConfig(asset) {
@@ -109,6 +118,79 @@ function getSqxConfig(asset) {
 function sqxBadge(asset, mini=false) {
   const c = getSqxConfig(asset);
   return SQX_RENDERERS.sqxBadge ? SQX_RENDERERS.sqxBadge(c, mini) : '';
+}
+
+function edgeExperienceMode() {
+  try {
+    const state = window.SQX && window.SQX.edgeFactory && window.SQX.edgeFactory.getState
+      ? window.SQX.edgeFactory.getState()
+      : null;
+    return state && state.experienceMode === 'advanced' ? 'advanced' : 'basic';
+  } catch(e) {
+    return 'basic';
+  }
+}
+
+function selectedSqxConfigCode() {
+  return ['A', 'B', 'C', 'D'].includes(filterSqx) ? filterSqx : '';
+}
+
+function resolveActionDirection(entryDir) {
+  const selectedConfig = selectedSqxConfigCode();
+  return SQX_DOMAIN.resolveSqxDirection
+    ? SQX_DOMAIN.resolveSqxDirection(selectedConfig, entryDir)
+    : (selectedConfig === 'C' ? 'L' : (selectedConfig === 'D' ? 'S' : (entryDir || 'L/S')));
+}
+
+function actionDirectionLabel(dir) {
+  return dir === 'L' ? 'LONG' : (dir === 'S' ? 'SHORT' : 'LONG / SHORT');
+}
+
+function assetById(assetId) {
+  return ASSETS.find(function(item) { return item.id === assetId; }) || null;
+}
+
+function shortBlockedReason(asset, dir) {
+  const isBlocked = SQX_DOMAIN.isShortBlockedAsset
+    ? SQX_DOMAIN.isShortBlockedAsset(asset)
+    : ['index', 'oro'].includes(String(asset && asset.type || '').toLowerCase());
+  return dir === 'S' && isBlocked ? 'Only Short esta bloqueado para indices y oro en esta metodologia.' : '';
+}
+
+function assertAssetActionAllowed(assetId, dir) {
+  const asset = assetById(assetId);
+  const reason = shortBlockedReason(asset, dir);
+  if (!reason) return true;
+  decisionAlert({
+    title: 'Short bloqueado',
+    message: reason,
+    trace: [
+      'Activo: ' + assetId + ' · tipo: ' + ((asset && asset.type) || 'desconocido'),
+      'Permitido: consultar como referencia o usar Long cuando aplique',
+      'No se crea Plan Mining ni prefill de Project Generator'
+    ]
+  });
+  return false;
+}
+
+function assetActionButtonsHtml(asset, catKey, tf, entryDir) {
+  const catBase = String(catKey || '').replace(/_S$/, '');
+  const dir = resolveActionDirection(entryDir);
+  const blocked = !!shortBlockedReason(asset, dir);
+  const mode = edgeExperienceMode();
+  const note = blocked ? '<div class="asset-action-note blocked">Short bloqueado para índices/oro</div>' : '<div class="asset-action-note">Dirección: ' + dashboardEsc(actionDirectionLabel(dir)) + '</div>';
+  const disabled = blocked ? ' disabled title="Short bloqueado para índices/oro"' : '';
+  if (mode === 'advanced') {
+    return '<div class="quick-actions" data-asset-action-mode="advanced">' +
+      '<button class="action-btn btn-plan" onclick="event.stopPropagation();quickAddToPlan(\'' + asset.id + '\',\'' + catBase + '\',\'' + tf + '\',\'' + dir + '\')"' + disabled + '>+ Plan</button>' +
+      '<button class="action-btn btn-pg" onclick="event.stopPropagation();quickToProjectGen(\'' + asset.id + '\',\'' + catBase + '\',\'' + tf + '\',\'' + dir + '\')"' + disabled + '>Gen Project</button>' +
+      note +
+    '</div>';
+  }
+  return '<div class="quick-actions" data-asset-action-mode="basic">' +
+    '<button class="action-btn btn-pg" onclick="event.stopPropagation();quickToProjectGen(\'' + asset.id + '\',\'' + catBase + '\',\'' + tf + '\',\'' + dir + '\')"' + disabled + '>Preparar custom</button>' +
+    note +
+  '</div>';
 }
 
 // Replica visual del panel "Trading directions settings" de SQX según el código de config (A/B/C/D)
@@ -191,9 +273,9 @@ function sparkHTML(asset) {
 // RENDER: ASSET GRID
 // ============================================================
 // Filtro SQX:
-//   A / B → match contra la config primaria recomendada (getSqxConfig)
-//   C     → activos con ≥1 categoría dir:'L' (ideas Long puras — índices/oro)
-//   D     → activos con ≥1 categoría dir:'S' (ideas Short puras — índices/oro)
+//   La config recomendada, la config seleccionada y el permiso de generacion
+//   se mantienen separados. Forex puede verse en A/B/C/D; indices/oro no
+//   generan Only Short.
 function assetMatchesSqxFilter(a, code) {
   return SQX_DOMAIN.assetMatchesSqxFilter ? SQX_DOMAIN.assetMatchesSqxFilter(a, code) : true;
 }
@@ -217,7 +299,7 @@ function renderAssetGrid() {
       <div class="name">${a.id}</div>
       <span class="type-badge">${a.sub}</span>
       ${sparkHTML(a)}
-      <div class="score-badge">Score: <span>${a.sc.norm}%</span></div>
+      <div class="score-badge">Hipótesis: <span>${a.sc.norm}%</span></div>
       <div style="margin-top:6px">${sqxBadge(a, true)}</div>
     </div>`
   ).join('');
@@ -254,7 +336,7 @@ function renderDetail() {
     <span class="asset-type" style="background:${typeBg};color:${typeColor}">${a.sub}</span>
     ${sqxBadge(a)}
     <div class="asset-desc">${Object.keys(baseCats).length} categorias | ${a.type==='forex'?'L/S simetrico':'Long != Short'}</div>
-    <div class="detail-score">${sc.norm}%<small>score global</small></div>
+    <div class="detail-score">${sc.norm}%<small>hipótesis previa</small></div>
   </div>
   <div class="sqx-detail-box">
     ${sqxPreviewHTML(sqxConf.code)}
@@ -283,12 +365,10 @@ function renderDetail() {
         </div>
         <div class="info-row"><span class="info-label">Direccion</span><span class="info-value ${dirCls(entry.dir)}">${dLabel}</span></div>
         <div class="info-row"><span class="info-label">Timeframes</span><span class="info-value">${entry.tf}</span></div>
+        ${parseCardTimeframes(entry.tf).length > 1 ? '<div class="tf-selection-hint">Elegir timeframe al enviar</div>' : ''}
         <div class="info-row"><span class="info-label">Por que</span><span class="info-value" style="font-weight:400;font-size:12px">${entry.why}</span></div>
         ${compositeBar(sc)}
-        <div class="quick-actions">
-          <button class="action-btn btn-plan" onclick="event.stopPropagation();quickAddToPlan('${a.id}','${entry.isShort ? catKey + '_S' : catKey}','${entry.tf}','${entry.dir}')">+ Plan</button>
-          <button class="action-btn btn-pg" onclick="event.stopPropagation();quickToProjectGen('${a.id}','${entry.isShort ? catKey + '_S' : catKey}','${entry.tf}','${entry.dir}')">Gen Project</button>
-        </div>
+        ${assetActionButtonsHtml(a, entry.isShort ? catKey + '_S' : catKey, entry.tf, entry.dir)}
       </div>`;
     }
   }
@@ -348,15 +428,10 @@ function renderCategoriesView() {
           <td><span class="asset-link" onclick="event.stopPropagation();navToAsset('${row.asset.id}')">${row.asset.id}</span></td>
           <td>${row.asset.sub}</td>
           <td class="${dirCls(row.dir)}" style="font-weight:700">${dl}</td>
-          <td>${row.tf}</td>
+          <td>${row.tf}${parseCardTimeframes(row.tf).length > 1 ? '<div class="tf-selection-hint">Elegir al enviar</div>' : ''}</td>
           <td><span class="rating ${r.cls}">${r.text}</span></td>
           <td style="font-size:12px;color:var(--text2);max-width:280px">${row.why}</td>
-          <td>
-            <div class="quick-actions" style="margin-top:0">
-              <button class="action-btn btn-plan" onclick="event.stopPropagation();quickAddToPlan('${row.asset.id}','${row.isShort ? catKey + '_S' : catKey}','${row.tf}','${row.dir}')" title="Añadir al Plan Mining">+ Plan</button>
-              <button class="action-btn btn-pg" onclick="event.stopPropagation();quickToProjectGen('${row.asset.id}','${row.isShort ? catKey + '_S' : catKey}','${row.tf}','${row.dir}')" title="Ir al Project Generator">Gen</button>
-            </div>
-          </td>
+          <td>${assetActionButtonsHtml(row.asset, row.isShort ? catKey + '_S' : catKey, row.tf, row.dir)}</td>
         </tr>`;
       }
       html+='</tbody></table>';
@@ -376,14 +451,257 @@ window.toggleCat = function toggleCat(key) {
 // ============================================================
 // RENDER: FILTROS
 // ============================================================
-function renderFiltros() {
-  document.getElementById('filtros-view').innerHTML=FILTROS.map(f=>`<div class="filtro-card">
-    <h3>${f.name}</h3><div class="filtro-desc">${f.desc}</div>
-    <div class="thresholds">
-      <div class="threshold threshold-long"><div class="th-label">Long</div>${f.long}</div>
-      <div class="threshold threshold-short"><div class="th-label">Short</div>${f.short}</div>
+function renderBlockSettingTags(tags) {
+  const list = Array.isArray(tags) ? tags : [];
+  return list.map(tag => `<span class="bs-chip">${dashboardEsc(tag)}</span>`).join('');
+}
+
+function resolveCapa1BlockSettingForCategory(cat, tf) {
+  const catBase = String(cat || '').replace(/_S$/, '');
+  const resolver = SQX_UI.capa1Resolver || {};
+  const rules = (resolver.families || {})[catBase] || {};
+  const timeframe = String(tf || '').split(',')[0].trim().toUpperCase();
+  const intraday = new Set(resolver.intradayTimeframes || ['M5', 'M15', 'M30', 'H1']);
+  if (timeframe && intraday.has(timeframe) && rules.intraday) return rules.intraday;
+  return rules.default || PRIORITY_CAT_TO_BS[cat] || PRIORITY_CAT_TO_BS[catBase] || CAT_TO_BS[cat] || CAT_TO_BS[catBase] || '';
+}
+
+function blockSettingCatalogEntry(value) {
+  const catalog = SQX_UI.blockSettingsCatalog || {};
+  const aliases = catalog.aliases || (SQX_BLOCKSETTINGS && SQX_BLOCKSETTINGS.aliases) || {};
+  const entries = catalog.entries || (SQX_BLOCKSETTINGS && SQX_BLOCKSETTINGS.entries) || [];
+  const id = aliases[value] || value;
+  return entries.find(function(entry) {
+    return entry.canonicalId === id || entry.filename === id || entry.filename === (id + '.sqb');
+  }) || null;
+}
+
+function blockSettingTraceHtml(value) {
+  const entry = blockSettingCatalogEntry(value);
+  const id = entry ? entry.canonicalId : value;
+  const file = entry ? entry.filename : '';
+  const hash = entry && entry.sha256 ? String(entry.sha256).slice(0, 12).toUpperCase() : '';
+  return '<span class="ps-m-bs-main">' + planEsc(id || 'BS') + '</span>' +
+    (file || hash ? '<small>' + planEsc([file, hash ? 'SHA ' + hash : ''].filter(Boolean).join(' · ')) + '</small>' : '');
+}
+
+function parseCardTimeframes(tf) {
+  const seen = {};
+  return String(tf || '').split(',')
+    .map(function(item) { return item.trim().toUpperCase(); })
+    .filter(function(item) {
+      if (!item || seen[item]) return false;
+      seen[item] = true;
+      return true;
+    });
+}
+
+function directionTraceLabel(dir) {
+  const value = String(dir || '').trim().toUpperCase();
+  if (value === 'L') return 'LONG';
+  if (value === 'S') return 'SHORT';
+  return 'L+S';
+}
+
+function blockSettingTraceForSelection(cat, tf) {
+  const bs = resolveCapa1BlockSettingForCategory(cat, tf) || 'BS_Custom';
+  const entry = blockSettingCatalogEntry(bs);
+  return {
+    blocksetting: bs,
+    blocksettingTrace: entry ? {
+      canonicalId: entry.canonicalId,
+      filename: entry.filename,
+      sha256Short: entry.sha256Short || (entry.sha256 ? String(entry.sha256).slice(0, 12).toUpperCase() : ''),
+      family: entry.family,
+      layer: entry.layer,
+      variant: entry.variant
+    } : { canonicalId: bs }
+  };
+}
+
+function buildTimeframeSelectionTrace(ctx, selectedTf) {
+  const catBase = String((ctx && ctx.cat) || '').replace(/_S$/, '');
+  const trace = blockSettingTraceForSelection(catBase, selectedTf);
+  return {
+    source: 'asset-card',
+    selectedTimeframe: selectedTf,
+    availableTimeframes: (ctx && ctx.tfList) || [selectedTf],
+    timeframeSource: ((ctx && ctx.tfList) || []).length > 1 ? 'card-selection' : 'card-single',
+    blocksetting: trace.blocksetting,
+    blocksettingTrace: trace.blocksettingTrace,
+    trace: {
+      origin: 'Tarjeta de Activos',
+      destination: ctx && ctx.action === 'projectgen' ? 'Project Generator custom prefill' : PLAN_USER_KEY,
+      selectedTimeframe: selectedTf,
+      availableTimeframes: ((ctx && ctx.tfList) || [selectedTf]).join(', '),
+      timeframeSource: ((ctx && ctx.tfList) || []).length > 1 ? 'card-selection' : 'card-single',
+      blocksetting: trace.blocksetting,
+      blocksettingTrace: trace.blocksettingTrace
+    }
+  };
+}
+
+function renderBlockSettingCapa1Card(item) {
+  const meta = CAT_META[item.category] || {};
+  const color = meta.color || '#3b82f6';
+  const icon = meta.icon || 'B';
+  const name = meta.name || item.category || 'BlockSetting';
+  return `<article class="bs-card" style="--bs-accent:${dashboardEsc(color)}">
+    <div class="bs-card-top">
+      <span class="bs-icon">${dashboardEsc(icon)}</span>
+      <div>
+        <span class="bs-layer">Capa 1 · Buscar Edge</span>
+        <h3>${dashboardEsc(name)}</h3>
+      </div>
     </div>
-  </div>`).join('');
+    <div class="bs-file">${dashboardEsc(item.displayBlockSetting || item.blockSetting)}</div>
+    <div class="bs-chip-row">
+      ${item.filename ? `<span class="bs-chip">${dashboardEsc(item.filename)}</span>` : ''}
+      ${item.sha256Short ? `<span class="bs-chip">SHA ${dashboardEsc(item.sha256Short)}</span>` : ''}
+      ${item.variant ? `<span class="bs-chip">${dashboardEsc(item.variant)}</span>` : ''}
+    </div>
+    <p class="bs-objective">${dashboardEsc(item.objective)}</p>
+    <dl class="bs-facts">
+      <div><dt>Lógica</dt><dd>${dashboardEsc(item.marketLogic)}</dd></div>
+      <div><dt>Cuándo usarlo</dt><dd>${dashboardEsc(item.whenToUse)}</dd></div>
+      <div><dt>Conecta con</dt><dd>${dashboardEsc(item.assetCardLink)}</dd></div>
+    </dl>
+    <div class="bs-chip-row">${renderBlockSettingTags(item.tags)}</div>
+    <div class="bs-param-slot">
+      <strong>Fuente real versionada</strong>
+      <span>${dashboardEsc(item.parameterStatus || 'Fuente .sqb real disponible en el manifiesto de BlockSettings.')}</span>
+    </div>
+    ${Array.isArray(item.activeIndicators) && item.activeIndicators.length ? `<div class="bs-chip-row">${renderBlockSettingTags(item.activeIndicators)}</div>` : ''}
+  </article>`;
+}
+
+function renderBlockSettingFilterCard(filter) {
+  return `<article class="bs-filter-card">
+    <div class="bs-filter-head">
+      <span>${dashboardEsc(filter.id || filter.name)}</span>
+      <strong>${dashboardEsc(filter.name)}</strong>
+    </div>
+    <p>${dashboardEsc(filter.desc)}</p>
+    <div class="bs-threshold-grid">
+      <div class="bs-threshold is-long"><small>Long</small><span>${dashboardEsc(filter.long)}</span></div>
+      <div class="bs-threshold is-short"><small>Short</small><span>${dashboardEsc(filter.short)}</span></div>
+    </div>
+  </article>`;
+}
+
+function renderFiltros() {
+  const target = document.getElementById('filtros-view');
+  if (!target) return;
+  const info = BLOCK_SETTINGS_INFO || {};
+  const capa1 = Array.isArray(info.capa1) && info.capa1.length ? info.capa1 : CAT_KEYS.map(key => ({
+    category: key,
+    blockSetting: CAT_TO_BS[key] || key,
+    displayBlockSetting: PRIORITY_CAT_TO_BS[key] || CAT_TO_BS[key] || key,
+    objective: (CAT_META[key] && CAT_META[key].desc) || key,
+    marketLogic: APPROACH_HINTS[key] || '',
+    whenToUse: 'Cuando la tarjeta de Activos prioriza esta familia.',
+    assetCardLink: 'Tarjetas de Activos',
+    tags: ((CAT_META[key] && CAT_META[key].desc) || '').split(',').map(t => t.trim()).filter(Boolean),
+  }));
+  const filterById = {};
+  FILTROS.forEach(filter => { filterById[filter.id] = filter; });
+  const capa2 = info.capa2 || {};
+  const capa2Filters = Array.isArray(capa2.filterIds) && capa2.filterIds.length
+    ? capa2.filterIds.map(id => filterById[id]).filter(Boolean)
+    : FILTROS;
+  const principles = Array.isArray(info.principles) ? info.principles : [];
+  const flow = Array.isArray(info.flow) ? info.flow : [];
+
+  target.innerHTML = `
+    <section class="bs-hero">
+      <div>
+        <span class="bs-kicker">${dashboardEsc(info.title || 'BlockSettings Info')}</span>
+        <h2>Biblioteca metodológica de BlockSettings SQX</h2>
+        <p>${dashboardEsc(info.subtitle || 'Consulta que bloque usar en cada capa y como encaja en la metodologia.')}</p>
+        <div class="bs-hero-actions">
+          <button class="filter-btn" type="button" data-home-tab="activos">Abrir Activos</button>
+          <button class="filter-btn" type="button" data-home-tab="pipeline">Abrir Plan Mining</button>
+          <button class="filter-btn" type="button" data-home-tab="projectgen">Abrir Project Generator</button>
+        </div>
+      </div>
+      <aside class="bs-hero-panel">
+        <span>Modo de detalle</span>
+        <strong>${dashboardEsc(info.modeLabel || (info.mode || 'hibrido').toUpperCase())}</strong>
+        <p>${dashboardEsc(info.modeText || 'Metodología enlazada con .sqb reales versionados y trazables por hash.')}</p>
+      </aside>
+    </section>
+
+    <section class="bs-section">
+      <div class="bs-section-head">
+        <span>PASO 1</span>
+        <h3>${dashboardEsc(info.capa1Title || 'Capa 1 · Buscar Edge')}</h3>
+        <p>${dashboardEsc(info.capa1Intro || '')}</p>
+      </div>
+      <div class="bs-capa1-grid">${capa1.map(renderBlockSettingCapa1Card).join('')}</div>
+    </section>
+
+    <section class="bs-section bs-capa2-section">
+      <div class="bs-section-head">
+        <span>PASO 2</span>
+        <h3>${dashboardEsc(info.capa2Title || 'Capa 2 · Filtros operativos')}</h3>
+        <p>${dashboardEsc(info.capa2Intro || '')}</p>
+      </div>
+      <div class="bs-capa2-card">
+        <div class="bs-capa2-main">
+          <span class="bs-layer">Capa 2 · Filtros + gestión</span>
+          <h3>${dashboardEsc(capa2.displayBlockSetting || capa2.blockSetting || 'BS_Filtros por timeframe')}</h3>
+          <p>${dashboardEsc(capa2.objective || '')}</p>
+          ${capa2.filename || capa2.sha256Short ? `<div class="bs-chip-row">
+            ${capa2.filename ? `<span class="bs-chip">${dashboardEsc(capa2.filename)}</span>` : ''}
+            ${capa2.sha256Short ? `<span class="bs-chip">SHA ${dashboardEsc(capa2.sha256Short)}</span>` : ''}
+          </div>` : ''}
+          ${capa2.recommendations ? `<div class="bs-chip-row">${Object.keys(capa2.recommendations).map(tf => `<span class="bs-chip">${dashboardEsc(tf)}: ${dashboardEsc(capa2.recommendations[tf])}</span>`).join('')}</div>` : ''}
+          <div class="bs-param-slot">
+            <strong>Uso metodológico</strong>
+            <span>${dashboardEsc(capa2.capaUse || '')}</span>
+          </div>
+          <div class="bs-param-slot">
+            <strong>Detalle híbrido</strong>
+            <span>${dashboardEsc(capa2.parameterStatus || '')}</span>
+          </div>
+        </div>
+        <div class="bs-filter-grid">${capa2Filters.map(renderBlockSettingFilterCard).join('')}</div>
+      </div>
+    </section>
+
+    <section class="bs-section bs-principles-section">
+      <div class="bs-section-head">
+        <span>PASO 3</span>
+        <h3>Calibración normalizada</h3>
+        <p>Los BlockSettings están calibrados por lógica de mercado para que el usuario no empiece rompiendo la metodología desde el primer run.</p>
+      </div>
+      <div class="bs-principles">${principles.map(item => `
+        <article>
+          <strong>${dashboardEsc(item.title)}</strong>
+          <p>${dashboardEsc(item.text)}</p>
+        </article>`).join('')}</div>
+    </section>
+
+    <section class="bs-section">
+      <div class="bs-section-head">
+        <span>PASO 4</span>
+        <h3>Cómo se conecta con el flujo</h3>
+        <p>Este tab no genera archivos: explica que bloque toca usar y mantiene trazabilidad entre metodología y herramientas.</p>
+      </div>
+      <div class="bs-flow">${flow.map((item, idx) => `
+        <article>
+          <span>${idx + 1}</span>
+          <strong>${dashboardEsc(item.step)}</strong>
+          <p>${dashboardEsc(item.text)}</p>
+        </article>`).join('')}</div>
+    </section>`;
+  if (SQX_UI_MODULE.bindHomeTabButtons) {
+    SQX_UI_MODULE.bindHomeTabButtons('#filtros-view [data-home-tab]', activateTabById, document);
+  } else {
+    target.querySelectorAll('[data-home-tab]').forEach(function(btn) {
+      btn.addEventListener('click', function() { activateTabById(btn.dataset.homeTab); });
+    });
+  }
 }
 
 // ============================================================
@@ -470,7 +788,7 @@ function renderPriority() {
     const planRef = (typeof PLAN_MININGS !== 'undefined') ? PLAN_MININGS.find(m =>
       m.asset === r.asset && BS_TO_PRIORITY_CAT[m.bs] === r.cat && m.tf === r.tf && m.dir === r.dir
     ) : null;
-    const planBadge = planRef ? '<span class="ps-pin-badge" title="Mining '+planRef.num+' del plan operativo (Pipeline State)">📌 M'+planRef.num+'</span>' : '';
+    const planBadge = planRef ? '<span class="ps-pin-badge" title="Mining '+planRef.num+' del plan operativo (Mining Control)">📌 M'+planRef.num+'</span>' : '';
     html += '<tr>'
       + '<td style="font-weight:700;color:var(--text2)">'+(i+1)+planBadge+'</td>'
       + '<td><span class="tier-badge '+tier.cls+'">'+tier.label+'</span></td>'
@@ -500,12 +818,25 @@ function renderPriority() {
 // ============================================================
 // CSV EXPORT
 // ============================================================
+function downloadBrowserFile(filename, content, mime) {
+  const blob = content instanceof Blob ? content : new Blob([content], { type: mime || 'application/octet-stream' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+function downloadJsonFile(filename, payload) {
+  downloadBrowserFile(filename, JSON.stringify(payload, null, 2), 'application/json;charset=utf-8;');
+}
+
 function doExport(data,filename) {
   const csv=data.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
-  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
-  const url=URL.createObjectURL(blob);
-  Object.assign(document.createElement('a'),{href:url,download:filename}).click();
-  URL.revokeObjectURL(url);
+  downloadBrowserFile(filename, '\uFEFF' + csv, 'text/csv;charset=utf-8;');
 }
 function exportCatCSV() {
   const rows=[['Activo','Tipo','Categoria','Direccion','Timeframes','Rating','Por que']];
@@ -536,6 +867,7 @@ let stratFilterMining   = 'all';
 let stratFilterTemplate = 'all';
 let stratFilterTier     = 'all';
 let stratFilterStatus   = 'all';
+let stratSearchQuery     = '';
 
 function tierClass(tier) {
   if (SQX_FORMATTERS.tierClass) return SQX_FORMATTERS.tierClass(tier);
@@ -588,13 +920,22 @@ function getFilteredStrategies() {
       mining: stratFilterMining,
       template: stratFilterTemplate,
       tier: stratFilterTier,
-      status: stratFilterStatus
+      status: stratFilterStatus,
+      query: stratSearchQuery
     })
     : getAllStrategies().filter(s => {
       if (stratFilterMining   !== 'all' && String(s.mining)   !== stratFilterMining)   return false;
       if (stratFilterTemplate !== 'all' && s.template !== stratFilterTemplate) return false;
       if (stratFilterTier     !== 'all' && s.tier     !== stratFilterTier)     return false;
       if (stratFilterStatus   !== 'all' && s.status   !== stratFilterStatus)   return false;
+      if (stratSearchQuery) {
+        const haystack = [
+          s.id, s.name, s.asset, s.tf, s.blocksetting, s.template, s.direction,
+          s.tier, s.status, s.indicators, s.exits, s.notes,
+          (s.tests_passed || []).join(' '), (s.tests_failed || []).join(' ')
+        ].map(v => String(v == null ? '' : v).toLowerCase()).join(' ');
+        if (!haystack.includes(stratSearchQuery.toLowerCase())) return false;
+      }
       return true;
     });
 }
@@ -602,7 +943,11 @@ function getFilteredStrategies() {
 function renderStratSummary() {
   const all = getAllStrategies();
   const summary = SQX_STRATEGIES.summarize
-    ? SQX_STRATEGIES.summarize(all)
+    ? SQX_STRATEGIES.summarize(all, {
+      baseCount: Math.max(0, STRATEGIES.length - STRATEGIES_DELETED.length),
+      userCount: STRATEGIES_USER.length,
+      hiddenCount: STRATEGIES_DELETED.length
+    })
     : {
       total: all.length,
       tier1: all.filter(s => s.tier === '1').length,
@@ -610,6 +955,11 @@ function renderStratSummary() {
       tier2: all.filter(s => s.tier === '2').length,
       tentative: all.filter(s => s.tier === 'tentativa').length,
       deployed: all.filter(s => s.status === 'DEPLOYED').length,
+      candidate: all.filter(s => s.status === 'CANDIDATA').length,
+      rejected: all.filter(s => s.status === 'REJECTED').length,
+      base: Math.max(0, STRATEGIES.length - STRATEGIES_DELETED.length),
+      imported: STRATEGIES_USER.length,
+      hidden: STRATEGIES_DELETED.length,
       totalProfit: all.reduce((acc,s) => acc + ((s.metrics && s.metrics.net_profit) || 0), 0)
     };
 
@@ -634,6 +984,8 @@ function populateStratFilters() {
     : '<option value="all">Todos</option>' + [...new Set(all.map(s => s.mining))].sort((a,b)=>a-b).map(m =>
       '<option value="'+m+'">Mining ' + m + '</option>'
     ).join('');
+  if ([...mSel.options].some(opt => opt.value === stratFilterMining)) mSel.value = stratFilterMining;
+  else { stratFilterMining = 'all'; mSel.value = 'all'; }
 
   const tSel = document.getElementById('strat-filter-template');
   tSel.innerHTML = SQX_STRATEGIES.filterOptionsHtml
@@ -641,6 +993,8 @@ function populateStratFilters() {
     : '<option value="all">Todos</option>' + [...new Set(all.map(s => s.template))].sort().map(t =>
       '<option value="'+t+'">' + t + '</option>'
     ).join('');
+  if ([...tSel.options].some(opt => opt.value === stratFilterTemplate)) tSel.value = stratFilterTemplate;
+  else { stratFilterTemplate = 'all'; tSel.value = 'all'; }
 }
 
 function stratEsc(value) {
@@ -705,10 +1059,11 @@ function renderStrategyCard(s) {
   const importedCls = s._imported ? ' user-imported' : '';
   return '<div class="strat-card ' + tierClass(s.tier) + importedCls + '">' +
     '<div class="sc-head">' +
-      '<span class="sc-id">' + s.id + '</span>' +
-      '<span class="sc-name">' + s.name + '</span>' +
-      '<span class="strat-tier-badge ' + tierClass(s.tier) + '">' + tierLabel(s.tier) + '</span>' +
-      '<span class="strat-status-badge ' + s.status + '">' + s.status.replace('_',' ') + '</span>' +
+        '<span class="sc-id">' + s.id + '</span>' +
+        '<span class="sc-name">' + s.name + '</span>' +
+        '<span class="strat-source-badge ' + (s._imported ? 'imported' : 'base') + '">' + (s._imported ? 'IMPORTADA' : 'BASE') + '</span>' +
+        '<span class="strat-tier-badge ' + tierClass(s.tier) + '">' + tierLabel(s.tier) + '</span>' +
+        '<span class="strat-status-badge ' + s.status + '">' + s.status.replace('_',' ') + '</span>' +
     '</div>' +
     '<div class="sc-meta">' +
       '<span class="sc-meta-pill">M' + s.mining + '</span>' +
@@ -737,18 +1092,24 @@ function renderStrategies() {
   if (userInfo) {
     const cnt = STRATEGIES_USER.length;
     const hiddenCnt = STRATEGIES_DELETED.length;
-    userInfo.style.display = (cnt > 0 || hiddenCnt > 0) ? 'block' : 'none';
+    userInfo.style.display = (cnt > 0 || hiddenCnt > 0) ? 'flex' : 'none';
     const cntEl = document.getElementById('strat-user-count');
     if (cntEl) cntEl.textContent = cnt;
     const hiddenWrap = document.getElementById('strat-hidden-wrap');
     const hiddenCntEl = document.getElementById('strat-hidden-count');
     if (hiddenWrap) hiddenWrap.style.display = hiddenCnt > 0 ? 'inline' : 'none';
     if (hiddenCntEl) hiddenCntEl.textContent = hiddenCnt;
+    const restoreBtn = document.getElementById('strat-restore-hidden-btn');
+    const clearBtn = document.getElementById('strat-clear-user-btn');
+    if (restoreBtn) restoreBtn.style.display = hiddenCnt > 0 ? 'inline-flex' : 'none';
+    if (clearBtn) clearBtn.style.display = cnt > 0 ? 'inline-flex' : 'none';
   }
   const list = getFilteredStrategies();
+  const countEl = document.getElementById('strat-filter-count');
+  if (countEl) countEl.textContent = list.length + ' visibles de ' + getAllStrategies().length;
   const grid = document.getElementById('strat-grid');
   if (!list.length) {
-    grid.innerHTML = '<div class="no-data" style="grid-column:1/-1;">Sin estrategias que coincidan con los filtros.</div>';
+    grid.innerHTML = '<div class="no-data strat-empty" style="grid-column:1/-1;">Sin estrategias que coincidan con los filtros. Limpia busqueda o cambia Mining/Template/TIER/Status.</div>';
     return;
   }
   const displayList = SQX_STRATEGIES.sortForDisplay ? SQX_STRATEGIES.sortForDisplay(list) : list;
@@ -779,19 +1140,29 @@ function removeStrategyClick(key) {
     ? '¿Eliminar la estrategia importada ' + label + '?'
     : '¿Eliminar la estrategia base ' + label + ' de la vista? Podrás restaurarla después.';
 
-  if (!confirm(prompt)) return;
+  decisionConfirm({
+    title: imported ? 'Eliminar estrategia importada' : 'Ocultar estrategia base',
+    message: prompt,
+    confirmLabel: imported ? 'Eliminar importada' : 'Ocultar base',
+    trace: [
+      'Estrategia: ' + label,
+      imported ? 'Destino: se borra de sqx_strategies_user_v1' : 'Destino: se guarda como oculta en sqx_strategies_deleted_v1',
+      imported ? 'Recuperacion: reimportar CSV o backup estado' : 'Recuperacion: boton Restaurar eliminadas',
+      'Impacto: actualiza Strategy Control, Mining Control y Panel'
+    ]
+  }, function() {
+    if (imported) {
+      STRATEGIES_USER = STRATEGIES_USER.filter(s => strategyKey(s) !== key);
+      saveStrategiesUser();
+    } else if (!STRATEGIES_DELETED.includes(key)) {
+      STRATEGIES_DELETED.push(key);
+      saveStrategiesDeleted();
+    }
 
-  if (imported) {
-    STRATEGIES_USER = STRATEGIES_USER.filter(s => strategyKey(s) !== key);
-    saveStrategiesUser();
-  } else if (!STRATEGIES_DELETED.includes(key)) {
-    STRATEGIES_DELETED.push(key);
-    saveStrategiesDeleted();
-  }
-
-  renderStrategies();
-  renderPipelineState();
-  renderHome();
+    renderStrategies();
+    renderPipelineState();
+    renderHome();
+  });
 }
 
 function exportStrategiesCSV() {
@@ -803,8 +1174,50 @@ function exportStrategiesCSV() {
   doExport([headers.map(h=>'"'+h+'"').join(';')], 'SQX_estrategias.csv');
 }
 
+function decisionConfirm(options, onConfirm) {
+  var opts = options || {};
+  var run = function(ok) {
+    if (ok && typeof onConfirm === 'function') onConfirm();
+  };
+  if (window.SQX && SQX.modalRegistry && SQX.modalRegistry.confirm) {
+    SQX.modalRegistry.confirm(opts).then(run);
+    return;
+  }
+  run(!window.confirm || window.confirm(opts.message || opts.title || 'Confirmar accion'));
+}
+
+function decisionPrompt(options, onValue) {
+  var opts = options || {};
+  if (window.SQX && SQX.modalRegistry && SQX.modalRegistry.prompt) {
+    SQX.modalRegistry.prompt(opts).then(function(value) {
+      if (value !== null && value !== undefined && typeof onValue === 'function') onValue(value);
+    });
+    return;
+  }
+  var value = window.prompt ? window.prompt(opts.message || opts.title || '', opts.value || '') : null;
+  if (value !== null && value !== undefined && typeof onValue === 'function') onValue(value);
+}
+
+function decisionAlert(options) {
+  var opts = options || {};
+  if (window.SQX && SQX.modalRegistry && SQX.modalRegistry.alert) {
+    SQX.modalRegistry.alert(opts);
+    return;
+  }
+  if (window.alert) window.alert(opts.message || opts.title || '');
+}
+
+function updateStratModalTrace() {
+  var el = document.getElementById('sf-trace-preview');
+  if (!el) return;
+  var v = readStratFormValues();
+  el.textContent = 'Origen manual -> JSON estrategias · M' + (v.mining || '1') + ' · ' +
+    (v.asset || 'ASSET') + ' ' + (v.tf || 'TF') + ' · ' + (v.blocksetting || 'BS') +
+    ' · Template ' + (v.template || 'pendiente') + ' · Status ' + (v.status || 'CANDIDATA') + '.';
+}
+
 // ── MODAL: añadir estrategia ──
-function openStratModal() { document.getElementById('strat-modal-backdrop').style.display = 'flex'; }
+function openStratModal() { document.getElementById('strat-modal-backdrop').style.display = 'flex'; updateStratModalTrace(); }
 function closeStratModal() { document.getElementById('strat-modal-backdrop').style.display = 'none'; document.getElementById('sf-output-wrap').style.display = 'none'; }
 function clearStratForm() {
   ['sf-id','sf-name','sf-template','sf-indicators','sf-exits','sf-tests-ok','sf-tests-ko','sf-notes',
@@ -815,11 +1228,12 @@ function clearStratForm() {
   document.getElementById('sf-mining').value = '1';
   document.getElementById('sf-asset').value = 'XAUUSD';
   document.getElementById('sf-tf').value = 'H1';
-  document.getElementById('sf-bs').value = 'BS_Tendencia';
+  document.getElementById('sf-bs').value = (SQX_UI.capa1Resolver && SQX_UI.capa1Resolver.families && SQX_UI.capa1Resolver.families.tendencia && SQX_UI.capa1Resolver.families.tendencia.default) || 'BS_Tendencia_v6';
   document.getElementById('sf-dir').value = 'L';
   document.getElementById('sf-tier').value = 'tentativa';
   document.getElementById('sf-status').value = 'CANDIDATA';
   document.getElementById('sf-output-wrap').style.display = 'none';
+  updateStratModalTrace();
 }
 function numOrNull(id) {
   const v = document.getElementById(id).value.trim();
@@ -918,12 +1332,13 @@ function generateStratJSON() {
   const json = JSON.stringify(obj, null, 2);
   document.getElementById('sf-output').textContent = json;
   document.getElementById('sf-output-wrap').style.display = 'block';
+  updateStratModalTrace();
 }
 
 // ============================================================
 // EVENTS
 // ============================================================
-var HOME_BACKEND_STATE = { state: 'loading', title: 'Comprobando', desc: 'API local pendiente de comprobar.', meta: {} };
+var HOME_BACKEND_STATE = { state: 'loading', title: 'Comprobando', desc: 'API SQX Edge pendiente de comprobar.', meta: {} };
 var HOME_TRACE_KEY = (window.SQX_CONFIG && window.SQX_CONFIG.storageKeys && window.SQX_CONFIG.storageKeys.homeTrace) || 'sqx_home_trace_v1';
 var HOME_TRACE = [];
 HOME_TRACE = SQX_STORAGE.getJson(HOME_TRACE_KEY, []);
@@ -971,6 +1386,14 @@ window.addHomeTrace = function(title, detail, level) {
     timeLabel: new Date().toLocaleString(),
     ts: Date.now()
   };
+  var previous = HOME_TRACE[0];
+  if (previous && previous.title === item.title && previous.detail === item.detail && previous.level === item.level && item.ts - previous.ts < 120000) {
+    previous.ts = item.ts;
+    previous.timeLabel = item.timeLabel;
+    saveHomeTrace();
+    renderHomeTrace();
+    return;
+  }
   HOME_TRACE = SQX_HOME.addTrace ? SQX_HOME.addTrace(HOME_TRACE, item, 12) : [item].concat(HOME_TRACE).slice(0, 12);
   saveHomeTrace();
   renderHomeTrace();
@@ -1002,18 +1425,21 @@ function renderHome() {
     }
     if (detailEl) detailEl.textContent = detail;
   }
+  var activePlanMinings = typeof getPlanMinings === 'function' ? getPlanMinings() : (PLAN_MININGS || []);
+  var activePlanPhases = typeof getPlanPhases === 'function' ? getPlanPhases() : (PHASE_META || {});
+  var visibleStrategies = typeof getAllStrategies === 'function' ? getAllStrategies() : (STRATEGIES || []);
   var model = SQX_HOME.computeHomeModel
     ? SQX_HOME.computeHomeModel({
       assets: ASSETS,
       backendState: HOME_BACKEND_STATE,
       catKeys: CAT_KEYS,
       manifestVersion: (SQX_MANIFEST && SQX_MANIFEST.version) || 1,
-      phaseMeta: PHASE_META,
+      phaseMeta: activePlanPhases,
       pipelineState: PIPELINE_STATE,
-      planMinings: PLAN_MININGS,
+      planMinings: activePlanMinings,
       priorityProgress: PRIORITY_PROGRESS,
-      strategies: STRATEGIES,
-      strategiesUser: STRATEGIES_USER
+      strategies: visibleStrategies,
+      strategiesUser: []
     })
     : null;
   if (!model) {
@@ -1024,10 +1450,10 @@ function renderHome() {
     var strategyUserCount = Array.isArray(STRATEGIES_USER) ? STRATEGIES_USER.length : 0;
     var marked = Object.keys(PRIORITY_PROGRESS || {}).length;
     var nextAction = (PIPELINE_STATE && PIPELINE_STATE.nextAction) || 'Plan operativo';
-    var phaseCount = Object.keys(PHASE_META || {}).length;
-    var manifestOk = !!((ASSETS || []).length && (PLAN_MININGS || []).length && (STRATEGIES || []).length);
-    var planOk = (PLAN_MININGS || []).length > 0;
-    var strategiesOk = ((STRATEGIES || []).length + strategyUserCount) > 0;
+    var phaseCount = Object.keys(activePlanPhases || {}).length;
+    var manifestOk = !!((ASSETS || []).length && activePlanMinings.length && visibleStrategies.length);
+    var planOk = activePlanMinings.length > 0;
+    var strategiesOk = visibleStrategies.length > 0;
     var backendOk = HOME_BACKEND_STATE.state === 'up';
     var backendMeta = HOME_BACKEND_STATE.meta || {};
     var templatesOk = backendOk && !!(backendMeta.templates_capa1_exists && backendMeta.templates_capa2_exists);
@@ -1039,26 +1465,26 @@ function renderHome() {
     model = {
       assetCount: (ASSETS || []).length,
       assetsSub: (assetCounts.forex || 0) + ' Forex · ' + (assetCounts.index || 0) + ' Indices · ' + (assetCounts.oro || 0) + ' Oro',
-      planCount: (PLAN_MININGS || []).length,
+      planCount: activePlanMinings.length,
       planSub: phaseCount + ' fases · minings configurados',
-      strategyCount: (STRATEGIES || []).length + strategyUserCount,
-      strategiesSub: (STRATEGIES || []).length + ' base · ' + strategyUserCount + ' importadas',
+      strategyCount: visibleStrategies.length,
+      strategiesSub: visibleStrategies.length + ' visibles · ' + strategyUserCount + ' importadas',
       priorityCount: marked,
       nextAction: nextAction,
       backendTitle: HOME_BACKEND_STATE.title,
       dataStatus: manifestOk ? 'Manifest v' + ((SQX_MANIFEST && SQX_MANIFEST.version) || 1) : 'Manifest incompleto',
       readiness: readiness,
-      heroStatus: backendOk ? (sqxPathOk ? 'API conectada. Plan, manifiestos y generador listos para operar.' : 'API conectada. Falta completar la ruta SQX para generar con seguridad.') : 'Manifest activo. Arranca la API local para habilitar generacion, validacion de rutas y limpieza SQX.',
+      heroStatus: backendOk ? (sqxPathOk ? 'API conectada. Plan, manifiestos y generador listos para operar.' : 'API conectada. Falta completar la ruta SQX para generar con seguridad.') : 'Manifest activo. La API SQX Edge debe estar activa para generar, validar rutas y limpiar SQX.',
       auditScore: auditItems.filter(Boolean).length + '/' + auditItems.length,
       checks: { manifest: manifestOk, plan: planOk, strategies: strategiesOk, backend: backendOk },
       states: { backend: backendOk ? 'ok' : 'warn', data: manifestOk ? 'ok' : 'warn' },
       audit: {
         manifest: { ok: manifestOk, detail: (ASSETS || []).length + ' activos · ' + (CAT_KEYS || []).length + ' categorias' },
-        plan: { ok: planOk, detail: phaseCount + ' fases · ' + (PLAN_MININGS || []).length + ' minings' },
+        plan: { ok: planOk, detail: phaseCount + ' fases · ' + activePlanMinings.length + ' minings' },
         backend: { ok: backendOk, detail: backendOk ? 'API v' + (backendMeta.version || '?') : 'API no conectada' },
         templates: { ok: templatesOk, detail: backendOk ? (templatesOk ? 'Capa 1 + Capa 2 OK' : 'revisar templates') : 'requiere API' },
         sqx: { ok: sqxPathOk, detail: backendOk ? (sqxPathOk ? 'ruta configurada' : 'ruta pendiente') : 'requiere API' },
-        output: { ok: outputOk, detail: backendOk ? (outputOk ? 'carpeta accesible' : 'output pendiente') : 'requiere API' }
+        output: { ok: outputOk, detail: backendOk ? (outputOk ? 'workspace de descargas listo' : 'output pendiente') : 'requiere API' }
       }
     };
   }
@@ -1100,7 +1526,7 @@ function renderHome() {
 window.updateHomeBackendStatus = function(state, title, desc, meta) {
   HOME_BACKEND_STATE = {
     state: state || 'loading',
-    title: title || 'API local',
+    title: title || 'API SQX Edge',
     desc: desc || '',
     meta: meta || {}
   };
@@ -1138,6 +1564,9 @@ if (homeHistoryClear) {
     renderHomeTrace();
   });
 }
+if (SQX_HOME.initRemoteServicePanel) {
+  SQX_HOME.initRemoteServicePanel(document);
+}
 
 function bindBtns(sel, dataKey, varSetter, cb) {
   if (SQX_UI_MODULE.bindButtonGroup) return SQX_UI_MODULE.bindButtonGroup(sel, dataKey, varSetter, cb, document);
@@ -1164,6 +1593,13 @@ bindBtns('[data-filter-dir]',  'filterDir',  function(v){ filterDir  = v; }, ren
 bindBtns('[data-priority-min]','priorityMin',function(v){ filterPriorityMin = parseInt(v,10) || 0; }, renderPriority);
 bindBtns('[data-priority-type]','priorityType',function(v){ filterPriorityType = v; }, renderPriority);
 
+window.addEventListener('sqx:edge-factory-state', function(event) {
+  if (!event || !event.detail || event.detail.source !== 'edge-factory-experience-mode') return;
+  renderAssetGrid();
+  renderDetail();
+  renderCategoriesView();
+});
+
 if (SQX_UI_MODULE.bindInput) SQX_UI_MODULE.bindInput('search-asset', renderAssetGrid);
 else document.getElementById('search-asset').addEventListener('input',renderAssetGrid);
 bindChange('asset-sort', function(e){ assetSort=e.target.value; renderAssetGrid(); });
@@ -1179,25 +1615,154 @@ window.navToAsset = function(id) {
   selectAsset(id);
 };
 
-// Quick actions from asset/category cards into Pipeline State and Project Generator.
+// Quick actions from asset/category cards into Mining Control and Project Generator.
+let PENDING_TIMEFRAME_SELECTION = null;
+
+function timeframeTraceItemsHtml(ctx, selectedTf) {
+  const trace = buildTimeframeSelectionTrace(ctx, selectedTf);
+  const bsTrace = trace.blocksettingTrace || {};
+  return [
+    'Asset: ' + (ctx.asset || 'ASSET'),
+    'Familia: ' + String(ctx.cat || '').replace(/_S$/, ''),
+    'Direccion: ' + directionTraceLabel(ctx.dir),
+    'Timeframe: ' + selectedTf,
+    'Destino: ' + (ctx.action === 'projectgen' ? 'Project Generator' : 'Plan Mining'),
+    'BlockSetting: ' + (bsTrace.canonicalId || trace.blocksetting),
+    bsTrace.filename ? 'Archivo: ' + bsTrace.filename : '',
+    bsTrace.sha256Short ? 'SHA: ' + bsTrace.sha256Short : ''
+  ].filter(Boolean).map(function(item) {
+    return '<span>' + dashboardEsc(item) + '</span>';
+  }).join('');
+}
+
+function updateTimeframeSelectionPreview(selectedTf) {
+  const ctx = PENDING_TIMEFRAME_SELECTION;
+  if (!ctx) return;
+  const trace = buildTimeframeSelectionTrace(ctx, selectedTf);
+  const bsTrace = trace.blocksettingTrace || {};
+  const traceItems = document.getElementById('tf-select-trace-items');
+  const preview = document.getElementById('tf-select-preview');
+  if (traceItems) traceItems.innerHTML = timeframeTraceItemsHtml(ctx, selectedTf);
+  if (preview) {
+    preview.textContent = 'Origen tarjeta -> ' +
+      (ctx.action === 'projectgen' ? 'Project Generator' : 'Plan Mining') +
+      ' · ' + ctx.asset + ' ' + selectedTf +
+      ' · ' + (bsTrace.canonicalId || trace.blocksetting) +
+      (bsTrace.filename ? ' · ' + bsTrace.filename : '') +
+      (bsTrace.sha256Short ? ' · SHA ' + bsTrace.sha256Short : '') + '.';
+  }
+}
+
+function setTimeframeSelection(selectedTf) {
+  if (!PENDING_TIMEFRAME_SELECTION) return;
+  PENDING_TIMEFRAME_SELECTION.selectedTf = selectedTf;
+  document.querySelectorAll('#tf-select-options .tf-select-option').forEach(function(btn) {
+    btn.classList.toggle('active', btn.dataset.tf === selectedTf);
+  });
+  updateTimeframeSelectionPreview(selectedTf);
+}
+
+function openTimeframeSelection(ctx) {
+  const modal = document.getElementById('tf-select-backdrop');
+  const options = document.getElementById('tf-select-options');
+  if (!modal || !options) return false;
+  const firstTf = (ctx.tfList && ctx.tfList[0]) || 'H1';
+  PENDING_TIMEFRAME_SELECTION = Object.assign({}, ctx, { selectedTf: firstTf });
+  options.innerHTML = ctx.tfList.map(function(tf, idx) {
+    const trace = blockSettingTraceForSelection(ctx.cat, tf);
+    const bsTrace = trace.blocksettingTrace || {};
+    return '<button type="button" class="tf-select-option' + (idx === 0 ? ' active' : '') + '" data-tf="' + dashboardEsc(tf) + '">' +
+      '<strong>' + dashboardEsc(tf) + '</strong>' +
+      '<small>' + dashboardEsc(bsTrace.canonicalId || trace.blocksetting) + '</small>' +
+      '<small>' + dashboardEsc([bsTrace.filename, bsTrace.sha256Short ? 'SHA ' + bsTrace.sha256Short : ''].filter(Boolean).join(' · ')) + '</small>' +
+    '</button>';
+  }).join('');
+  options.querySelectorAll('.tf-select-option').forEach(function(btn) {
+    btn.addEventListener('click', function() { setTimeframeSelection(btn.dataset.tf); });
+  });
+  updateTimeframeSelectionPreview(firstTf);
+  modal.style.display = 'flex';
+  return true;
+}
+
+function closeTimeframeSelection() {
+  const modal = document.getElementById('tf-select-backdrop');
+  if (modal) modal.style.display = 'none';
+  PENDING_TIMEFRAME_SELECTION = null;
+}
+
+function confirmTimeframeSelection() {
+  const ctx = PENDING_TIMEFRAME_SELECTION;
+  if (!ctx) return;
+  const selectedTf = ctx.selectedTf || (ctx.tfList && ctx.tfList[0]) || 'H1';
+  const trace = buildTimeframeSelectionTrace(ctx, selectedTf);
+  closeTimeframeSelection();
+  if (ctx.action === 'projectgen') {
+    performQuickToProjectGen(ctx.asset, ctx.cat, selectedTf, ctx.dir, trace);
+  } else {
+    performQuickAddToPlan(ctx.asset, ctx.cat, selectedTf, ctx.dir, trace);
+  }
+}
+
+function shouldAskTimeframe(tfList) {
+  return Array.isArray(tfList) && tfList.length > 1;
+}
+
+function edgeFactoryRecord(method, payload) {
+  try {
+    if (window.SQX && window.SQX.edgeFactory && typeof window.SQX.edgeFactory[method] === 'function') {
+      window.SQX.edgeFactory[method](payload || {});
+      if (window.SQX.edgeFactoryUI && typeof window.SQX.edgeFactoryUI.renderState === 'function') {
+        window.SQX.edgeFactoryUI.renderState();
+      }
+    }
+  } catch(e) {
+    console.warn('Edge Factory handoff skipped:', e && e.message ? e.message : e);
+  }
+}
+
 window.quickAddToPlan = function(asset, cat, tf, dir) {
   const catBase = String(cat || '').replace(/_S$/, '');
-  const key = asset + '|' + catBase + '|' + tf + '|' + dir;
-  if (typeof window.promoteOrphanToPlan === 'function') {
-    window.promoteOrphanToPlan(key);
+  if (!assertAssetActionAllowed(asset, dir)) return;
+  const tfList = parseCardTimeframes(tf);
+  if (shouldAskTimeframe(tfList)) {
+    openTimeframeSelection({ action: 'plan', asset: asset, cat: catBase, tfList: tfList, dir: dir });
     return;
   }
-  alert('No se ha podido abrir el Plan Mining desde esta tarjeta.');
+  const selectedTf = tfList[0] || 'H1';
+  const trace = buildTimeframeSelectionTrace({ action: 'plan', asset: asset, cat: catBase, tfList: tfList, dir: dir }, selectedTf);
+  performQuickAddToPlan(asset, catBase, selectedTf, dir, trace);
 };
+
+function performQuickAddToPlan(asset, catBase, tf, dir, trace) {
+  const ok = addPlanMiningFromCandidate(asset, catBase, tf, dir, 'asset-card', trace);
+  if (!ok) return;
+  activateTabById('pipeline');
+  renderPipelineState();
+  setTimeout(() => {
+    document.getElementById('ps-plan-card')?.scrollIntoView({ behavior:'smooth', block:'start' });
+  }, 50);
+}
 
 window.quickToProjectGen = function(asset, cat, tf, dir) {
   const catBase = String(cat || '').replace(/_S$/, '');
-  const bs = PRIORITY_CAT_TO_BS[cat] || PRIORITY_CAT_TO_BS[catBase] || CAT_TO_BS[cat] || CAT_TO_BS[catBase] || 'BS_Custom';
-  const tfList = String(tf || '').split(',').map(t => t.trim()).filter(Boolean);
-  const firstTf = tfList[0] || 'H1';
+  if (!assertAssetActionAllowed(asset, dir)) return;
+  const tfList = parseCardTimeframes(tf);
+  if (shouldAskTimeframe(tfList)) {
+    openTimeframeSelection({ action: 'projectgen', asset: asset, cat: catBase, tfList: tfList, dir: dir });
+    return;
+  }
+  const selectedTf = tfList[0] || 'H1';
+  const trace = buildTimeframeSelectionTrace({ action: 'projectgen', asset: asset, cat: catBase, tfList: tfList, dir: dir }, selectedTf);
+  performQuickToProjectGen(asset, catBase, selectedTf, dir, trace);
+};
+
+function performQuickToProjectGen(asset, catBase, tf, dir, trace) {
+  const firstTf = String(tf || 'H1').trim().toUpperCase();
+  const bs = resolveCapa1BlockSettingForCategory(catBase, firstTf) || 'BS_Custom';
   const cleanCat = catBase.replace(/[^a-z0-9]+/gi, '');
   const config = {
-    name: 'Project_' + asset + '_' + firstTf + '_' + cleanCat,
+    name: 'Project_' + asset + '_' + firstTf + '_' + bs + '_' + cleanCat,
     asset: asset,
     tf: firstTf,
     bs: bs,
@@ -1206,16 +1771,34 @@ window.quickToProjectGen = function(asset, cat, tf, dir) {
     template: cleanCat.toUpperCase()
   };
 
+  edgeFactoryRecord('recordProjectPrefill', Object.assign({}, config, {
+    source: 'asset-card',
+    category: catBase,
+    selectedTimeframe: firstTf,
+    blocksettingTrace: trace && trace.blocksettingTrace,
+    trace: trace && trace.trace
+  }));
+
   if (window.SQX && window.SQX.projectGenerator && window.SQX.projectGenerator.dom) {
     window.SQX.projectGenerator.dom.writeCustomProjectInputs(document, config);
+    if (window.SQX.projectGenerator.dom.setCustomProjectStatus && trace) {
+      const bsTrace = trace.blocksettingTrace || {};
+      window.SQX.projectGenerator.dom.setCustomProjectStatus(document, {
+        text: 'Prefill desde tarjeta · timeframe ' + firstTf + ' confirmado · ' + (bsTrace.canonicalId || bs) + '.',
+        level: 'info'
+      });
+    }
   }
 
   activateTabById('projectgen');
   setTimeout(() => {
+    if (typeof window.pgActivateProjectGenerationMode === 'function') {
+      window.pgActivateProjectGenerationMode('manual');
+    }
     const target = document.querySelector('.pg-custom-card');
     if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, 100);
-};
+}
 
 // ── SQX PRIORITY: tracking persistente en localStorage ──
 const PRIORITY_STATE_KEY = SQX_STORAGE_KEYS.priorityProgress || 'sqx_priority_progress_v1';
@@ -1235,17 +1818,22 @@ window.cycleMiningStatus = function(id) {
   PRIORITY_PROGRESS[id] = { status: next, updated: new Date().toISOString() };
   savePriorityProgress();
   renderPriority();
-  // Sync con Pipeline State (re-renderiza si la fila importada cambió de estado allí)
+  // Sync con Mining Control (re-renderiza si la fila importada cambió de estado allí)
   if (typeof renderPipelineState === 'function') renderPipelineState();
 };
 
 document.getElementById('priority-reset-btn').addEventListener('click', function() {
-  if (confirm('Resetear todo el progreso del SQX Priority?')) {
+  decisionConfirm({
+    title: 'Resetear progreso Priority',
+    message: 'Resetear todo el progreso del SQX Priority.',
+    confirmLabel: 'Reset Priority',
+    trace: ['Destino: sqx_priority_progress_v1', 'Impacto: recalcula estados derivados en Mining Control']
+  }, function() {
     PRIORITY_PROGRESS = {};
     savePriorityProgress();
     renderPriority();
     if (typeof renderPipelineState === 'function') renderPipelineState();
-  }
+  });
 });
 document.getElementById('priority-export-btn').addEventListener('click', function() {
   const blob = new Blob([JSON.stringify(PRIORITY_PROGRESS, null, 2)], {type:'application/json'});
@@ -1267,9 +1855,9 @@ _impFile.addEventListener('change', function(e){
         savePriorityProgress();
         renderPriority();
         if (typeof renderPipelineState === 'function') renderPipelineState();
-        alert('Importado: ' + Object.keys(data).length + ' entradas');
+        decisionAlert({ title: 'Priority importado', message: 'Importado: ' + Object.keys(data).length + ' entradas', trace: ['Destino: sqx_priority_progress_v1'] });
       }
-    } catch(err){ alert('JSON invalido: '+err.message); }
+    } catch(err){ decisionAlert({ title: 'JSON invalido', message: err.message, trace: ['No se modifico Priority'] }); }
   };
   r.readAsText(f);
 });
@@ -1278,15 +1866,33 @@ bindBtns('[data-strat-tier]', 'stratTier', function(v){ stratFilterTier = v; }, 
 document.getElementById('strat-filter-mining').addEventListener('change',  function(e){ stratFilterMining   = e.target.value; renderStrategies(); });
 document.getElementById('strat-filter-template').addEventListener('change',function(e){ stratFilterTemplate = e.target.value; renderStrategies(); });
 document.getElementById('strat-filter-status').addEventListener('change',  function(e){ stratFilterStatus   = e.target.value; renderStrategies(); });
+document.getElementById('strat-search').addEventListener('input', function(e){
+  stratSearchQuery = (e.target.value || '').trim();
+  renderStrategies();
+});
 document.getElementById('strat-export-btn').addEventListener('click', exportStrategiesCSV);
+document.getElementById('strat-open-cvc-btn').addEventListener('click', function(){
+  activateTabById('cvc');
+  setTimeout(() => document.getElementById('tab-cvc')?.scrollIntoView({ behavior:'smooth', block:'start' }), 50);
+});
 
 document.getElementById('strat-add-btn').addEventListener('click', openStratModal);
 document.getElementById('strat-modal-close').addEventListener('click', closeStratModal);
 document.getElementById('strat-modal-backdrop').addEventListener('click', function(e){
   if (e.target === this) closeStratModal();
 });
+document.getElementById('tf-select-close')?.addEventListener('click', closeTimeframeSelection);
+document.getElementById('tf-select-cancel')?.addEventListener('click', closeTimeframeSelection);
+document.getElementById('tf-select-confirm')?.addEventListener('click', confirmTimeframeSelection);
+document.getElementById('tf-select-backdrop')?.addEventListener('click', function(e){
+  if (e.target === this) closeTimeframeSelection();
+});
 document.getElementById('sf-generate').addEventListener('click', generateStratJSON);
 document.getElementById('sf-clear').addEventListener('click', clearStratForm);
+document.querySelectorAll('#strat-modal-backdrop input, #strat-modal-backdrop select, #strat-modal-backdrop textarea').forEach(function(el) {
+  el.addEventListener('input', updateStratModalTrace);
+  el.addEventListener('change', updateStratModalTrace);
+});
 document.getElementById('sf-copy').addEventListener('click', function(){
   const txt = document.getElementById('sf-output').textContent;
   navigator.clipboard.writeText(txt).then(function(){
@@ -1300,37 +1906,68 @@ document.addEventListener('keydown', function(e){
   if (e.key === 'Escape') {
     if (document.getElementById('strat-modal-backdrop').style.display !== 'none') closeStratModal();
     if (document.getElementById('strat-import-backdrop').style.display !== 'none') closeImportModal();
+    const tfSelect = document.getElementById('tf-select-backdrop');
     const psm = document.getElementById('ps-add-mining-backdrop');
     const psp = document.getElementById('ps-add-phase-backdrop');
+    if (tfSelect && tfSelect.style.display !== 'none') closeTimeframeSelection();
     if (psm && psm.style.display !== 'none') closeAddMiningModal();
     if (psp && psp.style.display !== 'none') closeAddPhaseModal();
   }
 });
 
 // ============================================================
-// PIPELINE STATE — plan configurado + embudo + KPIs
+// MINING CONTROL - plan configurado + embudo + KPIs
 // ============================================================
 
 // ── Plan USER (añadidos por UI, persistente en localStorage) ──
 const PLAN_USER_KEY = SQX_STORAGE_KEYS.planUser || 'sqx_plan_user_v1';
-let PLAN_USER = { minings:[], phases:{} };
+let PLAN_USER = { minings:[], phases:{}, baseDisabled:false, hiddenBaseMinings:[] };
 try {
   const stored = SQX_STORAGE.getJson(PLAN_USER_KEY, {});
-  PLAN_USER = { minings: stored.minings || [], phases: stored.phases || {} };
+  PLAN_USER = {
+    minings: Array.isArray(stored.minings) ? stored.minings : [],
+    phases: stored.phases || {},
+    baseDisabled: !!stored.baseDisabled,
+    hiddenBaseMinings: Array.isArray(stored.hiddenBaseMinings) ? stored.hiddenBaseMinings : [],
+  };
 } catch(e){ /* keep defaults */ }
+function normalizePlanUserState() {
+  PLAN_USER.minings = (Array.isArray(PLAN_USER.minings) ? PLAN_USER.minings : []).map(function(m) {
+    return Object.assign({}, m, {
+      num: parseInt(m.num, 10),
+      phase: parseInt(m.phase, 10),
+      source: m.source || 'manual',
+    });
+  }).filter(function(m) {
+    return m.num && m.phase && m.asset && m.tf && m.bs && m.dir;
+  });
+  PLAN_USER.phases = PLAN_USER.phases || {};
+  PLAN_USER.baseDisabled = !!PLAN_USER.baseDisabled;
+  PLAN_USER.hiddenBaseMinings = (Array.isArray(PLAN_USER.hiddenBaseMinings) ? PLAN_USER.hiddenBaseMinings : [])
+    .map(function(n) { return parseInt(n, 10); })
+    .filter(function(n, idx, arr) { return n && arr.indexOf(n) === idx; });
+}
+normalizePlanUserState();
 function savePlanUser() { SQX_STORAGE.setJson(PLAN_USER_KEY, PLAN_USER); }
+function notifyPlanMiningChanged() {
+  try {
+    window.dispatchEvent(new CustomEvent('sqx:plan-minings-changed', { detail: { count: getPlanMinings().length } }));
+  } catch(e) { /* CustomEvent can fail in constrained test sandboxes */ }
+}
+function planEsc(value) { return stratEsc(value); }
 
 function getPlanMinings() {
-  // Combina DEFAULT + USER, ordena por num
+  normalizePlanUserState();
+  const hidden = new Set(PLAN_USER.hiddenBaseMinings || []);
   const all = [
-    ...PLAN_MININGS,
+    ...(PLAN_USER.baseDisabled ? [] : PLAN_MININGS.filter(function(m) { return !hidden.has(m.num); })),
     ...PLAN_USER.minings.map(m => ({...m, _user:true}))
   ];
   return all.sort((a,b) => a.num - b.num);
 }
 function getPlanPhases() {
-  // Combina PHASE_META + USER phases
-  return Object.assign({}, PHASE_META, PLAN_USER.phases);
+  normalizePlanUserState();
+  return Object.assign({}, PLAN_USER.baseDisabled ? {} : PHASE_META, PLAN_USER.phases);
 }
 function getPlanPhaseNums() {
   const phases = getPlanPhases();
@@ -1345,24 +1982,136 @@ function nextPhaseNum() {
   return nums.length ? Math.max(...nums) + 1 : 1;
 }
 function addMiningUser(m) {
-  // Validación mínima
-  if (!m.asset || !m.tf || !m.bs || !m.dir || !m.phase) return false;
-  // Dedupe por (num)
-  if (getPlanMinings().some(x => x.num === m.num)) return false;
-  PLAN_USER.minings.push({ num:m.num, phase:m.phase, asset:m.asset, tf:m.tf, bs:m.bs, dir:m.dir });
+  const currentMinings = getPlanMinings();
+  const mining = {
+    num: parseInt(m.num, 10) || nextMiningNum(),
+    phase: parseInt(m.phase, 10) || 1,
+    asset: String(m.asset || '').trim().toUpperCase(),
+    tf: String(m.tf || '').trim().toUpperCase(),
+    bs: String(m.bs || '').trim(),
+    dir: String(m.dir || '').trim(),
+    source: m.source || 'manual',
+    selectedTimeframe: m.selectedTimeframe || String(m.tf || '').trim().toUpperCase(),
+    availableTimeframes: Array.isArray(m.availableTimeframes) ? m.availableTimeframes : [],
+    timeframeSource: m.timeframeSource || '',
+    blocksettingTrace: m.blocksettingTrace || null,
+    trace: Object.assign({
+      origin: 'Mining Control + Mining',
+      destination: PLAN_USER_KEY,
+      createdAt: new Date().toISOString(),
+      fields: ['phase', 'asset', 'tf', 'bs', 'dir', 'source']
+    }, m.trace || {})
+  };
+  if (!mining.asset || !mining.tf || !mining.bs || !mining.dir || !mining.phase) return false;
+  if (currentMinings.some(x => x.num === mining.num)) return false;
+  if (currentMinings.some(x => x.asset === mining.asset && x.tf === mining.tf && x.bs === mining.bs && x.dir === mining.dir)) return false;
+  if (!getPlanPhases()[mining.phase]) {
+    PLAN_USER.phases[mining.phase] = { name: 'Fase ' + mining.phase, desc: 'Fase creada desde Plan mining' };
+  }
+  PLAN_USER.minings.push(mining);
   savePlanUser();
+  notifyPlanMiningChanged();
+  edgeFactoryRecord('recordPlanMining', mining);
   return true;
+}
+function resolvePlanPhaseForMining(asset) {
+  const all = getPlanMinings();
+  const sameAssetMining = all.find(function(m) { return m.asset === asset; });
+  if (sameAssetMining) return sameAssetMining.phase;
+  const nums = getPlanPhaseNums();
+  if (nums.length) return nums[0];
+  PLAN_USER.phases[1] = { name: 'Manual', desc: 'Minings añadidos por el usuario' };
+  return 1;
+}
+function addPlanMiningFromCandidate(asset, cat, tf, dir, source, selectionTrace) {
+  const catBase = String(cat || '').replace(/_S$/, '');
+  const tfList = String(tf || '').split(',').map(function(t) { return t.trim().toUpperCase(); }).filter(Boolean);
+  const firstTf = tfList[0] || 'H1';
+  const bs = resolveCapa1BlockSettingForCategory(catBase, firstTf);
+  if (!bs) { alert('Categoría desconocida: '+catBase); return false; }
+  const cleanAsset = String(asset || '').trim().toUpperCase();
+  const cleanDir = String(dir || 'L').trim();
+  const exists = getPlanMinings().some(function(m) {
+    return m.asset === cleanAsset && m.tf === firstTf && m.bs === bs && m.dir === cleanDir;
+  });
+  if (exists) {
+    alert('Ese mining ya existe en el Plan mining.');
+    return false;
+  }
+  const phase = resolvePlanPhaseForMining(cleanAsset);
+  const ok = addMiningUser({
+    num: nextMiningNum(),
+    phase: phase,
+    asset: cleanAsset,
+    tf: firstTf,
+    bs: bs,
+    dir: cleanDir,
+    source: source || 'manual',
+    selectedTimeframe: selectionTrace && selectionTrace.selectedTimeframe || firstTf,
+    availableTimeframes: selectionTrace && selectionTrace.availableTimeframes || tfList,
+    timeframeSource: selectionTrace && selectionTrace.timeframeSource || (source === 'asset-card' ? 'card-single' : 'manual'),
+    blocksettingTrace: selectionTrace && selectionTrace.blocksettingTrace || blockSettingTraceForSelection(catBase, firstTf).blocksettingTrace,
+    trace: selectionTrace && selectionTrace.trace || null,
+  });
+  if (!ok) alert('No se ha podido añadir el mining al Plan mining.');
+  return ok;
 }
 function addPhaseUser(num, name, desc) {
   if (!num || !name) return false;
   if (getPlanPhases()[num]) return false; // ya existe
+  PLAN_USER.phases[num] = {
+    name: name,
+    desc: desc || '',
+    trace: {
+      origin: 'Mining Control + Fase',
+      destination: PLAN_USER_KEY,
+      createdAt: new Date().toISOString(),
+      visibleWhenEmpty: true
+    }
+  };
+  savePlanUser();
+  return true;
+}
+function setPhaseMetaUser(num, name, desc) {
+  if (!num || !name) return false;
   PLAN_USER.phases[num] = { name: name, desc: desc || '' };
+  savePlanUser();
+  notifyPlanMiningChanged();
+  return true;
+}
+function revertPhaseMetaUser(num) {
+  if (!PLAN_USER.phases[num]) return false;
+  delete PLAN_USER.phases[num];
   savePlanUser();
   return true;
 }
 function removeUserMining(num) {
   PLAN_USER.minings = PLAN_USER.minings.filter(m => m.num !== num);
   savePlanUser();
+  notifyPlanMiningChanged();
+}
+function removePlanMiningsByNums(nums) {
+  const requested = (Array.isArray(nums) ? nums : []).map(function(num) { return parseInt(num, 10); }).filter(Boolean);
+  if (!requested.length) return { removed: 0, userRemoved: 0, baseHidden: 0 };
+  const selected = new Set(requested);
+  const beforeUser = PLAN_USER.minings.length;
+  PLAN_USER.minings = PLAN_USER.minings.filter(function(m) { return !selected.has(parseInt(m.num, 10)); });
+  const baseNums = PLAN_MININGS.map(function(m) { return parseInt(m.num, 10); }).filter(function(num) { return selected.has(num); });
+  const hidden = new Set(PLAN_USER.hiddenBaseMinings || []);
+  const beforeHidden = hidden.size;
+  baseNums.forEach(function(num) { hidden.add(num); });
+  PLAN_USER.hiddenBaseMinings = Array.from(hidden);
+  Object.keys(PIPELINE_STATE.overrides || {}).forEach(function(num) {
+    if (selected.has(parseInt(num, 10))) delete PIPELINE_STATE.overrides[num];
+  });
+  savePlanUser();
+  savePipelineState();
+  notifyPlanMiningChanged();
+  return {
+    removed: (beforeUser - PLAN_USER.minings.length) + (hidden.size - beforeHidden),
+    userRemoved: beforeUser - PLAN_USER.minings.length,
+    baseHidden: hidden.size - beforeHidden
+  };
 }
 function removeUserPhase(num) {
   // No eliminar fase si tiene minings asignados
@@ -1373,17 +2122,89 @@ function removeUserPhase(num) {
   return true;
 }
 function clearPlanUser() {
-  PLAN_USER = { minings:[], phases:{} };
+  PLAN_USER = { minings:[], phases:{}, baseDisabled:false, hiddenBaseMinings:[] };
   savePlanUser();
+  notifyPlanMiningChanged();
+}
+function resetPlanMiningUserState() {
+  resetProjectGeneratorGeneratedCfxState();
+  PLAN_USER = {
+    minings:[],
+    phases:{},
+    baseDisabled:true,
+    hiddenBaseMinings: PLAN_MININGS.map(function(m) { return m.num; }),
+    resetAt: new Date().toISOString()
+  };
+  savePlanUser();
+  PIPELINE_STATE.overrides = {};
+  PIPELINE_STATE.funnels = {};
+  PIPELINE_STATE.nextAction = '';
+  savePipelineState();
+  notifyPlanMiningChanged();
+  edgeFactoryRecord('savePatch', {
+    selectedCard: null,
+    selectedMining: null,
+    projectPrefill: null,
+    capa1Outputs: [],
+    capa2Outputs: [],
+    activeStep: 'asset',
+    completedSteps: []
+  });
+}
+function resetProjectGeneratorGeneratedCfxState() {
+  var PG = window.SQX && window.SQX.projectGenerator;
+  if (!PG || typeof PG.markGeneratedOutputReset !== 'function') return false;
+  var files = typeof PG.getCurrentOutputFiles === 'function' ? PG.getCurrentOutputFiles() : [];
+  var resetState = PG.markGeneratedOutputReset(files, { reason: 'plan-mining-reset' });
+  if (typeof PG.outputState === 'function') {
+    var output = PG.outputState({ output_dir: '', files: [] }, resetState);
+    var count = document.getElementById('pg-output-count');
+    var list = document.getElementById('pg-output-list');
+    if (count) count.textContent = output.countLabel;
+    if (list) list.innerHTML = output.html;
+  }
+  var log = document.getElementById('pg-log');
+  if (log) log.textContent = '[Plan Mining reiniciado: .cfx generados vacíos para la nueva sesión.]';
+  if (typeof window.dispatchEvent === 'function' && typeof CustomEvent === 'function') {
+    window.dispatchEvent(new CustomEvent('sqx:project-generator-output-reset', {
+      detail: { reason: 'plan-mining-reset', resetState: resetState }
+    }));
+  }
+  return true;
+}
+function resetPlanPhaseMinings(phase) {
+  const p = parseInt(phase, 10);
+  if (!p) return false;
+  const baseNums = PLAN_MININGS.filter(function(m) { return m.phase === p; }).map(function(m) { return m.num; });
+  const userNums = PLAN_USER.minings.filter(function(m) { return m.phase === p; }).map(function(m) { return m.num; });
+  const removedNums = baseNums.concat(userNums);
+  const hidden = new Set(PLAN_USER.hiddenBaseMinings || []);
+  baseNums.forEach(function(num) { hidden.add(num); });
+  PLAN_USER.hiddenBaseMinings = Array.from(hidden);
+  PLAN_USER.minings = PLAN_USER.minings.filter(function(m) { return m.phase !== p; });
+  Object.keys(PIPELINE_STATE.overrides || {}).forEach(function(num) {
+    if (removedNums.indexOf(parseInt(num, 10)) !== -1) delete PIPELINE_STATE.overrides[num];
+  });
+  savePlanUser();
+  savePipelineState();
+  notifyPlanMiningChanged();
+  return true;
 }
 // Alias visible para el helper de status (lee PLAN_ALL si existe)
 window.PLAN_ALL = null;
 function refreshPlanAll() { window.PLAN_ALL = getPlanMinings(); }
 refreshPlanAll();
+window.getPlanMinings = getPlanMinings;
+window.setPhaseMetaUser = setPhaseMetaUser;
+window.addMiningUser = addMiningUser;
+window.addPlanMiningFromCandidate = addPlanMiningFromCandidate;
+window.removePlanMiningsByNums = removePlanMiningsByNums;
+window.resetPlanMiningUserState = resetPlanMiningUserState;
+window.clearPlanUser = clearPlanUser;
 
-// Mapping inverso BS → categoría Priority (para sync con SQX Priority)
+// Mapping inverso BS → categoría de prioridad operativa
 
-// Convierte un mining → key del SQX Priority (formato 'asset|cat|tf|dir')
+// Convierte un mining → key de prioridad operativa (formato 'asset|cat|tf|dir')
 function miningToPriorityKey(mining) {
   const cat = BS_TO_PRIORITY_CAT[mining.bs];
   if (!cat) return null;
@@ -1392,7 +2213,7 @@ function miningToPriorityKey(mining) {
 
 // localStorage state — pipeline tracking
 // Estructura: { overrides: { num: 'current'|... }, funnels: {...}, nextAction:'' }
-// `overrides` solo guarda los manuales; el estado por defecto se deriva de SQX Priority
+// `overrides` solo guarda los manuales; el estado por defecto se deriva de prioridad operativa
 const PIPELINE_STATE_KEY = SQX_STORAGE_KEYS.pipelineState || 'sqx_pipeline_state_v1';
 let PIPELINE_STATE = { overrides:{}, funnels:{}, nextAction:'' };
 try {
@@ -1400,7 +2221,7 @@ try {
   // Migración del formato antiguo (miningStatus → overrides) + limpieza del preset fantasma
   let overrides = stored.overrides || stored.miningStatus || {};
   // Si solo hay UN override y es el preset Mining 1 = 'current' (preset antiguo), limpiarlo
-  // — así el auto-sync con SQX Priority funciona desde el primer momento
+  // — así el auto-sync con la prioridad operativa funciona desde el primer momento
   if (!stored.overrides && stored.miningStatus &&
       Object.keys(stored.miningStatus).length === 1 &&
       stored.miningStatus[1] === 'current') {
@@ -1418,11 +2239,11 @@ function savePipelineState() { SQX_STORAGE.setJson(PIPELINE_STATE_KEY, PIPELINE_
 
 // Devuelve { status, source } donde source ∈ {'manual','priority','strategies','default'}
 function getMiningStatusInfo(num) {
-  // 1) Override manual en Pipeline State
+  // 1) Override manual en Mining Control
   if (PIPELINE_STATE.overrides[num]) {
     return { status: PIPELINE_STATE.overrides[num], source: 'manual' };
   }
-  // 2) Estado del SQX Priority (source of truth por defecto)
+  // 2) Estado de la prioridad operativa (source of truth por defecto)
   const m = (typeof PLAN_ALL !== 'undefined' ? PLAN_ALL : PLAN_MININGS).find(x => x.num === num);
   if (m) {
     const key = miningToPriorityKey(m);
@@ -1524,7 +2345,7 @@ function renderPsKpis() {
 
   document.getElementById('ps-kpis').innerHTML =
     '<div class="ps-kpi k-progress">' +
-      '<div class="ps-k-label">Plan minings</div>' +
+      '<div class="ps-k-label">Mining Control</div>' +
       '<div class="ps-k-value">'+completed+' / '+total+'</div>' +
       '<div class="ps-k-sub">'+current+' en curso · '+pending+' pendientes</div>' +
       '<div class="ps-k-bar-bg"><div class="ps-k-bar-fill" style="width:'+pctDone+'%"></div></div>' +
@@ -1560,23 +2381,33 @@ function renderPsPlan() {
   refreshPlanAll();
   const allMinings = getPlanMinings();
   const allPhases = getPlanPhases();
-  const phases = getPlanPhaseNums().filter(p => allMinings.some(m => m.phase === p));
+  const phases = getPlanPhaseNums().filter(function(p) {
+    return !!PLAN_USER.phases[p] || allMinings.some(function(m) { return m.phase === p; });
+  });
+  if (!allMinings.length && !phases.length) {
+    document.getElementById('ps-plan-table').innerHTML =
+      '<div class="ps-empty-plan">' +
+        '<strong>Plan mining vacío</strong>' +
+        '<span>Empieza desde cero con <b>+ Mining</b> o añade assets desde las tarjetas de <b>Por Activo</b>. Todo lo que agregues entrará aquí como centro de control.</span>' +
+      '</div>';
+    return;
+  }
   const html = phases.map(p => {
     const meta = allPhases[p] || { name:'(sin nombre)', desc:'' };
     const isUserPhase = !!PLAN_USER.phases[p];
     const minings = allMinings.filter(m => m.phase === p);
     const done = minings.filter(m => getMiningStatus(m.num)==='completed').length;
     const pct = minings.length ? Math.round(done/minings.length*100) : 0;
-    const rows = minings.map(m => {
+    const rows = minings.length ? minings.map(m => {
       const info = getMiningStatusInfo(m.num);
       const st = info.status;
       const stLbl = sqxStatusMeta(st).label;
       // Badge de fuente del estado
       let srcBadge = '';
       if (info.source === 'manual') {
-        srcBadge = '<span class="ps-src-badge ps-src-manual" title="Override manual — click ↻ para volver a auto-sync con Priority" onclick="event.stopPropagation();clearMiningOverride('+m.num+')">✏ Manual ↻</span>';
+        srcBadge = '<span class="ps-src-badge ps-src-manual" title="Override manual. Click para volver a prioridad operativa" onclick="event.stopPropagation();clearMiningOverride('+m.num+')">Manual ↻</span>';
       } else if (info.source === 'priority') {
-        srcBadge = '<span class="ps-src-badge ps-src-priority" title="Sincronizado desde SQX Priority">🔗 Priority</span>';
+        srcBadge = '<span class="ps-src-badge ps-src-priority" title="Sincronizado desde prioridad operativa">Prioridad</span>';
       } else if (info.source === 'strategies') {
         srcBadge = '<span class="ps-src-badge ps-src-strategies" title="Auto-detectado: hay estrategias importadas de este mining">Auto</span>';
       }
@@ -1603,31 +2434,48 @@ function renderPsPlan() {
         '<span class="ps-m-survivors" title="' + survivors + ' supervivientes (TIER 1/1.5/2)">' + survivors + '</span>' :
         '<span class="ps-m-survivors zero">0</span>';
       const tentBadge = tentativas > 0 ? ' <span class="ps-m-survivors zero" style="background:rgba(249,115,22,.12);color:var(--orange);">' + tentativas + ' ?</span>' : '';
-      const tplsHtml = tpls.length ? '<div style="font-size:10px;color:var(--text2);margin-top:3px;">Templates: '+tpls.join(', ')+'</div>' : '';
-      const userBadge = m._user ? '<span class="ps-user-badge" title="Añadido por UI (vive en localStorage)">USER</span>' : '';
+      const tplsHtml = tpls.length ? '<div style="font-size:10px;color:var(--text2);margin-top:3px;">Templates: '+tpls.map(planEsc).join(', ')+'</div>' : '';
+      const userBadge = m._user
+        ? (m.source === 'asset-card'
+          ? '<span class="ps-user-badge ps-user-source-card" title="Añadido desde tarjeta Por Activo">TARJETA</span>'
+          : '<span class="ps-user-badge ps-user-source-manual" title="Añadido manualmente desde Mining Control">MANUAL</span>')
+        : '';
       const removeBtn = m._user ? '<button class="ps-remove-btn" title="Eliminar este mining USER" onclick="removeUserMiningClick('+m.num+')">✕</button>' : '';
+      const tfTrace = m.timeframeSource === 'card-selection'
+        ? '<small title="Timeframe confirmado desde tarjeta con varias temporalidades">tarjeta</small>'
+        : (m.timeframeSource === 'card-single' ? '<small title="Timeframe unico de tarjeta">tarjeta unica</small>' : '');
       return '<tr>' +
         '<td class="ps-m-num">'+m.num+userBadge+'</td>' +
-        '<td><div class="ps-m-asset">'+m.asset+'</div>'+tplsHtml+'</td>' +
-        '<td class="ps-m-tf">'+m.tf+'</td>' +
-        '<td><span class="ps-m-bs">'+m.bs+'</span></td>' +
-        '<td><span class="'+dirCls+'" style="font-weight:700;font-size:12px;">'+m.dir+'</span></td>' +
+        '<td><div class="ps-m-asset">'+planEsc(m.asset)+'</div>'+tplsHtml+'</td>' +
+        '<td class="ps-m-tf"><span>'+planEsc(m.tf)+'</span>'+tfTrace+'</td>' +
+        '<td><span class="ps-m-bs">'+blockSettingTraceHtml(m.bs)+'</span></td>' +
+        '<td><span class="'+dirCls+'" style="font-weight:700;font-size:12px;">'+planEsc(m.dir)+'</span></td>' +
         '<td>'+compHtml+'</td>' +
         '<td>'+survBadge+tentBadge+'</td>' +
         '<td><span class="status '+st+' clickable-status" onclick="cycleMiningStatusPS('+m.num+')">'+stLbl+'</span> '+srcBadge+removeBtn+'</td>' +
       '</tr>';
-    }).join('');
+    }).join('') : '<tr class="ps-empty-phase-row"><td colspan="8">Fase sin minings todavia. Usa <strong>+ Mining</strong> y asignala a esta fase para empezar a poblarla.</td></tr>';
     const phaseCls = p > 5 ? 'p1' : 'p'+p; // las USER reusan estilo p1
-    const phaseUserBadge = isUserPhase ? '<span class="ps-user-badge" title="Fase USER (localStorage)">USER</span>' : '';
-    const phaseRemove = isUserPhase ? '<button class="ps-remove-btn" title="Eliminar fase USER" onclick="removeUserPhaseClick('+p+')">✕</button>' : '';
+    const isBasePhase = !!PHASE_META[p];
+    const isCustomPhase = isUserPhase && !isBasePhase;
+    const phaseUserBadge = isCustomPhase
+      ? '<span class="ps-user-badge" title="Fase creada por usuario">USER</span>'
+      : (isUserPhase ? '<span class="ps-user-badge" title="Texto editado por usuario">EDIT</span>' : '');
+    const phaseEdit = '<button class="ps-phase-edit-btn" title="Editar nombre y descripcion de esta fase" onclick="editPlanPhaseClick('+p+')">Editar fase</button>';
+    const phaseClear = '<button class="ps-phase-reset-btn" title="Quitar todos los minings de esta fase" onclick="resetPlanPhaseClick('+p+')">Reset fase</button>';
+    const phaseReset = isCustomPhase
+      ? '<button class="ps-remove-btn" title="Eliminar fase de usuario" onclick="removeUserPhaseClick('+p+')">✕</button>'
+      : (isUserPhase ? '<button class="ps-remove-btn" title="Revertir texto base de la fase" onclick="revertPlanPhaseClick('+p+')">↻</button>' : '');
     return '<div class="ps-phase">' +
       '<div class="ps-phase-head '+phaseCls+'">' +
         '<div class="ps-phase-num">'+p+'</div>' +
-        '<h3>FASE '+p+' — '+meta.name+phaseUserBadge+'</h3>' +
-        '<span style="color:var(--text2);font-size:12px;">'+meta.desc+'</span>' +
+        '<div class="ps-phase-copy">' +
+          '<h3>FASE '+p+' — '+planEsc(meta.name)+phaseUserBadge+'</h3>' +
+          '<span>'+planEsc(meta.desc)+'</span>' +
+        '</div>' +
         '<span class="ps-phase-count">'+done+'/'+minings.length+'</span>' +
         '<div class="ps-phase-bar"><div style="width:'+pct+'%"></div></div>' +
-        phaseRemove +
+        '<div class="ps-phase-tools">'+phaseEdit+phaseClear+phaseReset+'</div>' +
       '</div>' +
       '<table class="ps-mining-table">' +
         '<thead><tr><th>#</th><th>Asset</th><th>TF</th><th>Blocksetting</th><th>Dir</th><th>Composite</th><th>Estrategias</th><th>Estado</th></tr></thead>' +
@@ -1659,14 +2507,20 @@ function populateFunnelSelectors() {
   const selM = document.getElementById('ps-funnel-mining');
   const selT = document.getElementById('ps-funnel-template');
   // mining selector
-  const miningsWithStrats = [...new Set(getAllStrategies().map(s => s.mining))].sort((a,b)=>a-b);
-  const miningsAll = miningsWithStrats.length ? miningsWithStrats : [1];
+  const planNums = getPlanMinings().map(function(m) { return m.num; });
+  const miningsWithStrats = getAllStrategies().map(function(s) { return s.mining; });
+  const miningsAll = [...new Set(planNums.concat(miningsWithStrats))].filter(Boolean).sort((a,b)=>a-b);
+  if (!miningsAll.length) miningsAll.push(1);
   const curM = parseInt(selM.value,10) || miningsAll[0];
   selM.innerHTML = miningsAll.map(m => '<option value="'+m+'">Mining '+m+'</option>').join('');
   selM.value = miningsAll.includes(curM) ? curM : miningsAll[0];
   // template selector
   const tpls = getTemplatesByMining(parseInt(selM.value,10));
-  const tplsAll = tpls.length ? tpls : ['LINEAR'];
+  const funnelTemplates = Object.keys(PIPELINE_STATE.funnels || {}).filter(function(key) {
+    return key.indexOf(selM.value + '|') === 0;
+  }).map(function(key) { return key.split('|')[1]; });
+  const tplsAll = [...new Set(tpls.concat(funnelTemplates))].filter(Boolean);
+  if (!tplsAll.length) tplsAll.push('LINEAR');
   const curT = selT.value || tplsAll[0];
   selT.innerHTML = tplsAll.map(t => '<option value="'+t+'">'+t+'</option>').join('');
   selT.value = tplsAll.includes(curT) ? curT : tplsAll[0];
@@ -1733,108 +2587,6 @@ window.editFunnelCell = function(el, key, stage) {
   });
 };
 
-// ── Orphans: items current/completed en SQX Priority sin match en el plan ──
-function getOrphanPriorityItems() {
-  if (typeof PRIORITY_PROGRESS === 'undefined') return [];
-  const planKeys = new Set(getPlanMinings().map(m => miningToPriorityKey(m)).filter(Boolean));
-  const out = [];
-  for (const [key, val] of Object.entries(PRIORITY_PROGRESS)) {
-    const status = val && val.status;
-    if (status !== 'current' && status !== 'completed') continue;
-    if (planKeys.has(key)) continue;
-    const parts = key.split('|');
-    if (parts.length !== 4) continue;
-    const [asset, cat, tfRaw, dir] = parts;
-    if (!PRIORITY_CAT_TO_BS[cat]) continue;
-    // Detectar key legacy con múltiples TFs ("H1, H4, D1") → split en múltiples orphans
-    const tfs = tfRaw.includes(',') ? tfRaw.split(',').map(t => t.trim()).filter(Boolean) : [tfRaw];
-    const isLegacy = tfs.length > 1;
-    for (const tf of tfs) {
-      // Si este TF específico ya tiene un mining en el plan → no es huérfano
-      const newKey = asset+'|'+cat+'|'+tf+'|'+dir;
-      if (planKeys.has(newKey)) continue;
-      // Composite del scoring
-      let comp = null;
-      const a = (typeof ASSETS !== 'undefined') ? ASSETS.find(x => x.id === asset) : null;
-      if (a && typeof getScore === 'function') {
-        const sc = getScore(asset, dir==='S' ? (cat+'_S') : cat);
-        if (sc && sc.composite != null) comp = Math.round(sc.composite * 100);
-      }
-      out.push({ origKey: key, key: newKey, asset, cat, tf, dir, status, bs: PRIORITY_CAT_TO_BS[cat], composite: comp, isLegacy });
-    }
-  }
-  out.sort((a,b) => {
-    if (a.status !== b.status) return a.status === 'completed' ? -1 : 1;
-    return (b.composite||0) - (a.composite||0);
-  });
-  return out;
-}
-
-function renderOrphans() {
-  const orphans = getOrphanPriorityItems();
-  const card = document.getElementById('ps-orphans-card');
-  const list = document.getElementById('ps-orphans-list');
-  if (!card || !list) return;
-  if (!orphans.length) { card.style.display = 'none'; return; }
-  card.style.display = 'block';
-  const meta = (typeof CAT_META !== 'undefined') ? CAT_META : {};
-  list.innerHTML = orphans.map(o => {
-    const catName = (meta[o.cat] && meta[o.cat].name) || o.cat;
-    const dirCls = o.dir==='L'?'dir-l':(o.dir==='S'?'dir-s':'dir-ls');
-    const dirTxt = o.dir==='L'?'LONG':(o.dir==='S'?'SHORT':'L+S');
-    const compHtml = o.composite != null ? '<span class="po-comp">'+o.composite+'%</span>' : '';
-    const stLbl = sqxStatusMeta(o.status).label;
-    const legacyBadge = o.isLegacy ? '<span class="po-legacy" title="Key del Priority en formato antiguo (TFs juntos). Se ha hecho split visual; al «Quitar» se elimina la key entera.">⚠ Legacy</span>' : '';
-    const safeOrig = o.origKey.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-    const safeNew  = o.key.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-    return '<div class="ps-orphan-row">' +
-      '<span class="po-asset">'+o.asset+'</span>' +
-      '<span class="po-cat">'+catName+'</span>' +
-      '<span class="po-tf">'+o.tf+'</span>' +
-      '<span class="'+dirCls+' po-dir">'+dirTxt+'</span>' +
-      '<span class="po-bs">'+o.bs+'</span>' +
-      compHtml +
-      '<span class="po-status '+o.status+'">'+stLbl+'</span>' +
-      legacyBadge +
-      '<button class="po-add-btn" onclick="promoteOrphanToPlan(\''+safeNew+'\')">+ Añadir al plan</button>' +
-      '<button class="po-remove-btn" title="Eliminar este item del SQX Priority (no afecta el plan)" onclick="removeOrphanFromPriority(\''+safeOrig+'\','+(o.isLegacy?'true':'false')+')">✕ Quitar</button>' +
-    '</div>';
-  }).join('');
-}
-
-window.removeOrphanFromPriority = function(origKey, isLegacy) {
-  if (typeof PRIORITY_PROGRESS === 'undefined') return;
-  if (!PRIORITY_PROGRESS[origKey]) { renderPipelineState(); return; }
-  const msg = isLegacy
-    ? '¿Eliminar la key legacy "'+origKey+'" del SQX Priority? (Contiene varios TFs juntos — se borran todos.)'
-    : '¿Eliminar este item del SQX Priority?';
-  if (!confirm(msg)) return;
-  delete PRIORITY_PROGRESS[origKey];
-  if (typeof savePriorityProgress === 'function') savePriorityProgress();
-  if (typeof renderPriority === 'function') renderPriority();
-  renderPipelineState();
-};
-
-window.promoteOrphanToPlan = function(key) {
-  const parts = key.split('|');
-  if (parts.length !== 4) return;
-  const [asset, cat, tf, dir] = parts;
-  const bs = PRIORITY_CAT_TO_BS[cat];
-  if (!bs) { alert('Categoría desconocida: '+cat); return; }
-  // Abrir modal pre-rellenado
-  openAddMiningModal();
-  document.getElementById('psm-num').value = nextMiningNum();
-  document.getElementById('psm-asset').value = asset;
-  document.getElementById('psm-tf').value = tf;
-  document.getElementById('psm-bs').value = bs;
-  document.getElementById('psm-dir').value = dir;
-  // Sugerir fase: si el asset coincide con el de alguna fase DEFAULT lo elegimos, si no la última
-  const phaseSel = document.getElementById('psm-phase');
-  const allMin = getPlanMinings();
-  const sameAssetMining = allMin.find(m => m.asset === asset);
-  if (sameAssetMining) phaseSel.value = String(sameAssetMining.phase);
-};
-
 function renderPipelineState() {
   renderPsKpis();
   renderPsHealth();
@@ -1842,7 +2594,6 @@ function renderPipelineState() {
   populateFunnelSelectors();
   renderPsNextAction();
   renderPsFunnel();
-  renderOrphans();
   // override info bar
   const ovCount = Object.keys(PIPELINE_STATE.overrides || {}).length;
   const info = document.getElementById('ps-overrides-info');
@@ -1862,14 +2613,6 @@ function renderPipelineState() {
   const allPhasesCount = getPlanPhaseNums().filter(p => allMinings.some(m => m.phase === p)).length;
   const cntEl = document.getElementById('ps-plan-counts');
   if (cntEl) cntEl.textContent = allPhasesCount + ' fases · ' + allMinings.length + ' minings';
-  // banner USER
-  const userInfo = document.getElementById('ps-plan-user-info');
-  if (userInfo) {
-    const userCount = PLAN_USER.minings.length + Object.keys(PLAN_USER.phases).length;
-    userInfo.style.display = userCount > 0 ? 'block' : 'none';
-    const cnt = document.getElementById('ps-plan-user-count');
-    if (cnt) cnt.textContent = userCount;
-  }
   renderHome();
 }
 
@@ -1878,28 +2621,73 @@ document.getElementById('ps-funnel-mining').addEventListener('change', function(
   populateFunnelSelectors();
   renderPsFunnel();
 });
-document.getElementById('ps-funnel-template').addEventListener('change', renderPsFunnel);
+document.getElementById('ps-funnel-template').addEventListener('change', function() {
+  renderPsFunnel();
+});
 
 document.getElementById('ps-na-edit').addEventListener('click', function(){
-  const v = prompt('Próxima acción inmediata:', PIPELINE_STATE.nextAction || '');
-  if (v != null) { PIPELINE_STATE.nextAction = v.trim(); savePipelineState(); renderPsNextAction(); }
+  decisionPrompt({
+    title: 'Editar siguiente accion',
+    message: 'Actualiza la proxima accion inmediata del pipeline.',
+    inputLabel: 'Siguiente accion',
+    value: PIPELINE_STATE.nextAction || '',
+    confirmLabel: 'Guardar accion',
+    trace: ['Origen: Mining Control', 'Destino: sqx_pipeline_state_v1', 'Impacto: texto visible de guia operativa']
+  }, function(v) {
+    PIPELINE_STATE.nextAction = v.trim();
+    savePipelineState();
+    renderPsNextAction();
+  });
 });
 
 document.getElementById('ps-plan-reset').addEventListener('click', function(){
-  if (confirm('¿Resetear COMPLETAMENTE el tracking? Borra overrides manuales y deja solo el auto-sync con SQX Priority. (No afecta estrategias ni embudos.)')) {
+  decisionConfirm({
+    title: 'Resetear estados del plan',
+    message: 'Borra overrides manuales y vuelve a la prioridad operativa. No afecta fases, assets, estrategias ni embudos.',
+    confirmLabel: 'Resetear estados',
+    trace: ['Lee: sqx_pipeline_state_v1', 'Escribe: overrides vacios', 'No borra: fases, assets, estrategias ni embudos']
+  }, function() {
     PIPELINE_STATE.overrides = {};
     savePipelineState();
     renderPipelineState();
-  }
+  });
+});
+
+document.getElementById('ps-plan-reset-plan').addEventListener('click', function(){
+  const editedPhases = Object.keys(PLAN_USER.phases || {}).length;
+  const addedMinings = PLAN_USER.minings.length;
+  const hiddenBase = (PLAN_USER.hiddenBaseMinings || []).length;
+  const hasBase = !PLAN_USER.baseDisabled && PLAN_MININGS.length > 0;
+  if (!editedPhases && !addedMinings && !hiddenBase && !hasBase && !Object.keys(PIPELINE_STATE.overrides || {}).length) return;
+  decisionConfirm({
+    title: 'Reset completo de Plan Mining',
+    message: 'Se borran minings añadidos, se oculta el plan base y se limpian estados/embudos para empezar desde cero.',
+    confirmLabel: 'Reset plan mining',
+    trace: [
+      'Destino: sqx_plan_user_v1 y sqx_pipeline_state_v1',
+      'Borra: minings de usuario, fases de usuario, overrides y embudos',
+      'Oculta: plan base para proyecto limpio',
+      'Reinicia: lista/log de .cfx generados de Project Generator',
+      'Recuperacion: Backup estado o restore manual'
+    ]
+  }, function() {
+    resetPlanMiningUserState();
+    renderPipelineState();
+  });
 });
 
 document.getElementById('ps-restore-auto').addEventListener('click', function(){
   const n = Object.keys(PIPELINE_STATE.overrides || {}).length;
   if (!n) return;
-  if (confirm('¿Limpiar los '+n+' override(s) manual(es) y volver al auto-sync con SQX Priority?')) {
+  decisionConfirm({
+    title: 'Limpiar overrides manuales',
+    message: 'Limpiar los '+n+' override(s) manual(es) y volver a la prioridad operativa.',
+    confirmLabel: 'Limpiar overrides',
+    trace: ['Destino: sqx_pipeline_state_v1', 'Conserva: fases, assets, estrategias y embudos']
+  }, function() {
     clearAllOverrides();
     renderPipelineState();
-  }
+  });
 });
 
 // ── B.2: gestión del plan (modales + listeners) ──
@@ -1909,7 +2697,9 @@ function openAddMiningModal() {
   const sel = document.getElementById('psm-phase');
   const phases = getPlanPhaseNums();
   const meta = getPlanPhases();
-  sel.innerHTML = phases.map(p => '<option value="'+p+'">FASE '+p+' — '+(meta[p]?.name || '')+'</option>').join('');
+  const modalPhases = phases.length ? phases : [1];
+  sel.innerHTML = modalPhases.map(p => '<option value="'+p+'">FASE '+p+' — '+(meta[p]?.name || 'Manual')+'</option>').join('');
+  updateAddMiningTrace();
   document.getElementById('ps-add-mining-backdrop').style.display = 'flex';
 }
 function closeAddMiningModal() { document.getElementById('ps-add-mining-backdrop').style.display = 'none'; }
@@ -1918,9 +2708,29 @@ function openAddPhaseModal() {
   document.getElementById('psp-num').value = nextPhaseNum();
   document.getElementById('psp-name').value = '';
   document.getElementById('psp-desc').value = '';
+  updateAddPhaseTrace();
   document.getElementById('ps-add-phase-backdrop').style.display = 'flex';
 }
 function closeAddPhaseModal() { document.getElementById('ps-add-phase-backdrop').style.display = 'none'; }
+
+function updateAddMiningTrace() {
+  const el = document.getElementById('psm-trace-preview');
+  if (!el) return;
+  const phase = document.getElementById('psm-phase')?.value || '1';
+  const asset = (document.getElementById('psm-asset')?.value || 'ASSET').toUpperCase();
+  const tf = document.getElementById('psm-tf')?.value || 'TF';
+  const bs = document.getElementById('psm-bs')?.value || 'BS';
+  const dir = document.getElementById('psm-dir')?.value || 'L';
+  el.textContent = 'Origen + Mining manual -> sqx_plan_user_v1 · Fase ' + phase + ' · ' + asset + ' ' + tf + ' · ' + bs + ' · ' + dir + ' · tag MANUAL.';
+}
+
+function updateAddPhaseTrace() {
+  const el = document.getElementById('psp-trace-preview');
+  if (!el) return;
+  const num = document.getElementById('psp-num')?.value || nextPhaseNum();
+  const name = document.getElementById('psp-name')?.value || 'nombre pendiente';
+  el.textContent = 'Origen + Fase manual -> sqx_plan_user_v1 · Fase ' + num + ' · ' + name + ' · se renderiza aunque no tenga minings.';
+}
 
 function saveAddMining() {
   const m = {
@@ -1931,8 +2741,8 @@ function saveAddMining() {
     bs:     document.getElementById('psm-bs').value,
     dir:    document.getElementById('psm-dir').value,
   };
-  if (!m.num || !m.phase || !m.asset) { alert('Faltan campos obligatorios.'); return; }
-  if (!addMiningUser(m)) { alert('Mining #'+m.num+' ya existe en el plan.'); return; }
+  if (!m.num || !m.phase || !m.asset) { decisionAlert({ title: 'Mining incompleto', message: 'Faltan campos obligatorios: mining, fase y asset.', trace: ['No se escribe estado de trabajo', 'Completa la traza antes de guardar'] }); return; }
+  if (!addMiningUser(m)) { decisionAlert({ title: 'Mining duplicado o invalido', message: 'Mining #'+m.num+' ya existe en el plan o coincide con otro asset/timeframe/blocksetting/direccion visible.', trace: ['Validacion contra Plan Mining completo', 'No se crea estado fantasma'] }); return; }
   closeAddMiningModal();
   renderPipelineState();
 }
@@ -1941,17 +2751,76 @@ function saveAddPhase() {
   const num  = parseInt(document.getElementById('psp-num').value, 10);
   const name = (document.getElementById('psp-name').value || '').trim();
   const desc = (document.getElementById('psp-desc').value || '').trim();
-  if (!num || !name) { alert('Número y nombre son obligatorios.'); return; }
-  if (!addPhaseUser(num, name, desc)) { alert('Fase '+num+' ya existe.'); return; }
+  if (!num || !name) { decisionAlert({ title: 'Fase incompleta', message: 'Numero y nombre son obligatorios.', trace: ['No se escribe estado de trabajo', 'La fase debe tener identificador visible'] }); return; }
+  if (!addPhaseUser(num, name, desc)) { decisionAlert({ title: 'Fase duplicada', message: 'Fase '+num+' ya existe.', trace: ['Validacion contra fases actuales', 'No se sobrescribe metodologia existente'] }); return; }
   closeAddPhaseModal();
   renderPipelineState();
 }
 
 window.removeUserMiningClick = function(num) {
-  if (confirm('¿Eliminar mining #'+num+' del plan USER?')) { removeUserMining(num); renderPipelineState(); }
+  decisionConfirm({
+    title: 'Eliminar mining de usuario',
+    message: 'Eliminar mining #' + num + ' del plan USER.',
+    confirmLabel: 'Eliminar mining',
+    trace: ['Destino: sqx_plan_user_v1', 'Impacto: desaparece de Plan Mining y Project Generator', 'Recuperacion: Backup estado o volver a anadir + Mining']
+  }, function() { removeUserMining(num); renderPipelineState(); });
 };
 window.removeUserPhaseClick = function(num) {
-  if (confirm('¿Eliminar fase '+num+' del plan USER?')) { if (removeUserPhase(num)) renderPipelineState(); }
+  decisionConfirm({
+    title: 'Eliminar fase de usuario',
+    message: 'Eliminar fase ' + num + ' del plan USER.',
+    confirmLabel: 'Eliminar fase',
+    trace: ['Destino: sqx_plan_user_v1', 'Bloqueo: no se elimina si contiene minings', 'Impacto: cambia orden metodologico visible']
+  }, function() { if (removeUserPhase(num)) renderPipelineState(); });
+};
+window.editPlanPhaseClick = function(num) {
+  const phases = getPlanPhases();
+  const meta = phases[num] || { name:'', desc:'' };
+  decisionPrompt({
+    title: 'Editar nombre de fase ' + num,
+    message: 'Nombre corto visible en Plan Mining.',
+    inputLabel: 'Nombre corto',
+    value: meta.name || '',
+    confirmLabel: 'Continuar',
+    trace: ['Destino: sqx_plan_user_v1', 'La fase conserva sus minings']
+  }, function(name) {
+    const cleanName = name.trim();
+    if (!cleanName) { decisionAlert({ title: 'Nombre vacio', message: 'El nombre de fase no puede quedar vacio.', trace: ['No se guarda ningun cambio'] }); return; }
+    decisionPrompt({
+      title: 'Editar descripcion de fase ' + num,
+      message: 'Descripcion operativa visible bajo la fase.',
+      inputLabel: 'Descripcion',
+      value: meta.desc || '',
+      confirmLabel: 'Guardar fase',
+      trace: ['Destino: sqx_plan_user_v1', 'Impacto: copy metodologico de Plan Mining']
+    }, function(desc) {
+      setPhaseMetaUser(num, cleanName, desc.trim());
+      renderPipelineState();
+    });
+  });
+};
+window.revertPlanPhaseClick = function(num) {
+  decisionConfirm({
+    title: 'Revertir texto de fase',
+    message: 'Revertir el texto editado de la fase ' + num + ' y volver al valor base.',
+    confirmLabel: 'Revertir fase',
+    trace: ['Destino: sqx_plan_user_v1', 'Borra: override textual local', 'Conserva: minings']
+  }, function() {
+    if (revertPhaseMetaUser(num)) renderPipelineState();
+  });
+};
+window.resetPlanPhaseClick = function(num) {
+  const p = parseInt(num, 10);
+  const phaseMinings = getPlanMinings().filter(function(m) { return m.phase === p; });
+  if (!phaseMinings.length) return;
+  decisionConfirm({
+    title: 'Resetear fase ' + p,
+    message: 'Se quitan del Plan Mining los minings base y añadidos de esta fase.',
+    confirmLabel: 'Reset fase',
+    trace: ['Destino: Plan Mining y Pipeline State', 'La fase queda visible si existe como fase de usuario', 'Recuperacion: Backup estado o restaurar plan base']
+  }, function() {
+    if (resetPlanPhaseMinings(p)) renderPipelineState();
+  });
 };
 
 document.getElementById('ps-add-mining-btn').addEventListener('click', openAddMiningModal);
@@ -1964,34 +2833,39 @@ document.getElementById('psm-cancel').addEventListener('click', closeAddMiningMo
 document.getElementById('psp-cancel').addEventListener('click', closeAddPhaseModal);
 document.getElementById('psm-save').addEventListener('click', saveAddMining);
 document.getElementById('psp-save').addEventListener('click', saveAddPhase);
+document.querySelectorAll('#ps-add-mining-backdrop input, #ps-add-mining-backdrop select').forEach(function(el) {
+  el.addEventListener('input', updateAddMiningTrace);
+  el.addEventListener('change', updateAddMiningTrace);
+});
+document.querySelectorAll('#ps-add-phase-backdrop input').forEach(function(el) {
+  el.addEventListener('input', updateAddPhaseTrace);
+  el.addEventListener('change', updateAddPhaseTrace);
+});
 
-document.getElementById('ps-clear-plan-user-btn').addEventListener('click', function(){
-  const n = PLAN_USER.minings.length + Object.keys(PLAN_USER.phases).length;
-  if (!n) return;
-  if (confirm('¿Borrar los '+n+' añadidos USER del plan? Los DEFAULT se mantienen.')) {
-    clearPlanUser(); renderPipelineState();
-  }
+document.getElementById('ps-project-zero-state').addEventListener('click', function(){
+  decisionConfirm({
+    title: 'Poner a cero proyecto operativo',
+    message: 'Se borran plan, prioridad, embudos, estrategias visibles, checklist y presets de trabajo. No se toca licencia ni API.',
+    confirmLabel: 'Activar proyecto limpio',
+    trace: ['Destino: multiples claves de estado de trabajo', 'Excluye: licencia y API', 'Recuperacion: backup previo si existe']
+  }, function() {
+    resetProjectWorkingData();
+    decisionAlert({ title: 'Proyecto limpio activado', message: 'Ya puedes validar el flujo desde datos nuevos.', trace: ['Plan Mining vacio', 'Estrategias base ocultas', 'Checklist y presets de trabajo limpios'] });
+  });
 });
 
 document.getElementById('ps-consolidate-plan').addEventListener('click', function(){
   const all = getPlanMinings().map(m => { const c = {...m}; delete c._user; return c; });
   const phases = getPlanPhases();
-  const minJson = JSON.stringify(all, null, 2);
-  const phJson  = JSON.stringify(phases, null, 2);
-  const wrapper = JSON.stringify({ version: 1, minings: all, phases: phases }, null, 2);
-  const w = window.open('', '_blank', 'width=900,height=700');
-  if (w) {
-    w.document.write('<html><head><title>SQX Plan — Consolidado</title><style>body{background:#0f1117;color:#e4e4e7;font-family:Segoe UI,sans-serif;padding:20px;}h1{font-size:16px;margin-bottom:10px;}p{color:#9ca3af;font-size:12px;margin-bottom:14px;}pre{background:#0a0c12;border:1px solid #2e3348;border-radius:8px;padding:14px;font-family:Consolas,monospace;font-size:12px;color:#9eb1d3;line-height:1.5;overflow:auto;max-height:80vh;white-space:pre-wrap;}button{margin-bottom:10px;padding:8px 16px;background:#22c55e;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:700;}</style></head><body>');
-    w.document.write('<h1>Consolidado: '+all.length+' minings · '+Object.keys(phases).length+' fases</h1>');
-    w.document.write('<p>JSON compatible con <code>backend/sqx-edge-tool/config/plan.json</code>.</p>');
-    w.document.write('<button onclick="navigator.clipboard.writeText(document.getElementById(\'cn\').textContent).then(()=>this.textContent=\'Copiado\')">Copiar al portapapeles</button>');
-    w.document.write('<pre id="cn">'+wrapper.replace(/[<>&]/g, c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]))+'</pre>');
-    w.document.write('</body></html>');
-    w.document.close();
-  } else {
-    navigator.clipboard.writeText(wrapper);
-    alert('Popup bloqueado. He copiado el snippet al portapapeles ('+all.length+' minings · '+Object.keys(phases).length+' fases).');
-  }
+  const wrapper = { version: 1, minings: all, phases: phases };
+  const day = new Date().toISOString().slice(0, 10);
+  downloadJsonFile('sqx-plan-consolidado-' + day + '.json', wrapper);
+  if (window.addHomeTrace) window.addHomeTrace('Plan Mining consolidado', all.length + ' minings · ' + Object.keys(phases).length + ' fases', 'ok');
+  decisionAlert({
+    title: 'Plan Mining descargado',
+    message: 'Se ha preparado un JSON consolidado para revisar o versionar como configuración estable.',
+    trace: ['Origen: Mining Control', 'Entrega: descarga del navegador', 'Minings: ' + all.length, 'Fases: ' + Object.keys(phases).length]
+  });
 });
 
 // ============================================================
@@ -2007,6 +2881,81 @@ if (!Array.isArray(STRATEGIES_USER)) STRATEGIES_USER = [];
 if (!Array.isArray(STRATEGIES_DELETED)) STRATEGIES_DELETED = [];
 function saveStrategiesUser() { SQX_STORAGE.setJson(STRAT_USER_KEY, STRATEGIES_USER); }
 function saveStrategiesDeleted() { SQX_STORAGE.setJson(STRAT_DELETED_KEY, STRATEGIES_DELETED); }
+
+function applyRemoteWorkspaceState(state) {
+  if (!state || typeof state !== 'object') return;
+  let changed = false;
+  if (state[PLAN_USER_KEY]) {
+    PLAN_USER = Object.assign({ minings:[], phases:{}, baseDisabled:false, hiddenBaseMinings:[] }, state[PLAN_USER_KEY]);
+    normalizePlanUserState();
+    refreshPlanAll();
+    changed = true;
+  }
+  if (state[PIPELINE_STATE_KEY]) {
+    const remotePipeline = state[PIPELINE_STATE_KEY] || {};
+    PIPELINE_STATE = {
+      overrides: remotePipeline.overrides || remotePipeline.miningStatus || {},
+      funnels: remotePipeline.funnels || {},
+      nextAction: remotePipeline.nextAction || sqxConfigValue('pipeline.defaultNextAction', 'Filter-by-correlation entre las estrategias PASSED del WFM.')
+    };
+    if (!PIPELINE_STATE.funnels['1|LINEAR']) PIPELINE_STATE.funnels['1|LINEAR'] = {...FUNNEL_PRELOAD['1|LINEAR']};
+    changed = true;
+  }
+  if (Array.isArray(state[STRAT_USER_KEY])) {
+    STRATEGIES_USER = state[STRAT_USER_KEY];
+    changed = true;
+  }
+  if (Array.isArray(state[STRAT_DELETED_KEY])) {
+    STRATEGIES_DELETED = state[STRAT_DELETED_KEY];
+    changed = true;
+  }
+  if (!changed) return;
+  notifyPlanMiningChanged();
+  if (typeof renderPriority === 'function') renderPriority();
+  if (typeof renderStrategies === 'function') renderStrategies();
+  if (typeof renderPipelineState === 'function') renderPipelineState();
+  if (typeof renderHome === 'function') renderHome();
+}
+
+window.addEventListener('sqx:remote-state-loaded', function(event) {
+  applyRemoteWorkspaceState(event.detail && event.detail.state);
+});
+if (window.SQX && window.SQX.remoteState && Object.keys(window.SQX.remoteState.lastState()).length) {
+  applyRemoteWorkspaceState(window.SQX.remoteState.lastState());
+}
+
+function resetProjectWorkingData() {
+  resetPlanMiningUserState();
+
+  PRIORITY_PROGRESS = {};
+  savePriorityProgress();
+
+  PIPELINE_STATE = { overrides:{}, funnels:{}, nextAction:'' };
+  savePipelineState();
+
+  STRATEGIES_USER = [];
+  STRATEGIES_DELETED = STRATEGIES.map(strategyKey);
+  saveStrategiesUser();
+  saveStrategiesDeleted();
+
+  HOME_TRACE = [];
+  saveHomeTrace();
+
+  [
+    SQX_STORAGE_KEYS.workflowChecklist || 'sqx_workflow_checklist_v1',
+    SQX_STORAGE_KEYS.viewCreatorPresets || 'sqx_view_creator_presets_v1',
+    'sqx_pg_custom_presets_v1'
+  ].forEach(function(key) {
+    try { localStorage.removeItem(key); } catch (err) {}
+  });
+
+  renderPriority();
+  renderStrategies();
+  renderPipelineState();
+  renderHomeTrace();
+  renderHome();
+}
+window.resetProjectWorkingData = resetProjectWorkingData;
 
 const SQX_COLUMN_MAP = sqxConfigValue('csvImport.columnMap', {});
 
@@ -2053,14 +3002,17 @@ function detectSeparator(text) {
 }
 
 const csvImport = {
-  step: 1, rows: [], headers: [], mapping: {}, selected: new Set(), filter: '', sortCol: null, sortDir: 'desc'
+  step: 1, rows: [], headers: [], mapping: {}, selected: new Set(), filter: '', sortCol: null, sortDir: 'desc',
+  fileName: '', separator: '', recognized: 0, importBatchId: ''
 };
 
 function openImportModal() {
   csvImport.step = 1; csvImport.rows = []; csvImport.headers = []; csvImport.mapping = {};
   csvImport.selected = new Set(); csvImport.filter = ''; csvImport.sortCol = null; csvImport.sortDir = 'desc';
+  csvImport.fileName = ''; csvImport.separator = ''; csvImport.recognized = 0; csvImport.importBatchId = '';
   document.getElementById('csv-file-info').style.display = 'none';
   document.getElementById('csv-mapping-summary').innerHTML = '';
+  document.getElementById('csv-trace-summary').textContent = 'Esperando deteccion de columnas.';
   document.getElementById('strat-import-backdrop').style.display = 'flex';
   showStep(1);
 }
@@ -2108,12 +3060,17 @@ function readCsvFile(file) {
     csvImport.headers.forEach(h => { if (SQX_COLUMN_MAP[h]) csvImport.mapping[h] = SQX_COLUMN_MAP[h]; });
     const recognized = Object.keys(csvImport.mapping).length;
     const total = csvImport.headers.length;
+    csvImport.fileName = file.name;
+    csvImport.separator = sep;
+    csvImport.recognized = recognized;
     document.getElementById('csv-file-name').textContent = file.name;
     document.getElementById('csv-file-meta').textContent = (file.size/1024).toFixed(1)+' KB · separador "'+sep+'" · '+csvImport.rows.length+' filas · '+total+' columnas';
     const ok = recognized === total ? 'var(--green)' : (recognized >= total*0.7 ? 'var(--accent)' : 'var(--yellow)');
     document.getElementById('csv-mapping-summary').innerHTML =
       '<span style="color:'+ok+'; font-weight:700;">'+recognized+'/'+total+'</span> columnas reconocidas automáticamente del esquema SQX. ' +
       (recognized < total ? '<span style="color:var(--text2);">Las no reconocidas se ignoran al importar.</span>' : '');
+    document.getElementById('csv-trace-summary').textContent =
+      'Batch pendiente · Origen ' + file.name + ' · ' + csvImport.rows.length + ' filas · ' + recognized + '/' + total + ' columnas reconocidas · destino sqx_strategies_user_v1.';
     document.getElementById('csv-file-info').style.display = 'block';
     // auto-seleccionar todas
     csvImport.selected = new Set(csvImport.rows.map((_,i)=>i));
@@ -2212,6 +3169,19 @@ function renderCsvConfirm() {
   document.getElementById('csv-confirm-summary').innerHTML = SQX_STRATEGIES.csvConfirmHtml
     ? SQX_STRATEGIES.csvConfirmHtml(meta, csvImport.selected, csvImport.rows)
     : '<div><strong>'+csvImport.selected.size+'</strong> estrategia(s) se importarán.</div>';
+  const trace = document.getElementById('csv-import-trace');
+  if (trace) {
+    const duplicateProbe = SQX_STRATEGIES.dedupeImportedStrategies
+      ? SQX_STRATEGIES.dedupeImportedStrategies(STRATEGIES, STRATEGIES_USER, Array.from(csvImport.selected).map(i => rowToStrategy(csvImport.rows[i], meta)))
+      : { fresh: [], duplicates: 0 };
+    trace.innerHTML =
+      '<span>Batch: ' + (csvImport.importBatchId || 'se asigna al confirmar') + '</span>' +
+      '<span>Archivo: ' + stratEsc(csvImport.fileName || 'CSV') + '</span>' +
+      '<span>Columnas: ' + csvImport.recognized + '/' + csvImport.headers.length + ' reconocidas</span>' +
+      '<span>Seleccionadas: ' + csvImport.selected.size + '</span>' +
+      '<span>Duplicadas estimadas: ' + (duplicateProbe.duplicates || 0) + '</span>' +
+      '<span>Destino: sqx_strategies_user_v1</span>';
+  }
 }
 
 function readImportMeta() {
@@ -2278,6 +3248,16 @@ function rowToStrategy(row, meta) {
     tests_failed: [],
     notes: noteParts.join(' · '),
     added: new Date().toISOString().slice(0,10),
+    source: 'csv-import',
+    trace: {
+      origin: 'Strategy Control CSV import wizard',
+      batchId: meta.importBatchId || '',
+      sourceFile: meta.sourceFile || '',
+      destination: STRAT_USER_KEY,
+      recognizedColumns: meta.recognizedColumns || 0,
+      totalColumns: meta.totalColumns || 0,
+      importedAt: new Date().toISOString()
+    },
     _imported: true,
     _import_id: 'imp_' + Date.now() + '_' + id
   };
@@ -2285,6 +3265,10 @@ function rowToStrategy(row, meta) {
 
 function commitImport() {
   const meta = readImportMeta();
+  meta.importBatchId = 'csv_' + Date.now();
+  meta.sourceFile = csvImport.fileName || 'DatabankExport.csv';
+  meta.recognizedColumns = csvImport.recognized;
+  meta.totalColumns = csvImport.headers.length;
   const newOnes = Array.from(csvImport.selected).map(i => rowToStrategy(csvImport.rows[i], meta));
   const dedupe = SQX_STRATEGIES.dedupeImportedStrategies
     ? SQX_STRATEGIES.dedupeImportedStrategies(STRATEGIES, STRATEGIES_USER, newOnes)
@@ -2317,17 +3301,14 @@ function consolidateStrategiesJSON() {
   const wrapper = SQX_STRATEGIES.consolidateJson
     ? SQX_STRATEGIES.consolidateJson(all)
     : JSON.stringify({ version: 1, strategies: all }, null, 2);
-  const w = window.open('', '_blank', 'width=900,height=700');
-  if (w) {
-    const html = SQX_STRATEGIES.consolidatedPopupHtml
-      ? SQX_STRATEGIES.consolidatedPopupHtml(wrapper, all.length)
-      : '<pre>'+wrapper.replace(/[<>&]/g, c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]))+'</pre>';
-    w.document.write(html);
-    w.document.close();
-  } else {
-    navigator.clipboard.writeText(wrapper);
-    alert('Popup bloqueado. He copiado el JSON al portapapeles ('+all.length+' estrategias).');
-  }
+  const day = new Date().toISOString().slice(0, 10);
+  downloadBrowserFile('sqx-strategies-consolidated-' + day + '.json', wrapper, 'application/json;charset=utf-8;');
+  if (window.addHomeTrace) window.addHomeTrace('Strategy Control consolidado', all.length + ' estrategias', 'ok');
+  decisionAlert({
+    title: 'Strategy Control descargado',
+    message: 'Se ha preparado un JSON consolidado con todas las estrategias visibles.',
+    trace: ['Origen: Strategy Control', 'Entrega: descarga del navegador', 'Estrategias: ' + all.length]
+  });
 }
 
 // ── listeners CSV import ──
@@ -2372,15 +3353,25 @@ document.getElementById('csv-select-top10').addEventListener('click', function()
 document.getElementById('strat-consolidate-btn').addEventListener('click', consolidateStrategiesJSON);
 document.getElementById('strat-clear-user-btn').addEventListener('click', function(){
   if (!STRATEGIES_USER.length) return;
-  if (confirm('¿Borrar las '+STRATEGIES_USER.length+' estrategias importadas? Las estrategias base se mantienen.')) {
+  decisionConfirm({
+    title: 'Limpiar estrategias importadas',
+    message: 'Borrar las '+STRATEGIES_USER.length+' estrategias importadas. Las estrategias base se mantienen.',
+    confirmLabel: 'Limpiar importadas',
+    trace: ['Destino: sqx_strategies_user_v1', 'Borra solo importadas', 'Recuperacion: reimportar CSV o backup estado']
+  }, function() {
     STRATEGIES_USER = []; saveStrategiesUser(); renderStrategies(); renderPipelineState(); renderHome();
-  }
+  });
 });
 document.getElementById('strat-restore-hidden-btn').addEventListener('click', function(){
   if (!STRATEGIES_DELETED.length) return;
-  if (confirm('¿Restaurar las '+STRATEGIES_DELETED.length+' estrategias base eliminadas de la vista?')) {
+  decisionConfirm({
+    title: 'Restaurar estrategias base',
+    message: 'Restaurar las '+STRATEGIES_DELETED.length+' estrategias base eliminadas de la vista.',
+    confirmLabel: 'Restaurar base',
+    trace: ['Destino: sqx_strategies_deleted_v1', 'Limpia lista de ocultas', 'Impacto: vuelven a Strategy Control']
+  }, function() {
     STRATEGIES_DELETED = []; saveStrategiesDeleted(); renderStrategies(); renderPipelineState(); renderHome();
-  }
+  });
 });
 
 // INIT

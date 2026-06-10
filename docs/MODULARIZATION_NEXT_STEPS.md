@@ -4,14 +4,18 @@ Persistent planning note for the next SQX Edge phases.
 
 ## Current Status
 
-- Last updated: 2026-05-09.
-- Current completed phase: T10ah - Next Proxy Migration Gate.
-- Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
-- Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
-- Last synced base commit before S2/M-pre: `cc8dbf0`.
-- Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
-- Latest ZIP SHA256: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Next recommended phase: T10ai - prepare the Cloudflare provider-project preflight without deployment or tester URL, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
+- Last updated: 2026-06-04.
+- Current architecture phase: Phase A69: Major Refactor Decision Gate completed as `completed_major_refactor_decision_no_go`.
+- Current restructuring register: `docs/RESTRUCTURING_GOVERNANCE.md` (`sqx-edge.restructuring-governance-v1`).
+- Current docs canonical index: `docs/DOCS_CANONICAL_INDEX.md` (`sqx-edge.docs-canonical-index-v1`).
+- Current tooling ownership map: `docs/TOOLING_OWNERSHIP_MAP.md` (`sqx-edge.tooling-ownership-map-v1`).
+- Current A68 docs relocation anchor: `docs/DISCIPLINA_OPERATIVA.md` is the canonical operational discipline doc; root `DISCIPLINA_OPERATIVA.md` remains a compatibility shim.
+- Current A69 decision: no-go for a major backend/frontend/tests separation until `REMOTE-8K Post Execution Monitoring` is cleanly closed and `SQX142-AW-AI2` completes install/manual roundtrip. A64-A69 is closed; no major refactor started, no backend/frontend/tests split, no tools moved, no wrappers moved, no scripts executed, no import or load-order changes, no runtime changes, no SQX launch, no `data.db`, no `user/projects`.
+- Current product/commercial state: `REMOTE-8K Post Execution Monitoring` was attempted on 2026-06-04 and remains blocked pending artifact generation, export/download and support-loop observations; Portfolio Master stays blocked by real inputs; `SQX142-AW-AI2` overlay v2 is `installed_pending_manual_roundtrip`.
+- Governance baseline: G9/G9R subagent discipline plus Axx architecture phases.
+- Governance baseline: G6 - Institutional Dashboard Quick Actions Gate. Historical anchor only; superseded for current work by G9/G9R plus Axx restructuring gates.
+- Next recommended architecture phase after A69 close: none; reopen restructuring only with a new explicit phase plan after the remote/manual gates close.
+- Next: complete and rerun REMOTE-8K Post Execution Monitoring; complete the SQX142-AW-AI2 human AlgoWizard roundtrip.
 
 ## Historical State Anchors
 
@@ -59,6 +63,80 @@ Persistent planning note for the next SQX Edge phases.
 - Next recommended phase: T10ag - run the local OpenNext build/preview smoke without provider action. Historical anchor only; superseded by T10ah.
 - Current completed phase: T10ag - OpenNext Local Smoke. Historical anchor only; superseded by T10ah.
 - Next recommended phase: T10ah - evaluate and block the Next.js middleware-to-proxy migration for the current Cloudflare route. Historical anchor only; superseded by T10ai.
+- Current completed phase: T10ah - Next Proxy Migration Gate. Historical anchor only; superseded by T10ai.
+- Next recommended phase: T10ai - prepare the Cloudflare provider-project preflight without deployment or tester URL. Historical anchor only; superseded by T10aj.
+- Current completed phase: T10ai - Cloudflare Provider Project Preflight. Historical anchor only; superseded by T10aj.
+- Next recommended phase: T10aj - create or verify a Cloudflare project shell only with exact approval, otherwise keep the route local. Historical anchor only; superseded by T10ak.
+- Current completed phase: T10aj - Cloudflare Project Shell Gate. Historical anchor only; superseded by T10ajb.
+- Next recommended phase: T10ajb - resolve Cloudflare authentication or manually verify/create the provider shell without deployment. Historical anchor only; superseded by T10ajc.
+- Current completed phase: T10ajb - Cloudflare Auth Handoff. Historical anchor only; superseded by T10ajc.
+- Next recommended phase: T10ajc - ingest authenticated or manual Cloudflare shell evidence without deployment before T10ak. Historical anchor only; superseded by T10ajd.
+- Current completed phase: T10ajc - Cloudflare Shell Evidence Ingest. Historical anchor only; superseded by T10ajd.
+- Next recommended phase: T10ajd - capture real Cloudflare shell evidence manually/authenticated before T10ak. Historical anchor only; superseded by T10aje.
+- Current completed phase: T10ajd - Cloudflare Shell Evidence Capture Checklist. Historical anchor only; superseded by T10aje.
+- Next recommended phase: T10aje - execute manual Cloudflare login/dashboard evidence capture outside git, then rerun T10ajc ingest. Historical anchor only; superseded by T10ajf.
+- Current completed phase: T10aje - Cloudflare Read-Only Shell Capture. Historical anchor only; superseded by T10ajf.
+- Next recommended phase: T10ajf - choose exact no-deploy Cloudflare shell creation path or authorize one controlled deploy later. Historical anchor only; superseded by T10ajg.
+- Current completed phase: T10ajf - Cloudflare Shell Creation Decision. Historical anchor only; superseded by T10ajg.
+- Next recommended phase: T10ajg - prepare exact approval gate for the first Cloudflare Worker deploy/shell creation without tester URL sharing. Historical anchor only; superseded by T10ajh.
+- Current completed phase: T10ajg - Cloudflare First Deploy Approval Gate. Historical anchor only; superseded by T10ajh.
+- Next recommended phase: T10ajh - verify first Cloudflare Worker deploy readiness without deploy while waiting for exact approval. Historical anchor only; superseded by T10aji.
+- Current completed phase: T10ajh - Cloudflare First Deploy Readiness. Historical anchor only; superseded by T10aji.
+- Next recommended phase: T10aji - execute the first Cloudflare Worker deploy/shell creation only after approval and rollback if unsafe. Historical anchor only; superseded by T10ajj.
+- Current completed phase: T10aji - Cloudflare First Deploy Rollback. Historical anchor only; superseded by T10ajj.
+- Next recommended phase: T10ajj - decide/register the Cloudflare route or workers.dev onboarding path before any new deploy attempt. Historical anchor only; superseded by T10ajk.
+- Current completed phase: T10ajj - Cloudflare Route Onboarding Decision. Historical anchor only; superseded by T10ajk.
+- Next recommended phase: T10ajk - configure a protected Cloudflare custom route/domain or complete dashboard workers.dev onboarding with immediate Access precreate before any new deploy attempt. Historical anchor only; superseded by T10ajl.
+- Current completed phase: T10ajk - Cloudflare Route Access Precreate. Historical anchor only; superseded by T10ajl.
+- Next recommended phase: T10ajl - select private Cloudflare hostname/zone or complete workers.dev onboarding evidence before T10ak Access creation. Historical anchor only; superseded by T10ak.
+- Current completed phase: T10ajl - Cloudflare Hostname Zone Selection. Historical anchor only; superseded by T10ajl2.
+- Next recommended phase: T10ajl2 - prepare the local operator unlock kit for private Cloudflare hostname/zone evidence before T10ak. Historical anchor only; superseded by T10ajm.
+- Current completed phase: T10ajl2 - Cloudflare Operator Unlock Kit. Historical anchor only; superseded by T10ajm.
+- Next recommended phase: T10ajm - prepare the workers.dev shell gate because no custom domain and no Worker target exist yet. Historical anchor only; superseded by T10ajn.
+- Current completed phase: T10ajm - Workers.dev Shell Gate. Historical anchor only; superseded by T10ajn.
+- Next recommended phase: T10ajn - deploy the harmless workers.dev shell only with exact approval, then enable/verify Cloudflare Access before any tester URL. Historical anchor only; superseded by T10ajo.
+- Current completed phase: T10ajn - Controlled Workers.dev Shell Deploy. Historical anchor only; superseded by T10ajo.
+- Next recommended phase: T10ajo - enable or verify Cloudflare Access on the existing workers.dev shell via dashboard or Access API token before any real app deploy. Historical anchor only; superseded by T10ak.
+- Current completed phase: T10ajo - Workers.dev Access Verified. Historical anchor only; superseded by T10ak.
+- Next recommended phase: T10ak - record or verify the Cloudflare Access application/policy boundary for the protected workers.dev shell before any real app deploy. Historical anchor only; superseded by T10al.
+- Current completed phase: T10ak - Access Policy Boundary. Historical anchor only; superseded by T10al.
+- Next recommended phase: T10al - prepare the exact controlled real app deploy gate after Access app/policy boundary verification. Historical anchor only; superseded by T10am.
+- Current completed phase: T10al - Controlled Real App Deploy Gate. Historical anchor only; superseded by T10am.
+- Next recommended phase: T10am - execute one controlled real app deploy only with exact approval, immediate Access smoke and rollback on mismatch. Historical anchor only; superseded by T10an.
+- Current completed phase: T10am - Controlled Real App Deploy Result. Historical anchor only; superseded by T10an.
+- Next recommended phase: T10an - choose and verify the protected tester publication target before any URL or tester account. Historical anchor only; superseded by T10ao.
+- Current completed phase: T10an - Protected Tester Publication Target Gate. Historical anchor only; superseded by T10ao.
+- Next recommended phase: T10ao - controlled workers.dev publication and Access smoke only with exact approval. Historical anchor only; superseded by T10ap.
+- Current completed phase: T10ao - Controlled Workers.dev Publication Preflight. Historical anchor only; superseded by T10ap.
+- Next recommended phase: T10ap - controlled workers.dev publication and Access smoke only with exact approval. Historical anchor only; superseded by T10aq.
+- Current completed phase: T10ap - Controlled Workers.dev Publication Result. Historical anchor only; superseded by T10aq.
+- Next recommended phase: T10aq - tester access handoff without public URL leak. Historical anchor only; superseded by T10ar.
+- Current completed phase: T10aq - Tester Access Handoff No URL Leak. Historical anchor only; superseded by T10ar.
+- Next recommended phase: T10ar - private tester account activation gate without Git URL/email leak. Historical anchor only; superseded by T10as.
+- Current completed phase: T10ar - Private Tester Account Activation Gate. Historical anchor only; superseded by T10as.
+- Next recommended phase: T10as - private tester activation evidence ingest without Git URL/email leak. Historical anchor only; superseded by T10at.
+- Current completed phase: T10as - Private Tester Activation Evidence Ingest. Historical anchor only; superseded by T10at.
+- Next recommended phase: T10at - private tester URL share approval gate without Git URL/email leak. Historical anchor only; superseded by T10au.
+- Current completed phase: T10at - Private Tester URL Share Approval Gate. Historical anchor only; superseded by T10au.
+- Next recommended phase: T10au - private first tester smoke gate without Git URL/email leak. Historical anchor only; superseded by T10av.
+- Current completed phase: T10au - Private First Tester Smoke Gate. Historical anchor only; superseded by T10av.
+- Next recommended phase: T10av - private tester cohort expansion gate without Git URL/email leak. Historical anchor only; superseded by T10aw.
+- Current completed phase: T10av - Private Tester Cohort Expansion Gate. Historical anchor only; superseded by T10aw.
+- Next recommended phase: T10aw - private tester feedback intake gate without Git URL/email leak. Historical anchor only; superseded by T10ax.
+- Current completed phase: T10aw - Private Tester Feedback Intake Gate. Historical anchor only; superseded by T10ax.
+- Next recommended phase: T10ax - private tester feedback triage gate without Git URL/email leak. Historical anchor only; superseded by T10ay.
+- Current completed phase: T10ax - Private Tester Feedback Triage Gate. Historical anchor only; superseded by T10ay.
+- Next recommended phase: T10ay - private tester action plan gate without Git URL/email leak. Historical anchor only; superseded by T10az.
+- Current completed phase: T10ay - Private Tester Action Plan Gate. Historical anchor only; superseded by T10az.
+- Next recommended phase: T10az - private tester action execution gate without Git URL/email leak. Historical anchor only; superseded by T10ba.
+- Current completed phase: T10az - Private Tester Action Execution Gate. Historical anchor only; superseded by T10ba.
+- Next recommended phase: T10ba - private tester result validation gate without Git URL/email leak. Historical anchor only; superseded by T10bb.
+- Current completed phase: T10ba - Private Tester Result Validation Gate. Historical anchor only; superseded by T10bb.
+- Next recommended phase: T10bb - private tester iteration decision gate without Git URL/email leak. Historical anchor only; superseded by T10bc.
+- Current completed phase: T10bb - Private Tester Iteration Decision Gate. Historical anchor only; superseded by T10bc.
+- Next recommended phase: T10bc - private tester next iteration gate without Git URL/email leak. Historical anchor only; superseded by T10bd.
+- Current completed phase: T10bc - Private Tester Next Iteration Gate. Historical anchor only; superseded by T10bd.
+- Current completed phase: TL1 - Tester Launch Candidate. Macro launch-candidate anchor; freezes further T10 micro-gates until a real blocker requires one.
 
 ## Recommended Order
 
@@ -73,6 +151,12 @@ Persistent planning note for the next SQX Edge phases.
 9. Phase 44: polish release flow with one-click strict release, summary output and package guardrails. Done.
 10. Phase 45: extract Project Generator event bindings and polling from the legacy bridge. Done.
 11. Phase 46: apply operational visual polish for Project Generator, Strategies and responsive dense views. Done.
+12. Phase A64: Structure Register Bootstrap - create governed restructuring register and inventory. Done.
+13. Phase A65: Boundary Guard - classify ignored/generated/private boundaries. Done.
+14. Phase A66: Docs Canonicalization - define canonical docs vs historical docs with an index before moving docs. Done.
+15. Phase A67: Tooling Ownership Map - map ownership for root scripts, `tools/`, wrappers and runbooks. Done.
+16. Phase A68: Low-Risk Physical Moves - perform one docs-domain relocation with root compatibility shim and rollback. Done.
+17. Phase A69: decide major backend/frontend/tests separation only after `REMOTE-8K` and `SQX142-AW-AI2` roundtrip gates. Done as no-go/deferred.
 
 ## Project Generator Track
 
@@ -153,9 +237,26 @@ Persistent planning note for the next SQX Edge phases.
 47. Phase T10af: prepare the local OpenNext/Cloudflare Workers adapter package without deployment or provider action. Done; see `docs/T10AF_OPENNEXT_CLOUDFLARE_ADAPTER_PACKAGE.md`.
 48. Phase T10ag: run the local OpenNext build/preview smoke without provider action. Done as WSL/Linux local smoke GO and native Windows preview NO-GO; see `docs/T10AG_OPENNEXT_LOCAL_SMOKE.md`.
 49. Phase T10ah: evaluate and block the Next.js middleware-to-proxy migration for the current Cloudflare route. Done; see `docs/T10AH_NEXT_PROXY_MIGRATION.md`.
-50. Phase T10ai: prepare the Cloudflare provider-project preflight without deployment or tester URL.
-51. Phase T11: roll out to up to 10 testers with monitored access and manual renewal.
-52. Phase T12: monitor abuse, failed logins, access patterns and continue/stop decision.
+50. Phase T10ai: prepare the Cloudflare provider-project preflight without deployment or tester URL. Done; see `docs/T10AI_CLOUDFLARE_PROVIDER_PROJECT_PREFLIGHT.md`.
+51. Phase T10aj: create or verify a Cloudflare project shell only with exact approval, otherwise keep the route local. Done as a guarded NO-GO because Wrangler is not authenticated locally and the no-deploy CLI path configures files rather than creating a provider shell; see `docs/T10AJ_CLOUDFLARE_PROJECT_SHELL.md`.
+52. Phase T10ajb: resolve Cloudflare authentication or manually verify/create the provider shell without deployment. Done as auth/manual evidence handoff; local Wrangler is still unauthenticated and no provider resource was created; see `docs/T10AJB_CLOUDFLARE_AUTH_HANDOFF.md`.
+53. Phase T10ajc: ingest authenticated or manual Cloudflare shell evidence without deployment and decide whether T10ak can be unlocked. Done as guarded NO-GO because no ignored local evidence exists and Wrangler remains unauthenticated; see `docs/T10AJC_CLOUDFLARE_SHELL_EVIDENCE_INGEST.md`.
+54. Phase T10ajd: capture real Cloudflare shell evidence manually/authenticated before T10ak. Done as capture checklist/proof because Wrangler remains unauthenticated in Codex; see `docs/T10AJD_CLOUDFLARE_SHELL_EVIDENCE_CAPTURE.md`.
+55. Phase T10aje: execute manual Cloudflare login/dashboard evidence capture outside git, then rerun T10ajc ingest. Done as read-only Wrangler capture; authenticated read confirms `sqx-edge-tester-portal-preview` does not exist, so T10ak stays blocked; see `docs/T10AJE_CLOUDFLARE_READONLY_SHELL_CAPTURE.md`.
+56. Phase T10ajf: choose exact no-deploy Cloudflare shell creation path or authorize one controlled deploy later. Done as decision gate: no pure invisible shell path is accepted; first Worker creation must use an explicit `wrangler deploy`/C3 class external action because `wrangler versions upload` fails on first upload; see `docs/T10AJF_CLOUDFLARE_SHELL_CREATION_DECISION.md`.
+57. Phase T10ajg: prepare exact approval gate for the first Cloudflare Worker deploy/shell creation without tester URL sharing. Done as approval gate only: exact command, manual approval phrase, pre-checks, post-checks and cleanup criteria are documented; see `docs/T10AJG_CLOUDFLARE_FIRST_DEPLOY_APPROVAL_GATE.md`.
+58. Phase T10ajh: verify first Cloudflare Worker deploy readiness without deploy while waiting for exact approval. Done; see `docs/T10AJH_CLOUDFLARE_FIRST_DEPLOY_READINESS.md`.
+59. Phase T10aji: execute the first Cloudflare Worker deploy/shell creation only after approval, then immediately inspect or clean up before any tester URL is shared. Done as rollback: Cloudflare requires workers.dev subdomain or route, versions/deployments briefly appeared, and the Worker was deleted; see `docs/T10AJI_CLOUDFLARE_FIRST_DEPLOY_ROLLBACK.md`.
+60. Phase T10ajj: decide/register the Cloudflare route or workers.dev onboarding path before any new deploy attempt. Done as no-deploy route decision: prefer protected custom route/domain, disable `workers_dev` and `preview_urls`, and require T10ajk before any redeploy; see `docs/T10AJJ_CLOUDFLARE_ROUTE_ONBOARDING_DECISION.md`.
+61. Phase T10ajk: configure a protected Cloudflare custom route/domain or complete dashboard `workers.dev` onboarding with immediate Access precreate before any new deploy attempt. Done as guarded NO-GO: Wrangler auth and Worker-not-found were verified, but no hostname/zone is selected, so Access precreate stays blocked; see `docs/T10AJK_CLOUDFLARE_ROUTE_ACCESS_PRECREATE.md`.
+62. Phase T10ajl: select private Cloudflare hostname/zone or complete dashboard `workers.dev` onboarding evidence before T10ak Access creation. Done as public-safe evidence gate; T10ak remains blocked until ignored local evidence returns GO; see `docs/T10AJL_CLOUDFLARE_HOSTNAME_ZONE_SELECTION.md`.
+62.1. Phase T10ajl2: add `prepare:cloudflare-hostname-zone-selection` and `docs/T10AJL_OPERATOR_UNLOCK_KIT.md` so the operator can create the ignored local evidence file and prove it contains no hostname, zone ID, tester URL, tester emails or tokens before T10ak.
+63. Phase T10ak: create Cloudflare Access application and policy only with exact approval after the provider shell is verified. Blocked until ignored T10ajl evidence proves a private hostname/zone or protected workers.dev onboarding.
+64. Phase T10al: execute one controlled Cloudflare Workers deployment only after shell + Access policy are verified, then inspect target, Access coverage and no custom/public domain before any tester URL.
+65. Phase T10am: run protected-route E2E smoke: anonymous blocked by Cloudflare Access, app session required, expired/denied/blocked tester states, logout, watermark, health and noindex.
+66. Phase T10an: prepare private tester onboarding packet without committing tester emails or URL.
+67. Phase T11: roll out to up to 10 testers with monitored access and manual renewal.
+68. Phase T12: monitor abuse, failed logins, access patterns and continue/stop decision.
 
 ## Governance Track
 
@@ -209,7 +310,7 @@ Persistent planning note for the next SQX Edge phases.
 4. Phase SB4: harden Strategy Builder handoff import/export and decide whether it remains a tab or becomes a compact workflow panel. Done; see `docs/SB4_STRATEGY_BUILDER_IMPORT_EXPORT.md`.
 5. Phase SB5: add Strategy Builder to Project Generator prefill bridge without auto-running generation. Done; see `docs/SB5_STRATEGY_BUILDER_PROJECT_GENERATOR_PREFILL.md`.
 6. Phase SB6: add Strategy Builder review checklist and Project Generator save-as-preset handoff without auto-saving. Done; see `docs/SB6_STRATEGY_BUILDER_PRESET_HANDOFF.md`.
-7. Phase SB7: add Strategy Builder SQX Views validation-pack handoff without auto-saving templates. Done; see `docs/SB7_STRATEGY_BUILDER_VIEWS_HANDOFF.md`.
+7. Phase SB7: add Strategy Builder View CORR1 handoff without auto-saving templates. Done; see `docs/SB7_STRATEGY_BUILDER_VIEWS_HANDOFF.md`.
 8. Phase SB8: add Strategy Builder handoff audit trail and buyer workflow polish. Done; see `docs/SB8_STRATEGY_BUILDER_AUDIT_WORKFLOW.md`.
 9. Phase SB9: add Strategy Builder Strategy Cleaner draft handoff. Done; see `docs/SB9_STRATEGY_BUILDER_CLEANER_HANDOFF.md`.
 10. Phase SB10: add Strategy Builder unified buyer handoff pack. Done; see `docs/SB10_STRATEGY_BUILDER_BUYER_HANDOFF_PACK.md`.
@@ -334,18 +435,48 @@ Persistent planning note for the next SQX Edge phases.
 99. Phase M99: decide the next controlled commercial movement from M98 monitor evidence. Done; see `docs/MONETIZATION_M99.md`.
 100. Phase M100: execute exactly the M99-approved controlled commercial movement.
 
+## Active Cloudflare Tester Route
+
+1. Phase T10ajl: select private Cloudflare hostname/zone or complete dashboard `workers.dev` onboarding evidence before T10ak Access creation. Done as public-safe evidence gate.
+2. Phase T10ajl2: add `prepare:cloudflare-hostname-zone-selection` to create the ignored local evidence file. Done.
+3. Phase T10ajm: prepare a controlled workers.dev shell gate because there is no custom domain and no Worker target to protect yet. Done.
+4. Phase T10ajn: deploy only the harmless workers.dev shell with exact approval, then enable/verify Cloudflare Access before any tester URL. Done as shell-created, Access-permission blocked.
+5. Phase T10ajo: enable or verify Cloudflare Access on the existing workers.dev shell via dashboard or Access API token. Done as Access-protected shell verification.
+6. Phase T10ak: record/verify the Cloudflare Access application and policy boundary only after the shell target exists and Access coverage is verified. Done as private boundary evidence with no real app deploy.
+7. Phase T10al: prepare the exact controlled real app deploy gate after Access app/policy boundary verification. Done as exact-approval gate, no deploy.
+8. Phase T10am: execute the approved real app deploy, record that the real version was uploaded without a public target, verify Access proofs remain green and keep tester URL sharing blocked. Done.
+9. Phase T10an: choose and verify the protected tester publication target before any URL or tester account. Done as `workers.dev` plus Cloudflare Access exact-approval gate.
+10. Phase T10ao: prepare controlled `workers.dev` publication preflight with exact approval phrase, Access smoke and rollback rules. Done.
+11. Phase T10ap: execute controlled `workers.dev` publication and Access smoke only with exact approval. Done as Access-protected publication with no URL sharing.
+12. Phase T10aq: prepare tester access handoff without public URL leak. Done as operator-only handoff gate.
+13. Phase T10ar: private tester account activation gate without Git URL/email leak. Done as public-safe activation gate.
+14. Phase T10as: private tester activation evidence ingest without Git URL/email leak. Done as guarded local evidence ingest.
+15. Phase T10at: private tester URL share approval gate without Git URL/email leak. Done as guarded private approval gate.
+16. Phase T10au: private first tester smoke gate without Git URL/email leak. Done as guarded one-tester smoke evidence gate.
+17. Phase T10av: private tester cohort expansion gate without Git URL/email leak. Done as guarded micro-cohort expansion evidence gate.
+18. Phase T10aw: private tester feedback intake gate without Git URL/email leak. Done as guarded private feedback intake evidence gate.
+19. Phase T10ax: private tester feedback triage gate without Git URL/email leak. Done as guarded private feedback triage evidence gate.
+20. Phase T10ay: private tester action plan gate without Git URL/email leak. Done as guarded private tester action-plan evidence gate.
+21. Phase T10az: private tester action execution gate without Git URL/email leak. Done as guarded private tester action-execution evidence gate.
+22. Phase T10ba: private tester result validation gate without Git URL/email leak. Done as guarded private tester result-validation evidence gate.
+23. Phase T10bb: private tester iteration decision gate without Git URL/email leak. Done as guarded private tester iteration-decision evidence gate.
+24. Phase T10bc: private tester next iteration gate without Git URL/email leak. Done as guarded private tester next-iteration evidence gate.
+25. Phase T10bd: private tester next iteration execution gate without Git URL/email leak. Paused in favor of TL1 macro launch candidate.
+26. Phase TL1: tester launch candidate. Done as single macro go/no-go for private tester launch readiness.
+27. Next real action: fill ignored private TL1 evidence, run `proof:tester-launch-candidate`, then manually send access only if GO.
+
 ## SQX View Creator Track
 
-1. Phase V1: integrate the annual SQX `.vw` creator as a native dashboard tab with EGT Core preset, XML preview and portable download. Done.
+1. Phase V1: integrate the SQX `.vw` creator as a native dashboard utility. Historical EGT Core scope is superseded by View CORR1.
 2. Phase V2: add saved view presets and reusable operator templates in localStorage. Done.
-3. Phase V3: add JSON export/import packs for saved SQX Views presets. Done.
+3. Phase V3: add JSON export/import packs for saved View CORR1 presets. Done.
 4. Phase V4: add optional handoff links from Workflow/Estrategias and richer saved-template guidance. Done.
 5. Phase V5: close the native SQX View Creator integration, archive the staging prototype in backup and remove the local staging folder. Done.
-6. Phase V6: add buyer-ready SQX View template examples for first review, robustness, risk and full audit, with load/save/export flow. Done.
-7. Phase V7: expand SQX Views packs by buyer profile, asset family or validation workflow if the View Creator track continues. Done.
-8. Phase V8: add asset-family or validation-workflow packs if SQX Views continues. Done.
-9. Phase V9: add SQX Views import preview or pack comparison if this track continues. Done.
-10. Phase V10: add SQX Views pack comparison if this track continues.
+6. Phase V6: buyer-ready examples for first review, robustness, risk and full audit are historical and superseded by the single CORR1 contract.
+7. Phase V7: profile, asset-family and validation workflow packs are retired from readiness.
+8. Phase V8: asset-family or validation-workflow packs are retired from readiness.
+9. Phase V9: View CORR1 import preview remains for user presets. Done.
+10. Phase V10: do not expand SQX Views packs unless CORR1 requirements change explicitly.
 
 ## Release Track
 

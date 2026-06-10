@@ -1,7 +1,11 @@
 import './contracts/core_strategy_contracts.mjs';
+import './contracts/app_config_contracts.mjs';
 import './contracts/formatters_domain_contracts.mjs';
 import './contracts/storage_ui_contracts.mjs';
+import './contracts/modal_trace_contracts.mjs';
 import './contracts/state_backup_contracts.mjs';
+import './contracts/remote_state_contracts.mjs';
+import './contracts/sqx_readiness_contracts.mjs';
 import './contracts/license_contracts.mjs';
 import './contracts/fulfillment_contracts.mjs';
 import './contracts/customer_cockpit_contracts.mjs';
@@ -15,8 +19,15 @@ import './contracts/renderers_charts_contracts.mjs';
 import './contracts/strategies_granular_contracts.mjs';
 import './contracts/ui_home_workflow_contracts.mjs';
 import './contracts/home_workflow_granular_contracts.mjs';
+import './contracts/edge_factory_contracts.mjs';
+import './contracts/agent_guide_contracts.mjs';
 import './contracts/view_creator_contracts.mjs';
+import './contracts/exit_policy_contracts.mjs';
+import './contracts/template_maker_contracts.mjs';
 import './contracts/project_generator_contracts.mjs';
 import './contracts/project_generator_boundaries_contracts.mjs';
+import './contracts/sqx142_aw_ai1_contracts.mjs';
+import './contracts/sqx142_aw_ai2_contracts.mjs';
+import './contracts/sqx142_aw_ai3_contracts.mjs';
 
 console.log('module contracts ok');

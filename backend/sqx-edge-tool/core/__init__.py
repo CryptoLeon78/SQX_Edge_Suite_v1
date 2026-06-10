@@ -7,7 +7,10 @@ from .xml_patcher import (
     apply_mining_to_xml,
     clean_external_paths,
     patch_dates,
+    patch_backtest_precision,
     patch_direction,
+    patch_embedded_strategy_metadata,
+    patch_no_session,
     patch_swap,
     patch_symbol_tf_spread,
 )
@@ -26,5 +29,8 @@ __all__ = [
     "patch_swap",
     "patch_direction",
     "patch_dates",
+    "patch_backtest_precision",
+    "patch_embedded_strategy_metadata",
+    "patch_no_session",
     "clean_external_paths",
 ]

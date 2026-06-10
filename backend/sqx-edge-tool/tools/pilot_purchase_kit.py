@@ -62,10 +62,11 @@ def build_license_command(
     order_id: str,
     plan: str,
 ) -> str:
+    default_license_out = "dist/pilot_licenses/SQX_Edge_Pro_license.json"
     return (
         "python backend\\sqx-edge-tool\\tools\\license_issue.py "
         f"--private-key {private_key_path or '<private-key-json-outside-repo>'} "
-        f"--out {license_out_path or 'dist\\pilot_licenses\\SQX_Edge_Pro_license.json'} "
+        f"--out {license_out_path or default_license_out} "
         f"--customer-name \"{customer_name or '<customer-name>'}\" "
         f"--customer-email {customer_email or '<customer-email>'} "
         f"--order-id {order_id or '<lemon-order-id>'} "
@@ -74,10 +75,12 @@ def build_license_command(
 
 
 def build_delivery_command(zip_path: str, license_path: str, customer_slug: str, order_id: str, support_email: str) -> str:
+    default_zip = "dist/SQX_Edge_Tool_Portable_YYYYMMDD_HHMMSS.zip"
+    default_license = "dist/pilot_licenses/SQX_Edge_Pro_license.json"
     return (
         "powershell -NoProfile -ExecutionPolicy Bypass -File backend\\sqx-edge-tool\\tools\\prepare_customer_delivery.ps1 "
-        f"-ZipPath {zip_path or 'dist\\SQX_Edge_Tool_Portable_YYYYMMDD_HHMMSS.zip'} "
-        f"-LicensePath {license_path or 'dist\\pilot_licenses\\SQX_Edge_Pro_license.json'} "
+        f"-ZipPath {zip_path or default_zip} "
+        f"-LicensePath {license_path or default_license} "
         f"-CustomerSlug {customer_slug or '<customer-slug>'} "
         f"-OrderId {order_id or '<lemon-order-id>'} "
         f"-SupportEmail {support_email or '<support-email>'}"

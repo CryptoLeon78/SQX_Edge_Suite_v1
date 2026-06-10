@@ -2,6 +2,7 @@
   'use strict';
 
   var SQX = global.SQX = global.SQX || {};
+  var BASIC_ALLOWED_TABS = { workflow: true };
 
   function byId(id) {
     return global.document.getElementById(id);
@@ -50,13 +51,25 @@
 
   function activateTabById(id, doc) {
     var target = doc || global.document;
-    var tab = target.querySelector('.tab[data-tab="' + id + '"]');
-    var panel = target.getElementById('tab-' + id);
-    if (!tab || !panel) return false;
+    var requested = String(id || '').trim();
+    var resolved = resolveTabForExperience(requested);
+    if (requested && resolved !== requested) {
+      var status = target.getElementById('edge-basic-status');
+      if (status) {
+        status.textContent = 'Modo basico cerrado: cambia a Avanzado para abrir herramientas completas.';
+        status.dataset.state = 'warn';
+      }
+    }
+    var tab = target.querySelector('.tab[data-tab="' + resolved + '"]');
+    var panel = target.getElementById('tab-' + resolved);
+    if (!panel) return false;
     all('.tab', target).forEach(function(node) { node.classList.remove('active'); });
-    tab.classList.add('active');
+    if (tab) tab.classList.add('active');
     all('.tab-content', target).forEach(function(content) { content.style.display = 'none'; });
     panel.style.display = 'block';
+    if (typeof updateGlobalStepNavigation === 'function') {
+      setTimeout(updateGlobalStepNavigation, 0);
+    }
     return true;
   }
 
@@ -95,7 +108,101 @@
 
   function activeTabId() {
     var active = global.document.querySelector('.tab.active[data-tab], .tab-btn.active[data-tab]');
-    return active ? active.dataset.tab : null;
+    if (active) return active.dataset.tab;
+    var visiblePanel = all('.tab-content', global.document).find(function(panel) {
+      return panel.style.display !== 'none';
+    });
+    return visiblePanel && visiblePanel.id ? visiblePanel.id.replace(/^tab-/, '') : null;
+  }
+
+  function edgeExperienceMode() {
+    try {
+      var state = SQX.edgeFactory && SQX.edgeFactory.getState ? SQX.edgeFactory.getState() : null;
+      return state && state.experienceMode === 'advanced' ? 'advanced' : 'basic';
+    } catch (_err) {
+      return 'basic';
+    }
+  }
+
+  function isBasicTabAllowed(tabId) {
+    return !!BASIC_ALLOWED_TABS[String(tabId || '').trim()];
+  }
+
+  function resolveTabForExperience(tabId) {
+    if (edgeExperienceMode() === 'basic' && !isBasicTabAllowed(tabId)) return 'workflow';
+    return tabId || 'workflow';
+  }
+
+  function tabLabel(tabId) {
+    var tabs = global.SQX_MANIFEST && global.SQX_MANIFEST.ui && global.SQX_MANIFEST.ui.tabs || [];
+    var found = tabs.find(function(tab) { return tab.id === tabId; });
+    return found ? found.label : tabId;
+  }
+
+  function basicNextTab(current, state) {
+    state = state || {};
+    return 'workflow';
+  }
+
+  function basicPrevTab(current, state) {
+    state = state || {};
+    return 'workflow';
+  }
+
+  function advancedOrder() {
+    var tabs = global.SQX_MANIFEST && global.SQX_MANIFEST.ui && global.SQX_MANIFEST.ui.tabs || [];
+    return tabs.map(function(tab) { return tab.id; }).filter(Boolean);
+  }
+
+  function resolveStepNavTarget(direction) {
+    var current = activeTabId() || 'workflow';
+    var mode = edgeExperienceMode();
+    var state = SQX.edgeFactory && SQX.edgeFactory.getState ? SQX.edgeFactory.getState() : {};
+    if (mode === 'advanced') {
+      var order = advancedOrder();
+      if (!order.length) return 'workflow';
+      var index = Math.max(0, order.indexOf(current));
+      var nextIndex = direction === 'prev'
+        ? (index - 1 + order.length) % order.length
+        : (index + 1) % order.length;
+      return order[nextIndex] || 'workflow';
+    }
+    return direction === 'prev' ? basicPrevTab(current, state) : basicNextTab(current, state);
+  }
+
+  function updateGlobalStepNavigation() {
+    var current = activeTabId() || 'workflow';
+    var previous = resolveStepNavTarget('prev');
+    var next = resolveStepNavTarget('next');
+    all('[data-global-step-nav="prev"]').forEach(function(button) {
+      button.dataset.targetTab = previous;
+      var label = button.querySelector('[data-step-nav-label]');
+      if (label) label.textContent = tabLabel(previous);
+    });
+    all('[data-global-step-nav="next"]').forEach(function(button) {
+      button.dataset.targetTab = next;
+      var label = button.querySelector('[data-step-nav-label]');
+      if (label) label.textContent = tabLabel(next);
+    });
+    all('[data-global-step-current]').forEach(function(node) {
+      node.textContent = tabLabel(current);
+    });
+  }
+
+  function bindGlobalStepNavigation() {
+    all('[data-global-step-nav]').forEach(function(button) {
+      if (button.__globalStepNavBound) return;
+      button.__globalStepNavBound = true;
+      button.addEventListener('click', function() {
+        var target = button.dataset.targetTab || resolveStepNavTarget(button.dataset.globalStepNav);
+        activateTabById(target, global.document);
+      });
+    });
+    if (!bindGlobalStepNavigation.__stateBound && typeof global.addEventListener === 'function') {
+      bindGlobalStepNavigation.__stateBound = true;
+      global.addEventListener('sqx:edge-factory-state', updateGlobalStepNavigation);
+    }
+    updateGlobalStepNavigation();
   }
 
   SQX.ui = SQX.ui || {
@@ -103,6 +210,7 @@
     activeTabId: activeTabId,
     all: all,
     bindButtonGroup: bindButtonGroup,
+    bindGlobalStepNavigation: bindGlobalStepNavigation,
     bindChange: bindChange,
     bindClick: bindClick,
     bindHomeTabButtons: bindHomeTabButtons,
@@ -110,10 +218,15 @@
     bindTabs: bindTabs,
     byId: byId,
     hide: hide,
+    isBasicTabAllowed: isBasicTabAllowed,
+    resolveTabForExperience: resolveTabForExperience,
     setDisplay: setDisplay,
     setText: setText,
-    show: show
+    show: show,
+    updateGlobalStepNavigation: updateGlobalStepNavigation
   };
+
+  bindGlobalStepNavigation();
 
   if (SQX.registerModule) {
     SQX.registerModule('ui', SQX.ui);

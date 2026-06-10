@@ -9,7 +9,7 @@
 
 ## What Was Verified
 
-- `C:/Program Files/Dukascopy MetaTrader 5/terminal64.exe` exists locally.
+- A local Dukascopy MetaTrader 5 terminal executable exists outside the repo.
 - Python package `MetaTrader5` is installed in `backend/sqx-edge-tool/venv`.
 - A58 downloader CLI runs and writes traceable coverage output.
 - `data/ohlc` had no real OHLC CSV input before the A59 smoke.
@@ -38,7 +38,7 @@ Generated local evidence is intentionally ignored by git:
 
 ## Next Operator Steps
 
-1. Open Dukascopy MetaTrader 5 manually from `C:/Program Files/Dukascopy MetaTrader 5/terminal64.exe`.
+1. Open Dukascopy MetaTrader 5 manually from your private local installation path.
 2. Log in to the intended account and leave the terminal open until Market Watch is loaded.
 3. Confirm `EURUSD` is visible/available in Market Watch.
 4. Rerun the smoke command above.

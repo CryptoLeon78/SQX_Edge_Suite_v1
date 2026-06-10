@@ -1,0 +1,21 @@
+{
+  "schema": "sqx-edge.web-checklist-v1",
+  "manifestSchema": "sqx-edge.sqx-readiness-manifest-v2",
+  "requiredChecklist": [
+    "sqx_root_selected",
+    "sqx_version_compatible",
+    "data_db_found",
+    "brokers_validated",
+    "curated_assets_validated",
+    "snippets_ready",
+    "correlation_view_ready",
+    "portable_source_acknowledged",
+    "sensitive_files_excluded"
+  ],
+  "blockedUntilComplete": [
+    "project_generator.generate",
+    "template_maker.c2",
+    "strategy_cleaner.apply",
+    "edge_factory.sqx_dependent_flows"
+  ]
+}

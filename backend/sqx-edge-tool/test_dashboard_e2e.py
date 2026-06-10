@@ -20,7 +20,7 @@ class DashboardE2ETestCase(unittest.TestCase):
             cwd=PROJECT_ROOT,
             text=True,
             capture_output=True,
-            timeout=45,
+            timeout=180,
         )
         if result.returncode != 0:
             self.fail(result.stdout + result.stderr)

@@ -118,9 +118,13 @@ class LicenseManagerTestCase(unittest.TestCase):
                 issued_at="2026-05-06",
                 expires_at="",
                 duration_days=None,
+                no_expires=False,
                 machine_limit=1,
                 support_level="priority",
                 grace_days=7,
+                distribution_channel="",
+                tester_marker="",
+                redistribution_allowed=False,
                 notes="paid beta",
             )
 
@@ -135,6 +139,127 @@ class LicenseManagerTestCase(unittest.TestCase):
             with patch.object(license_manager, "load_product_manifest", return_value=product):
                 status = license_manager.preview_license_payload(signed, today=date(2026, 5, 7))
             self.assertEqual(status["state"], "pro_active")
+
+    def test_manual_license_issuer_signs_tester_distribution_fields(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            private_key_path = Path(tmp) / "test_private_key.json"
+            out_path = Path(tmp) / "license_signed_tester.json"
+            private_key_path.write_text(json.dumps(TEST_PRIVATE_KEY), encoding="utf-8")
+            args = Mock(
+                private_key=private_key_path,
+                out=out_path,
+                customer_name="Tester Customer",
+                customer_email="tester@example.com",
+                customer_id="TL12-T01",
+                order_id="TL12-PILOT",
+                plan="pro_tester_15",
+                license_id="LIC-TL12-T01",
+                issued_at="2026-05-12",
+                expires_at="",
+                duration_days=None,
+                no_expires=False,
+                machine_limit=1,
+                support_level="standard",
+                grace_days=0,
+                distribution_channel="tester_pilot",
+                tester_marker="TL12-T01",
+                redistribution_allowed=False,
+                notes="tester pilot",
+            )
+
+            signed = issue_license(args, today=date(2026, 5, 12))
+            product = self.product()
+
+            self.assertEqual(signed["expires_at"], "2026-05-27")
+            self.assertEqual(signed["distribution"]["channel"], "tester_pilot")
+            self.assertEqual(signed["distribution"]["tester_marker"], "TL12-T01")
+            self.assertFalse(signed["distribution"]["redistribution_allowed"])
+            with patch.object(license_manager, "load_product_manifest", return_value=product):
+                status = license_manager.preview_license_payload(signed, today=date(2026, 5, 13))
+            self.assertTrue(status["signature_valid"])
+            self.assertEqual(status["distribution"]["tester_marker"], "TL12-T01")
+
+    def test_manual_license_issuer_can_create_non_expiring_tester_license(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            private_key_path = Path(tmp) / "test_private_key.json"
+            out_path = Path(tmp) / "license_signed_tester_no_expiry.json"
+            private_key_path.write_text(json.dumps(TEST_PRIVATE_KEY), encoding="utf-8")
+            args = Mock(
+                private_key=private_key_path,
+                out=out_path,
+                customer_name="Tester Customer",
+                customer_email="tester@example.com",
+                customer_id="TL12-T01",
+                order_id="TL12-PILOT",
+                plan="pro_tester_15",
+                license_id="LIC-TL12-T01",
+                issued_at="2026-05-31",
+                expires_at="",
+                duration_days=None,
+                no_expires=True,
+                machine_limit=1,
+                support_level="standard",
+                grace_days=0,
+                distribution_channel="tester_pilot",
+                tester_marker="TL12-T01",
+                redistribution_allowed=False,
+                notes="tester pilot",
+            )
+
+            signed = issue_license(args, today=date(2026, 5, 31))
+            product = self.product()
+
+            self.assertNotIn("expires_at", signed)
+            self.assertEqual(signed["distribution"]["tester_marker"], "TL12-T01")
+            with patch.object(license_manager, "load_product_manifest", return_value=product):
+                status = license_manager.preview_license_payload(signed, today=date(2026, 12, 31))
+            self.assertTrue(status["active"])
+            self.assertEqual(status["state"], "pro_active")
+
+    def test_signed_tester_license_activates_pro_with_distribution_marker(self):
+        product = self.product()
+        payload = self.signed_payload(
+            license_id="LIC-TESTER-001",
+            plan="pro_tester_15",
+            customer_name="Tester One",
+            customer_email="tester@example.com",
+            expires_at="2026-05-16",
+            machine_limit=1,
+            distribution={
+                "channel": "tester_pilot",
+                "tester_marker": "TL11-TESTER-001",
+                "redistribution_allowed": False,
+            },
+        )
+
+        with patch.object(license_manager, "load_product_manifest", return_value=product):
+            status = license_manager.preview_license_payload(payload, today=date(2026, 5, 10))
+
+        self.assertTrue(status["ok"])
+        self.assertTrue(status["active"])
+        self.assertEqual(status["state"], "pro_active")
+        self.assertEqual(status["customer_email"], "tester@example.com")
+        self.assertEqual(status["machine_limit"], 1)
+        self.assertEqual(status["distribution"]["channel"], "tester_pilot")
+        self.assertEqual(status["distribution"]["tester_marker"], "TL11-TESTER-001")
+        self.assertFalse(status["distribution"]["redistribution_allowed"])
+
+    def test_tester_profile_without_license_stays_free_locked(self):
+        product = self.product()
+        product["build"]["channel"] = "tester"
+        product["build"]["label"] = "Tester Build"
+        product["build"]["defaultPlan"] = "free"
+        product["build"]["activationMode"] = "signed_tester_file"
+
+        with patch.object(license_manager, "load_product_manifest", return_value=product):
+            with patch.object(license_manager, "load_license_payload", return_value=None):
+                status = license_manager.license_status(today=date(2026, 5, 10))
+
+        self.assertTrue(status["ok"])
+        self.assertFalse(status["active"])
+        self.assertEqual(status["state"], "free")
+        self.assertEqual(status["build_channel"], "tester")
+        self.assertNotIn("project_generator.generate", status["features"])
 
 
 if __name__ == "__main__":

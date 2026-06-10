@@ -18,17 +18,46 @@
 
   function filterStrategies(strategies, filters) {
     var f = filters || {};
+    var mining = f.mining || 'all';
+    var template = f.template || 'all';
+    var tier = f.tier || 'all';
+    var status = f.status || 'all';
+    var query = String(f.query || '').toLowerCase().trim();
     return (strategies || []).filter(function(strategy) {
-      if (f.mining !== 'all' && String(strategy.mining) !== f.mining) return false;
-      if (f.template !== 'all' && strategy.template !== f.template) return false;
-      if (f.tier !== 'all' && strategy.tier !== f.tier) return false;
-      if (f.status !== 'all' && strategy.status !== f.status) return false;
+      if (mining !== 'all' && String(strategy.mining) !== mining) return false;
+      if (template !== 'all' && strategy.template !== template) return false;
+      if (tier !== 'all' && strategy.tier !== tier) return false;
+      if (status !== 'all' && strategy.status !== status) return false;
+      if (query && !strategyMatchesQuery(strategy, query)) return false;
       return true;
     });
   }
 
-  function summarize(strategies) {
+  function strategyMatchesQuery(strategy, query) {
+    var fields = [
+      strategy.id,
+      strategy.name,
+      strategy.asset,
+      strategy.tf,
+      strategy.blocksetting,
+      strategy.template,
+      strategy.direction,
+      strategy.tier,
+      strategy.status,
+      strategy.indicators,
+      strategy.exits,
+      strategy.notes,
+      (strategy.tests_passed || []).join(' '),
+      (strategy.tests_failed || []).join(' ')
+    ];
+    return fields.some(function(value) {
+      return String(value == null ? '' : value).toLowerCase().includes(query);
+    });
+  }
+
+  function summarize(strategies, meta) {
     var all = strategies || [];
+    var sourceMeta = meta || {};
     return {
       total: all.length,
       tier1: all.filter(function(strategy) { return strategy.tier === '1'; }).length,
@@ -36,6 +65,12 @@
       tier2: all.filter(function(strategy) { return strategy.tier === '2'; }).length,
       tentative: all.filter(function(strategy) { return strategy.tier === 'tentativa'; }).length,
       deployed: all.filter(function(strategy) { return strategy.status === 'DEPLOYED'; }).length,
+      candidate: all.filter(function(strategy) { return strategy.status === 'CANDIDATA'; }).length,
+      rejected: all.filter(function(strategy) { return strategy.status === 'REJECTED'; }).length,
+      passed: all.filter(function(strategy) { return strategy.status === 'PASSED' || strategy.status === 'PASSED_ASTERISK'; }).length,
+      base: sourceMeta.baseCount != null ? sourceMeta.baseCount : all.filter(function(strategy) { return !strategy._imported; }).length,
+      imported: sourceMeta.userCount != null ? sourceMeta.userCount : all.filter(function(strategy) { return !!strategy._imported; }).length,
+      hidden: sourceMeta.hiddenCount || 0,
       totalProfit: all.reduce(function(acc, strategy) {
         return acc + ((strategy.metrics && strategy.metrics.net_profit) || 0);
       }, 0)
@@ -49,8 +84,13 @@
       '<div class="strat-summary-card t15"><div class="ss-count">' + summary.tier15 + '</div><div class="ss-label">TIER 1.5</div></div>' +
       '<div class="strat-summary-card t2"><div class="ss-count">' + summary.tier2 + '</div><div class="ss-label">TIER 2</div></div>' +
       '<div class="strat-summary-card tt"><div class="ss-count">' + summary.tentative + '</div><div class="ss-label">Tentativas</div></div>' +
-      '<div class="strat-summary-card"><div class="ss-count">' + summary.deployed + '</div><div class="ss-label">Deployed</div></div>' +
-      '<div class="strat-summary-card"><div class="ss-count" style="font-size:18px;">$' + fmtInt(Math.round(summary.totalProfit)) + '</div><div class="ss-label">Σ Net Profit (BT)</div></div>';
+      '<div class="strat-summary-card cand"><div class="ss-count">' + (summary.candidate || 0) + '</div><div class="ss-label">Candidatas</div></div>' +
+      '<div class="strat-summary-card deployed"><div class="ss-count">' + summary.deployed + '</div><div class="ss-label">Deployed</div></div>' +
+      '<div class="strat-summary-card rejected"><div class="ss-count">' + (summary.rejected || 0) + '</div><div class="ss-label">Rejected</div></div>' +
+      '<div class="strat-summary-card source"><div class="ss-count">' + (summary.base || 0) + '</div><div class="ss-label">Base visible</div></div>' +
+      '<div class="strat-summary-card source"><div class="ss-count">' + (summary.imported || 0) + '</div><div class="ss-label">Importadas</div></div>' +
+      '<div class="strat-summary-card hidden"><div class="ss-count">' + (summary.hidden || 0) + '</div><div class="ss-label">Ocultas</div></div>' +
+      '<div class="strat-summary-card profit"><div class="ss-count">$' + fmtInt(Math.round(summary.totalProfit)) + '</div><div class="ss-label">Net Profit BT</div></div>';
   }
 
   function filterOptionsHtml(strategies, field, labelFn) {
@@ -80,6 +120,7 @@
     var dirTxt = strategy.direction === 'L' ? 'LONG' : strategy.direction === 'S' ? 'SHORT' : 'L+S';
     var key = strategyKeyFn(strategy);
     var sourceLabel = strategy._imported ? 'importada' : 'base';
+    var sourceClass = strategy._imported ? 'imported' : 'base';
 
     var metricsRow = [
       ['Net Profit', m.net_profit != null ? '$' + fmtNum(m.net_profit, 0) : '—', m.net_profit > 0 ? 'pos' : ''],
@@ -108,6 +149,7 @@
       '<div class="sc-head">' +
         '<span class="sc-id">' + strategy.id + '</span>' +
         '<span class="sc-name">' + strategy.name + '</span>' +
+        '<span class="strat-source-badge ' + sourceClass + '">' + sourceLabel.toUpperCase() + '</span>' +
         '<span class="strat-tier-badge ' + tierClass(strategy.tier) + '">' + tierLabel(strategy.tier) + '</span>' +
         '<span class="strat-status-badge ' + strategy.status + '">' + strategy.status.replace('_', ' ') + '</span>' +
       '</div>' +
@@ -324,6 +366,16 @@
       tests_failed: [],
       notes: noteParts.join(' · '),
       added: new Date().toISOString().slice(0, 10),
+      source: 'csv-import',
+      trace: {
+        origin: 'Strategy Control CSV import wizard',
+        batchId: meta.importBatchId || '',
+        sourceFile: meta.sourceFile || '',
+        destination: 'sqx_strategies_user_v1',
+        recognizedColumns: meta.recognizedColumns || 0,
+        totalColumns: meta.totalColumns || 0,
+        importedAt: new Date().toISOString()
+      },
       _imported: true,
       _import_id: 'imp_' + Date.now() + '_' + id
     };
@@ -391,7 +443,14 @@
       tests_passed: listFromText(v.testsPassed),
       tests_failed: listFromText(v.testsFailed),
       notes: v.notes || '',
-      added: addedDate || new Date().toISOString().slice(0, 10)
+      added: addedDate || new Date().toISOString().slice(0, 10),
+      source: 'manual',
+      trace: {
+        origin: 'Strategy Control manual modal',
+        destination: 'JSON compatible with backend/sqx-edge-tool/config/strategies.json',
+        createdAt: new Date().toISOString(),
+        fields: ['asset', 'mining', 'blocksetting', 'template', 'direction', 'status']
+      }
     };
   }
 

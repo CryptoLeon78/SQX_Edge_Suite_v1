@@ -19,6 +19,11 @@
       BEAR: { pass: 0.0, strong: 1.0 },
       RANGE: { pass: 0.0, strong: 1.0 }
     },
+    short_only: {
+      BULL: { pass: 0.0, strong: 1.0 },
+      BEAR: { pass: 1.5, strong: 2.5 },
+      RANGE: { pass: 0.0, strong: 1.0 }
+    },
     long_short: {
       BULL: { pass: 1.0, strong: 2.0 },
       BEAR: { pass: 1.0, strong: 2.0 },
@@ -121,6 +126,20 @@
     return Math.sqrt(variance);
   }
 
+  function annualizedVolatilityForSlice(values) {
+    var source = values || [];
+    var returns = [];
+    for (var i = 1; i < source.length; i += 1) {
+      if (source[i - 1]) returns.push((source[i] / source[i - 1]) - 1);
+    }
+    if (!returns.length) return null;
+    var avg = returns.reduce(function(acc, value) { return acc + value; }, 0) / returns.length;
+    var variance = returns.reduce(function(acc, value) {
+      return acc + Math.pow(value - avg, 2);
+    }, 0) / returns.length;
+    return Math.sqrt(variance) * Math.sqrt(12);
+  }
+
   function scoreForSymbol(symbol) {
     var scores = scoresData()[symbol] || {};
     var regime = scores.regimen || {};
@@ -162,11 +181,13 @@
       if (endIndex <= startIndex) endIndex = startIndex + 1;
       if (endIndex >= values.length) endIndex = values.length - 1;
       var change = pctChange(values[startIndex], values[endIndex]);
+      var slice = values.slice(startIndex, endIndex + 1);
       blocks.push({
         idx: i + 1,
         block: i + 1,
         symbol: resolved.symbol,
         pct_change: change,
+        volatility: annualizedVolatilityForSlice(slice),
         group: groupFromReturn(change)
       });
     }
@@ -183,13 +204,18 @@
         BEAR: Object.assign({}, EGT_V2_THRESHOLDS.long_only.BEAR, source.long_only && source.long_only.BEAR),
         RANGE: Object.assign({}, EGT_V2_THRESHOLDS.long_only.RANGE, source.long_only && source.long_only.RANGE)
       },
+      short_only: {
+        BULL: Object.assign({}, EGT_V2_THRESHOLDS.short_only.BULL, source.short_only && source.short_only.BULL),
+        BEAR: Object.assign({}, EGT_V2_THRESHOLDS.short_only.BEAR, source.short_only && source.short_only.BEAR),
+        RANGE: Object.assign({}, EGT_V2_THRESHOLDS.short_only.RANGE, source.short_only && source.short_only.RANGE)
+      },
       long_short: {
         BULL: Object.assign({}, EGT_V2_THRESHOLDS.long_short.BULL, source.long_short && source.long_short.BULL),
         BEAR: Object.assign({}, EGT_V2_THRESHOLDS.long_short.BEAR, source.long_short && source.long_short.BEAR),
         RANGE: Object.assign({}, EGT_V2_THRESHOLDS.long_short.RANGE, source.long_short && source.long_short.RANGE)
       }
     };
-    if (result.direction !== 'long_only' && result.direction !== 'long_short') result.direction = 'long_only';
+    if (result.direction !== 'long_only' && result.direction !== 'short_only' && result.direction !== 'long_short') result.direction = 'long_only';
     result.minBlocksPerRegime = Math.max(1, Number(result.minBlocksPerRegime) || EGT_V2_THRESHOLDS.minBlocksPerRegime);
     return result;
   }
@@ -403,6 +429,89 @@
     };
   }
 
+  function pearsonCorrelation(pairs) {
+    if (!pairs || pairs.length < 2) return null;
+    var avgX = average(pairs.map(function(item) { return item.x; }));
+    var avgY = average(pairs.map(function(item) { return item.y; }));
+    if (avgX == null || avgY == null) return null;
+    var numerator = 0;
+    var xVar = 0;
+    var yVar = 0;
+    pairs.forEach(function(item) {
+      var dx = item.x - avgX;
+      var dy = item.y - avgY;
+      numerator += dx * dy;
+      xVar += dx * dx;
+      yVar += dy * dy;
+    });
+    var denominator = Math.sqrt(xVar * yVar);
+    return denominator ? numerator / denominator : null;
+  }
+
+  function emptyVolatilityCoherence(verdict, warnings) {
+    return {
+      verdict: verdict || 'UNKNOWN',
+      label: verdict || 'UNKNOWN',
+      metric: null,
+      correlation: null,
+      block_count: 0,
+      warnings: warnings || []
+    };
+  }
+
+  function computeVolatilityCoherence(oosRecord, regimeBlocks, options) {
+    var opts = options || {};
+    var minBlocks = Math.max(2, Number(opts.minBlocks || opts.min_blocks || 4) || 4);
+    if (!oosRecord || !oosRecord.metrics_by_block) {
+      return emptyVolatilityCoherence('UNKNOWN', [{ code: 'volatility_coherence_oos_missing' }]);
+    }
+    if (!Array.isArray(regimeBlocks) || !regimeBlocks.length) {
+      return emptyVolatilityCoherence('UNKNOWN', [{ code: 'volatility_coherence_regime_blocks_missing' }]);
+    }
+    var metricSeries = oosValuesForMetric(oosRecord, ['Net Profit', 'Net profit', 'NetProfit']);
+    if (!metricSeries.values.length) {
+      return emptyVolatilityCoherence('UNKNOWN', [{ code: 'volatility_coherence_net_profit_missing' }]);
+    }
+    var byBlock = {};
+    metricSeries.values.forEach(function(item) { byBlock[item.block] = item.value; });
+    var pairs = [];
+    regimeBlocks.forEach(function(blockInfo, index) {
+      var block = blockInfo.block || blockInfo.idx || blockInfo.oos_block || index + 1;
+      var netProfit = byBlock[block];
+      var volatility = blockInfo.volatility;
+      if (finiteNumber(netProfit) && finiteNumber(volatility)) {
+        pairs.push({ block: block, x: volatility, y: netProfit });
+      }
+    });
+    if (pairs.length < minBlocks) {
+      return {
+        verdict: 'INSUFFICIENT_DATA',
+        label: 'INSUFFICIENT_DATA',
+        metric: metricSeries.metric,
+        correlation: null,
+        block_count: pairs.length,
+        warnings: [{ code: 'volatility_coherence_blocks_insufficient', min_blocks: minBlocks, actual_blocks: pairs.length }]
+      };
+    }
+    var correlation = pearsonCorrelation(pairs);
+    if (correlation == null) {
+      return emptyVolatilityCoherence('UNKNOWN', [{ code: 'volatility_coherence_correlation_unavailable' }]);
+    }
+    var positiveThreshold = opts.positiveThreshold == null ? 0.30 : Number(opts.positiveThreshold);
+    var negativeThreshold = opts.negativeThreshold == null ? -0.30 : Number(opts.negativeThreshold);
+    var verdict = 'VOL_NEUTRAL';
+    if (correlation >= positiveThreshold) verdict = 'VOL_POSITIVE';
+    else if (correlation <= negativeThreshold) verdict = 'VOL_NEGATIVE';
+    return {
+      verdict: verdict,
+      label: verdict,
+      metric: metricSeries.metric,
+      correlation: correlation,
+      block_count: pairs.length,
+      warnings: []
+    };
+  }
+
   function emptyDirectionalCoherence(verdict, warnings, direction) {
     return {
       verdict: verdict || 'UNKNOWN',
@@ -523,6 +632,30 @@
     else if (direction === 'short_only' && bearCheck === 'OK' && (bullCheck === 'OK' || !sufficient.BULL)) verdict = 'OK';
     else if (direction !== 'long_short' && direction !== 'short_only' && bullCheck === 'OK' && (bearCheck === 'OK' || !sufficient.BEAR)) verdict = 'OK';
 
+    function adverseNotCatastrophic(group) {
+      if (!stats[group] || stats[group].count < 1 || stats[group].avg == null) return true;
+      if (stats[group].count >= 2) return stats[group].avg >= 0;
+      return stats[group].avg >= -Math.abs(avgNetProfit) * 0.5;
+    }
+    var rangeMeanRevert = stats.RANGE.count >= Math.max(4, minBlocks) &&
+      stats.RANGE.pos_ratio != null &&
+      stats.RANGE.pos_ratio >= 0.8 &&
+      stats.RANGE.avg != null &&
+      stats.RANGE.avg > 0;
+    if (direction === 'short_only' && rangeMeanRevert &&
+      (stats.BEAR.avg == null || stats.RANGE.avg > stats.BEAR.avg) &&
+      adverseNotCatastrophic('BEAR') &&
+      !hasSuspicious) {
+      verdict = 'OK_MEAN_REVERT';
+      if (flags.indexOf('MEAN_REVERT_SHORT') === -1) flags.push('MEAN_REVERT_SHORT');
+    } else if (direction !== 'long_short' && direction !== 'short_only' && rangeMeanRevert &&
+      (stats.BULL.avg == null || stats.RANGE.avg > stats.BULL.avg) &&
+      adverseNotCatastrophic('BULL') &&
+      !hasSuspicious) {
+      verdict = 'OK_MEAN_REVERT';
+      if (flags.indexOf('MEAN_REVERT_LONG') === -1) flags.push('MEAN_REVERT_LONG');
+    }
+
     return {
       verdict: verdict,
       direction: direction,
@@ -622,6 +755,7 @@
     assessDirectionalCoherence: assessDirectionalCoherence,
     assessSymbol: assessSymbol,
     buildRegimeBlocksForSymbol: buildRegimeBlocksForSymbol,
+    computeVolatilityCoherence: computeVolatilityCoherence,
     evidenceSummary: evidenceSummary,
     formatPercent: formatPercent,
     formatSignedPercent: formatSignedPercent,

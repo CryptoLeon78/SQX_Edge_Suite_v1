@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "remote-tiny-cohort-monitoring-v1",
+  "monitoringId": "remote8f-tiny-cohort-monitoring-001",
+  "capturedAt": "2026-05-16T18:00:00+00:00",
+  "operatorReview": true,
+  "requestedDecision": "prepare_next_controlled_movement",
+  "observationHours": 24,
+  "sourceGate": {
+    "remote8eStatus": "GO_REMOTE8E_TINY_COHORT_MANUAL_EXECUTION_RECORDED",
+    "remote8eExecutionId": "remote8e-tiny-cohort-execution-001"
+  },
+  "environment": {
+    "protectedUrl": "https://private-live.example.invalid/sqx",
+    "localPath": "<private local live path>"
+  },
+  "monitoredUsers": [
+    {
+      "email": "buyer1@example.invalid",
+      "kind": "paid_subscription",
+      "featureScope": "full",
+      "accessVerified": true,
+      "entitlementChecked": true,
+      "workspaceIsolationChecked": true,
+      "supportWindowAcknowledged": true,
+      "noCriticalIssue": true
+    },
+    {
+      "email": "tester2@example.invalid",
+      "kind": "tester_free",
+      "featureScope": "full",
+      "accessVerified": true,
+      "entitlementChecked": true,
+      "workspaceIsolationChecked": true,
+      "supportWindowAcknowledged": true,
+      "noCriticalIssue": true
+    },
+    {
+      "email": "buyer3@example.invalid",
+      "kind": "paid_subscription",
+      "featureScope": "full",
+      "accessVerified": true,
+      "entitlementChecked": true,
+      "workspaceIsolationChecked": true,
+      "supportWindowAcknowledged": true,
+      "noCriticalIssue": true
+    }
+  ],
+  "signals": {
+    "remote8eExecutionGoConfirmed": true,
+    "cohortAccessStable": true,
+    "cloudflareAccessStable": true,
+    "appSessionStable": true,
+    "entitlementStable": true,
+    "workspaceIsolationClean": true,
+    "artifactGenerationObserved": true,
+    "exportsDownloaded": true,
+    "supportLoopObserved": true,
+    "noWorkspaceLeakage": true,
+    "noSecurityIncidents": true,
+    "noUnresolvedSupportBlockers": true,
+    "rollbackPlanReady": true,
+    "pauseRuleReady": true,
+    "privateEvidenceStoredOutsideGit": true
+  },
+  "zeroToleranceMetrics": {
+    "openSupportItems": 0,
+    "unresolvedBlockers": 0,
+    "tunnelDrops": 0,
+    "appSessionFailures": 0,
+    "workspaceLeakEvents": 0,
+    "securityIncidents": 0,
+    "generationFailures": 0,
+    "entitlementErrors": 0,
+    "refundRequests": 0,
+    "crossUserDataFindings": 0,
+    "publicUrlLeaks": 0,
+    "automationJobsStarted": 0
+  }
+}
