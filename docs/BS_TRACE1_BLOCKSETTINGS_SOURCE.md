@@ -344,6 +344,24 @@ Status: `decision_archive_branch_open_asset_broker_instrument_review_no_capa2`
 - No Capa2, No Start, No import, No forced pass, no host project move, no filter relaxation, no `taskmanager/openProject`, no `loadAsIs`, no Add missing symbols, no direct `data.db`, no direct `user/projects`, no databank mutation and no Migration Tool.
 - BSAI candidate files, official v6/v7 BlockSettings, official manifest and promotion policy remain unchanged.
 
+## BS-AI21 Asset Broker Instrument Review
+
+`bs-ai21-asset-broker-instrument-review-v1` closes the read-only asset/broker/instrument configuration review for the next BS-AI movement.
+
+Status: `asset_broker_instrument_review_completed_new_capa1_allowed_with_controls_no_apply`
+
+- Target project remains `BSAI16_AUDCAD_H1_L_TICKR65_F120_Capa1_v001`.
+- Evidence: `bsai21_asset_broker_instrument_review_review_20260610_212614.json`.
+- Decision: `bsai21_review_clean_new_preregistered_capa1_allowed_with_controls`.
+- Catalog read-only quick check is `ok` with `BROKER=12`, `INSTRUMENTS=989`, `DATA=54`.
+- Effective primary side: `AUDCAD_darwinex`, source `4`, broker `4`, TICK backing rows `340730947`, spread `1.3`, pointValue `71753.512334`, tick size `0.0001`, tick step `0.00001`.
+- Effective Dukascopy source: `AUDCAD_dukascopy`, source `2`, TICK backing rows `414742952`, but effective instrument `AUDCAD_darwinex`.
+- Effective contract comparison is `parityOk=true`.
+- Standalone warning: `AUDCAD_dukascopy` instrument row has spread `1.9` and pointValue `71848.371197`; it is not the effective reviewed instrument and must not be selected unless fixed or explicitly waived later.
+- Selected next gate is `BS-AI22 preregistered Capa1 design`.
+- No Capa2, No Start, No import, no BS-AI16 rescue, no forced pass, no data.db, no user/projects, no databank mutation and no Migration Tool.
+- BSAI candidate files, official v6/v7 BlockSettings, official manifest and promotion policy remain unchanged.
+
 ## BS-AI18 RetDD TICK REAL Methodology Observation
 
 `bs-ai18-retdd-tick-real-methodology-observation-v1` records a read-only academic/SQX review while BS-AI18 Capa1 is running.

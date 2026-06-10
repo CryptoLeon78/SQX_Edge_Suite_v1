@@ -53,6 +53,7 @@ These families remain tracked and public-safe unless a later gate says otherwise
 | Family | Examples / patterns | Canonical use |
 | --- | --- | --- |
 | SQX142/SQX144 compatibility and runbooks | `docs/SQX142_*.md`, `docs/SQX144_*.md`, `docs/maintenance/*.md` | Current when the active governance entry references the doc. |
+| BS-AI BlockSettings and experiment gates | `docs/BS_AI*.md`, `docs/BS_TRACE1_BLOCKSETTINGS_SOURCE.md` | Current for the latest BS-AI gate named by governance, README, changelog and the state manifest. |
 | Remote/tester/commercial gates | `docs/REMOTE_*.md`, `docs/T*.md`, `docs/TL*.md`, `docs/MONETIZATION_*.md` | Current only for the latest gate named by governance. Older gates are historical. |
 | Portfolio/Capa2/methodology | `docs/PHASE30_*.md`, `docs/SQX142_PORTFOLIO_*.md`, correlation/C2 docs | Current when tied to Portfolio Master inputs-pending or active Capa2 state. |
 | Product/UX feature tracks | `docs/UI_*.md`, `docs/UX_*.md`, `docs/J*.md`, `docs/SB*.md`, `docs/PG*.md`, `docs/WFCO_*.md` | Current for the latest accepted surface only; older UX experiments are historical anchors. |

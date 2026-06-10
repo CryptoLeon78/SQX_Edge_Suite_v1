@@ -1,5 +1,19 @@
 # Changelog
 
+## 2026-06-10 - BS-AI21 Asset Broker Instrument Review
+
+- Marker: `bs-ai21-asset-broker-instrument-review-v1`.
+- Gate label: `BS-AI21 asset/broker/instrument configuration review`.
+- Adds `backend/sqx-edge-tool/core/bsai21_asset_broker_instrument_review.py`, `tools/sqx144_bsai21_asset_broker_instrument_review.ps1`, `backend/sqx-edge-tool/test_bsai21_asset_broker_instrument_review.py`, `tests/js/contracts/bsai21_asset_broker_instrument_review_contracts.mjs` and `docs/BS_AI21_ASSET_BROKER_INSTRUMENT_REVIEW.md`.
+- Updates `docs/DOCS_CANONICAL_INDEX.md` so `docs/BS_AI*.md` and `docs/BS_TRACE1_BLOCKSETTINGS_SOURCE.md` are an explicit BS-AI BlockSettings domain family.
+- Runs `tools/sqx144_bsai21_asset_broker_instrument_review.ps1 review` in read-only mode and writes sanitized evidence `bsai21_asset_broker_instrument_review_review_20260610_212614.json`.
+- Records status `asset_broker_instrument_review_completed_new_capa1_allowed_with_controls_no_apply` and decision `bsai21_review_clean_new_preregistered_capa1_allowed_with_controls` for `BSAI16_AUDCAD_H1_L_TICKR65_F120_Capa1_v001`.
+- Read-only catalog quick check is `ok` with `BROKER=12`, `INSTRUMENTS=989`, `DATA=54`.
+- Effective contract is clean: `AUDCAD_darwinex` and the Dukascopy TICK source both use effective instrument `AUDCAD_darwinex`, spread `1.3`, pointValue `71753.512334`, tick size `0.0001`, tick step `0.00001`, and `parityOk=true`.
+- Preserves warning that standalone `AUDCAD_dukascopy` has spread `1.9` and pointValue `71848.371197`; it must not become the effective project instrument unless fixed or explicitly waived in a later gate.
+- Selects `BS-AI22 preregistered Capa1 design` as the next recommended gate.
+- No Capa2, No Start, No import, no BS-AI16 rescue, no forced pass, no `data.db`, no `user/projects`, no databank mutation and no Migration Tool.
+
 ## 2026-06-10 - DISCIPLINE_ROOT1 Thread Bootstrap Discipline
 
 - Marker: `discipline-root1-thread-bootstrap-v1`.
