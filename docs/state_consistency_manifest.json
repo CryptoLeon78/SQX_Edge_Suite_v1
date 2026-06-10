@@ -31,6 +31,7 @@
     "docs/SQX144_MT5_AUTO10_INTERNAL_MT5_RUNNER.md",
     "docs/SQX144_MT5_AUTO11_EA_ATTACH_RUNNER.md",
     "docs/LOCAL_MEMORY_OUTBOX.md",
+    "docs/LOCAL_GBRAIN.md",
     "docs/G10_AGENT_SUBAGENT_REFRESH.md",
     "docs/BS_AI1_BLOCKSETTINGS_GENERATOR_CONTRACT.md",
     "docs/BS_AI2_SQX144_OVERLAY_INSTALL_GATE.md",
@@ -3820,8 +3821,8 @@
           "AUTO10 wrapper marker missing",
           "AUTO10 server marker missing",
           "auto10_launch_requires_exact_approval",
-          "DataSourceMt5Api/importData"
-          ,"DEFAULT_MT5_ROOT = Path(\"C:/Program Files/Darwinex MetaTrader 5\")",
+          "DataSourceMt5Api/importData",
+          "DEFAULT_MT5_ROOT = Path(\"C:/Program Files/Darwinex MetaTrader 5\")",
           "targetTerminalProcessRunning",
           "managedPidIsTargetTerminal"
         ]
@@ -4189,7 +4190,6 @@
           "outboxId=21",
           "outboxId=22",
           "outboxId=23",
-          "pendingCount=35",
           "tools/local_memory_outbox.ps1",
           "status|enqueue|list|mark-synced",
           "backend/sqx-edge-tool/core/local_memory_outbox.py",
@@ -4225,7 +4225,11 @@
           "auto11_ui_fallback_completed_bridge_ready",
           "auto11_attach_profile_writer_completed_existing_mt5_requires_verify_or_ui_fallback",
           "auto11_attach_profile_writer_implemented_no_apply_no_ui_fallback_no_db_no_projects_no_databanks_no_tasks_no_history_import_no_migration_tool",
-          "sqx144-mt5-auto11-ea-attach-runner-v1"
+          "sqx144-mt5-auto11-ea-attach-runner-v1",
+          "outboxId=36",
+          "pendingCount=36",
+          "Remote Mirror PR Checkpoint",
+          "79b1de36ec5d3589edde1b9bf129909845ac27df"
         ],
         "README.md": [
           "sqx-edge-local-memory-outbox-v1",
@@ -4274,7 +4278,10 @@
           "AUTO11 UI Fallback",
           "BS-AI19 Post-Run Read-Only Review",
           "BS-AI20 Decision Gate",
-          "auto11_ui_fallback_completed_bridge_ready"
+          "auto11_ui_fallback_completed_bridge_ready",
+          "outboxId=36",
+          "pendingCount=36",
+          "Remote Mirror PR Checkpoint"
         ],
         "docs/PROJECT_GOVERNANCE.md": [
           "sqx-edge-local-memory-outbox-v1",
@@ -4323,7 +4330,10 @@
           "SQX144-MT5-AUTO11 UI Fallback",
           "BS-AI19 Post-Run Read-Only Review",
           "BS-AI20 Decision Gate",
-          "auto11_ui_fallback_completed_bridge_ready"
+          "auto11_ui_fallback_completed_bridge_ready",
+          "outboxId=36",
+          "pendingCount=36",
+          "Remote Mirror PR Checkpoint"
         ],
         "docs/BS_TRACE1_BLOCKSETTINGS_SOURCE.md": [
           "sqx-edge-local-memory-outbox-v1",
@@ -4338,7 +4348,6 @@
           "outboxId=21",
           "outboxId=22",
           "outboxId=23",
-          "pendingCount=35",
           "AUTO9 Health Watchdog source-ready",
           "AUTO9 Health Watchdog installed",
           "AUTO9 Poll Stop Patch installed",
@@ -4372,7 +4381,11 @@
           "AUTO11 UI fallback applied/verified",
           "BS-AI19 Post-Run Read-Only Review",
           "BS-AI20 Decision Gate",
-          "auto11_ui_fallback_completed_bridge_ready"
+          "auto11_ui_fallback_completed_bridge_ready",
+          "outboxId=36",
+          "pendingCount=36",
+          "Remote Mirror PR Checkpoint",
+          "79b1de36ec5d3589edde1b9bf129909845ac27df"
         ],
         "CHANGELOG.md": [
           "sqx-edge-local-memory-outbox-v1",
@@ -4411,7 +4424,10 @@
           "SQX144-MT5-AUTO11 UI Fallback Apply Bridge Ready",
           "BS-AI19 Post-Run Read-Only Review",
           "BS-AI20 Decision Gate",
-          "auto11_ui_fallback_completed_bridge_ready"
+          "auto11_ui_fallback_completed_bridge_ready",
+          "outboxId=36",
+          "pendingCount=36",
+          "Remote Mirror PR Checkpoint"
         ],
         "backend/sqx-edge-tool/core/local_memory_outbox.py": [
           "LOCAL_MEMORY_OUTBOX_VERSION",
@@ -18534,6 +18550,120 @@
           "Remove-Item",
           "Add missing symbols",
           "Migration Tool allowed"
+        ]
+      }
+    },
+    {
+      "id": "local_gbrain_v1",
+      "description": "Local gbrain must provide quota-safe local-first project memory and keep Mem/gbrain optional while preserving privacy and outbox sync boundaries.",
+      "required": {
+        "docs/LOCAL_GBRAIN.md": [
+          "sqx-edge-local-gbrain-v1",
+          "local_gbrain_primary_mem_optional_quota_safe",
+          ".local/gbrain/local_gbrain.sqlite",
+          ".local/memory_outbox/memory_outbox.sqlite",
+          "local_first_mem_optional",
+          "externalNetworkRequired=false",
+          "localPathsReturned=false",
+          "tokensReturned=false",
+          "licenseMaterialReturned=false",
+          "tools/local_gbrain.ps1 status",
+          "status|index|import-outbox|search|query|get-page|save-page",
+          "does not mark outbox notes as synced",
+          "No quota-bypass behavior is implemented or approved"
+        ],
+        "README.md": [
+          "sqx-edge-local-gbrain-v1",
+          "local_gbrain_primary_mem_optional_quota_safe",
+          ".local/gbrain/local_gbrain.sqlite",
+          "tools/local_gbrain.ps1 status|index|import-outbox|search|query|get-page|save-page",
+          "local_first_mem_optional",
+          "localPathsReturned=false",
+          "tokensReturned=false",
+          "licenseMaterialReturned=false"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "sqx-edge-local-gbrain-v1",
+          "local_gbrain_primary_mem_optional_quota_safe",
+          ".local/gbrain/local_gbrain.sqlite",
+          "tools/local_gbrain.ps1 status|index|import-outbox|search|query|get-page|save-page",
+          "local_first_mem_optional",
+          "does not mark outbox notes synced",
+          "localPathsReturned=false",
+          "tokensReturned=false",
+          "licenseMaterialReturned=false"
+        ],
+        "docs/BS_TRACE1_BLOCKSETTINGS_SOURCE.md": [
+          "LOCAL_GBRAIN1",
+          "sqx-edge-local-gbrain-v1",
+          "local_gbrain_primary_mem_optional_quota_safe",
+          ".local/gbrain/local_gbrain.sqlite",
+          "tools/local_gbrain.ps1 status|index|import-outbox|search|query|get-page|save-page",
+          "local_first_mem_optional"
+        ],
+        "CHANGELOG.md": [
+          "2026-06-10 - LOCAL_GBRAIN1 Local Memory Layer",
+          "sqx-edge-local-gbrain-v1",
+          "local_gbrain_primary_mem_optional_quota_safe",
+          ".local/gbrain/local_gbrain.sqlite",
+          "local_first_mem_optional",
+          "No quota-bypass behavior is implemented or approved",
+          "externalNetworkRequired=false"
+        ],
+        "AGENTS.md": [
+          "local gbrain search",
+          "tools/local_gbrain.ps1 search",
+          "external Mem/gbrain search/query/get_page only as an optional supplement",
+          "LOCAL_MEMORY_OUTBOX",
+          "Do not use quota-bypass behavior"
+        ],
+        "backend/sqx-edge-tool/core/local_gbrain.py": [
+          "LOCAL_GBRAIN_VERSION",
+          "DEFAULT_GBRAIN_RELATIVE",
+          "local_first_mem_optional",
+          "import_outbox_payload",
+          "marksMemSynced",
+          "externalNetworkRequired",
+          "sqlite3"
+        ],
+        "tools/local_gbrain.ps1": [
+          "ValidateSet('status', 'index', 'import-outbox', 'search', 'query', 'get-page', 'save-page')",
+          "core.local_gbrain",
+          "--project-root"
+        ],
+        "backend/sqx-edge-tool/test_local_gbrain.py": [
+          "test_index_search_query_and_get_page_use_local_sqlite_without_external_network",
+          "test_import_outbox_indexes_pending_notes_without_marking_mem_synced",
+          "sqx-edge-local-gbrain-v1"
+        ],
+        "docs/DOCS_CANONICAL_INDEX.md": [
+          "sqx-edge-local-gbrain-v1",
+          "tools/local_gbrain.ps1 search|query|get-page",
+          "External Mem/gbrain page `projects/sqx-edge-suite-v1` only as an optional mirror/supplement",
+          "docs/LOCAL_GBRAIN.md",
+          "docs/LOCAL_MEMORY_OUTBOX.md"
+        ]
+      },
+      "forbidden": {
+        "docs/LOCAL_GBRAIN.md": [
+          "quota-bypass approved",
+          "mark outbox synced without Mem write",
+          "tokensReturned=true",
+          "licenseMaterialReturned=true",
+          "externalNetworkRequired=true",
+          "duplicate external accounts allowed"
+        ],
+        "README.md": [
+          "quota-bypass approved",
+          "tokensReturned=true",
+          "licenseMaterialReturned=true",
+          "externalNetworkRequired=true"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "quota-bypass approved",
+          "tokensReturned=true",
+          "licenseMaterialReturned=true",
+          "externalNetworkRequired=true"
         ]
       }
     }

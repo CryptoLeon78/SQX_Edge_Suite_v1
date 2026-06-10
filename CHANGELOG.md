@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-06-10 - LOCAL_GBRAIN1 Local Memory Layer
+
+- Marker: `sqx-edge-local-gbrain-v1`.
+- Adds `backend/sqx-edge-tool/core/local_gbrain.py`, `tools/local_gbrain.ps1 status|index|import-outbox|search|query|get-page|save-page`, `docs/LOCAL_GBRAIN.md` and Python tests.
+- Implements local project memory as `local_gbrain_primary_mem_optional_quota_safe` with mode `local_first_mem_optional`.
+- Indexes tracked Markdown docs and imports LOCAL_MEMORY_OUTBOX pending notes into `.local/gbrain/local_gbrain.sqlite`.
+- Keeps Mem/gbrain as optional mirror while quota-limited; No quota-bypass behavior is implemented or approved.
+- Importing outbox notes does not mark them synced; Mem/gbrain sync still requires a real external write.
+- LOCAL_MEMORY_OUTBOX current pending state is `outboxId=1` through `outboxId=36`, `pendingCount=36`, including `outboxId=36` for Remote Mirror PR Checkpoint.
+- Preserves privacy markers: `localPathsReturned=false`, `tokensReturned=false`, `licenseMaterialReturned=false`, `externalNetworkRequired=false`.
+- Verification: `python -m pytest backend\sqx-edge-tool\test_local_gbrain.py -q`.
+
 ## 2026-06-10 - BS-AI20 Decision Gate
 
 - Marker: `bs-ai20-decision-gate-v1`.

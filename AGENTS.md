@@ -10,9 +10,9 @@ Always consult gbrain before answering whenever the request may depend on:
 
 Mandatory lookup order:
 
-1. gbrain search.
-2. gbrain query if search is thin, ambiguous, or incomplete.
-3. gbrain get_page when a relevant slug/page is identified.
+1. local gbrain search via `tools/local_gbrain.ps1 search` when available.
+2. local gbrain query/get-page via `tools/local_gbrain.ps1 query|get-page` when search is thin, ambiguous, or a relevant slug/page is identified.
+3. external Mem/gbrain search/query/get_page only as an optional supplement when available.
 4. External web or APIs only if gbrain does not provide sufficient information.
 
 Behavior rules:
@@ -21,14 +21,15 @@ Behavior rules:
 - If gbrain returns enough context, answer from it directly.
 - If gbrain returns partial context, use it first and only then supplement from local repo/docs or external sources.
 - Do not skip gbrain for entity lookup, project context, previous notes or recurring tasks.
-- After the conversation produces durable knowledge, save it to gbrain.
-- Treat gbrain as the default memory layer for this workspace.
+- After the conversation produces durable knowledge, save it to local gbrain or queue it through LOCAL_MEMORY_OUTBOX for later Mem/gbrain sync.
+- Treat local gbrain as the default memory layer for this workspace; external Mem/gbrain is an optional mirror while quota-limited.
 
 Write-back rules:
 
-- Save durable facts, decisions, process notes, architecture choices, research summaries and reusable context to gbrain.
+- Save durable facts, decisions, process notes, architecture choices, research summaries and reusable context to local gbrain or LOCAL_MEMORY_OUTBOX.
 - Do not save temporary chatter or low-value intermediate noise.
 - When new information materially updates an existing page, update that page instead of duplicating it.
+- Do not use quota-bypass behavior or duplicate external accounts to evade Mem/gbrain service limits.
 
 SQX Edge Suite active bootstrap:
 

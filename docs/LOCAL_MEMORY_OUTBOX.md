@@ -12,8 +12,8 @@ The outbox stores only project decisions, process notes and reusable context tha
 ## Storage
 
 - Local ignored DB: `.local/memory_outbox/memory_outbox.sqlite`
-- Current fallback items: `outboxId=1` through `outboxId=35`
-- Current pending state: `pendingCount=35`
+- Current fallback items: `outboxId=1` through `outboxId=36`
+- Current pending state: `pendingCount=36`
 - Privacy marker: `localPathsReturned=false`
 - Tokens and license material are never stored by this tool: `tokensReturned=false`, `licenseMaterialReturned=false`
 
@@ -78,7 +78,7 @@ The fifth queued note (`outboxId=5`) records the Data Manager native-tool inspec
 - Related edit surfaces: add/edit/mass edit instrument, broker profile save/load XML, sessions and export tools
 - AUTO3 conclusion: use those routes only in later exact gates; the current phase remains catalog/plan only.
 
-Later queued notes (`outboxId=6` through `outboxId=35`) record the AUTO6/AUTO7/AUTO8/AUTO9/AUTO10/AUTO11 MT5 Data Manager stabilization, runner work and BS-AI19/BS-AI20 memory fallback:
+Later queued notes (`outboxId=6` through `outboxId=36`) record the AUTO6/AUTO7/AUTO8/AUTO9/AUTO10/AUTO11 MT5 Data Manager stabilization, runner work, BS-AI19/BS-AI20 memory fallback and remote mirror PR checkpoint:
 
 - `outboxId=6`: AUTO6 Data Manager stability source ready.
 - `outboxId=7`: AUTO6 Data Manager stability installed.
@@ -110,6 +110,7 @@ Later queued notes (`outboxId=6` through `outboxId=35`) record the AUTO6/AUTO7/A
 - `outboxId=33`: AUTO11 UI fallback applied after exact visible-control approval with status `auto11_ui_fallback_completed_bridge_ready` and marker `auto11_ui_fallback_apply_visible_operator_control_completed`; the already-open standard Darwinex MT5 session loaded `SQXInfoBridge` on active `USDJPY,H1`, Algo Trading was enabled, AUTO11 heartbeat `sqx_auto11_ui_USDJPY_Darwinex_20260610_183515` and AUTO10 verify `sqx_auto10_USDJPY_Darwinex_20260610_183446` both matched fresh `status=ok` responses for `USDJPY_Darwinex`, with no new MT5 launch, no orders, no `data.db`, no history import, no SQX projects/databanks/tasks and no Migration Tool.
 - `outboxId=34`: BS-AI19 Post-Run Read-Only Review fallback note with marker `bs-ai19-post-run-readonly-review-v1`, status `post_run_readonly_review_completed_no_capa2`, decision `post_run_review_no_capa2_tick_forward_empty`, evidence `bsai19_post_run_readonly_review_review_20260610_194339.json`, `Results=1321`, `RETEST 0=112`, `retest 1=14`, `TICK=0`, `Forward=0`, and No Capa2/No Start/No Stop/no import/no filter relaxation/no forced pass boundaries.
 - `outboxId=35`: BS-AI20 Decision Gate fallback note with marker `bs-ai20-decision-gate-v1`, status `decision_archive_branch_open_asset_broker_instrument_review_no_capa2`, decision `archive_branch_and_open_asset_broker_instrument_review_no_capa2`, evidence `bsai20_decision_gate_decide_20260610_201532.json`, selected next gate `BS-AI21 asset/broker/instrument configuration review`, current branch `BSAI16_AUDCAD_H1_L_TICKR65_F120_Capa1_v001`, and No Capa2/No Start/No import/No forced pass/no host project move boundaries.
+- `outboxId=36`: Remote Mirror PR Checkpoint fallback note records that `origin/codex/sqx144-full-host-promotion` and `institutional/codex/sqx144-full-host-promotion` both point to commit `79b1de36ec5d3589edde1b9bf129909845ac27df`, with origin PR #5 and institutional PR #7 both kept in Draft.
 
 ## Sync Rule
 

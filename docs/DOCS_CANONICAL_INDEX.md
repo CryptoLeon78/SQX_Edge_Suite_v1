@@ -16,13 +16,14 @@ A66 defines which SQX documentation is canonical, which documentation is histori
 
 Use this order when a task depends on project state, phase status, architecture, roadmap or prior decisions:
 
-1. gbrain page `projects/sqx-edge-suite-v1` for durable curated project memory.
-2. `docs/PROJECT_GOVERNANCE.md` for live operational state, gates, blockers and current next step.
-3. `docs/RESTRUCTURING_GOVERNANCE.md` for A64-A69 restructuring phase state.
-4. `docs/DOCS_CANONICAL_INDEX.md` for docs canonicalization and historical/reference policy.
-5. `docs/state_consistency_manifest.json` for machine-checked markers that must not drift.
-6. `README.md` and `CHANGELOG.md` for public/current operator-facing summaries.
-7. Domain docs named by the current governance entry for the specific feature, gate or runbook.
+1. Local gbrain (`sqx-edge-local-gbrain-v1`) via `tools/local_gbrain.ps1 search|query|get-page` for durable local project memory.
+2. External Mem/gbrain page `projects/sqx-edge-suite-v1` only as an optional mirror/supplement when available.
+3. `docs/PROJECT_GOVERNANCE.md` for live operational state, gates, blockers and current next step.
+4. `docs/RESTRUCTURING_GOVERNANCE.md` for A64-A69 restructuring phase state.
+5. `docs/DOCS_CANONICAL_INDEX.md` for docs canonicalization and historical/reference policy.
+6. `docs/state_consistency_manifest.json` for machine-checked markers that must not drift.
+7. `README.md` and `CHANGELOG.md` for public/current operator-facing summaries.
+8. Domain docs named by the current governance entry for the specific feature, gate or runbook.
 
 If these sources disagree, the newer live governance entry and state manifest win over older phase closeouts. Preserve the older document as history; update the canonical pointer or manifest in a later small phase.
 
@@ -36,6 +37,8 @@ If these sources disagree, the newer live governance entry and state manifest wi
 | `docs/TOOLING_OWNERSHIP_MAP.md` | Tooling/wrapper ownership map | Canonical tooling ownership source. |
 | `docs/DISCIPLINA_OPERATIVA.md` | Operational discipline and institutional workflow policy | Canonical discipline source after A68; root `DISCIPLINA_OPERATIVA.md` is compatibility shim only. |
 | `docs/state_consistency_manifest.json` | Literal state-marker test contract | Canonical drift guard. |
+| `docs/LOCAL_GBRAIN.md` | Local project memory contract | Canonical local gbrain policy while Mem is optional/quota-limited. |
+| `docs/LOCAL_MEMORY_OUTBOX.md` | Pending external memory sync queue | Canonical outbox policy for deferred Mem/gbrain writes. |
 | `README.md` | Public/operator state summary | Canonical summary, not exhaustive source. |
 | `CHANGELOG.md` | Phase closeout chronology | Canonical chronology of completed changes. |
 | `docs/PUBLIC_ROADMAP.md` | Public-safe roadmap framing | Canonical public roadmap when current governance points to it. |
