@@ -1,0 +1,805 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Regime Edge Analyzer</title>
+  <script src="./fixtures/fixtures.js"></script>
+  <script src="./regime-edge.js"></script>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5f6f2;
+      --panel: #ffffff;
+      --panel-2: #edf2ef;
+      --text: #171b1e;
+      --muted: #657069;
+      --line: #d7ded8;
+      --accent: #167b76;
+      --bull: #25a66a;
+      --bear: #d84d43;
+      --sideways: #d79a2b;
+      --unknown: #7f8b98;
+      --ink: #101416;
+    }
+
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #151917;
+      --panel: #202620;
+      --panel-2: #18201d;
+      --text: #f2f5f0;
+      --muted: #9fa9a3;
+      --line: #354039;
+      --accent: #54b8ae;
+      --bull: #38b985;
+      --bear: #ef6b5d;
+      --sideways: #e0aa42;
+      --unknown: #9ba5ad;
+      --ink: #f7f8f1;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, "Segoe UI", Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.42;
+    }
+
+    button,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    .shell {
+      width: min(1240px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 18px 0 22px;
+    }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: minmax(260px, 1fr) auto;
+      gap: 14px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .mark {
+      width: 42px;
+      height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      display: grid;
+      place-items: center;
+      color: var(--accent);
+      font-weight: 800;
+      flex: 0 0 auto;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 21px;
+      line-height: 1.1;
+      font-weight: 760;
+    }
+
+    .subtitle {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn,
+    .field {
+      min-height: 34px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--text);
+      padding: 7px 11px;
+    }
+
+    .btn {
+      cursor: pointer;
+    }
+
+    .btn.primary {
+      border-color: color-mix(in srgb, var(--accent), var(--line) 38%);
+      background: color-mix(in srgb, var(--accent), var(--panel) 82%);
+      color: var(--ink);
+    }
+
+    .btn:disabled {
+      opacity: 0.55;
+      cursor: default;
+    }
+
+    .context-bar {
+      display: grid;
+      grid-template-columns: minmax(190px, 240px) minmax(190px, 240px) minmax(220px, 1fr);
+      gap: 8px;
+      align-items: end;
+      margin-bottom: 12px;
+    }
+
+    .field-label {
+      display: grid;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .field-label span {
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 720;
+    }
+
+    .field {
+      width: 100%;
+    }
+
+    .status-note {
+      color: var(--muted);
+      font-size: 12px;
+      min-width: 0;
+      padding-bottom: 8px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(300px, 0.82fr) minmax(430px, 1.18fr);
+      gap: 12px;
+      align-items: start;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      overflow: hidden;
+      min-width: 0;
+    }
+
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      background: var(--panel-2);
+    }
+
+    .panel-title {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 740;
+      text-transform: uppercase;
+    }
+
+    .panel-body {
+      padding: 14px;
+    }
+
+    .label {
+      font-size: 34px;
+      line-height: 1;
+      font-weight: 820;
+      margin: 0 0 4px;
+      overflow-wrap: anywhere;
+    }
+
+    .score {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .score strong {
+      color: var(--text);
+      font-size: 20px;
+    }
+
+    .components {
+      display: grid;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .component-row {
+      display: grid;
+      grid-template-columns: 132px 1fr 42px;
+      gap: 8px;
+      align-items: center;
+      font-size: 12px;
+    }
+
+    .bar {
+      height: 8px;
+      border-radius: 999px;
+      background: var(--panel-2);
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: var(--accent);
+      width: 0;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .chip {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px 9px;
+      background: var(--panel-2);
+      min-width: min(100%, 230px);
+      max-width: 100%;
+    }
+
+    .chip strong {
+      display: block;
+      font-size: 12px;
+    }
+
+    .chip span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .matrix {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      min-width: 660px;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    th,
+    td {
+      padding: 8px 7px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      background: var(--panel-2);
+    }
+
+    .regime-pill {
+      display: inline-block;
+      border-radius: 999px;
+      padding: 2px 8px;
+      color: #07100d;
+      font-weight: 720;
+      font-size: 11px;
+      background: var(--unknown);
+    }
+
+    .regime-pill.BULL { background: var(--bull); }
+    .regime-pill.BEAR { background: var(--bear); }
+    .regime-pill.SIDEWAYS { background: var(--sideways); }
+    .regime-pill.MIXED,
+    .regime-pill.UNKNOWN { background: var(--unknown); }
+
+    .timeline {
+      display: grid;
+      gap: 8px;
+    }
+
+    .year-card {
+      display: grid;
+      grid-template-columns: 70px minmax(96px, 130px) 1fr minmax(74px, 96px);
+      gap: 8px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px;
+      background: var(--panel-2);
+      min-width: 0;
+    }
+
+    .spark {
+      height: 10px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: color-mix(in srgb, var(--line), transparent 20%);
+    }
+
+    .spark-fill {
+      height: 100%;
+      width: 50%;
+      background: var(--accent);
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .methodology {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .guard {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px;
+      background: var(--panel-2);
+      min-width: 0;
+    }
+
+    .guard strong {
+      display: block;
+      font-size: 12px;
+    }
+
+    .guard span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .hidden-copy {
+      position: fixed;
+      left: -9999px;
+      top: -9999px;
+      width: 1px;
+      height: 1px;
+    }
+
+    .footer {
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 12px;
+    }
+
+    @media (max-width: 860px) {
+      .topbar,
+      .context-bar,
+      .grid {
+        grid-template-columns: 1fr;
+      }
+      .actions {
+        justify-content: flex-start;
+      }
+      .methodology {
+        grid-template-columns: 1fr 1fr;
+      }
+      .year-card {
+        grid-template-columns: 58px 1fr;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .shell {
+        width: min(100% - 18px, 1240px);
+      }
+      .methodology {
+        grid-template-columns: 1fr;
+      }
+      .label {
+        font-size: 28px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="mark">RE</div>
+        <div>
+          <h1 data-i18n="title">Regime Edge Analyzer</h1>
+          <div class="subtitle" data-i18n="subtitle">Market regime behavior for the selected strategy</div>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn" type="button" data-load-fixture>Fixture</button>
+        <button class="btn" type="button" data-theme-toggle>Theme</button>
+        <button class="btn" type="button" data-language-toggle>ES</button>
+        <button class="btn" type="button" data-copy-summary>Copy Summary</button>
+        <span class="small" data-copy-state>ready</span>
+      </div>
+    </header>
+
+    <section class="context-bar">
+      <label class="field-label">
+        <span data-i18n="direction">Direction</span>
+        <select class="field" data-direction-select>
+          <option value="">Auto detect</option>
+          <option value="long_only">Long only</option>
+          <option value="short_only">Short only</option>
+          <option value="long_short">Long/Short</option>
+          <option value="mean_reversion">Mean reversion</option>
+        </select>
+      </label>
+      <label class="field-label">
+        <span data-i18n="marketSource">Market source</span>
+        <select class="field" data-market-source>
+          <option value="embedded snapshot">Embedded snapshot</option>
+          <option value="manual">Manual/fixture</option>
+          <option value="data manager pending">Data Manager pending</option>
+        </select>
+      </label>
+      <div class="status-note" data-status-note>Selected strategy only. Orders are opt-in.</div>
+    </section>
+
+    <main class="grid">
+      <section class="panel">
+        <div class="panel-head">
+          <div class="panel-title" data-i18n="verdict">Regime Verdict</div>
+          <button class="btn primary" type="button" data-orders-button>Activar Regime Orders</button>
+        </div>
+        <div class="panel-body">
+          <div class="label" data-regime-label>REGIME_UNKNOWN</div>
+          <div class="score"><span data-i18n="score">Regime Score</span>: <strong data-regime-score>0/100</strong></div>
+          <div class="small" data-direction-output>Direction: long_only (fallback)</div>
+          <div class="components" data-components></div>
+          <div class="chips" data-reasons></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div class="panel-title" data-i18n="timeline">Annual Regime Matrix</div>
+          <span class="small" data-row-count>0 years</span>
+        </div>
+        <div class="panel-body">
+          <div class="timeline" data-year-timeline></div>
+        </div>
+      </section>
+    </main>
+
+    <section class="panel" style="margin-top: 12px;">
+      <div class="panel-head">
+        <div class="panel-title" data-i18n="details">Regime Detail</div>
+        <span class="small" data-source-state>embedded snapshot</span>
+      </div>
+      <div class="panel-body matrix">
+        <table>
+          <thead>
+            <tr>
+              <th>Year</th>
+              <th>Regime</th>
+              <th>Trades</th>
+              <th>Net PnL</th>
+              <th>PF</th>
+              <th>Expectancy</th>
+              <th>Win Rate</th>
+              <th>Max Loss</th>
+              <th>DD</th>
+            </tr>
+          </thead>
+          <tbody data-detail-rows></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel" style="margin-top: 12px;">
+      <div class="panel-head">
+        <div class="panel-title" data-i18n="methodology">Methodology Notes</div>
+        <span class="small">read-only</span>
+      </div>
+      <div class="panel-body methodology">
+        <div class="guard"><strong>Selected strategy only</strong><span>no databank enumeration</span></div>
+        <div class="guard"><strong>Orders opt-in</strong><span>manual button only</span></div>
+        <div class="guard"><strong>No promote state</strong><span>diagnostic evidence</span></div>
+        <div class="guard"><strong>No source code</strong><span>blocked</span></div>
+      </div>
+    </section>
+
+    <textarea class="hidden-copy" data-copy-fallback readonly></textarea>
+    <div class="footer" data-i18n="disclaimer">Regime diagnostics can downgrade confidence or force review, but never promote a strategy by themselves.</div>
+  </div>
+
+  <script>
+    (function () {
+      "use strict";
+
+      const VERSION = "sqx144-custom-results8-regime-edge-analyzer-v1";
+      const logic = window.SQX_REGIME_EDGE_LOGIC;
+      const fixtures = window.SQX_REGIME_EDGE_FIXTURES || {};
+      const state = {
+        language: "en",
+        theme: "light",
+        strategy: null,
+        stats: null,
+        orders: null,
+        marketSeries: null,
+        marketSource: "embedded snapshot",
+        ordersRequested: false,
+        messagesSent: []
+      };
+
+      const els = {
+        label: document.querySelector("[data-regime-label]"),
+        score: document.querySelector("[data-regime-score]"),
+        direction: document.querySelector("[data-direction-output]"),
+        components: document.querySelector("[data-components]"),
+        reasons: document.querySelector("[data-reasons]"),
+        timeline: document.querySelector("[data-year-timeline]"),
+        detailRows: document.querySelector("[data-detail-rows]"),
+        rowCount: document.querySelector("[data-row-count]"),
+        statusNote: document.querySelector("[data-status-note]"),
+        sourceState: document.querySelector("[data-source-state]"),
+        directionSelect: document.querySelector("[data-direction-select]"),
+        marketSource: document.querySelector("[data-market-source]"),
+        copyState: document.querySelector("[data-copy-state]"),
+        copyFallback: document.querySelector("[data-copy-fallback]")
+      };
+
+      const locales = {
+        en: {
+          title: "Regime Edge Analyzer",
+          subtitle: "Market regime behavior for the selected strategy",
+          direction: "Direction",
+          marketSource: "Market source",
+          verdict: "Regime Verdict",
+          score: "Regime Score",
+          timeline: "Annual Regime Matrix",
+          details: "Regime Detail",
+          methodology: "Methodology Notes",
+          disclaimer: "Regime diagnostics can downgrade confidence or force review, but never promote a strategy by themselves."
+        },
+        es: {
+          title: "Regime Edge Analyzer",
+          subtitle: "Comportamiento por regimen de mercado para la estrategia seleccionada",
+          direction: "Direccion",
+          marketSource: "Fuente mercado",
+          verdict: "Veredicto Regime",
+          score: "Regime Score",
+          timeline: "Matriz anual de regimen",
+          details: "Detalle por regimen",
+          methodology: "Notas metodologicas",
+          disclaimer: "El diagnostico de regimen puede endurecer o mandar a revision, pero nunca promociona una estrategia por si solo."
+        }
+      };
+
+      function post(type, data) {
+        state.messagesSent.push({ type, data: data || {} });
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage({ type, data: data || {} }, "*");
+        }
+      }
+
+      function requestStats() {
+        const resultKey = state.strategy && (state.strategy.resultKey || state.strategy.id || state.strategy.key);
+        if (!resultKey) return;
+        post("GET_STATS", { resultKey, direction: "0", sampleType: "127", plType: "10" });
+      }
+
+      function requestOrders() {
+        const resultKey = state.strategy && (state.strategy.resultKey || state.strategy.id || state.strategy.key);
+        state.ordersRequested = true;
+        if (resultKey) post("GET_ORDERS", { resultKey, direction: "0", sampleType: "127" });
+        render();
+      }
+
+      function applyLocale() {
+        document.documentElement.lang = state.language;
+        document.querySelectorAll("[data-i18n]").forEach((node) => {
+          const key = node.getAttribute("data-i18n");
+          node.textContent = (locales[state.language] && locales[state.language][key]) || node.textContent;
+        });
+      }
+
+      function decision() {
+        return logic.evaluateRegime(state.strategy, state.stats, state.orders, state.marketSeries, {
+          directionOverride: els.directionSelect.value,
+          marketSource: state.marketSource
+        });
+      }
+
+      function componentRow(label, value) {
+        const row = document.createElement("div");
+        row.className = "component-row";
+        row.innerHTML = `<span>${label}</span><div class="bar"><div class="bar-fill" style="width:${Math.max(0, Math.min(100, value))}%"></div></div><span>${value}</span>`;
+        return row;
+      }
+
+      function render() {
+        const current = decision();
+        els.label.textContent = current.label;
+        els.label.dataset.regimeLabel = current.label;
+        els.score.textContent = `${current.score}/100`;
+        els.direction.textContent = `Direction: ${current.direction} (${current.directionConfidence})`;
+        els.statusNote.textContent = state.ordersRequested ? "Regime order request sent or fixture loaded." : "Selected strategy only. Orders are opt-in.";
+        els.sourceState.textContent = state.marketSource;
+        els.rowCount.textContent = `${current.rows.length} years`;
+
+        els.components.innerHTML = "";
+        Object.entries({
+          "Aligned edge": current.components.alignedEdge,
+          "Adverse survival": current.components.adverseSurvival,
+          "Year consistency": current.components.yearlyConsistency,
+          "Data quality": current.components.dataQuality
+        }).forEach(([label, value]) => els.components.appendChild(componentRow(label, value)));
+
+        els.reasons.innerHTML = "";
+        current.reasons.slice(0, 4).forEach((reason) => {
+          const chip = document.createElement("div");
+          chip.className = "chip";
+          chip.innerHTML = `<strong>${reason.code}</strong><span>${reason.text}<br>${reason.repairAction}</span>`;
+          els.reasons.appendChild(chip);
+        });
+
+        els.timeline.innerHTML = "";
+        current.rows.forEach((row) => {
+          const pnlScale = Math.max(5, Math.min(100, 50 + row.net / 40));
+          const item = document.createElement("div");
+          item.className = "year-card";
+          item.innerHTML = `
+            <strong>${row.year}</strong>
+            <span class="regime-pill ${row.regime}">${row.regime}</span>
+            <div class="spark"><div class="spark-fill" style="width:${pnlScale}%"></div></div>
+            <span>${logic.fmt(row.net, 0)}</span>
+          `;
+          els.timeline.appendChild(item);
+        });
+        if (!current.rows.length) {
+          els.timeline.innerHTML = `<div class="small">Orders and market series are required for annual regime analysis.</div>`;
+        }
+
+        els.detailRows.innerHTML = "";
+        current.rows.forEach((row) => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${row.year}</td>
+            <td><span class="regime-pill ${row.regime}">${row.regime}</span></td>
+            <td>${row.trades}</td>
+            <td>${logic.fmt(row.net, 0)}</td>
+            <td>${logic.fmt(row.profitFactor, 2)}</td>
+            <td>${logic.fmt(row.expectancy, 1)}</td>
+            <td>${logic.pct(row.winRate)}</td>
+            <td>${row.maxLossStreak}</td>
+            <td>${logic.fmt(row.maxDrawdown, 0)}</td>
+          `;
+          els.detailRows.appendChild(tr);
+        });
+      }
+
+      function loadFixture(name) {
+        const fixture = fixtures[name] || fixtures.longBullStrong;
+        state.strategy = null;
+        state.stats = null;
+        state.orders = null;
+        state.marketSeries = null;
+        state.ordersRequested = false;
+        fixture.messages.forEach((message) => {
+          if (message.type === "STRATEGY_DATA") state.strategy = message.data;
+          if (message.type === "STATS_RESPONSE") state.stats = logic.normalizeStatsPayload(message.data);
+          if (message.type === "ORDERS_RESPONSE") {
+            state.orders = message.data;
+            state.ordersRequested = true;
+          }
+          if (message.type === "MARKET_SERIES_RESPONSE") {
+            state.marketSeries = message.data.series || message.data;
+            state.marketSource = message.data.source || state.marketSource;
+          }
+        });
+        render();
+      }
+
+      function buildSummary() {
+        return logic.buildSummary(decision(), state.strategy);
+      }
+
+      async function copySummary() {
+        const text = buildSummary();
+        try {
+          await navigator.clipboard.writeText(text);
+          els.copyState.textContent = "copied";
+        } catch (_err) {
+          els.copyFallback.value = text;
+          els.copyFallback.classList.remove("hidden-copy");
+          els.copyFallback.focus();
+          els.copyFallback.select();
+          els.copyState.textContent = "selectable fallback";
+        }
+      }
+
+      function receive(event) {
+        const message = event && event.data ? event.data : {};
+        const type = message.type || message.messageType;
+        const data = message.data || message.payload || {};
+        if (type === "STRATEGY_DATA") {
+          state.strategy = data.strategy || data;
+          state.stats = null;
+          state.orders = null;
+          requestStats();
+          render();
+        } else if (type === "STATS_RESPONSE") {
+          state.stats = logic.normalizeStatsPayload(data);
+          render();
+        } else if (type === "ORDERS_RESPONSE") {
+          state.orders = data;
+          state.ordersRequested = true;
+          render();
+        } else if (type === "SET_THEME" || type === "SWITCH_THEME") {
+          state.theme = String(data.theme || data || "light").toLowerCase().includes("dark") ? "dark" : "light";
+          document.documentElement.setAttribute("data-theme", state.theme);
+        } else if (type === "SET_LANGUAGE") {
+          state.language = String(data.language || data || "en").toLowerCase().startsWith("es") ? "es" : "en";
+          applyLocale();
+        }
+      }
+
+      document.querySelector("[data-load-fixture]").addEventListener("click", () => loadFixture("longBullStrong"));
+      document.querySelector("[data-theme-toggle]").addEventListener("click", () => {
+        state.theme = state.theme === "dark" ? "light" : "dark";
+        document.documentElement.setAttribute("data-theme", state.theme);
+      });
+      document.querySelector("[data-language-toggle]").addEventListener("click", () => {
+        state.language = state.language === "en" ? "es" : "en";
+        applyLocale();
+      });
+      document.querySelector("[data-orders-button]").addEventListener("click", requestOrders);
+      document.querySelector("[data-copy-summary]").addEventListener("click", copySummary);
+      els.directionSelect.addEventListener("change", render);
+      els.marketSource.addEventListener("change", () => {
+        state.marketSource = els.marketSource.value;
+        render();
+      });
+      window.addEventListener("message", receive);
+      document.documentElement.setAttribute("data-theme", state.theme);
+      applyLocale();
+      loadFixture("longBullStrong");
+
+      window.__SQX_REGIME_EDGE__ = {
+        VERSION,
+        state,
+        logic,
+        evaluate: decision,
+        loadFixture,
+        buildSummary,
+        requestOrders,
+        contractStatus: {
+          selectedStrategyOnly: true,
+          getOrdersOptInOnly: true,
+          noSourceCode: true,
+          noDatabankMutation: true,
+          noRemoteFetch: true,
+          dataManagerProvider: "future gated localhost-only read-only provider"
+        }
+      };
+    })();
+  </script>
+</body>
+</html>

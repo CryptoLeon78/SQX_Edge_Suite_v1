@@ -1,0 +1,12 @@
+{
+  "title": "Regime Edge Analyzer",
+  "subtitle": "Market regime behavior for the selected strategy",
+  "direction": "Direction",
+  "marketSource": "Market source",
+  "verdict": "Regime Verdict",
+  "score": "Regime Score",
+  "timeline": "Annual Regime Matrix",
+  "details": "Regime Detail",
+  "methodology": "Methodology Notes",
+  "disclaimer": "Regime diagnostics can downgrade confidence or force review, but never promote a strategy by themselves."
+}

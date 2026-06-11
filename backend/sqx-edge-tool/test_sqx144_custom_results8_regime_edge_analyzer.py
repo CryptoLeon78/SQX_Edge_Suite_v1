@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 import pytest
 
-from core import sqx144_custom_results5_edge_gate as results5
+from core import sqx144_custom_results8_regime_edge_analyzer as results8
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -25,76 +25,77 @@ def _no_sqx_processes() -> dict:
 def test_status_is_source_ready_without_host_mutation():
     with tempfile.TemporaryDirectory() as tmp:
         sqx = _fake_sqx144_full(Path(tmp))
-        with patch.object(results5, "_detect_sqx_processes", return_value=_no_sqx_processes()):
-            payload = results5.status_payload(PROJECT_ROOT, sqx_root=sqx)
+        with patch.object(results8, "_detect_sqx_processes", return_value=_no_sqx_processes()):
+            payload = results8.status_payload(PROJECT_ROOT, sqx_root=sqx)
 
-    assert payload["version"] == results5.SQX144_CUSTOM_RESULTS5_VERSION
-    assert payload["phaseLabel"] == "SQX144-CUSTOM-RESULTS6 - SQX Edge Gate V2"
-    assert payload["status"] == results5.SQX144_CUSTOM_RESULTS5_STATUS
+    assert payload["version"] == results8.SQX144_CUSTOM_RESULTS8_VERSION
+    assert payload["phaseLabel"] == "SQX144-CUSTOM-RESULTS8 - Regime Edge Analyzer"
+    assert payload["status"] == results8.SQX144_CUSTOM_RESULTS8_STATUS
     assert payload["installExecuted"] is False
     assert payload["currentlyInstalled"] is False
     assert payload["guards"]["writesDataDb"] is False
     assert payload["guards"]["writesUserProjects"] is False
     assert payload["guards"]["mutatesDatabanks"] is False
     assert payload["guards"]["ordersRequestIsOptIn"] is True
+    assert payload["guards"]["dataManagerProviderIsFutureGated"] is True
     assert payload["privacy"]["localPathsReturned"] is False
 
 
-def test_smoke_accepts_edge_gate_runtime_and_fixtures():
-    payload = results5.smoke_payload(PROJECT_ROOT)
+def test_smoke_accepts_regime_edge_runtime_and_fixtures():
+    payload = results8.smoke_payload(PROJECT_ROOT)
 
     assert payload["ok"] is True
-    assert payload["status"] == results5.SQX144_CUSTOM_RESULTS5_SMOKE_STATUS
+    assert payload["status"] == results8.SQX144_CUSTOM_RESULTS8_SMOKE_STATUS
     assert payload["missingFiles"] == []
     assert payload["forbiddenMarkers"] == []
     assert payload["missingRequiredMarkers"] == []
     assert payload["fixtureNames"] == [
-        "buildPass",
-        "retestReview",
-        "tickRealRetentionBlock",
-        "forwardMissingOos",
-        "portfolioCandidate",
-        "ordersLateDegradation",
-        "ordersConcentration",
+        "longBullStrong",
+        "longBullMismatch",
+        "longBearSurvival",
+        "shortBearStrong",
+        "shortBearMismatch",
+        "sidewaysMeanRevert",
+        "mixedUnknown",
+        "missingSeries",
         "missingTimestamps",
-        "block",
-        "noStrategy",
-        "missingStats",
-        "missingOOS",
-        "ordersOptIn",
+        "fewTrades",
         "largeOrders",
+        "noStrategy",
     ]
-    assert "Trades 120/80/60" in payload["thresholds"]["Build"]
-    assert "retention 70%/40%" in payload["thresholds"]["Tick Real"]
-    assert "Evidence 25%" in payload["thresholds"]["GateScore"]
+    assert "BULL" in payload["regimeLabels"]
+    assert "REGIME_MISMATCH_REVIEW" in payload["decisionLabels"]
+    assert "Bailey Lopez de Prado Deflated Sharpe Ratio" in payload["academicSources"]
 
 
-def test_report_declares_copy_only_install_gate_without_apply():
+def test_report_declares_source_ready_copy_only_install_gate_without_apply():
     with tempfile.TemporaryDirectory() as tmp:
         sqx = _fake_sqx144_full(Path(tmp))
-        payload = results5.report_payload(PROJECT_ROOT, sqx_root=sqx)
+        payload = results8.report_payload(PROJECT_ROOT, sqx_root=sqx)
 
     assert payload["ok"] is True
     assert payload["installExecuted"] is False
     assert payload["installPlan"]["copyOnlySqxEdgeOwnedPlugin"] is True
     assert payload["installPlan"]["copyOriginalDownloadedPlugins"] is False
     assert payload["installPlan"]["copyRandomEntries"] is False
-    assert results5.INSTALL_APPROVAL_PHRASE in payload["installRequiresExactApproval"]
+    assert payload["methodology"]["selectedStrategyOnlyV1"] is True
+    assert payload["methodology"]["fullDatabankV2RequiresSeparateProvider"] is True
+    assert results8.INSTALL_APPROVAL_PHRASE in payload["installRequiresExactApproval"]
 
 
 def test_report_reflects_installed_target_when_hashes_match():
     with tempfile.TemporaryDirectory() as tmp:
         sqx = _fake_sqx144_full(Path(tmp))
-        with patch.object(results5, "_detect_sqx_processes", return_value=_no_sqx_processes()):
-            results5.install_payload(
+        with patch.object(results8, "_detect_sqx_processes", return_value=_no_sqx_processes()):
+            results8.install_payload(
                 PROJECT_ROOT,
                 sqx_root=sqx,
                 apply=True,
-                approval=results5.INSTALL_APPROVAL_PHRASE,
+                approval=results8.INSTALL_APPROVAL_PHRASE,
             )
-        payload = results5.report_payload(PROJECT_ROOT, sqx_root=sqx)
+        payload = results8.report_payload(PROJECT_ROOT, sqx_root=sqx)
 
-    assert payload["status"] == results5.SQX144_CUSTOM_RESULTS5_INSTALLED_STATUS
+    assert payload["status"] == results8.SQX144_CUSTOM_RESULTS8_INSTALLED_STATUS
     assert payload["installExecuted"] is True
     assert payload["currentlyInstalled"] is True
     assert payload["targetState"]["targetMatchesSource"] is True
@@ -103,12 +104,12 @@ def test_report_reflects_installed_target_when_hashes_match():
 def test_install_dry_run_does_not_copy_to_fake_host():
     with tempfile.TemporaryDirectory() as tmp:
         sqx = _fake_sqx144_full(Path(tmp))
-        target = sqx / "user" / "extend" / "ResultsPlugins" / results5.PLUGIN_NAME
-        with patch.object(results5, "_detect_sqx_processes", return_value=_no_sqx_processes()):
-            payload = results5.install_payload(PROJECT_ROOT, sqx_root=sqx, apply=False)
+        target = sqx / "user" / "extend" / "ResultsPlugins" / results8.PLUGIN_NAME
+        with patch.object(results8, "_detect_sqx_processes", return_value=_no_sqx_processes()):
+            payload = results8.install_payload(PROJECT_ROOT, sqx_root=sqx, apply=False)
 
     assert payload["ok"] is True
-    assert payload["status"] == results5.SQX144_CUSTOM_RESULTS5_INSTALL_STATUS
+    assert payload["status"] == results8.SQX144_CUSTOM_RESULTS8_INSTALL_STATUS
     assert payload["installExecuted"] is False
     assert payload["wouldWriteSqxHost"] is True
     assert not target.exists()
@@ -117,25 +118,25 @@ def test_install_dry_run_does_not_copy_to_fake_host():
 def test_install_apply_requires_exact_approval():
     with tempfile.TemporaryDirectory() as tmp:
         sqx = _fake_sqx144_full(Path(tmp))
-        with patch.object(results5, "_detect_sqx_processes", return_value=_no_sqx_processes()):
-            with pytest.raises(results5.CustomResults5Error) as raised:
-                results5.install_payload(PROJECT_ROOT, sqx_root=sqx, apply=True, approval="APRUEBO EDGE GATE")
+        with patch.object(results8, "_detect_sqx_processes", return_value=_no_sqx_processes()):
+            with pytest.raises(results8.CustomResults8Error) as raised:
+                results8.install_payload(PROJECT_ROOT, sqx_root=sqx, apply=True, approval="APRUEBO REGIME")
 
-    assert raised.value.code == "custom_results6_edge_gate_v2_install_requires_exact_approval"
+    assert raised.value.code == "custom_results8_regime_edge_analyzer_install_requires_exact_approval"
 
 
 def test_preflight_blocks_running_sqx_and_non_owned_target():
     with tempfile.TemporaryDirectory() as tmp:
         sqx = _fake_sqx144_full(Path(tmp))
-        target = sqx / "user" / "extend" / "ResultsPlugins" / results5.PLUGIN_NAME
+        target = sqx / "user" / "extend" / "ResultsPlugins" / results8.PLUGIN_NAME
         target.mkdir()
         (target / "index.html").write_text("<html>other plugin</html>", encoding="utf-8")
         with patch.object(
-            results5,
+            results8,
             "_detect_sqx_processes",
             return_value={"known": True, "processCount": 1, "processNames": ["StrategyQuantX.exe"]},
         ):
-            payload = results5.install_payload(PROJECT_ROOT, sqx_root=sqx, apply=False)
+            payload = results8.install_payload(PROJECT_ROOT, sqx_root=sqx, apply=False)
 
     assert payload["ok"] is False
     assert "sqx_or_java_process_running" in payload["preflight"]["blockers"]
@@ -146,36 +147,36 @@ def test_preflight_blocks_running_sqx_and_non_owned_target():
 def test_install_apply_with_exact_approval_copies_only_to_temp_host():
     with tempfile.TemporaryDirectory() as tmp:
         sqx = _fake_sqx144_full(Path(tmp))
-        target = sqx / "user" / "extend" / "ResultsPlugins" / results5.PLUGIN_NAME
-        with patch.object(results5, "_detect_sqx_processes", return_value=_no_sqx_processes()):
-            payload = results5.install_payload(
+        target = sqx / "user" / "extend" / "ResultsPlugins" / results8.PLUGIN_NAME
+        with patch.object(results8, "_detect_sqx_processes", return_value=_no_sqx_processes()):
+            payload = results8.install_payload(
                 PROJECT_ROOT,
                 sqx_root=sqx,
                 apply=True,
-                approval=results5.INSTALL_APPROVAL_PHRASE,
+                approval=results8.INSTALL_APPROVAL_PHRASE,
             )
 
         assert payload["ok"] is True
-        assert payload["status"] == results5.SQX144_CUSTOM_RESULTS5_INSTALLED_STATUS
+        assert payload["status"] == results8.SQX144_CUSTOM_RESULTS8_INSTALLED_STATUS
         assert payload["installExecuted"] is True
         assert payload["targetMatchesSource"] is True
-        assert payload["copiedFiles"] >= len(results5.EXPECTED_FILES)
+        assert payload["copiedFiles"] >= len(results8.EXPECTED_FILES)
         assert (target / "index.html").is_file()
-        assert (target / "edge-gate.js").is_file()
+        assert (target / "regime-edge.js").is_file()
 
 
 def test_install_apply_backs_up_existing_owned_target():
     with tempfile.TemporaryDirectory() as tmp:
         sqx = _fake_sqx144_full(Path(tmp))
-        target = sqx / "user" / "extend" / "ResultsPlugins" / results5.PLUGIN_NAME
+        target = sqx / "user" / "extend" / "ResultsPlugins" / results8.PLUGIN_NAME
         target.mkdir()
-        (target / "index.html").write_text(results5.SQX144_CUSTOM_RESULTS5_VERSION, encoding="utf-8")
-        with patch.object(results5, "_detect_sqx_processes", return_value=_no_sqx_processes()):
-            payload = results5.install_payload(
+        (target / "index.html").write_text(results8.SQX144_CUSTOM_RESULTS8_VERSION, encoding="utf-8")
+        with patch.object(results8, "_detect_sqx_processes", return_value=_no_sqx_processes()):
+            payload = results8.install_payload(
                 PROJECT_ROOT,
                 sqx_root=sqx,
                 apply=True,
-                approval=results5.INSTALL_APPROVAL_PHRASE,
+                approval=results8.INSTALL_APPROVAL_PHRASE,
             )
 
     assert payload["ok"] is True

@@ -20,6 +20,39 @@ Fuente local candidata:
 - Build 144.2953 localizada como host actualizado separado por `SQX144-FULL-UPDATE1`; version confirmada pero no promovida por licencia/alineacion de migracion pendiente.
 - El operador confirmo que el instalador oficial no permite elegir el directorio existente `SQX_144_Full`; `SQX144-FULL-UPDATE2` gobierna la ruta alternativa: instalar 144.2953 en carpeta nueva, activar/abrir workspace legitimamente, alinear por Migration Tool oficial o export/import documentado y promover solo tras preflight limpio.
 
+## SQX144-CUSTOM-RESULTS8 - Regime Edge Analyzer
+
+Objetivo:
+
+- Crear un tab propio `Regime Edge Analyzer` para diagnosticar comportamiento por regimen de mercado sobre la estrategia seleccionada.
+- Clasificar contexto anual como `BULL`, `BEAR`, `SIDEWAYS`, `MIXED`, `UNKNOWN`.
+- Mantener full databank/ultimo databank para una V2 con proveedor local read-only o lista manual gobernada.
+
+Estado 2026-06-12:
+
+- Marker: `sqx144-custom-results8-regime-edge-analyzer-v1`.
+- Read-only marker: `sqx144-custom-results8-readonly-regime-edge-analyzer-v1`.
+- Source-ready status: `custom_results8_regime_edge_analyzer_source_ready_no_install_no_launch_no_db_no_projects_no_databanks_no_tasks_no_migration_tool`.
+- Installed status: `custom_results8_regime_edge_analyzer_installed_copy_only_no_launch_no_db_no_projects_no_databanks_no_tasks_no_migration_tool`.
+- Documento: `docs/SQX144_CUSTOM_RESULTS8_REGIME_EDGE_ANALYZER.md`.
+- Integracion: `integrations/sqx144/results_plugins/Regime Edge Analyzer`.
+- Wrapper: `tools/sqx144_custom_results8_regime_edge_analyzer.ps1`.
+- Contrato: `tests/js/contracts/sqx144_custom_results8_regime_edge_analyzer_contracts.mjs`.
+- Render smoke: `tests/js/contracts/sqx144_custom_results8_regime_edge_analyzer_render_smoke.mjs`.
+- Target instalado: `sqx144_full/user/extend/ResultsPlugins/Regime Edge Analyzer`.
+- Exact approval aplicado: `APRUEBO SQX144 CUSTOM RESULTS8 REGIME EDGE ANALYZER INSTALL host=sqx144_full plugin=sqx_regime_edge_analyzer sqx_closed backup_hash_rollback copy_only_sqx_edge_owned_plugin get_orders_optin_acknowledged no_db_no_projects_no_databanks_no_tasks no_migration_tool no_source_code`.
+- Verificacion: `installExecuted=true`, `currentlyInstalled=true`, `copiedFiles=6`, `targetMatchesSource=true`, SHA256 `893DE84B706FD208774DF8C74A2A256782159B5DA76E5EEFF04337B6BC8ED8BE`, `backupCreated=false`, preflight `processCount=0`, blockers `[]`, warnings `[]`, evidencia `.local/sqx144_custom_results8/sqx144_custom_results8_install_20260611_220624.json`.
+- Boundary instalacion: No SQX runtime durante la copia, no data.db, no user/projects, no databank mutation, no tasks, no Migration Tool, no source-code export.
+- Smoke real: SQX144 Full arranco en `http://localhost:8080`, `GET /resultsPlugins/list` devolvio `Regime Edge Analyzer`, `http://localhost:8080/plugins/Regime%20Edge%20Analyzer/index.html` devolvio HTTP `200`, marker/debug API presentes y Playwright render del plugin servido dio `ok=true` con `consoleErrors=[]`, sin iniciar tareas ni acciones de proyecto/databank.
+
+Contrato:
+
+- Permitidos por defecto: `STRATEGY_DATA`, `SET_THEME`, `SWITCH_THEME`, `SET_LANGUAGE`, `GET_STATS`, `STATS_RESPONSE`.
+- Opt-in: `GET_ORDERS opt-in` solo tras `Activar Regime Orders`; tooling mantiene `rawOrdersReturnedByTooling=false`.
+- Bloqueados: `GET_SOURCE_CODE`, fetch remoto, browser persistence, plugin management, SQX runtime, `data.db`, `user/projects`, databanks, tasks y Migration Tool.
+
+Siguiente bloque recomendado: validacion manual sobre una estrategia real seleccionada en Results; V2 full-databank queda para proveedor local read-only o lista manual gobernada.
+
 ## SQX144-CUSTOM-RESULTS1 - Read-Only Results Plugin Template
 
 Objetivo:

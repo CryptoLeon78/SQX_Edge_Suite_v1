@@ -11,14 +11,10 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
-$Version = 'sqx144-custom-results6-edge-gate-v2'
-$Phase = 'SQX144-CUSTOM-RESULTS6 - SQX Edge Gate V2'
-$SourceReadyStatus = 'custom_results6_edge_gate_v2_source_ready_no_install_no_launch_no_db_no_projects_no_databanks_no_tasks_no_migration_tool'
-$InstallApprovalPhrase = 'APRUEBO SQX144 CUSTOM RESULTS6 EDGE GATE V2 INSTALL host=sqx144_full plugin=sqx_edge_gate_v2 sqx_closed backup_hash_rollback copy_only_sqx_edge_owned_plugin get_orders_optin_acknowledged no_db_no_projects_no_databanks_no_tasks no_migration_tool no_source_code'
-$LegacyResults5Version = 'sqx144-custom-results5-edge-gate-v1'
-$LegacyResults5Phase = 'SQX144-CUSTOM-RESULTS5 - SQX Edge Gate'
-$LegacyResults5SourceReadyStatus = 'custom_results5_edge_gate_source_ready_no_install_no_launch_no_db_no_projects_no_databanks_no_tasks_no_migration_tool'
-$LegacyResults5InstallApprovalPhrase = 'APRUEBO SQX144 CUSTOM RESULTS5 EDGE GATE INSTALL host=sqx144_full plugin=sqx_edge_gate sqx_closed backup_hash_rollback copy_only_sqx_edge_owned_plugin get_orders_optin_acknowledged no_db_no_projects_no_databanks_no_tasks no_migration_tool no_source_code'
+$Version = 'sqx144-custom-results8-regime-edge-analyzer-v1'
+$Phase = 'SQX144-CUSTOM-RESULTS8 - Regime Edge Analyzer'
+$SourceReadyStatus = 'custom_results8_regime_edge_analyzer_source_ready_no_install_no_launch_no_db_no_projects_no_databanks_no_tasks_no_migration_tool'
+$InstallApprovalPhrase = 'APRUEBO SQX144 CUSTOM RESULTS8 REGIME EDGE ANALYZER INSTALL host=sqx144_full plugin=sqx_regime_edge_analyzer sqx_closed backup_hash_rollback copy_only_sqx_edge_owned_plugin get_orders_optin_acknowledged no_db_no_projects_no_databanks_no_tasks no_migration_tool no_source_code'
 $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 $ToolRoot = Join-Path $RepoRoot 'backend\sqx-edge-tool'
 $PythonExe = if ($env:PYTHON) { $env:PYTHON } else { 'python' }
@@ -32,7 +28,7 @@ try {
   }
 
   $argsList = @(
-    '-m', 'core.sqx144_custom_results5_edge_gate',
+    '-m', 'core.sqx144_custom_results8_regime_edge_analyzer',
     $Action,
     '--project-root', $RepoRoot
   )
@@ -54,14 +50,14 @@ try {
   $exitCode = $LASTEXITCODE
   $payload = ($raw -join "`n") | ConvertFrom-Json
   if ($exitCode -ne 0 -and -not $payload) {
-    throw 'sqx144_custom_results5_edge_gate_failed'
+    throw 'sqx144_custom_results8_regime_edge_analyzer_failed'
   }
 } finally {
   $env:PYTHONPATH = $oldPythonPath
 }
 
-if ([string]$payload.version -ne $Version) { throw 'sqx144_custom_results5_edge_gate_version_mismatch' }
-if ([string]$payload.phaseLabel -ne $Phase) { throw 'sqx144_custom_results5_edge_gate_phase_mismatch' }
+if ([string]$payload.version -ne $Version) { throw 'sqx144_custom_results8_regime_edge_analyzer_version_mismatch' }
+if ([string]$payload.phaseLabel -ne $Phase) { throw 'sqx144_custom_results8_regime_edge_analyzer_phase_mismatch' }
 
 $defaults = [ordered]@{
   wrapperVersion = $Version

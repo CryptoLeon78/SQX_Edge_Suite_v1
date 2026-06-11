@@ -3,10 +3,14 @@
   "subtitle": "Trading Radar",
   "verdict": "Verdict",
   "context": "Context",
+  "pipeline": "Pipeline Context",
+  "gateScore": "Gate Score",
   "radar": "Radar",
   "reasons": "Reasons",
   "nextAction": "Next action",
-  "orderRadar": "Order Radar",
+  "orderRadar": "Order Radar V2",
+  "decisionMatrix": "Decision Matrix",
   "activateOrders": "Activate Order Radar",
+  "copySummary": "Copy Summary",
   "disclaimer": "Diagnostic decision panel only. No pass-state promotion and no host mutation."
 }

@@ -3,10 +3,14 @@
   "subtitle": "Trading Radar",
   "verdict": "Veredicto",
   "context": "Contexto",
+  "pipeline": "Pipeline Context",
+  "gateScore": "Gate Score",
   "radar": "Radar",
   "reasons": "Razones",
   "nextAction": "Siguiente accion",
-  "orderRadar": "Order Radar",
+  "orderRadar": "Order Radar V2",
+  "decisionMatrix": "Matriz de decision",
   "activateOrders": "Activar Order Radar",
+  "copySummary": "Copy Summary",
   "disclaimer": "Panel diagnostico de decision. No promociona estados ni muta el host."
 }

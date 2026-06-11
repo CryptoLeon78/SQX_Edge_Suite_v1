@@ -48,19 +48,22 @@
       line-height: 1.45;
     }
 
-    button {
+    button,
+    select,
+    input,
+    textarea {
       font: inherit;
     }
 
     .shell {
-      width: min(1180px, calc(100% - 28px));
+      width: min(1220px, calc(100% - 28px));
       margin: 0 auto;
       padding: 18px 0 22px;
     }
 
     .topbar {
       display: grid;
-      grid-template-columns: minmax(220px, 1fr) auto;
+      grid-template-columns: minmax(220px, 1fr) minmax(360px, auto);
       gap: 14px;
       align-items: center;
       margin-bottom: 12px;
@@ -83,6 +86,7 @@
       background: var(--panel);
       color: var(--radar);
       font-weight: 800;
+      flex: 0 0 auto;
     }
 
     h1 {
@@ -106,13 +110,17 @@
       flex-wrap: wrap;
     }
 
-    .btn {
+    .btn,
+    .field {
       min-height: 34px;
       border: 1px solid var(--line);
       border-radius: 8px;
       background: var(--panel);
       color: var(--text);
       padding: 7px 11px;
+    }
+
+    .btn {
       cursor: pointer;
     }
 
@@ -120,6 +128,44 @@
       border-color: color-mix(in srgb, var(--radar), var(--line) 42%);
       background: color-mix(in srgb, var(--radar), var(--panel) 83%);
       color: var(--ink);
+    }
+
+    .copy-state {
+      color: var(--muted);
+      font-size: 11px;
+      min-width: 74px;
+      text-align: right;
+    }
+
+    .pipeline-bar {
+      display: grid;
+      grid-template-columns: minmax(180px, 240px) minmax(150px, 200px) 1fr;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .field-label {
+      display: grid;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .field-label span {
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 720;
+    }
+
+    .field {
+      width: 100%;
+    }
+
+    .pipeline-note {
+      color: var(--muted);
+      font-size: 12px;
+      min-width: 0;
     }
 
     .grid {
@@ -162,6 +208,13 @@
       gap: 10px;
     }
 
+    .verdict-line {
+      display: flex;
+      gap: 12px;
+      align-items: end;
+      flex-wrap: wrap;
+    }
+
     .verdict-label {
       font-size: 48px;
       line-height: 1;
@@ -172,6 +225,28 @@
     .verdict-label.review { color: var(--review); }
     .verdict-label.block { color: var(--block); }
 
+    .score-pill {
+      min-width: 116px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel-2);
+      padding: 7px 10px;
+    }
+
+    .score-pill span {
+      display: block;
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      font-weight: 720;
+    }
+
+    .score-pill strong {
+      display: block;
+      font-size: 22px;
+      line-height: 1.1;
+    }
+
     .summary {
       color: var(--muted);
       min-height: 38px;
@@ -181,7 +256,7 @@
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 8px;
-      margin-top: 14px;
+      margin-top: 4px;
     }
 
     .kv {
@@ -224,14 +299,16 @@
       display: block;
     }
 
-    .axis-list {
+    .axis-list,
+    .checks,
+    .matrix-list {
       display: grid;
       gap: 8px;
     }
 
     .axis-row {
       display: grid;
-      grid-template-columns: 120px 1fr 36px;
+      grid-template-columns: 124px 1fr 36px;
       gap: 8px;
       align-items: center;
       min-height: 26px;
@@ -251,12 +328,6 @@
       background: var(--radar);
     }
 
-    .checks,
-    .reasons {
-      display: grid;
-      gap: 8px;
-    }
-
     .chip {
       border: 1px solid var(--line);
       border-radius: 8px;
@@ -268,6 +339,76 @@
     .chip.pass { border-color: color-mix(in srgb, var(--pass), var(--line) 55%); }
     .chip.review { border-color: color-mix(in srgb, var(--review), var(--line) 55%); }
     .chip.block { border-color: color-mix(in srgb, var(--block), var(--line) 55%); }
+
+    .chip strong {
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .chip em {
+      color: var(--muted);
+      font-style: normal;
+      display: block;
+      font-size: 12px;
+    }
+
+    .matrix-list {
+      gap: 10px;
+    }
+
+    .matrix-row {
+      display: grid;
+      grid-template-columns: minmax(150px, 1fr) minmax(220px, 1.35fr) 76px minmax(220px, 1.25fr);
+      gap: 10px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel-2);
+      padding: 10px;
+    }
+
+    .matrix-row.pass { border-color: color-mix(in srgb, var(--pass), var(--line) 62%); }
+    .matrix-row.review { border-color: color-mix(in srgb, var(--review), var(--line) 58%); }
+    .matrix-row.block { border-color: color-mix(in srgb, var(--block), var(--line) 55%); }
+
+    .matrix-meta {
+      min-width: 0;
+    }
+
+    .matrix-meta strong,
+    .matrix-score strong {
+      display: block;
+      line-height: 1.15;
+    }
+
+    .matrix-meta span,
+    .matrix-score span,
+    .matrix-action {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .matrix-track {
+      height: 10px;
+      border-radius: 999px;
+      background: var(--line);
+      overflow: hidden;
+    }
+
+    .matrix-track span {
+      display: block;
+      height: 100%;
+      width: 0;
+      background: var(--radar);
+    }
+
+    .matrix-row.pass .matrix-track span { background: var(--pass); }
+    .matrix-row.review .matrix-track span { background: var(--review); }
+    .matrix-row.block .matrix-track span { background: var(--block); }
+
+    .matrix-score {
+      text-align: right;
+    }
 
     .next-action {
       border-left: 4px solid var(--radar);
@@ -288,6 +429,18 @@
       margin-bottom: 10px;
     }
 
+    .export-box {
+      width: 100%;
+      min-height: 132px;
+      resize: vertical;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel-2);
+      color: var(--text);
+      padding: 10px;
+      margin-top: 12px;
+    }
+
     .footer {
       margin-top: 12px;
       color: var(--muted);
@@ -299,10 +452,11 @@
       display: none !important;
     }
 
-    @media (max-width: 860px) {
+    @media (max-width: 900px) {
       .topbar,
       .grid,
-      .radar-wrap {
+      .radar-wrap,
+      .pipeline-bar {
         grid-template-columns: 1fr;
       }
 
@@ -317,8 +471,14 @@
       }
 
       .order-grid,
-      .context {
+      .context,
+      .matrix-row {
         grid-template-columns: 1fr;
+      }
+
+      .copy-state,
+      .matrix-score {
+        text-align: left;
       }
     }
   </style>
@@ -335,10 +495,31 @@
       </div>
       <div class="actions">
         <button class="btn primary" type="button" data-orders-button data-i18n="activateOrders">Activate Order Radar</button>
+        <button class="btn" type="button" data-copy-summary data-i18n="copySummary">Copy Summary</button>
+        <span class="copy-state" data-copy-state>clipboard</span>
         <button class="btn" type="button" data-theme-toggle>Theme</button>
         <button class="btn" type="button" data-language-toggle>ES/EN</button>
       </div>
     </header>
+
+    <section class="pipeline-bar" aria-label="Pipeline Context">
+      <label class="field-label">
+        <span data-i18n="pipeline">Pipeline Context</span>
+        <select class="field" data-pipeline-select>
+          <option value="build">Build</option>
+          <option value="retest0">Retest 0</option>
+          <option value="retest1">Retest 1</option>
+          <option value="tickReal">Tick Real</option>
+          <option value="forward">Forward</option>
+          <option value="portfolioCandidate">Portfolio Candidate</option>
+        </select>
+      </label>
+      <label class="field-label">
+        <span>Prev Retest Trades</span>
+        <input class="field" data-previous-trades type="number" min="1" step="1" placeholder="Tick Real">
+      </label>
+      <div class="pipeline-note" data-pipeline-note>Auto-detect enabled; manual override available.</div>
+    </section>
 
     <section class="grid">
       <section class="panel">
@@ -347,7 +528,13 @@
           <div data-source>offline</div>
         </div>
         <div class="panel-body verdict">
-          <div class="verdict-label block" data-verdict>BLOCK</div>
+          <div class="verdict-line">
+            <div class="verdict-label block" data-verdict>BLOCK</div>
+            <div class="score-pill">
+              <span data-i18n="gateScore">Gate Score</span>
+              <strong data-gate-score>0/100</strong>
+            </div>
+          </div>
           <div class="summary" data-summary>Waiting for StrategyQuant data</div>
           <div class="context" data-context></div>
         </div>
@@ -389,9 +576,19 @@
       </section>
     </section>
 
-    <section class="panel" style="margin-top: 12px;" data-order-panel>
+    <section class="panel" style="margin-top: 12px;">
       <div class="panel-head">
-        <div class="panel-title" data-i18n="orderRadar">Order Radar</div>
+        <div class="panel-title" data-i18n="decisionMatrix">Decision Matrix</div>
+        <div data-matrix-state>threshold map</div>
+      </div>
+      <div class="panel-body">
+        <div class="matrix-list" data-decision-matrix></div>
+      </div>
+    </section>
+
+    <section class="panel" style="margin-top: 12px;" data-order-panel hidden>
+      <div class="panel-head">
+        <div class="panel-title" data-i18n="orderRadar">Order Radar V2</div>
         <div data-order-state>opt-in</div>
       </div>
       <div class="panel-body">
@@ -401,6 +598,7 @@
     </section>
 
     <div class="footer" data-i18n="disclaimer">Diagnostic decision panel only. No pass-state promotion and no host mutation.</div>
+    <textarea class="export-box" data-summary-box readonly hidden></textarea>
   </main>
 
   <script>
@@ -417,7 +615,12 @@
         language: "en",
         ordersRequested: false,
         fixture: null,
-        messagesSent: []
+        messagesSent: [],
+        pipelineContext: "build",
+        pipelineManual: false,
+        previousTrades: NaN,
+        lastDecision: null,
+        lastSummary: ""
       };
 
       const $ = (selector) => document.querySelector(selector);
@@ -427,11 +630,45 @@
         return pack[key] || logic.LOCALES.en[key] || key;
       }
 
+      function esc(value) {
+        return String(value === null || value === undefined ? "" : value)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
       function payloadOf(message) {
         if (!message) return null;
         if (Object.prototype.hasOwnProperty.call(message, "payload")) return message.payload;
         if (Object.prototype.hasOwnProperty.call(message, "data")) return message.data;
         return message;
+      }
+
+      function statsPayloadOf(message) {
+        const data = payloadOf(message);
+        if (data && data.stats && typeof data.stats === "object") return data.stats;
+        return data || {};
+      }
+
+      function strategyPayloadOf(message) {
+        const raw = payloadOf(message) || {};
+        const strategy = Object.assign({}, raw);
+        if (!strategy.name && strategy.strategyName) strategy.name = strategy.strategyName;
+
+        const item = Array.isArray(strategy.dataItems) && strategy.dataItems.length ? strategy.dataItems[0] : "";
+        const resultInfo = strategy.resultInfo || "";
+        if ((!strategy.symbol || !strategy.timeframe) && resultInfo.indexOf(",") !== -1) {
+          const parts = resultInfo.split(",").map((part) => part.trim());
+          if (!strategy.symbol && parts[0]) strategy.symbol = parts[0];
+          if (!strategy.timeframe && parts[1]) strategy.timeframe = parts[1];
+        }
+        if ((!strategy.symbol || !strategy.timeframe) && item.indexOf("/") !== -1) {
+          const pair = item.replace(/^Main:\s*/i, "").split("/");
+          if (!strategy.symbol && pair[0]) strategy.symbol = pair[0];
+          if (!strategy.timeframe && pair[1]) strategy.timeframe = pair[1];
+        }
+        return strategy;
       }
 
       function text(value, fallback) {
@@ -440,17 +677,30 @@
       }
 
       function kv(label, value) {
-        return `<div class="kv"><span>${label}</span><strong title="${text(value, "-")}">${text(value, "-")}</strong></div>`;
+        const safeValue = text(value, "-");
+        return `<div class="kv"><span>${esc(label)}</span><strong title="${esc(safeValue)}">${esc(safeValue)}</strong></div>`;
       }
 
       function metricBox(label, value) {
-        return `<div class="kv"><span>${label}</span><strong>${value}</strong></div>`;
+        return `<div class="kv"><span>${esc(label)}</span><strong>${esc(value)}</strong></div>`;
       }
 
       function resultKey() {
         const strategy = state.strategy || {};
         const first = Array.isArray(strategy.dataItems) && strategy.dataItems.length ? strategy.dataItems[0] : null;
         return strategy.resultKey || strategy.resultKeyName || strategy.key || strategy.id || first || "Portfolio";
+      }
+
+      function evalOptions(orderAnalysis) {
+        return {
+          pipelineContext: state.pipelineContext,
+          previousTrades: state.previousTrades,
+          ordersAnalysis: orderAnalysis || null
+        };
+      }
+
+      function currentOrderAnalysis() {
+        return state.orders ? logic.analyzeOrders(state.orders) : null;
       }
 
       function sendSqxMessage(type, params) {
@@ -466,7 +716,7 @@
         sendSqxMessage("GET_STATS", {
           resultKey: resultKey(),
           direction: "0",
-          sampleType: "20",
+          sampleType: "127",
           plType: "10"
         });
       }
@@ -487,15 +737,21 @@
         const type = message.type;
         const data = payloadOf(message);
         if (type === "STRATEGY_DATA") {
-          state.strategy = data || {};
+          state.strategy = strategyPayloadOf(message);
           state.stats = null;
           state.orders = null;
           state.ordersRequested = false;
           state.source = state.fixture ? "offline fixture" : "SQX postMessage";
+          if (!state.pipelineManual) {
+            state.pipelineContext = logic.detectPipelineContext(state.strategy, state.stats);
+          }
           requestStats();
         } else if (type === "STATS_RESPONSE") {
-          state.stats = data || {};
+          state.stats = statsPayloadOf(message);
           state.source = state.fixture ? "offline fixture" : "SQX postMessage";
+          if (!state.pipelineManual) {
+            state.pipelineContext = logic.detectPipelineContext(state.strategy, state.stats);
+          }
         } else if (type === "ORDERS_RESPONSE") {
           state.orders = data || {};
           state.ordersRequested = true;
@@ -511,7 +767,7 @@
         render();
       }
 
-      function renderRadar(axes) {
+      function renderRadar(axes, gateScore) {
         const cx = 130;
         const cy = 118;
         const radius = 82;
@@ -519,7 +775,7 @@
         const labels = $("[data-radar-labels]");
         const polygon = $("[data-radar-polygon]");
         const rings = [0.33, 0.66, 1].map((ratio) => {
-          const points = logic.radarPoints(axes.map((axis) => ({ score: ratio * 100 })), cx, cy, radius)
+          const points = logic.radarPoints(axes.map(() => ({ score: ratio * 100 })), cx, cy, radius)
             .map((point) => `${point.x},${point.y}`).join(" ");
           return `<polygon points="${points}" fill="none" stroke="var(--line)" stroke-width="1"></polygon>`;
         });
@@ -530,51 +786,96 @@
           const angle = -Math.PI / 2 + (index * 2 * Math.PI) / axes.length;
           const x = Math.round((cx + Math.cos(angle) * (radius + 24)) * 100) / 100;
           const y = Math.round((cy + Math.sin(angle) * (radius + 24)) * 100) / 100;
-          return `<text x="${x}" y="${y}" text-anchor="middle" fill="var(--muted)" font-size="10">${axis.score}</text>`;
+          return `<text x="${x}" y="${y}" text-anchor="middle" fill="var(--muted)" font-size="10">${esc(axis.score)}</text>`;
         }).join("");
-        const avg = axes.length ? Math.round(axes.reduce((acc, axis) => acc + axis.score, 0) / axes.length) : 0;
-        $("[data-radar-state]").textContent = `${avg}/100`;
+        $("[data-radar-state]").textContent = `${gateScore}/100`;
         $("[data-axis-list]").innerHTML = axes.map((axis) => `
           <div class="axis-row">
-            <span>${axis.label}</span>
+            <span>${esc(axis.label)}</span>
             <div class="bar"><span style="width:${axis.score}%"></span></div>
-            <strong>${axis.score}</strong>
+            <strong>${esc(axis.score)}</strong>
           </div>
         `).join("");
       }
 
       function renderOrders() {
+        const panel = $("[data-order-panel]");
         const note = $("[data-order-note]");
         const grid = $("[data-order-grid]");
         if (!state.ordersRequested) {
+          panel.hidden = true;
           note.textContent = t("noOrders");
           $("[data-order-state]").textContent = "opt-in";
           grid.hidden = true;
           grid.innerHTML = "";
-          return;
+          return null;
         }
+        panel.hidden = false;
         if (!state.orders) {
           note.textContent = t("ordersWaiting");
           $("[data-order-state]").textContent = "waiting";
           grid.hidden = true;
           grid.innerHTML = "";
-          return;
+          return null;
         }
         const analysis = logic.analyzeOrders(state.orders);
-        note.textContent = `Order sample: ${analysis.count} orders, state ${analysis.severity}.`;
+        note.textContent = `Order sample: ${analysis.count} orders, state ${analysis.severity}; ${analysis.summary}.`;
         $("[data-order-state]").textContent = analysis.severity;
         grid.hidden = false;
         grid.innerHTML = [
           metricBox("Orders", logic.fmt(analysis.count, 0)),
           metricBox("Net", logic.fmt(analysis.total, 2)),
           metricBox("Max loss streak", logic.fmt(analysis.maxLossStreak, 0)),
-          metricBox("Largest loss", logic.fmt(analysis.largestLoss, 2))
+          metricBox("Avg loss", logic.fmt(analysis.averageLoss, 2)),
+          metricBox("Worst loss", logic.fmt(analysis.largestLoss, 2)),
+          metricBox("Worst/avg loss", logic.fmt(analysis.worstToAverageLossRatio, 2)),
+          metricBox("First third", logic.fmt(analysis.firstNet, 2)),
+          metricBox("Last third", logic.fmt(analysis.lastNet, 2)),
+          metricBox("Profit decay", Number.isFinite(analysis.decay) ? `${logic.fmt(analysis.decay * 100, 0)}%` : "-"),
+          metricBox("Top 5 PnL", Number.isFinite(analysis.topFiveContribution) ? `${logic.fmt(analysis.topFiveContribution * 100, 0)}%` : "-"),
+          metricBox("Late degradation", analysis.lateDegradation ? "yes" : "no"),
+          metricBox("Timestamp gaps", logic.fmt(analysis.incompleteTimestampCount, 0))
         ].join("");
+        return analysis;
+      }
+
+      function renderDecisionMatrix(decision) {
+        const reasonsById = {};
+        (decision.reasons || []).forEach((reason) => { reasonsById[reason.id] = reason; });
+        $("[data-matrix-state]").textContent = `${decision.pipelineLabel} gate`;
+        $("[data-decision-matrix]").innerHTML = (decision.checks || []).map((check) => {
+          const reason = reasonsById[check.id] || {};
+          const action = reason.repairAction || (check.state === "pass" ? "OK for this stage." : "Review before promotion.");
+          return `
+            <div class="matrix-row ${esc(check.state)}">
+              <div class="matrix-meta">
+                <strong>${esc(check.label)}</strong>
+                <span>${esc(check.target || "-")}</span>
+              </div>
+              <div>
+                <div class="matrix-track"><span style="width:${esc(Math.max(0, Math.min(100, check.score || 0)))}%"></span></div>
+                <div class="matrix-action">${esc(check.detail || "-")}</div>
+              </div>
+              <div class="matrix-score">
+                <strong>${esc(check.score || 0)}</strong>
+                <span>${esc((check.state || "").toUpperCase())}</span>
+              </div>
+              <div class="matrix-action">${esc(action)}</div>
+            </div>
+          `;
+        }).join("");
+      }
+
+      function renderReasons(reasons) {
+        $("[data-checks]").innerHTML = (reasons || []).map((reason) => `
+          <div class="chip ${esc(reason.severity)}">
+            <strong>${esc(reason.text)}</strong>
+            ${reason.repairAction ? `<em>${esc(reason.repairAction)}</em>` : ""}
+          </div>
+        `).join("");
       }
 
       function render() {
-        const evalResult = logic.evaluateGate(state.strategy, state.stats);
-        const severity = evalResult.severity;
         document.querySelectorAll("[data-i18n]").forEach((node) => {
           node.textContent = t(node.dataset.i18n);
         });
@@ -582,24 +883,42 @@
         document.documentElement.lang = state.language;
         $("[data-version]").textContent = logic.VERSION;
         $("[data-source]").textContent = state.source;
+        $("[data-pipeline-select]").value = state.pipelineContext;
+        const orderAnalysis = currentOrderAnalysis();
+        const evalResult = logic.evaluateGate(state.strategy, state.stats, evalOptions(orderAnalysis));
+        state.lastDecision = evalResult;
+        state.lastSummary = logic.buildSummary(evalResult, state.strategy, state.stats || {}, evalOptions(orderAnalysis));
+
+        const severity = evalResult.severity;
         const verdict = $("[data-verdict]");
         verdict.textContent = t(severity);
         verdict.className = `verdict-label ${severity}`;
+        $("[data-gate-score]").textContent = `${evalResult.score}/100`;
         $("[data-summary]").textContent = evalResult.summary || t("waiting");
+        $("[data-pipeline-note]").textContent = `${evalResult.pipelineLabel} (${state.pipelineManual ? "manual override" : "auto-detected"})`;
+
         const strategy = state.strategy || {};
         const stats = state.stats || {};
         $("[data-context]").innerHTML = [
           kv("Strategy", strategy.name),
-          kv("Project", strategy.projectName),
+          kv("Pipeline", evalResult.pipelineLabel),
           kv("Symbol", strategy.symbol),
           kv("Timeframe", strategy.timeframe),
           kv("Trades", logic.fmt(logic.metric(stats, ["NumberOfTrades", "Trades"]), 0)),
-          kv("Profit Factor", logic.fmt(logic.metric(stats, ["ProfitFactor", "PF"]), 2))
+          kv("Profit Factor", logic.fmt(logic.metric(stats, ["ProfitFactor", "PF"]), 2)),
+          kv("Ret/DD", logic.fmt(logic.metric(stats, ["ReturnDDRatio", "RetDD", "ReturnToDrawdown"]), 2)),
+          kv("Prev Retest Trades", Number.isFinite(state.previousTrades) ? logic.fmt(state.previousTrades, 0) : "-")
         ].join("");
-        $("[data-checks]").innerHTML = (evalResult.reasons || []).map((reason) => `<div class="chip ${reason.severity}">${reason.text}</div>`).join("");
+
+        renderReasons(evalResult.reasons);
         $("[data-next-action]").textContent = evalResult.nextAction;
-        renderRadar(logic.radarAxes(state.strategy, state.stats || {}));
-        renderOrders();
+        renderRadar(logic.radarAxes(state.strategy, state.stats || {}, evalOptions(orderAnalysis)), evalResult.score);
+        const renderedOrderAnalysis = renderOrders();
+        if (renderedOrderAnalysis && (!orderAnalysis || renderedOrderAnalysis.summary !== orderAnalysis.summary)) {
+          render();
+          return;
+        }
+        renderDecisionMatrix(evalResult);
       }
 
       function loadFixture(name) {
@@ -611,26 +930,75 @@
         state.ordersRequested = false;
         state.fixture = name;
         state.source = "offline fixture";
+        state.pipelineManual = false;
+        state.pipelineContext = "build";
+        state.previousTrades = Number(fixture.previousTrades);
+        if (!Number.isFinite(state.previousTrades)) state.previousTrades = NaN;
+        $("[data-previous-trades]").value = Number.isFinite(state.previousTrades) ? String(state.previousTrades) : "";
         fixture.messages.forEach(receiveSqxMessage);
+      }
+
+      function copySummary() {
+        const box = $("[data-summary-box]");
+        const text = state.lastSummary || "";
+        const fallback = () => {
+          box.hidden = false;
+          box.value = text;
+          box.focus();
+          box.select();
+          $("[data-copy-state]").textContent = "selectable fallback";
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(() => {
+            box.hidden = true;
+            $("[data-copy-state]").textContent = "copied";
+          }).catch(fallback);
+        } else {
+          fallback();
+        }
       }
 
       window.addEventListener("message", (event) => receiveSqxMessage(event.data));
       $("[data-orders-button]").addEventListener("click", requestOrders);
+      $("[data-copy-summary]").addEventListener("click", copySummary);
       $("[data-theme-toggle]").addEventListener("click", () => receiveSqxMessage({ type: "SET_THEME", data: { theme: state.theme === "dark" ? "light" : "dark" } }));
       $("[data-language-toggle]").addEventListener("click", () => receiveSqxMessage({ type: "SET_LANGUAGE", data: state.language === "es" ? "en" : "es" }));
+      $("[data-pipeline-select]").addEventListener("change", (event) => {
+        state.pipelineContext = logic.normalizePipelineContext(event.target.value);
+        state.pipelineManual = true;
+        render();
+      });
+      $("[data-previous-trades]").addEventListener("input", (event) => {
+        const value = Number(event.target.value);
+        state.previousTrades = Number.isFinite(value) && value > 0 ? value : NaN;
+        render();
+      });
 
       window.__SQX_EDGE_GATE__ = {
         version: logic.VERSION,
         receiveSqxMessage,
         requestOrders,
         loadFixture,
+        copySummary,
         state,
-        evaluate: () => logic.evaluateGate(state.strategy, state.stats),
-        orderAnalysis: () => logic.analyzeOrders(state.orders || [])
+        setPipelineContext: (value) => {
+          state.pipelineContext = logic.normalizePipelineContext(value);
+          state.pipelineManual = true;
+          render();
+        },
+        setPreviousTrades: (value) => {
+          const numeric = Number(value);
+          state.previousTrades = Number.isFinite(numeric) && numeric > 0 ? numeric : NaN;
+          $("[data-previous-trades]").value = Number.isFinite(state.previousTrades) ? String(state.previousTrades) : "";
+          render();
+        },
+        evaluate: () => logic.evaluateGate(state.strategy, state.stats, evalOptions(currentOrderAnalysis())),
+        orderAnalysis: () => logic.analyzeOrders(state.orders || []),
+        buildSummary: () => state.lastSummary
       };
 
       if (window.parent === window) {
-        loadFixture("pass");
+        loadFixture("buildPass");
       } else {
         render();
       }

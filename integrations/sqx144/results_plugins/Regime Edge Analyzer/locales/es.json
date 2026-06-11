@@ -1,0 +1,12 @@
+{
+  "title": "Regime Edge Analyzer",
+  "subtitle": "Comportamiento por regimen de mercado para la estrategia seleccionada",
+  "direction": "Direccion",
+  "marketSource": "Fuente mercado",
+  "verdict": "Veredicto Regime",
+  "score": "Regime Score",
+  "timeline": "Matriz anual de regimen",
+  "details": "Detalle por regimen",
+  "methodology": "Notas metodologicas",
+  "disclaimer": "El diagnostico de regimen puede endurecer o mandar a revision, pero nunca promociona una estrategia por si solo."
+}

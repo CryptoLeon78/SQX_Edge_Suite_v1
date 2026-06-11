@@ -1,5 +1,76 @@
 # Changelog
 
+## 2026-06-12 - SQX144-CUSTOM-RESULTS8 Regime Edge Analyzer Install
+
+- Phase label: `SQX144-CUSTOM-RESULTS8 - Regime Edge Analyzer`.
+- Marker: `sqx144-custom-results8-regime-edge-analyzer-v1`.
+- Read-only marker: `sqx144-custom-results8-readonly-regime-edge-analyzer-v1`.
+- Source-ready status: `custom_results8_regime_edge_analyzer_source_ready_no_install_no_launch_no_db_no_projects_no_databanks_no_tasks_no_migration_tool`.
+- Installed status: `custom_results8_regime_edge_analyzer_installed_copy_only_no_launch_no_db_no_projects_no_databanks_no_tasks_no_migration_tool`.
+- Applied exact approval: `APRUEBO SQX144 CUSTOM RESULTS8 REGIME EDGE ANALYZER INSTALL host=sqx144_full plugin=sqx_regime_edge_analyzer sqx_closed backup_hash_rollback copy_only_sqx_edge_owned_plugin get_orders_optin_acknowledged no_db_no_projects_no_databanks_no_tasks no_migration_tool no_source_code`.
+- Copied only `Regime Edge Analyzer` from `integrations/sqx144/results_plugins/Regime Edge Analyzer` to `sqx144_full/user/extend/ResultsPlugins/Regime Edge Analyzer`.
+- Runtime contract remains: default `STRATEGY_DATA`, `SET_THEME`, `SWITCH_THEME`, `SET_LANGUAGE`, `GET_STATS`, `STATS_RESPONSE`; `GET_ORDERS opt-in` only after `Activar Regime Orders`.
+- Verification: preflight `processCount=0`, blockers `[]`, warnings `[]`, `installExecuted=true`, `currentlyInstalled=true`, `copiedFiles=6`, `targetMatchesSource=true`, SHA256 `893DE84B706FD208774DF8C74A2A256782159B5DA76E5EEFF04337B6BC8ED8BE`, `backupCreated=false`.
+- Evidence ref: `.local/sqx144_custom_results8/sqx144_custom_results8_install_20260611_220624.json`.
+- Real smoke: SQX144 Full started through `StrategyQuantX.exe`, UI served at `http://localhost:8080`, `GET /resultsPlugins/list` returned `Regime Edge Analyzer`, `http://localhost:8080/plugins/Regime%20Edge%20Analyzer/index.html` returned HTTP `200`, marker/debug API were present and Playwright render of the served plugin returned `ok=true` with `consoleErrors=[]`.
+- Install step did not launch SQX runtime and no `SQX Edge Gate`, original downloaded Custom Results, data.db, user/projects, databanks, tasks, Migration Tool or source-code export were touched. Real smoke launched the UI only for verification and did not start SQX tasks or project/databank actions.
+
+## 2026-06-11 - SQX144-CUSTOM-RESULTS8 Regime Edge Analyzer
+
+- Phase label: `SQX144-CUSTOM-RESULTS8 - Regime Edge Analyzer`.
+- Marker: `sqx144-custom-results8-regime-edge-analyzer-v1`.
+- Read-only marker: `sqx144-custom-results8-readonly-regime-edge-analyzer-v1`.
+- Status: `custom_results8_regime_edge_analyzer_source_ready_no_install_no_launch_no_db_no_projects_no_databanks_no_tasks_no_migration_tool`.
+- Adds the SQX Edge-owned ResultsPlugin `Regime Edge Analyzer` at `integrations/sqx144/results_plugins/Regime Edge Analyzer`.
+- Adds wrapper `tools/sqx144_custom_results8_regime_edge_analyzer.ps1`, core `backend/sqx-edge-tool/core/sqx144_custom_results8_regime_edge_analyzer.py`, pytest `backend/sqx-edge-tool/test_sqx144_custom_results8_regime_edge_analyzer.py`, JS contract `tests/js/contracts/sqx144_custom_results8_regime_edge_analyzer_contracts.mjs` and render smoke `tests/js/contracts/sqx144_custom_results8_regime_edge_analyzer_render_smoke.mjs`.
+- Runtime contract: default `STRATEGY_DATA`, `SET_THEME`, `SWITCH_THEME`, `SET_LANGUAGE`, `GET_STATS`, `STATS_RESPONSE`; `GET_ORDERS opt-in` only after `Activar Regime Orders`.
+- Regime labels: `BULL`, `BEAR`, `SIDEWAYS`, `MIXED`, `UNKNOWN`; decision labels: `REGIME_STRONG`, `REGIME_COMPATIBLE`, `REGIME_DEFENSIVE`, `REGIME_MEAN_REVERT`, `REGIME_MISMATCH_REVIEW`, `REGIME_ADVERSE_RISK`, `REGIME_INSUFFICIENT`, `REGIME_UNKNOWN`.
+- Academic review consulted Bailey/Lopez de Prado PBO, Bailey/Lopez de Prado Deflated Sharpe Ratio and Hamilton 1989 regime switching.
+- `installExecuted=false`: No se instala en SQX144, No SQX runtime, no data.db, no user/projects, no databank mutation, no tasks, no Migration Tool and no source-code export.
+
+## 2026-06-11 - SQX144-CUSTOM-RESULTS7 Readiness Panel Retirement
+
+- Phase label: `SQX144-CUSTOM-RESULTS7 - Readiness Panel Retirement`.
+- Status: `custom_results7_readiness_panel_retired_from_sqx144_resultsplugins_backup_move_no_launch_no_db_no_projects_no_databanks_no_tasks_no_migration_tool`.
+- Retired active `SQX Edge Readiness Panel` from `sqx144_full/user/extend/ResultsPlugins` by moving it to backup, not deleting source.
+- Backup id: `sqx144_custom_results7_readiness_panel_retire_20260611_205723`.
+- Evidence ref: `.local/sqx144_custom_results7/sqx144_custom_results7_readiness_panel_retire_20260611_205723.json`.
+- Preserved hashes: `index.html` = `DACE1D0A26A0B013C60A19668C25158FAE0D28D554325821B856073994BFB3F0`; `fixtures/fixtures.js` = `365045FA198DF8B246DE766652EACE54142772F05E522ED0877A7ADCF19A98DB`.
+- Verification: active target absent, `SQX Edge Gate` still source/target matched at SHA256 `803314F33732533A046CC74C1237C352D90BEE94C66C86F36E95B55CAC100BB0`, process count `0`.
+- No original downloaded Custom Results, `SQX Edge Gate`, SQX runtime, `data.db`, `user/projects`, databanks, tasks, Migration Tool or SQX142 historical source were touched.
+
+## 2026-06-11 - SQX144-CUSTOM-RESULTS6 SQX Edge Gate Decision Matrix UI
+
+- Marker: `sqx144-custom-results6-edge-gate-v2`.
+- Replaced the visible `Methodology Guardrails`, `Official Tabs` and `Manual Export` panels with a compact `Decision Matrix`.
+- `Order Radar V2` is now hidden until `Activar Order Radar`; `Copy Summary` remains a header action with hidden textarea fallback.
+- Installed only `SQX Edge Gate` to `sqx144_full/user/extend/ResultsPlugins/SQX Edge Gate` after the existing CUSTOM-RESULTS6 install approval gate and SQX-closed preflight.
+- Verification: smoke, JS contracts, render smoke and pytest passed; target hash matches source SHA256 `803314F33732533A046CC74C1237C352D90BEE94C66C86F36E95B55CAC100BB0`; backup `custom_results6_install_20260611_205049`; evidence `.local/sqx144_custom_results6/sqx144_custom_results6_install_20260611_205049.json`.
+- `SQX Edge Readiness Panel` review found an SQX142 carryover marker `sqx142-internal-safe2-readiness-panel-v1` installed in SQX144 with hashes matching `integrations/sqx142`; recommendation is future gated retirement from SQX144, preserving backup/source.
+
+## 2026-06-11 - SQX144-CUSTOM-RESULTS6 SQX Edge Gate V2 Install
+
+- Marker: `sqx144-custom-results6-edge-gate-v2`.
+- Phase label: `SQX144-CUSTOM-RESULTS6 - SQX Edge Gate V2`.
+- Installed status: `custom_results6_edge_gate_v2_installed_copy_only_no_launch_no_db_no_projects_no_databanks_no_tasks_no_migration_tool`.
+- Applied exact approval: `APRUEBO SQX144 CUSTOM RESULTS6 EDGE GATE V2 INSTALL host=sqx144_full plugin=sqx_edge_gate_v2 sqx_closed backup_hash_rollback copy_only_sqx_edge_owned_plugin get_orders_optin_acknowledged no_db_no_projects_no_databanks_no_tasks no_migration_tool no_source_code`.
+- Copied only `SQX Edge Gate` from `integrations/sqx144/results_plugins/SQX Edge Gate` to `sqx144_full/user/extend/ResultsPlugins/SQX Edge Gate`.
+- Verification: preflight `processCount=0`, blockers `[]`, warning `target_plugin_differs_backup_required`, `installExecuted=true`, `currentlyInstalled=true`, `copiedFiles=6`, `targetMatchesSource=true`, SHA256 `F59F70276C3DAA7541DE3CC94F6A717CFBE087948133B2299F20753F604CC30C`, `backupCreated=true`, `backupId=custom_results6_install_20260611_174029`.
+- Evidence ref: `.local/sqx144_custom_results6/sqx144_custom_results6_install_20260611_174030.json`.
+- Original downloaded Custom Results remain separate and untouched; no `RandomEntries`, no SQX runtime, no data.db, no user/projects, no databank mutation, no tasks, no Migration Tool and no source-code export.
+
+## 2026-06-11 - SQX144-CUSTOM-RESULTS6 SQX Edge Gate V2
+
+- Marker: `sqx144-custom-results6-edge-gate-v2`.
+- Phase label: `SQX144-CUSTOM-RESULTS6 - SQX Edge Gate V2`.
+- Status: `custom_results6_edge_gate_v2_source_ready_no_install_no_launch_no_db_no_projects_no_databanks_no_tasks_no_migration_tool`.
+- Evolves the SQX Edge-owned `SQX Edge Gate` ResultsPlugin as the institutional final-decision tab without touching the original downloaded Custom Results.
+- Adds `Pipeline Context` auto-detect plus manual override for Build, Retest 0, Retest 1, Tick Real, Forward and Portfolio Candidate.
+- Adds stage-aware thresholds, optional Tick Real previous-retest trade retention, Forward OOS inferred-by-stage handling, and `Gate Score 0-100` with weights Evidence 25%, Profitability 20%, Risk Efficiency 25%, Expectancy 15%, OOS Integrity 15%.
+- Adds repair actions in reason chips, `Order Radar V2` opt-in diagnostics, `Methodology Guardrails`, official tab comparison and `Copy Summary` with selectable textarea fallback.
+- Future install approval phrase: `APRUEBO SQX144 CUSTOM RESULTS6 EDGE GATE V2 INSTALL host=sqx144_full plugin=sqx_edge_gate_v2 sqx_closed backup_hash_rollback copy_only_sqx_edge_owned_plugin get_orders_optin_acknowledged no_db_no_projects_no_databanks_no_tasks no_migration_tool no_source_code`.
+- `installExecuted=false`: no SQX runtime, no data.db, no user/projects, no databank mutation, no tasks, no Migration Tool and no source-code export.
+
 ## 2026-06-11 - SQX144-CUSTOM-RESULTS5 SQX Edge Gate Install
 
 - Marker: `sqx144-custom-results5-edge-gate-v1`.

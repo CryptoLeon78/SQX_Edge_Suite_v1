@@ -12,32 +12,28 @@ from pathlib import Path
 from typing import Any
 
 
-SQX144_CUSTOM_RESULTS5_VERSION = "sqx144-custom-results6-edge-gate-v2"
-SQX144_CUSTOM_RESULTS5_PHASE = "SQX144-CUSTOM-RESULTS6"
-SQX144_CUSTOM_RESULTS5_PHASE_LABEL = "SQX144-CUSTOM-RESULTS6 - SQX Edge Gate V2"
-SQX144_CUSTOM_RESULTS5_STATUS = "custom_results6_edge_gate_v2_source_ready_no_install_no_launch_no_db_no_projects_no_databanks_no_tasks_no_migration_tool"
-SQX144_CUSTOM_RESULTS5_SMOKE_STATUS = "custom_results6_edge_gate_v2_smoke_passed_no_install_no_launch_no_db_no_projects_no_databanks_no_tasks_no_migration_tool"
-SQX144_CUSTOM_RESULTS5_INSTALL_STATUS = "custom_results6_edge_gate_v2_install_ready_apply_required_no_launch_no_db_no_projects_no_databanks_no_tasks_no_migration_tool"
-SQX144_CUSTOM_RESULTS5_INSTALLED_STATUS = "custom_results6_edge_gate_v2_installed_copy_only_no_launch_no_db_no_projects_no_databanks_no_tasks_no_migration_tool"
-INSTALL_APPROVAL_PHRASE = "APRUEBO SQX144 CUSTOM RESULTS6 EDGE GATE V2 INSTALL host=sqx144_full plugin=sqx_edge_gate_v2 sqx_closed backup_hash_rollback copy_only_sqx_edge_owned_plugin get_orders_optin_acknowledged no_db_no_projects_no_databanks_no_tasks no_migration_tool no_source_code"
-LEGACY_RESULTS5_VERSION = "sqx144-custom-results5-edge-gate-v1"
-LEGACY_RESULTS5_PHASE_LABEL = "SQX144-CUSTOM-RESULTS5 - SQX Edge Gate"
-LEGACY_RESULTS5_STATUS = "custom_results5_edge_gate_source_ready_no_install_no_launch_no_db_no_projects_no_databanks_no_tasks_no_migration_tool"
-LEGACY_RESULTS5_SMOKE_STATUS = "custom_results5_edge_gate_smoke_passed_no_install_no_launch_no_db_no_projects_no_databanks_no_tasks_no_migration_tool"
-LEGACY_RESULTS5_APPROVAL_PHRASE = "APRUEBO SQX144 CUSTOM RESULTS5 EDGE GATE INSTALL host=sqx144_full plugin=sqx_edge_gate sqx_closed backup_hash_rollback copy_only_sqx_edge_owned_plugin get_orders_optin_acknowledged no_db_no_projects_no_databanks_no_tasks no_migration_tool no_source_code"
+SQX144_CUSTOM_RESULTS8_VERSION = "sqx144-custom-results8-regime-edge-analyzer-v1"
+SQX144_CUSTOM_RESULTS8_READONLY_VERSION = "sqx144-custom-results8-readonly-regime-edge-analyzer-v1"
+SQX144_CUSTOM_RESULTS8_PHASE = "SQX144-CUSTOM-RESULTS8"
+SQX144_CUSTOM_RESULTS8_PHASE_LABEL = "SQX144-CUSTOM-RESULTS8 - Regime Edge Analyzer"
+SQX144_CUSTOM_RESULTS8_STATUS = "custom_results8_regime_edge_analyzer_source_ready_no_install_no_launch_no_db_no_projects_no_databanks_no_tasks_no_migration_tool"
+SQX144_CUSTOM_RESULTS8_SMOKE_STATUS = "custom_results8_regime_edge_analyzer_smoke_passed_no_install_no_launch_no_db_no_projects_no_databanks_no_tasks_no_migration_tool"
+SQX144_CUSTOM_RESULTS8_INSTALL_STATUS = "custom_results8_regime_edge_analyzer_install_ready_apply_required_no_launch_no_db_no_projects_no_databanks_no_tasks_no_migration_tool"
+SQX144_CUSTOM_RESULTS8_INSTALLED_STATUS = "custom_results8_regime_edge_analyzer_installed_copy_only_no_launch_no_db_no_projects_no_databanks_no_tasks_no_migration_tool"
+INSTALL_APPROVAL_PHRASE = "APRUEBO SQX144 CUSTOM RESULTS8 REGIME EDGE ANALYZER INSTALL host=sqx144_full plugin=sqx_regime_edge_analyzer sqx_closed backup_hash_rollback copy_only_sqx_edge_owned_plugin get_orders_optin_acknowledged no_db_no_projects_no_databanks_no_tasks no_migration_tool no_source_code"
 EXPECTED_ROOT_NAME = "SQX_144_Full"
-PLUGIN_NAME = "SQX Edge Gate"
+PLUGIN_NAME = "Regime Edge Analyzer"
 SOURCE_PLUGIN_RELATIVE = Path("integrations") / "sqx144" / "results_plugins" / PLUGIN_NAME
-TARGET_PLUGIN_REF = "sqx144_full/user/extend/ResultsPlugins/SQX Edge Gate"
-EVIDENCE_DIR_PARTS = (".local", "sqx144_custom_results6")
+TARGET_PLUGIN_REF = "sqx144_full/user/extend/ResultsPlugins/Regime Edge Analyzer"
+EVIDENCE_DIR_PARTS = (".local", "sqx144_custom_results8")
 OWNED_RUNTIME_MARKERS = (
-    "sqx144-custom-results5-edge-gate-v1",
-    "sqx144-custom-results6-edge-gate-v2",
+    "sqx144-custom-results8-regime-edge-analyzer-v1",
+    "Regime Edge Analyzer",
 )
 
 RUNTIME_FILES = (
     "index.html",
-    "edge-gate.js",
+    "regime-edge.js",
     "fixtures/fixtures.js",
 )
 EXPECTED_FILES = RUNTIME_FILES + (
@@ -54,36 +50,61 @@ FORBIDDEN_RUNTIME_MARKERS = (
     "sessionStorage",
     "indexedDB",
     "fetch(",
+    "XMLHttpRequest",
+    "WebSocket",
+    "EventSource",
+    "sendBeacon",
+    "eval(",
+    "new Function",
     "run_project",
     "stop_project",
+    "data.db",
+    "user/projects",
+    "Migration Tool",
 )
 REQUIRED_RUNTIME_MARKERS = (
-    "SQX_EDGE_GATE_VERSION",
-    "sqx144-custom-results6-edge-gate-v2",
-    "window.__SQX_EDGE_GATE__",
+    "Regime Edge Analyzer",
+    "sqx144-custom-results8-regime-edge-analyzer-v1",
+    "window.__SQX_REGIME_EDGE__",
+    "SQX_REGIME_EDGE_LOGIC",
     "STRATEGY_DATA",
     "GET_STATS",
     "STATS_RESPONSE",
     "GET_ORDERS",
     "ORDERS_RESPONSE",
-    "Activar Order Radar",
-    "Pipeline Context",
-    "Gate Score",
-    "Decision Matrix",
-    "Copy Summary",
-    "Order Radar V2",
-    "NumberOfTrades",
-    "ProfitFactor",
-    "ReturnDDRatio",
-    "RExpectancy",
-    "NetProfit",
-    "PASS",
-    "REVIEW",
-    "BLOCK",
+    "Activar Regime Orders",
+    "REGIME_STRONG",
+    "REGIME_COMPATIBLE",
+    "REGIME_DEFENSIVE",
+    "REGIME_MEAN_REVERT",
+    "REGIME_MISMATCH_REVIEW",
+    "REGIME_ADVERSE_RISK",
+    "REGIME_INSUFFICIENT",
+    "REGIME_UNKNOWN",
+    "BULL",
+    "BEAR",
+    "SIDEWAYS",
+    "MIXED",
+    "UNKNOWN",
+    "Methodology Notes",
+)
+FIXTURE_NAMES = (
+    "longBullStrong",
+    "longBullMismatch",
+    "longBearSurvival",
+    "shortBearStrong",
+    "shortBearMismatch",
+    "sidewaysMeanRevert",
+    "mixedUnknown",
+    "missingSeries",
+    "missingTimestamps",
+    "fewTrades",
+    "largeOrders",
+    "noStrategy",
 )
 
 
-class CustomResults5Error(RuntimeError):
+class CustomResults8Error(RuntimeError):
     def __init__(self, code: str, *, details: dict[str, Any] | None = None):
         super().__init__(code)
         self.code = code
@@ -152,7 +173,7 @@ def _target_plugin_root(sqx_root: Path | None) -> Path | None:
 def _backup_root(sqx_root: Path | None) -> Path | None:
     if sqx_root is None:
         return None
-    return sqx_root / ".local_code_backups" / "sqx144_custom_results6"
+    return sqx_root / ".local_code_backups" / "sqx144_custom_results8"
 
 
 def _evidence_root(project_root: Path) -> Path:
@@ -177,8 +198,8 @@ def _sha256(path: Path) -> str:
     return digest.hexdigest().upper()
 
 
-def _file_manifest(root: Path) -> list[dict[str, Any]]:
-    if not root.is_dir():
+def _file_manifest(root: Path | None) -> list[dict[str, Any]]:
+    if root is None or not root.is_dir():
         return []
     rows: list[dict[str, Any]] = []
     for path in sorted(item for item in root.rglob("*") if item.is_file()):
@@ -218,7 +239,7 @@ def _read_runtime_text(source_root: Path) -> str:
 def _target_owned_by_sqx_edge(target_root: Path | None) -> bool:
     if target_root is None or not target_root.is_dir():
         return False
-    for relative in ("index.html", "edge-gate.js", "README.md"):
+    for relative in ("index.html", "regime-edge.js", "README.md"):
         path = target_root / relative
         text = path.read_text(encoding="utf-8", errors="ignore") if path.is_file() else ""
         if any(marker in text for marker in OWNED_RUNTIME_MARKERS):
@@ -286,10 +307,11 @@ ConvertTo-Json -InputObject $items -Depth 3
 def _base_payload(action: str) -> dict[str, Any]:
     return {
         "ok": False,
-        "version": SQX144_CUSTOM_RESULTS5_VERSION,
-        "phase": SQX144_CUSTOM_RESULTS5_PHASE,
-        "phaseLabel": SQX144_CUSTOM_RESULTS5_PHASE_LABEL,
-        "status": SQX144_CUSTOM_RESULTS5_STATUS,
+        "version": SQX144_CUSTOM_RESULTS8_VERSION,
+        "readOnlyVersion": SQX144_CUSTOM_RESULTS8_READONLY_VERSION,
+        "phase": SQX144_CUSTOM_RESULTS8_PHASE,
+        "phaseLabel": SQX144_CUSTOM_RESULTS8_PHASE_LABEL,
+        "status": SQX144_CUSTOM_RESULTS8_STATUS,
         "action": action,
         "hostProfile": "sqx144_full",
         "pluginName": PLUGIN_NAME,
@@ -297,7 +319,8 @@ def _base_payload(action: str) -> dict[str, Any]:
         "targetPluginRef": TARGET_PLUGIN_REF,
         "installExecuted": False,
         "dryRun": True,
-        "ordersPolicy": "GET_ORDERS is opt-in only after operator presses Activar Order Radar",
+        "ordersPolicy": "GET_ORDERS is opt-in only after operator presses Activar Regime Orders",
+        "marketSeriesPolicy": "Embedded/manual fallback in V1; Data Manager provider remains future gated and localhost-only.",
         "approvalRequiredForInstall": True,
         "approvalTemplate": INSTALL_APPROVAL_PHRASE,
         "guards": {
@@ -313,6 +336,7 @@ def _base_payload(action: str) -> dict[str, Any]:
             "usesBrowserPersistence": False,
             "usesPluginCreateRenameDelete": False,
             "ordersRequestIsOptIn": True,
+            "dataManagerProviderIsFutureGated": True,
         },
         "privacy": {
             "localPathsReturned": False,
@@ -338,38 +362,28 @@ def smoke_payload(project_root: str | Path = ".") -> dict[str, Any]:
     payload = _base_payload("smoke")
     payload.update({
         "ok": ok,
-        "status": SQX144_CUSTOM_RESULTS5_SMOKE_STATUS if ok else "custom_results6_edge_gate_v2_smoke_failed_no_install_no_launch_no_db_no_projects_no_databanks_no_tasks_no_migration_tool",
+        "status": SQX144_CUSTOM_RESULTS8_SMOKE_STATUS if ok else "custom_results8_regime_edge_analyzer_smoke_failed_no_install_no_launch_no_db_no_projects_no_databanks_no_tasks_no_migration_tool",
         "pluginRef": SOURCE_PLUGIN_RELATIVE.as_posix(),
         "missingFiles": missing_files,
         "forbiddenMarkers": forbidden,
         "missingRequiredMarkers": missing_markers,
-        "fixtureNames": [
-            "buildPass",
-            "retestReview",
-            "tickRealRetentionBlock",
-            "forwardMissingOos",
-            "portfolioCandidate",
-            "ordersLateDegradation",
-            "ordersConcentration",
-            "missingTimestamps",
-            "block",
-            "noStrategy",
-            "missingStats",
-            "missingOOS",
-            "ordersOptIn",
-            "largeOrders",
+        "fixtureNames": list(FIXTURE_NAMES),
+        "regimeLabels": ["BULL", "BEAR", "SIDEWAYS", "MIXED", "UNKNOWN"],
+        "decisionLabels": [
+            "REGIME_STRONG",
+            "REGIME_COMPATIBLE",
+            "REGIME_DEFENSIVE",
+            "REGIME_MEAN_REVERT",
+            "REGIME_MISMATCH_REVIEW",
+            "REGIME_ADVERSE_RISK",
+            "REGIME_INSUFFICIENT",
+            "REGIME_UNKNOWN",
         ],
-        "thresholds": {
-            "Build": "Trades 120/80/60, PF 1.30/1.05, RetDD 4.0/1.5",
-            "Retest 0": "Trades 100/70/50, PF 1.25/1.05, RetDD 3.5/1.5",
-            "Retest 1": "Trades 100/70/50, PF 1.20/1.03, RetDD 3.0/1.3",
-            "Tick Real": "Trades 80/50/30, retention 70%/40%, PF 1.15/1.00, RetDD 2.0/1.0",
-            "Forward": "Trades 50/30/20, PF 1.15/1.00, RetDD 2.0/1.0, OOS inferred by stage",
-            "Portfolio Candidate": "Trades 150/100/70, PF 1.20/1.05, RetDD 4.5/2.0",
-            "RExpectancy": "> 0",
-            "NetProfit": "> 0",
-            "GateScore": "Evidence 25%, Profitability 20%, Risk Efficiency 25%, Expectancy 15%, OOS Integrity 15%",
-        },
+        "academicSources": [
+            "Bailey Borwein Lopez de Prado Zhu PBO",
+            "Bailey Lopez de Prado Deflated Sharpe Ratio",
+            "Hamilton 1989 regime switching",
+        ],
     })
     return payload
 
@@ -383,7 +397,7 @@ def status_payload(project_root: str | Path = ".", sqx_root: str | Path | None =
     payload.update({
         "ok": True,
         "actions": ["status", "smoke", "report", "approval-template", "install"],
-        "status": SQX144_CUSTOM_RESULTS5_INSTALLED_STATUS if currently_installed else SQX144_CUSTOM_RESULTS5_STATUS,
+        "status": SQX144_CUSTOM_RESULTS8_INSTALLED_STATUS if currently_installed else SQX144_CUSTOM_RESULTS8_STATUS,
         "installExecuted": currently_installed,
         "currentlyInstalled": currently_installed,
         "hostRootAccepted": _host_root_accepted(resolved_sqx_root),
@@ -405,7 +419,7 @@ def _install_preflight(project_root: Path, sqx_root: Path | None) -> dict[str, A
     warnings: list[str] = []
 
     if not smoke["ok"]:
-        blockers.append("custom_results6_edge_gate_v2_smoke_failed")
+        blockers.append("custom_results8_regime_edge_analyzer_smoke_failed")
     if not source_root.is_dir():
         blockers.append("source_plugin_missing")
     if sqx_root is None:
@@ -451,7 +465,7 @@ def report_payload(
     payload = _base_payload("report")
     payload.update({
         "ok": bool(smoke["ok"]),
-        "status": SQX144_CUSTOM_RESULTS5_INSTALLED_STATUS if currently_installed else (SQX144_CUSTOM_RESULTS5_STATUS if smoke["ok"] else "custom_results6_edge_gate_v2_report_blocked_no_install"),
+        "status": SQX144_CUSTOM_RESULTS8_INSTALLED_STATUS if currently_installed else (SQX144_CUSTOM_RESULTS8_STATUS if smoke["ok"] else "custom_results8_regime_edge_analyzer_report_blocked_no_install"),
         "installExecuted": currently_installed,
         "currentlyInstalled": currently_installed,
         "smoke": smoke,
@@ -467,13 +481,19 @@ def report_payload(
             "copyRandomEntries": False,
             "requiresSqxClosed": True,
         },
+        "methodology": {
+            "selectedStrategyOnlyV1": True,
+            "fullDatabankV2RequiresSeparateProvider": True,
+            "regimeEvidenceCanDowngradeButNotPromote": True,
+            "academicReviewCompleted": True,
+        },
     })
     if write_evidence:
         evidence_root = _evidence_root(root)
         evidence_root.mkdir(parents=True, exist_ok=True)
-        evidence_path = evidence_root / f"sqx144_custom_results6_report_{_utc_stamp()}.json"
+        evidence_path = evidence_root / f"sqx144_custom_results8_report_{_utc_stamp()}.json"
         evidence_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
-        payload["evidenceRef"] = f".local/sqx144_custom_results6/{evidence_path.name}"
+        payload["evidenceRef"] = f".local/sqx144_custom_results8/{evidence_path.name}"
     return payload
 
 
@@ -481,14 +501,15 @@ def approval_template_payload(project_root: str | Path = ".") -> dict[str, Any]:
     payload = _base_payload("approval-template")
     payload.update({
         "ok": True,
-        "status": "custom_results6_edge_gate_v2_approval_template_ready",
+        "status": "custom_results8_regime_edge_analyzer_approval_template_ready",
         "approvalTemplates": {
             "install": INSTALL_APPROVAL_PHRASE,
         },
         "approvalNotes": [
-            "Install copies only the SQX Edge-owned SQX Edge Gate ResultsPlugin folder.",
-            "Downloaded original Custom Results remain separate and are not touched.",
+            "Install copies only the SQX Edge-owned Regime Edge Analyzer ResultsPlugin folder.",
+            "SQX Edge Gate and original downloaded Custom Results remain untouched.",
             "GET_ORDERS remains opt-in inside the tab after operator action.",
+            "Data Manager provider remains future gated and is not installed by this action.",
             "SQX must be closed and preflight clean before apply.",
         ],
     })
@@ -497,21 +518,21 @@ def approval_template_payload(project_root: str | Path = ".") -> dict[str, Any]:
 
 def _require_install_approval(approval: str | None) -> None:
     if str(approval or "").strip() != INSTALL_APPROVAL_PHRASE:
-        raise CustomResults5Error("custom_results6_edge_gate_v2_install_requires_exact_approval")
+        raise CustomResults8Error("custom_results8_regime_edge_analyzer_install_requires_exact_approval")
 
 
 def _assert_safe_install_paths(project_root: Path, sqx_root: Path | None) -> tuple[Path, Path, Path]:
     if sqx_root is None or not _host_root_accepted(sqx_root):
-        raise CustomResults5Error("sqx144_full_root_mismatch")
+        raise CustomResults8Error("sqx144_full_root_mismatch")
     source_root = _source_plugin_root(project_root)
     results_root = _results_plugins_root(sqx_root)
     target_root = _target_plugin_root(sqx_root)
     if results_root is None or target_root is None or not results_root.is_dir():
-        raise CustomResults5Error("results_plugins_root_missing")
+        raise CustomResults8Error("results_plugins_root_missing")
     if not _is_relative_to(target_root, results_root):
-        raise CustomResults5Error("target_plugin_path_outside_results_plugins")
+        raise CustomResults8Error("target_plugin_path_outside_results_plugins")
     if not source_root.is_dir():
-        raise CustomResults5Error("source_plugin_missing")
+        raise CustomResults8Error("source_plugin_missing")
     return source_root, results_root, target_root
 
 
@@ -529,7 +550,7 @@ def install_payload(
     payload = _base_payload("install")
     payload.update({
         "ok": bool(preflight["ok"]),
-        "status": SQX144_CUSTOM_RESULTS5_INSTALL_STATUS if preflight["ok"] else "custom_results6_edge_gate_v2_install_blocked_no_apply",
+        "status": SQX144_CUSTOM_RESULTS8_INSTALL_STATUS if preflight["ok"] else "custom_results8_regime_edge_analyzer_install_blocked_no_apply",
         "dryRun": not apply,
         "preflight": preflight,
         "installRequiresExactApproval": INSTALL_APPROVAL_PHRASE,
@@ -541,16 +562,16 @@ def install_payload(
 
     _require_install_approval(approval)
     if not preflight["ok"]:
-        raise CustomResults5Error("custom_results6_edge_gate_v2_install_preflight_blocked", details={"blockers": preflight["blockers"]})
+        raise CustomResults8Error("custom_results8_regime_edge_analyzer_install_preflight_blocked", details={"blockers": preflight["blockers"]})
 
     source_root, _results_root, target_root = _assert_safe_install_paths(root, resolved_sqx_root)
     backup_id = None
     backup_created = False
     if target_root.exists():
-        backup_id = f"custom_results6_install_{_utc_stamp()}"
+        backup_id = f"custom_results8_install_{_utc_stamp()}"
         backup_base = _backup_root(resolved_sqx_root)
         if backup_base is None:
-            raise CustomResults5Error("backup_root_missing")
+            raise CustomResults8Error("backup_root_missing")
         backup_target = backup_base / backup_id / PLUGIN_NAME
         backup_target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copytree(target_root, backup_target)
@@ -561,7 +582,7 @@ def install_payload(
     source_manifest = _file_manifest(source_root)
     payload.update({
         "ok": True,
-        "status": SQX144_CUSTOM_RESULTS5_INSTALLED_STATUS,
+        "status": SQX144_CUSTOM_RESULTS8_INSTALLED_STATUS,
         "dryRun": False,
         "installExecuted": True,
         "backupCreated": backup_created,
@@ -574,9 +595,9 @@ def install_payload(
     if write_evidence:
         evidence_root = _evidence_root(root)
         evidence_root.mkdir(parents=True, exist_ok=True)
-        evidence_path = evidence_root / f"sqx144_custom_results6_install_{_utc_stamp()}.json"
+        evidence_path = evidence_root / f"sqx144_custom_results8_install_{_utc_stamp()}.json"
         evidence_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
-        payload["evidenceRef"] = f".local/sqx144_custom_results6/{evidence_path.name}"
+        payload["evidenceRef"] = f".local/sqx144_custom_results8/{evidence_path.name}"
     return payload
 
 
@@ -586,7 +607,7 @@ def _print_payload(payload: dict[str, Any], return_code: int = 0) -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="SQX144 CUSTOM-RESULTS6 SQX Edge Gate V2")
+    parser = argparse.ArgumentParser(description="SQX144 CUSTOM-RESULTS8 Regime Edge Analyzer")
     parser.add_argument("action", choices=("status", "smoke", "report", "approval-template", "install"))
     parser.add_argument("--project-root", default=".")
     parser.add_argument("--sqx-root", default=None)
@@ -613,7 +634,7 @@ def main(argv: list[str] | None = None) -> int:
                 write_evidence=args.write_evidence,
             )
         return _print_payload(payload, 0 if payload.get("ok") else 2)
-    except CustomResults5Error as exc:
+    except CustomResults8Error as exc:
         payload = _base_payload(args.action)
         payload.update({"ok": False, "status": exc.code, "error": exc.code, "details": exc.details})
         return _print_payload(payload, 2)
