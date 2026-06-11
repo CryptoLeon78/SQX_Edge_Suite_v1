@@ -6,7 +6,7 @@ Phase: `A66 Docs Canonicalization`
 
 Status: `completed_docs_canonical_index`
 
-Last updated: 2026-06-04
+Last updated: 2026-06-11
 
 ## Purpose
 
