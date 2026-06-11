@@ -1,0 +1,502 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SQX Edge Custom Results Template</title>
+  <script src="./fixtures/fixtures.js"></script>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f7f8f5;
+      --surface: #ffffff;
+      --surface-alt: #eef2f4;
+      --text: #182027;
+      --muted: #65717d;
+      --line: #d7dedc;
+      --accent: #0f766e;
+      --blue: #2563eb;
+      --good: #166534;
+      --good-bg: #e7f6ec;
+      --warn: #92400e;
+      --warn-bg: #fff1d6;
+      --bad: #b42318;
+      --bad-bg: #ffe6e1;
+      --radius: 8px;
+      font-family: "Segoe UI", Arial, sans-serif;
+    }
+
+    [data-theme="dark"] {
+      --bg: #10161d;
+      --surface: #17212c;
+      --surface-alt: #22303d;
+      --text: #edf2f7;
+      --muted: #adbac8;
+      --line: #334354;
+      --accent: #2dd4bf;
+      --blue: #60a5fa;
+      --good: #4ade80;
+      --good-bg: #173d2b;
+      --warn: #facc15;
+      --warn-bg: #473c16;
+      --bad: #fb7185;
+      --bad-bg: #4b1d28;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 13px;
+      line-height: 1.42;
+    }
+
+    main {
+      width: min(1180px, calc(100vw - 28px));
+      margin: 0 auto;
+      padding: 16px 0 20px;
+    }
+
+    .topbar,
+    .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .topbar { margin-bottom: 12px; }
+
+    h1 {
+      margin: 0;
+      font-size: 19px;
+      font-weight: 760;
+      letter-spacing: 0;
+    }
+
+    .version {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    button {
+      min-height: 32px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--surface);
+      color: var(--text);
+      padding: 6px 10px;
+      font: inherit;
+      cursor: pointer;
+    }
+
+    button:hover,
+    button:focus-visible {
+      border-color: var(--accent);
+      outline: none;
+    }
+
+    button.active {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(260px, 0.9fr) minmax(430px, 1.4fr) minmax(260px, 0.8fr);
+      gap: 10px;
+      align-items: start;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      overflow: hidden;
+    }
+
+    .panel h2 {
+      margin: 0;
+      padding: 12px 14px 10px;
+      border-bottom: 1px solid var(--line);
+      font-size: 14px;
+      letter-spacing: 0;
+    }
+
+    .body {
+      display: grid;
+      gap: 10px;
+      padding: 12px 14px 14px;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .metric,
+    .status-card,
+    .guard,
+    .check {
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: var(--surface-alt);
+      padding: 9px;
+      min-width: 0;
+    }
+
+    .metric .label,
+    .kv .label {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      margin-bottom: 4px;
+    }
+
+    .metric .value {
+      display: block;
+      min-height: 22px;
+      font-size: 18px;
+      font-weight: 760;
+      overflow-wrap: anywhere;
+    }
+
+    .kv {
+      display: grid;
+      grid-template-columns: minmax(82px, auto) minmax(0, 1fr);
+      gap: 8px;
+      align-items: baseline;
+      padding-bottom: 7px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .kv:last-child {
+      padding-bottom: 0;
+      border-bottom: 0;
+    }
+
+    .kv .value {
+      text-align: right;
+      font-weight: 650;
+      overflow-wrap: anywhere;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      width: max-content;
+      max-width: 100%;
+      min-height: 30px;
+      border-radius: 6px;
+      padding: 6px 9px;
+      font-weight: 780;
+      text-transform: uppercase;
+      overflow-wrap: anywhere;
+    }
+
+    .ready { color: var(--good); background: var(--good-bg); }
+    .review { color: var(--warn); background: var(--warn-bg); }
+    .blocked { color: var(--bad); background: var(--bad-bg); }
+
+    .check {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 8px;
+      align-items: start;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-top: 4px;
+      background: var(--muted);
+    }
+
+    .dot.ready { background: var(--good); }
+    .dot.review { background: var(--warn); }
+    .dot.blocked { background: var(--bad); }
+
+    .check strong,
+    .guard strong {
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .footer {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    @media (max-width: 920px) {
+      .layout { grid-template-columns: 1fr; }
+      .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .topbar { align-items: flex-start; flex-direction: column; }
+      .toolbar { justify-content: flex-start; }
+    }
+
+    @media (max-width: 520px) {
+      main { width: min(100vw - 18px, 1180px); padding-top: 10px; }
+      .metric-grid { grid-template-columns: 1fr; }
+      .kv { grid-template-columns: 1fr; }
+      .kv .value { text-align: left; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header class="topbar">
+      <div>
+        <h1 data-i18n="title">SQX Edge Custom Results Template</h1>
+        <div class="version" data-version></div>
+      </div>
+      <nav class="toolbar" aria-label="Fixtures and display">
+        <button type="button" data-fixture="ready">Ready</button>
+        <button type="button" data-fixture="review">Review</button>
+        <button type="button" data-fixture="blocked">Blocked</button>
+        <button type="button" data-fixture="noStrategy">No strategy</button>
+        <button type="button" data-theme-toggle>Theme</button>
+        <button type="button" data-language-toggle>ES/EN</button>
+      </nav>
+    </header>
+
+    <section class="layout" aria-live="polite">
+      <article class="panel">
+        <h2 data-i18n="context">Context</h2>
+        <div class="body" data-context></div>
+      </article>
+
+      <article class="panel">
+        <h2 data-i18n="readiness">Readiness</h2>
+        <div class="body">
+          <div class="status-card">
+            <div class="row">
+              <span class="badge blocked" data-readiness>blocked</span>
+              <span class="muted" data-source>offline fixture</span>
+            </div>
+            <p class="muted" data-readiness-detail></p>
+          </div>
+          <div class="metric-grid" data-metrics></div>
+          <div data-checks></div>
+        </div>
+      </article>
+
+      <article class="panel">
+        <h2 data-i18n="guards">Guards</h2>
+        <div class="body" data-guards></div>
+      </article>
+    </section>
+    <div class="footer" data-i18n="disclaimer">Diagnostic panel only. No profitability promise, no pass-state promotion and no SQX host mutation.</div>
+  </main>
+
+  <script>
+    (function () {
+      "use strict";
+
+      const SQX_EDGE_CUSTOM_RESULTS_TEMPLATE_VERSION = "sqx144-custom-results1-results-plugin-template-v1";
+      const labels = {
+        en: {
+          title: "SQX Edge Custom Results Template",
+          context: "Context",
+          readiness: "Readiness",
+          guards: "Guards",
+          disclaimer: "Diagnostic panel only. No profitability promise, no pass-state promotion and no SQX host mutation.",
+          waiting: "Waiting for strategy and stats payloads.",
+          blocked: "One or more hard readiness checks failed.",
+          review: "Candidate needs operator review before promotion.",
+          ready: "Candidate passes the local readiness screen."
+        },
+        es: {
+          title: "Plantilla SQX Edge Custom Results",
+          context: "Contexto",
+          readiness: "Preparacion",
+          guards: "Guardas",
+          disclaimer: "Panel diagnostico solamente. Sin promesa de rentabilidad, sin promocion de pass-state y sin mutacion del host SQX.",
+          waiting: "Esperando estrategia y estadisticas.",
+          blocked: "Una o mas comprobaciones duras fallaron.",
+          review: "El candidato requiere revision del operador antes de promocion.",
+          ready: "El candidato supera el cribado local."
+        }
+      };
+      const state = {
+        theme: "light",
+        language: "en",
+        strategy: null,
+        stats: null,
+        fixture: null,
+        source: "offline fixture",
+        received: []
+      };
+      const thresholds = { trades: 80, profitFactor: 1.05, expectancy: 0.05, returnDd: 1 };
+      const guards = [
+        ["SQX surface", "user/extend/ResultsPlugins"],
+        ["Default messages", "STRATEGY_DATA, GET_STATS, STATS_RESPONSE"],
+        ["Install", "separate explicit gate only"],
+        ["SQX runtime", "not launched by this template"],
+        ["data.db", "not written"],
+        ["user/projects", "not written"],
+        ["databanks", "not mutated"],
+        ["Migration Tool", "not used"]
+      ];
+
+      const $ = (selector) => document.querySelector(selector);
+      const text = (value, fallback) => value === undefined || value === null || value === "" ? fallback : String(value);
+      const number = (key) => Number(state.stats && state.stats[key]);
+      const fmt = (value, digits) => Number.isFinite(Number(value)) ? Number(value).toLocaleString("en-US", { maximumFractionDigits: digits, minimumFractionDigits: digits }) : "-";
+
+      function currentLabels() {
+        return labels[state.language] || labels.en;
+      }
+
+      function checkState(ok, soft) {
+        if (ok) return "ready";
+        return soft ? "review" : "blocked";
+      }
+
+      function buildChecks() {
+        const trades = number("NumberOfTrades");
+        const profitFactor = number("ProfitFactor");
+        const expectancy = number("RExpectancy");
+        const returnDd = number("ReturnDDRatio");
+        return [
+          { label: "Trades", state: checkState(Number.isFinite(trades) && trades >= thresholds.trades, Number.isFinite(trades) && trades >= 30), detail: `${fmt(trades, 0)} / ${thresholds.trades}+` },
+          { label: "Profit Factor", state: checkState(Number.isFinite(profitFactor) && profitFactor >= thresholds.profitFactor, Number.isFinite(profitFactor) && profitFactor >= 1), detail: `${fmt(profitFactor, 2)} / ${fmt(thresholds.profitFactor, 2)}+` },
+          { label: "RExpectancy", state: checkState(Number.isFinite(expectancy) && expectancy >= thresholds.expectancy, Number.isFinite(expectancy) && expectancy > 0), detail: `${fmt(expectancy, 3)} / ${fmt(thresholds.expectancy, 2)}+` },
+          { label: "ReturnDDRatio", state: checkState(Number.isFinite(returnDd) && returnDd >= thresholds.returnDd, Number.isFinite(returnDd) && returnDd > 0), detail: `${fmt(returnDd, 2)} / ${fmt(thresholds.returnDd, 2)}+` }
+        ];
+      }
+
+      function readiness(checks) {
+        const copy = currentLabels();
+        if (!state.strategy || !state.stats) return ["blocked", copy.waiting];
+        if (checks.some((check) => check.state === "blocked")) return ["blocked", copy.blocked];
+        if (checks.some((check) => check.state === "review")) return ["review", copy.review];
+        return ["ready", copy.ready];
+      }
+
+      function kv(label, value) {
+        return `<div class="kv"><span class="label">${label}</span><span class="value">${text(value, "-")}</span></div>`;
+      }
+
+      function metric(label, value) {
+        return `<div class="metric"><span class="label">${label}</span><span class="value">${value}</span></div>`;
+      }
+
+      function applyLanguage() {
+        const copy = currentLabels();
+        document.querySelectorAll("[data-i18n]").forEach((node) => {
+          node.textContent = copy[node.dataset.i18n] || node.textContent;
+        });
+      }
+
+      function render() {
+        const checks = buildChecks();
+        const [readyState, detail] = readiness(checks);
+        const strategy = state.strategy || {};
+        const stats = state.stats || {};
+        document.documentElement.dataset.theme = state.theme;
+        applyLanguage();
+        $("[data-version]").textContent = SQX_EDGE_CUSTOM_RESULTS_TEMPLATE_VERSION;
+        $("[data-source]").textContent = state.source;
+        const readinessNode = $("[data-readiness]");
+        readinessNode.className = `badge ${readyState}`;
+        readinessNode.textContent = readyState;
+        $("[data-readiness-detail]").textContent = detail;
+        $("[data-context]").innerHTML = [
+          kv("Strategy", strategy.name || strategy.id),
+          kv("Project", strategy.projectName),
+          kv("Databank", strategy.databankName),
+          kv("Symbol", strategy.symbol),
+          kv("Timeframe", strategy.timeframe),
+          kv("Sample", strategy.sampleType)
+        ].join("");
+        $("[data-metrics]").innerHTML = [
+          metric("NetProfit", fmt(stats.NetProfit, 2)),
+          metric("Trades", fmt(stats.NumberOfTrades, 0)),
+          metric("ProfitFactor", fmt(stats.ProfitFactor, 2)),
+          metric("RExpectancy", fmt(stats.RExpectancy, 3)),
+          metric("ReturnDDRatio", fmt(stats.ReturnDDRatio, 2)),
+          metric("Drawdown", fmt(stats.Drawdown || stats.PctDrawdown, 2))
+        ].join("");
+        $("[data-checks]").innerHTML = checks.map((check) => `<div class="check"><span class="dot ${check.state}"></span><div><strong>${check.label}</strong><span class="muted">${check.detail}</span></div></div>`).join("");
+        $("[data-guards]").innerHTML = guards.map((guard) => `<div class="guard"><strong>${guard[0]}</strong><span class="muted">${guard[1]}</span></div>`).join("");
+        document.querySelectorAll("[data-fixture]").forEach((button) => button.classList.toggle("active", button.dataset.fixture === state.fixture));
+      }
+
+      function sendSqxMessage(type, payload) {
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage({ type, payload: payload || {} }, "*");
+        }
+      }
+
+      function receiveSqxMessage(message) {
+        if (!message || typeof message !== "object") return;
+        state.received.push(message.type || "UNKNOWN");
+        switch (message.type) {
+          case "STRATEGY_DATA":
+            state.strategy = message.payload || {};
+            state.source = state.fixture ? "offline fixture" : "SQX postMessage";
+            if (state.strategy.id) sendSqxMessage("GET_STATS", { strategyId: state.strategy.id });
+            break;
+          case "STATS_RESPONSE":
+            state.stats = message.payload || {};
+            break;
+          case "SET_THEME":
+            state.theme = message.payload && message.payload.theme === "dark" ? "dark" : "light";
+            break;
+          case "SET_LANGUAGE":
+            state.language = message.payload && message.payload.language === "es" ? "es" : "en";
+            break;
+          default:
+            break;
+        }
+        render();
+      }
+
+      function loadFixture(name) {
+        const fixture = window.SQX_EDGE_CUSTOM_RESULTS_FIXTURES && window.SQX_EDGE_CUSTOM_RESULTS_FIXTURES[name];
+        if (!fixture) return;
+        state.strategy = null;
+        state.stats = null;
+        state.received = [];
+        state.fixture = name;
+        state.source = "offline fixture";
+        fixture.messages.forEach(receiveSqxMessage);
+      }
+
+      window.addEventListener("message", (event) => receiveSqxMessage(event.data));
+      document.querySelectorAll("[data-fixture]").forEach((button) => button.addEventListener("click", () => loadFixture(button.dataset.fixture)));
+      $("[data-theme-toggle]").addEventListener("click", () => receiveSqxMessage({ type: "SET_THEME", payload: { theme: state.theme === "dark" ? "light" : "dark" } }));
+      $("[data-language-toggle]").addEventListener("click", () => receiveSqxMessage({ type: "SET_LANGUAGE", payload: { language: state.language === "es" ? "en" : "es" } }));
+
+      window.SQX_EDGE_CUSTOM_RESULTS_TEMPLATE_VERSION = SQX_EDGE_CUSTOM_RESULTS_TEMPLATE_VERSION;
+      window.__SQX_EDGE_CUSTOM_RESULTS_TEMPLATE__ = {
+        version: SQX_EDGE_CUSTOM_RESULTS_TEMPLATE_VERSION,
+        receiveSqxMessage,
+        loadFixture,
+        getReadiness: () => readiness(buildChecks())[0],
+        getState: () => JSON.parse(JSON.stringify(state))
+      };
+
+      loadFixture("ready");
+    })();
+  </script>
+</body>
+</html>

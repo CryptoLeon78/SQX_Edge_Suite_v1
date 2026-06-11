@@ -1,0 +1,604 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SQX Edge Custom Results All Modules</title>
+  <script src="./fixtures/fixtures.js"></script>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f5f7f8;
+      --surface: #ffffff;
+      --soft: #eef3f4;
+      --text: #17212b;
+      --muted: #66737f;
+      --line: #d7dee2;
+      --accent: #0f766e;
+      --blue: #2563eb;
+      --good: #166534;
+      --warn: #92400e;
+      --bad: #b42318;
+      --good-bg: #e5f6ec;
+      --warn-bg: #fff3d7;
+      --bad-bg: #ffe7e2;
+      font-family: "Segoe UI", Arial, sans-serif;
+    }
+
+    [data-theme="dark"] {
+      --bg: #0f151b;
+      --surface: #17212b;
+      --soft: #22303b;
+      --text: #edf2f7;
+      --muted: #adbac8;
+      --line: #324353;
+      --accent: #2dd4bf;
+      --blue: #60a5fa;
+      --good: #4ade80;
+      --warn: #facc15;
+      --bad: #fb7185;
+      --good-bg: #173d2b;
+      --warn-bg: #473c16;
+      --bad-bg: #4b1d28;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 13px/1.42 "Segoe UI", Arial, sans-serif;
+    }
+
+    main {
+      width: min(1220px, calc(100vw - 28px));
+      margin: 0 auto;
+      padding: 14px 0 18px;
+    }
+
+    .topbar,
+    .row,
+    .tabs,
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .topbar {
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 19px;
+      letter-spacing: 0;
+    }
+
+    .version {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    button {
+      min-height: 31px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--surface);
+      color: var(--text);
+      padding: 6px 9px;
+      font: inherit;
+      cursor: pointer;
+    }
+
+    button:hover,
+    button:focus-visible {
+      border-color: var(--accent);
+      outline: none;
+    }
+
+    button.active {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .tabs {
+      margin-bottom: 10px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(260px, 0.75fr) minmax(520px, 1.45fr) minmax(260px, 0.8fr);
+      gap: 10px;
+      align-items: start;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      overflow: hidden;
+    }
+
+    .panel h2 {
+      margin: 0;
+      padding: 11px 13px 9px;
+      border-bottom: 1px solid var(--line);
+      font-size: 14px;
+      letter-spacing: 0;
+    }
+
+    .body {
+      display: grid;
+      gap: 9px;
+      padding: 12px 13px 13px;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .metric,
+    .guard,
+    .module-card,
+    .kv {
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: var(--soft);
+      min-width: 0;
+      padding: 9px;
+    }
+
+    .metric span,
+    .kv span {
+      display: block;
+      overflow-wrap: anywhere;
+    }
+
+    .label {
+      color: var(--muted);
+      font-size: 11px;
+      margin-bottom: 3px;
+    }
+
+    .value {
+      font-size: 18px;
+      font-weight: 760;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      width: max-content;
+      max-width: 100%;
+      border-radius: 6px;
+      padding: 5px 8px;
+      font-weight: 780;
+      text-transform: uppercase;
+      overflow-wrap: anywhere;
+    }
+
+    .ready { color: var(--good); background: var(--good-bg); }
+    .review { color: var(--warn); background: var(--warn-bg); }
+    .blocked { color: var(--bad); background: var(--bad-bg); }
+
+    .module-card h3 {
+      margin: 0 0 6px;
+      font-size: 14px;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .footer {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    @media (max-width: 960px) {
+      .layout { grid-template-columns: 1fr; }
+      .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .topbar { align-items: flex-start; flex-direction: column; }
+    }
+
+    @media (max-width: 540px) {
+      main { width: min(100vw - 18px, 1220px); padding-top: 10px; }
+      .metric-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header class="topbar">
+      <div>
+        <h1>SQX Edge Custom Results All Modules</h1>
+        <div class="version" data-version></div>
+      </div>
+      <nav class="toolbar" aria-label="Fixtures">
+        <button type="button" data-fixture="allReady">All ready</button>
+        <button type="button" data-fixture="edgeDecay">Edge decay</button>
+        <button type="button" data-fixture="winRateResearch">WinRate</button>
+        <button type="button" data-fixture="propFirm">2-Step</button>
+        <button type="button" data-fixture="blockedWeak">Weak</button>
+        <button type="button" data-fixture="missingOrders">No orders</button>
+        <button type="button" data-theme-toggle>Theme</button>
+      </nav>
+    </header>
+
+    <nav class="tabs" aria-label="Custom Results modules">
+      <button type="button" data-module="overview">Overview</button>
+      <button type="button" data-module="robustness">Robustness</button>
+      <button type="button" data-module="degradation">IS/OOS</button>
+      <button type="button" data-module="edgeDecay">Edge Decay</button>
+      <button type="button" data-module="winRate">WinRateEdge</button>
+      <button type="button" data-module="challenge">2-Step</button>
+    </nav>
+
+    <section class="layout" aria-live="polite">
+      <article class="panel">
+        <h2>Context</h2>
+        <div class="body" data-context></div>
+      </article>
+
+      <article class="panel">
+        <h2 data-module-title>Overview</h2>
+        <div class="body">
+          <div class="row">
+            <span class="badge blocked" data-status>blocked</span>
+            <span class="muted" data-detail>Waiting for payload.</span>
+          </div>
+          <div class="metric-grid" data-metrics></div>
+          <div data-module-body></div>
+        </div>
+      </article>
+
+      <article class="panel">
+        <h2>Guards</h2>
+        <div class="body" data-guards></div>
+      </article>
+    </section>
+
+    <div class="footer">Diagnostic/research panel only. No profitability promise, no pass-state promotion, no SQX host mutation.</div>
+  </main>
+
+  <script>
+    (function () {
+      "use strict";
+
+      const VERSION = "sqx144-custom-results2-all-custom-results-modules-bundle-v1";
+      const ORDER_LIMIT = 10000;
+      const modules = ["overview", "robustness", "degradation", "edgeDecay", "winRate", "challenge"];
+      const state = {
+        theme: "light",
+        module: "overview",
+        fixture: null,
+        strategy: null,
+        stats: null,
+        orders: [],
+        received: []
+      };
+      const guards = [
+        ["SQX surface", "user/extend/ResultsPlugins"],
+        ["Default messages", "STRATEGY_DATA, GET_STATS, STATS_RESPONSE"],
+        ["Orders modules", "GET_ORDERS, ORDERS_RESPONSE"],
+        ["Source code", "blocked"],
+        ["Plugin management", "blocked"],
+        ["Install", "future exact gate only"],
+        ["SQX runtime", "not launched by this bundle"],
+        ["data.db", "not written"],
+        ["user/projects", "not written"],
+        ["databanks", "not mutated"],
+        ["Migration Tool", "not used"]
+      ];
+      const thresholds = {
+        trades: 80,
+        profitFactor: 1.05,
+        retDd: 1,
+        degradation: 70,
+        decay: 35,
+        winRateZ: 1.3
+      };
+
+      const $ = (selector) => document.querySelector(selector);
+      const escapeHtml = (value) => String(value === undefined || value === null ? "" : value).replace(/[&<>"']/g, (char) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        "\"": "&quot;",
+        "'": "&#39;"
+      })[char]);
+      const fmt = (value, digits) => Number.isFinite(Number(value)) ? Number(value).toLocaleString("en-US", { maximumFractionDigits: digits, minimumFractionDigits: digits }) : "-";
+      const number = (key) => Number(state.stats && state.stats[key]);
+      const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+      const sum = (items) => items.reduce((total, item) => total + Number(item.profit || item.netProfit || item.pnl || 0), 0);
+
+      function status(ok, soft) {
+        if (ok) return "ready";
+        return soft ? "review" : "blocked";
+      }
+
+      function metric(label, value) {
+        return `<div class="metric"><span class="label">${escapeHtml(label)}</span><span class="value">${escapeHtml(value)}</span></div>`;
+      }
+
+      function card(title, detail, stateName) {
+        return `<div class="module-card"><h3>${escapeHtml(title)}</h3><span class="badge ${escapeHtml(stateName)}">${escapeHtml(stateName)}</span><p class="muted">${escapeHtml(detail)}</p></div>`;
+      }
+
+      function kv(label, value) {
+        return `<div class="kv"><span class="label">${escapeHtml(label)}</span><span>${escapeHtml(value || "-")}</span></div>`;
+      }
+
+      function profitFactor(orders) {
+        const wins = orders.filter((order) => Number(order.profit) > 0).reduce((total, order) => total + Number(order.profit), 0);
+        const losses = Math.abs(orders.filter((order) => Number(order.profit) < 0).reduce((total, order) => total + Number(order.profit), 0));
+        if (!losses) return wins > 0 ? 99 : 0;
+        return wins / losses;
+      }
+
+      function maxLossStreak(orders) {
+        let current = 0;
+        let worst = 0;
+        orders.forEach((order) => {
+          if (Number(order.profit) < 0) {
+            current += 1;
+            worst = Math.max(worst, current);
+          } else {
+            current = 0;
+          }
+        });
+        return worst;
+      }
+
+      function robustness() {
+        const trades = number("NumberOfTrades");
+        const pf = number("ProfitFactor");
+        const retDd = number("ReturnDDRatio");
+        const exp = number("RExpectancy");
+        const stability = number("Stability");
+        const sqn = number("SQN");
+        const score = Math.round(
+          clamp((pf - 1) / 0.8, 0, 1) * 25 +
+          clamp(exp / 0.2, 0, 1) * 20 +
+          clamp(retDd / 5, 0, 1) * 20 +
+          clamp(trades / 180, 0, 1) * 15 +
+          clamp(stability || 0, 0, 1) * 10 +
+          clamp(sqn / 3, 0, 1) * 10
+        );
+        return {
+          score,
+          state: status(score >= 70, score >= 55),
+          detail: `Score ${score}/100 from PF, expectancy, ReturnDDRatio, trades, Stability and SQN.`
+        };
+      }
+
+      function degradation() {
+        const pf = number("ProfitFactor");
+        const oosPf = number("OOSProfitFactor");
+        const retDd = number("ReturnDDRatio");
+        const oosRetDd = number("OOSReturnDDRatio");
+        const net = Math.abs(number("NetProfit"));
+        const oosNet = number("OOSNetProfit");
+        const ratios = [
+          Number.isFinite(pf) && pf > 0 ? oosPf / pf : 0,
+          Number.isFinite(retDd) && retDd > 0 ? oosRetDd / retDd : 0,
+          Number.isFinite(net) && net > 0 ? Math.max(0, oosNet) / net : 0
+        ];
+        const retention = Math.round(clamp((ratios.reduce((a, b) => a + b, 0) / ratios.length) * 100, 0, 140));
+        return {
+          retention,
+          state: status(retention >= thresholds.degradation, retention >= 50),
+          detail: `OOS retention ${retention}% across PF, ReturnDDRatio and net profit.`
+        };
+      }
+
+      function edgeDecay() {
+        if (!state.orders.length) return { decay: 100, state: "blocked", detail: "Orders are required for Edge Decay." };
+        const half = Math.max(1, Math.floor(state.orders.length / 2));
+        const first = state.orders.slice(0, half);
+        const second = state.orders.slice(half);
+        const pfFirst = profitFactor(first);
+        const pfSecond = profitFactor(second);
+        const decay = pfFirst > 0 ? Math.round(((pfFirst - pfSecond) / pfFirst) * 100) : 0;
+        const worstLoss = Math.min.apply(null, state.orders.map((order) => Number(order.profit || 0)));
+        const streak = maxLossStreak(state.orders);
+        return {
+          decay,
+          state: status(decay <= thresholds.decay && pfSecond >= 1, decay <= 60),
+          detail: `PF first half ${fmt(pfFirst, 2)}, PF second half ${fmt(pfSecond, 2)}, decay ${fmt(decay, 0)}%, worst loss ${fmt(worstLoss, 2)}, max loss streak ${streak}.`
+        };
+      }
+
+      function winRateEdge() {
+        const trades = state.orders.length || number("NumberOfTrades");
+        const wins = state.orders.length ? state.orders.filter((order) => Number(order.profit) > 0).length : Math.round(trades * number("WinningPct") / 100);
+        const winRate = trades ? wins / trades : 0;
+        const baseline = (number("randomBaselineWinRate") || 50) / 100;
+        const stderr = trades ? Math.sqrt((baseline * (1 - baseline)) / trades) : 1;
+        const z = stderr ? (winRate - baseline) / stderr : 0;
+        return {
+          z,
+          state: status(z >= thresholds.winRateZ, z >= 0.5),
+          detail: `WinRate ${fmt(winRate * 100, 1)}% vs baseline ${fmt(baseline * 100, 1)}%, z-score ${fmt(z, 2)}.`
+        };
+      }
+
+      function challenge() {
+        if (!state.orders.length) return { pass: false, state: "blocked", detail: "Orders are required for 2-Step challenge simulation." };
+        const account = number("accountSize") || 100000;
+        const target = account * ((number("propProfitTargetPct") || 10) / 100);
+        const maxLoss = -account * ((number("propMaxLossPct") || 10) / 100);
+        const dailyLimit = -account * ((number("propMaxDailyLossPct") || 5) / 100);
+        let cumulative = 0;
+        let minEquity = 0;
+        const byDay = {};
+        state.orders.forEach((order) => {
+          cumulative += Number(order.profit || 0);
+          minEquity = Math.min(minEquity, cumulative);
+          const day = String(order.closeTime || order.openTime || "unknown").slice(0, 10);
+          byDay[day] = (byDay[day] || 0) + Number(order.profit || 0);
+        });
+        const worstDay = Math.min.apply(null, Object.keys(byDay).map((day) => byDay[day]));
+        const pass = cumulative >= target && minEquity >= maxLoss && worstDay >= dailyLimit;
+        const soft = cumulative > 0 && minEquity >= maxLoss && worstDay >= dailyLimit;
+        return {
+          pass,
+          state: status(pass, soft),
+          detail: `Profit ${fmt(cumulative, 2)} / target ${fmt(target, 2)}, min equity ${fmt(minEquity, 2)}, worst day ${fmt(worstDay, 2)}.`
+        };
+      }
+
+      function moduleResults() {
+        return {
+          robustness: robustness(),
+          degradation: degradation(),
+          edgeDecay: edgeDecay(),
+          winRate: winRateEdge(),
+          challenge: challenge()
+        };
+      }
+
+      function overall(results) {
+        const states = Object.keys(results).map((key) => results[key].state);
+        if (states.includes("blocked")) return ["blocked", "At least one Custom Results module is blocked."];
+        if (states.includes("review")) return ["review", "All modules rendered, with review markers."];
+        return ["ready", "All modules rendered cleanly on local fixtures."];
+      }
+
+      function render() {
+        const results = moduleResults();
+        const [overallState, detail] = overall(results);
+        const strategy = state.strategy || {};
+        const stats = state.stats || {};
+        document.documentElement.dataset.theme = state.theme;
+        $("[data-version]").textContent = VERSION;
+        $("[data-status]").className = `badge ${state.module === "overview" ? overallState : results[state.module].state}`;
+        $("[data-status]").textContent = state.module === "overview" ? overallState : results[state.module].state;
+        $("[data-detail]").textContent = state.module === "overview" ? detail : results[state.module].detail;
+        $("[data-context]").innerHTML = [
+          kv("Strategy", strategy.name || strategy.id),
+          kv("Project", strategy.projectName),
+          kv("Databank", strategy.databankName),
+          kv("Symbol", strategy.symbol),
+          kv("Timeframe", strategy.timeframe),
+          kv("Orders", String(state.orders.length || 0))
+        ].join("");
+        $("[data-metrics]").innerHTML = [
+          metric("NetProfit", fmt(stats.NetProfit, 2)),
+          metric("Trades", fmt(stats.NumberOfTrades, 0)),
+          metric("ProfitFactor", fmt(stats.ProfitFactor, 2)),
+          metric("OOS PF", fmt(stats.OOSProfitFactor, 2)),
+          metric("ReturnDDRatio", fmt(stats.ReturnDDRatio, 2)),
+          metric("WinRate", fmt(stats.WinningPct, 1) + "%")
+        ].join("");
+        renderModule(results);
+        $("[data-guards]").innerHTML = guards.map((guard) => `<div class="guard"><strong>${guard[0]}</strong><div class="muted">${guard[1]}</div></div>`).join("");
+        document.querySelectorAll("[data-module]").forEach((button) => button.classList.toggle("active", button.dataset.module === state.module));
+        document.querySelectorAll("[data-fixture]").forEach((button) => button.classList.toggle("active", button.dataset.fixture === state.fixture));
+      }
+
+      function renderModule(results) {
+        const titles = {
+          overview: "Overview",
+          robustness: "Robustness Scorecard",
+          degradation: "IS/OOS Degradation",
+          edgeDecay: "Edge Decay Analyzer",
+          winRate: "WinRateEdge",
+          challenge: "2-Step Challenge"
+        };
+        $("[data-module-title]").textContent = titles[state.module] || "Overview";
+        if (state.module === "overview") {
+          $("[data-module-body]").innerHTML = [
+            card("Robustness Scorecard", results.robustness.detail, results.robustness.state),
+            card("IS/OOS Degradation", results.degradation.detail, results.degradation.state),
+            card("Edge Decay Analyzer", results.edgeDecay.detail, results.edgeDecay.state),
+            card("WinRateEdge", results.winRate.detail, results.winRate.state),
+            card("2-Step Challenge", results.challenge.detail, results.challenge.state)
+          ].join("");
+          return;
+        }
+        const result = results[state.module];
+        $("[data-module-body]").innerHTML = card(titles[state.module], result.detail, result.state);
+      }
+
+      function sendSqxMessage(type, payload) {
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage({ type, payload: payload || {} }, "*");
+        }
+      }
+
+      function receiveSqxMessage(message) {
+        if (!message || typeof message !== "object") return;
+        state.received.push(message.type || "UNKNOWN");
+        switch (message.type) {
+          case "STRATEGY_DATA":
+            state.strategy = message.payload || {};
+            if (state.strategy.id) {
+              sendSqxMessage("GET_STATS", { strategyId: state.strategy.id });
+              sendSqxMessage("GET_ORDERS", { strategyId: state.strategy.id, limit: ORDER_LIMIT });
+            }
+            break;
+          case "STATS_RESPONSE":
+            state.stats = message.payload || {};
+            break;
+          case "ORDERS_RESPONSE":
+            state.orders = Array.isArray(message.payload) ? message.payload : (message.payload && message.payload.orders) || [];
+            break;
+          case "SET_THEME":
+            state.theme = message.payload && message.payload.theme === "dark" ? "dark" : "light";
+            break;
+          default:
+            break;
+        }
+        render();
+      }
+
+      function loadFixture(name) {
+        const fixture = window.SQX_EDGE_CUSTOM_RESULTS_ALL_MODULES_FIXTURES && window.SQX_EDGE_CUSTOM_RESULTS_ALL_MODULES_FIXTURES[name];
+        if (!fixture) return;
+        state.strategy = null;
+        state.stats = null;
+        state.orders = [];
+        state.received = [];
+        state.fixture = name;
+        fixture.messages.forEach(receiveSqxMessage);
+      }
+
+      window.addEventListener("message", (event) => receiveSqxMessage(event.data));
+      document.querySelectorAll("[data-fixture]").forEach((button) => button.addEventListener("click", () => loadFixture(button.dataset.fixture)));
+      document.querySelectorAll("[data-module]").forEach((button) => button.addEventListener("click", () => { state.module = button.dataset.module; render(); }));
+      $("[data-theme-toggle]").addEventListener("click", () => receiveSqxMessage({ type: "SET_THEME", payload: { theme: state.theme === "dark" ? "light" : "dark" } }));
+
+      window.SQX_EDGE_CUSTOM_RESULTS_ALL_MODULES_VERSION = VERSION;
+      window.__SQX_EDGE_CUSTOM_RESULTS_ALL_MODULES__ = {
+        version: VERSION,
+        receiveSqxMessage,
+        loadFixture,
+        setModule: (name) => { if (modules.includes(name)) state.module = name; render(); },
+        getModuleResults: () => JSON.parse(JSON.stringify(moduleResults())),
+        getState: () => ({
+          theme: state.theme,
+          module: state.module,
+          fixture: state.fixture,
+          hasStrategy: !!state.strategy,
+          hasStats: !!state.stats,
+          orderCount: state.orders.length,
+          received: state.received.slice()
+        })
+      };
+
+      loadFixture("allReady");
+    })();
+  </script>
+</body>
+</html>

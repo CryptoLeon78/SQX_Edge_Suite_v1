@@ -1,0 +1,640 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SQX Edge Gate</title>
+  <script src="./fixtures/fixtures.js"></script>
+  <script src="./edge-gate.js"></script>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f7f4;
+      --panel: #ffffff;
+      --panel-2: #f0f4ef;
+      --text: #1b1d1f;
+      --muted: #647067;
+      --line: #d9e0d8;
+      --pass: #16845f;
+      --review: #b27319;
+      --block: #c33d32;
+      --radar: #1e8aa5;
+      --ink: #101417;
+    }
+
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #151815;
+      --panel: #202520;
+      --panel-2: #171d1b;
+      --text: #f3f5ef;
+      --muted: #a2aa9f;
+      --line: #343d36;
+      --pass: #38b985;
+      --review: #e2a53b;
+      --block: #ef6b5d;
+      --radar: #52b9d0;
+      --ink: #f7f8f1;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, "Segoe UI", Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .shell {
+      width: min(1180px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 18px 0 22px;
+    }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: minmax(220px, 1fr) auto;
+      gap: 14px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .brand {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      min-width: 0;
+    }
+
+    .mark {
+      width: 42px;
+      height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      background: var(--panel);
+      color: var(--radar);
+      font-weight: 800;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 21px;
+      line-height: 1.1;
+      font-weight: 760;
+    }
+
+    .subtitle {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      min-height: 34px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--text);
+      padding: 7px 11px;
+      cursor: pointer;
+    }
+
+    .btn.primary {
+      border-color: color-mix(in srgb, var(--radar), var(--line) 42%);
+      background: color-mix(in srgb, var(--radar), var(--panel) 83%);
+      color: var(--ink);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(280px, 0.88fr) minmax(360px, 1.12fr);
+      gap: 12px;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      background: var(--panel-2);
+    }
+
+    .panel-title {
+      font-size: 13px;
+      font-weight: 720;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .panel-body {
+      padding: 14px;
+    }
+
+    .verdict {
+      display: grid;
+      gap: 10px;
+    }
+
+    .verdict-label {
+      font-size: 48px;
+      line-height: 1;
+      font-weight: 860;
+    }
+
+    .verdict-label.pass { color: var(--pass); }
+    .verdict-label.review { color: var(--review); }
+    .verdict-label.block { color: var(--block); }
+
+    .summary {
+      color: var(--muted);
+      min-height: 38px;
+    }
+
+    .context {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .kv {
+      min-height: 50px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px;
+      background: var(--panel-2);
+      overflow: hidden;
+    }
+
+    .kv span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .kv strong {
+      display: block;
+      margin-top: 3px;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .radar-wrap {
+      display: grid;
+      grid-template-columns: 260px minmax(180px, 1fr);
+      gap: 14px;
+      align-items: center;
+    }
+
+    .radar-svg {
+      width: 260px;
+      height: 240px;
+      display: block;
+    }
+
+    .axis-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .axis-row {
+      display: grid;
+      grid-template-columns: 120px 1fr 36px;
+      gap: 8px;
+      align-items: center;
+      min-height: 26px;
+    }
+
+    .bar {
+      height: 8px;
+      border-radius: 999px;
+      background: var(--line);
+      overflow: hidden;
+    }
+
+    .bar > span {
+      display: block;
+      height: 100%;
+      width: 0;
+      background: var(--radar);
+    }
+
+    .checks,
+    .reasons {
+      display: grid;
+      gap: 8px;
+    }
+
+    .chip {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px 10px;
+      background: var(--panel-2);
+      min-height: 36px;
+    }
+
+    .chip.pass { border-color: color-mix(in srgb, var(--pass), var(--line) 55%); }
+    .chip.review { border-color: color-mix(in srgb, var(--review), var(--line) 55%); }
+    .chip.block { border-color: color-mix(in srgb, var(--block), var(--line) 55%); }
+
+    .next-action {
+      border-left: 4px solid var(--radar);
+      background: var(--panel-2);
+      border-radius: 8px;
+      padding: 12px;
+      min-height: 62px;
+    }
+
+    .order-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .order-note {
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .footer {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    @media (max-width: 860px) {
+      .topbar,
+      .grid,
+      .radar-wrap {
+        grid-template-columns: 1fr;
+      }
+
+      .actions {
+        justify-content: flex-start;
+      }
+
+      .radar-svg {
+        width: 100%;
+        max-width: 280px;
+        margin: 0 auto;
+      }
+
+      .order-grid,
+      .context {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="mark" aria-hidden="true">EG</div>
+        <div>
+          <h1 data-i18n="title">SQX Edge Gate</h1>
+          <div class="subtitle"><span data-i18n="subtitle">Trading Radar</span> <span data-version></span></div>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn primary" type="button" data-orders-button data-i18n="activateOrders">Activate Order Radar</button>
+        <button class="btn" type="button" data-theme-toggle>Theme</button>
+        <button class="btn" type="button" data-language-toggle>ES/EN</button>
+      </div>
+    </header>
+
+    <section class="grid">
+      <section class="panel">
+        <div class="panel-head">
+          <div class="panel-title" data-i18n="verdict">Verdict</div>
+          <div data-source>offline</div>
+        </div>
+        <div class="panel-body verdict">
+          <div class="verdict-label block" data-verdict>BLOCK</div>
+          <div class="summary" data-summary>Waiting for StrategyQuant data</div>
+          <div class="context" data-context></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div class="panel-title" data-i18n="radar">Radar</div>
+          <div data-radar-state>0/100</div>
+        </div>
+        <div class="panel-body radar-wrap">
+          <svg class="radar-svg" viewBox="0 0 260 240" role="img" aria-label="SQX Edge Gate radar">
+            <g data-radar-grid></g>
+            <polygon data-radar-polygon points="" fill="color-mix(in srgb, var(--radar), transparent 68%)" stroke="var(--radar)" stroke-width="3"></polygon>
+            <g data-radar-labels></g>
+          </svg>
+          <div class="axis-list" data-axis-list></div>
+        </div>
+      </section>
+    </section>
+
+    <section class="grid" style="margin-top: 12px;">
+      <section class="panel">
+        <div class="panel-head">
+          <div class="panel-title" data-i18n="reasons">Reasons</div>
+        </div>
+        <div class="panel-body">
+          <div class="checks" data-checks></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div class="panel-title" data-i18n="nextAction">Next action</div>
+        </div>
+        <div class="panel-body">
+          <div class="next-action" data-next-action></div>
+        </div>
+      </section>
+    </section>
+
+    <section class="panel" style="margin-top: 12px;" data-order-panel>
+      <div class="panel-head">
+        <div class="panel-title" data-i18n="orderRadar">Order Radar</div>
+        <div data-order-state>opt-in</div>
+      </div>
+      <div class="panel-body">
+        <div class="order-note" data-order-note>Order Radar is opt-in. No order request has been sent yet.</div>
+        <div class="order-grid" data-order-grid hidden></div>
+      </div>
+    </section>
+
+    <div class="footer" data-i18n="disclaimer">Diagnostic decision panel only. No pass-state promotion and no host mutation.</div>
+  </main>
+
+  <script>
+    (function () {
+      "use strict";
+
+      const logic = window.SQX_EDGE_GATE_LOGIC;
+      const state = {
+        strategy: null,
+        stats: null,
+        orders: null,
+        source: "offline",
+        theme: "light",
+        language: "en",
+        ordersRequested: false,
+        fixture: null,
+        messagesSent: []
+      };
+
+      const $ = (selector) => document.querySelector(selector);
+
+      function t(key) {
+        const pack = logic.LOCALES[state.language] || logic.LOCALES.en;
+        return pack[key] || logic.LOCALES.en[key] || key;
+      }
+
+      function payloadOf(message) {
+        if (!message) return null;
+        if (Object.prototype.hasOwnProperty.call(message, "payload")) return message.payload;
+        if (Object.prototype.hasOwnProperty.call(message, "data")) return message.data;
+        return message;
+      }
+
+      function text(value, fallback) {
+        if (value === null || value === undefined || value === "") return fallback || "-";
+        return String(value);
+      }
+
+      function kv(label, value) {
+        return `<div class="kv"><span>${label}</span><strong title="${text(value, "-")}">${text(value, "-")}</strong></div>`;
+      }
+
+      function metricBox(label, value) {
+        return `<div class="kv"><span>${label}</span><strong>${value}</strong></div>`;
+      }
+
+      function resultKey() {
+        const strategy = state.strategy || {};
+        const first = Array.isArray(strategy.dataItems) && strategy.dataItems.length ? strategy.dataItems[0] : null;
+        return strategy.resultKey || strategy.resultKeyName || strategy.key || strategy.id || first || "Portfolio";
+      }
+
+      function sendSqxMessage(type, params) {
+        const message = { type, params: params || {} };
+        state.messagesSent.push(message);
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage(message, "*");
+        }
+        return message;
+      }
+
+      function requestStats() {
+        sendSqxMessage("GET_STATS", {
+          resultKey: resultKey(),
+          direction: "0",
+          sampleType: "20",
+          plType: "10"
+        });
+      }
+
+      function requestOrders() {
+        state.ordersRequested = true;
+        state.orders = null;
+        sendSqxMessage("GET_ORDERS", {
+          resultKey: resultKey(),
+          direction: "0",
+          sampleType: "127"
+        });
+        render();
+      }
+
+      function receiveSqxMessage(message) {
+        if (!message || !message.type) return;
+        const type = message.type;
+        const data = payloadOf(message);
+        if (type === "STRATEGY_DATA") {
+          state.strategy = data || {};
+          state.stats = null;
+          state.orders = null;
+          state.ordersRequested = false;
+          state.source = state.fixture ? "offline fixture" : "SQX postMessage";
+          requestStats();
+        } else if (type === "STATS_RESPONSE") {
+          state.stats = data || {};
+          state.source = state.fixture ? "offline fixture" : "SQX postMessage";
+        } else if (type === "ORDERS_RESPONSE") {
+          state.orders = data || {};
+          state.ordersRequested = true;
+        } else if (type === "SET_THEME" || type === "SWITCH_THEME") {
+          const theme = (message.theme || (data && data.theme) || data || "").toString().toLowerCase();
+          state.theme = theme === "dark" ? "dark" : "light";
+          document.documentElement.setAttribute("data-theme", state.theme);
+        } else if (type === "SET_LANGUAGE") {
+          const lang = ((data && data.language) || data || "en").toString().toLowerCase();
+          state.language = lang.startsWith("es") ? "es" : "en";
+          document.documentElement.lang = state.language;
+        }
+        render();
+      }
+
+      function renderRadar(axes) {
+        const cx = 130;
+        const cy = 118;
+        const radius = 82;
+        const grid = $("[data-radar-grid]");
+        const labels = $("[data-radar-labels]");
+        const polygon = $("[data-radar-polygon]");
+        const rings = [0.33, 0.66, 1].map((ratio) => {
+          const points = logic.radarPoints(axes.map((axis) => ({ score: ratio * 100 })), cx, cy, radius)
+            .map((point) => `${point.x},${point.y}`).join(" ");
+          return `<polygon points="${points}" fill="none" stroke="var(--line)" stroke-width="1"></polygon>`;
+        });
+        grid.innerHTML = rings.join("");
+        const points = logic.radarPoints(axes, cx, cy, radius);
+        polygon.setAttribute("points", points.map((point) => `${point.x},${point.y}`).join(" "));
+        labels.innerHTML = axes.map((axis, index) => {
+          const angle = -Math.PI / 2 + (index * 2 * Math.PI) / axes.length;
+          const x = Math.round((cx + Math.cos(angle) * (radius + 24)) * 100) / 100;
+          const y = Math.round((cy + Math.sin(angle) * (radius + 24)) * 100) / 100;
+          return `<text x="${x}" y="${y}" text-anchor="middle" fill="var(--muted)" font-size="10">${axis.score}</text>`;
+        }).join("");
+        const avg = axes.length ? Math.round(axes.reduce((acc, axis) => acc + axis.score, 0) / axes.length) : 0;
+        $("[data-radar-state]").textContent = `${avg}/100`;
+        $("[data-axis-list]").innerHTML = axes.map((axis) => `
+          <div class="axis-row">
+            <span>${axis.label}</span>
+            <div class="bar"><span style="width:${axis.score}%"></span></div>
+            <strong>${axis.score}</strong>
+          </div>
+        `).join("");
+      }
+
+      function renderOrders() {
+        const note = $("[data-order-note]");
+        const grid = $("[data-order-grid]");
+        if (!state.ordersRequested) {
+          note.textContent = t("noOrders");
+          $("[data-order-state]").textContent = "opt-in";
+          grid.hidden = true;
+          grid.innerHTML = "";
+          return;
+        }
+        if (!state.orders) {
+          note.textContent = t("ordersWaiting");
+          $("[data-order-state]").textContent = "waiting";
+          grid.hidden = true;
+          grid.innerHTML = "";
+          return;
+        }
+        const analysis = logic.analyzeOrders(state.orders);
+        note.textContent = `Order sample: ${analysis.count} orders, state ${analysis.severity}.`;
+        $("[data-order-state]").textContent = analysis.severity;
+        grid.hidden = false;
+        grid.innerHTML = [
+          metricBox("Orders", logic.fmt(analysis.count, 0)),
+          metricBox("Net", logic.fmt(analysis.total, 2)),
+          metricBox("Max loss streak", logic.fmt(analysis.maxLossStreak, 0)),
+          metricBox("Largest loss", logic.fmt(analysis.largestLoss, 2))
+        ].join("");
+      }
+
+      function render() {
+        const evalResult = logic.evaluateGate(state.strategy, state.stats);
+        const severity = evalResult.severity;
+        document.querySelectorAll("[data-i18n]").forEach((node) => {
+          node.textContent = t(node.dataset.i18n);
+        });
+        document.documentElement.setAttribute("data-theme", state.theme);
+        document.documentElement.lang = state.language;
+        $("[data-version]").textContent = logic.VERSION;
+        $("[data-source]").textContent = state.source;
+        const verdict = $("[data-verdict]");
+        verdict.textContent = t(severity);
+        verdict.className = `verdict-label ${severity}`;
+        $("[data-summary]").textContent = evalResult.summary || t("waiting");
+        const strategy = state.strategy || {};
+        const stats = state.stats || {};
+        $("[data-context]").innerHTML = [
+          kv("Strategy", strategy.name),
+          kv("Project", strategy.projectName),
+          kv("Symbol", strategy.symbol),
+          kv("Timeframe", strategy.timeframe),
+          kv("Trades", logic.fmt(logic.metric(stats, ["NumberOfTrades", "Trades"]), 0)),
+          kv("Profit Factor", logic.fmt(logic.metric(stats, ["ProfitFactor", "PF"]), 2))
+        ].join("");
+        $("[data-checks]").innerHTML = (evalResult.reasons || []).map((reason) => `<div class="chip ${reason.severity}">${reason.text}</div>`).join("");
+        $("[data-next-action]").textContent = evalResult.nextAction;
+        renderRadar(logic.radarAxes(state.strategy, state.stats || {}));
+        renderOrders();
+      }
+
+      function loadFixture(name) {
+        const fixture = window.SQX_EDGE_GATE_FIXTURES && window.SQX_EDGE_GATE_FIXTURES[name];
+        if (!fixture) return;
+        state.strategy = null;
+        state.stats = null;
+        state.orders = null;
+        state.ordersRequested = false;
+        state.fixture = name;
+        state.source = "offline fixture";
+        fixture.messages.forEach(receiveSqxMessage);
+      }
+
+      window.addEventListener("message", (event) => receiveSqxMessage(event.data));
+      $("[data-orders-button]").addEventListener("click", requestOrders);
+      $("[data-theme-toggle]").addEventListener("click", () => receiveSqxMessage({ type: "SET_THEME", data: { theme: state.theme === "dark" ? "light" : "dark" } }));
+      $("[data-language-toggle]").addEventListener("click", () => receiveSqxMessage({ type: "SET_LANGUAGE", data: state.language === "es" ? "en" : "es" }));
+
+      window.__SQX_EDGE_GATE__ = {
+        version: logic.VERSION,
+        receiveSqxMessage,
+        requestOrders,
+        loadFixture,
+        state,
+        evaluate: () => logic.evaluateGate(state.strategy, state.stats),
+        orderAnalysis: () => logic.analyzeOrders(state.orders || [])
+      };
+
+      if (window.parent === window) {
+        loadFixture("pass");
+      } else {
+        render();
+      }
+    })();
+  </script>
+</body>
+</html>

@@ -1,5 +1,81 @@
 # Changelog
 
+## 2026-06-11 - SQX144-CUSTOM-RESULTS5 SQX Edge Gate Install
+
+- Marker: `sqx144-custom-results5-edge-gate-v1`.
+- Phase label: `SQX144-CUSTOM-RESULTS5 - SQX Edge Gate`.
+- Installed status: `custom_results5_edge_gate_installed_copy_only_no_launch_no_db_no_projects_no_databanks_no_tasks_no_migration_tool`.
+- Applied exact approval: `APRUEBO SQX144 CUSTOM RESULTS5 EDGE GATE INSTALL host=sqx144_full plugin=sqx_edge_gate sqx_closed backup_hash_rollback copy_only_sqx_edge_owned_plugin get_orders_optin_acknowledged no_db_no_projects_no_databanks_no_tasks no_migration_tool no_source_code`.
+- Copied only `SQX Edge Gate` from `integrations/sqx144/results_plugins/SQX Edge Gate` to `sqx144_full/user/extend/ResultsPlugins/SQX Edge Gate` as a separate Results tab.
+- Verification: preflight `processCount=0`, blockers `[]`, `installExecuted=true`, `currentlyInstalled=true`, `copiedFiles=6`, `targetMatchesSource=true`, SHA256 `203CEF7459211E371AA00A3FA8F25FE0E7AFC973036F833038B8416190657A1D`, `backupCreated=false`.
+- Evidence ref: `.local/sqx144_custom_results5/sqx144_custom_results5_install_20260611_164955.json`.
+- Original downloaded Custom Results remain separate and untouched; no `RandomEntries`, no SQX runtime, no data.db, no user/projects, no databank mutation, no tasks, no Migration Tool and no source-code export.
+
+## 2026-06-11 - SQX144-CUSTOM-RESULTS5 SQX Edge Gate
+
+- Marker: `sqx144-custom-results5-edge-gate-v1`.
+- Phase label: `SQX144-CUSTOM-RESULTS5 - SQX Edge Gate`.
+- Status: `custom_results5_edge_gate_source_ready_no_install_no_launch_no_db_no_projects_no_databanks_no_tasks_no_migration_tool`.
+- Adds the SQX Edge-owned ResultsPlugin `SQX Edge Gate` as a future independent tab with `Decision Gate` and `Trading Radar` identity.
+- Implements `Hybrid Gated` behavior: default `STRATEGY_DATA`, `SET_THEME`, `SWITCH_THEME`, `SET_LANGUAGE`, `GET_STATS`, `STATS_RESPONSE`; `GET_ORDERS opt-in` only after pressing `Activar Order Radar`.
+- Institutional thresholds: `NumberOfTrades >= 120`, `ProfitFactor >= 1.3`, `ReturnDDRatio >= 4`, `RExpectancy > 0`, `NetProfit > 0`.
+- Adds `docs/SQX144_CUSTOM_RESULTS5_EDGE_GATE.md`, `backend/sqx-edge-tool/core/sqx144_custom_results5_edge_gate.py`, `tools/sqx144_custom_results5_edge_gate.ps1`, `backend/sqx-edge-tool/test_sqx144_custom_results5_edge_gate.py`, `tests/js/contracts/sqx144_custom_results5_edge_gate_contracts.mjs`, `tests/js/contracts/sqx144_custom_results5_edge_gate_render_smoke.mjs` and `integrations/sqx144/results_plugins/SQX Edge Gate`.
+- Install gate supports `status`, `smoke`, `report`, `approval-template` and `install`; `installExecuted=false`.
+- Future install approval phrase: `APRUEBO SQX144 CUSTOM RESULTS5 EDGE GATE INSTALL host=sqx144_full plugin=sqx_edge_gate sqx_closed backup_hash_rollback copy_only_sqx_edge_owned_plugin get_orders_optin_acknowledged no_db_no_projects_no_databanks_no_tasks no_migration_tool no_source_code`.
+- Does not touch the five original downloaded Custom Results tabs, `RandomEntries`, SQX runtime, data.db, user/projects, databanks, SQX tasks, Migration Tool or source-code export.
+
+## 2026-06-11 - SQX144-CUSTOM-RESULTS4 Original Separate Install Correction
+
+- Marker: `sqx144-custom-results4-original-separate-install-correction-v1`.
+- Phase label: `SQX144-CUSTOM-RESULTS4 - Original Separate Install Correction`.
+- Installed status: `custom_results4_original_separate_plugins_installed_copy_only_no_launch_no_db_no_projects_no_databanks_no_tasks_no_migration_tool`.
+- Corrects the previous aggregated `SQX Edge Custom Results All Modules` Results tab install.
+- Moves `SQX Edge Custom Results All Modules` out of `sqx144_full/user/extend/ResultsPlugins` to backup ref `sqx144_full/.local_code_backups/sqx144_custom_results4_original_separate_install_20260611_105026`.
+- Copies the original downloaded ResultsPlugins unmodified as separate tabs: `2-Step Challenge Analyzer`, `Edge Decay & Max Loss Analyzer`, `OOSDegradationScorecard`, `RobustnessScorecard` and `WinRateEdge`.
+- Keeps `RandomEntries-1.htm` out of ResultsPlugins because it is a RandomEntry snippet/code package, not a Results tab.
+- Verification: SQX closed before apply with `processCount=0`, combined bundle removed, every installed original folder has `index.html`, source hashes match target hashes, and evidence is `.local/sqx144_custom_results4/sqx144_custom_results4_apply_20260611_105026.json`.
+- No SQX runtime, no data.db, no user/projects, no databank mutation, no tasks, no Migration Tool and no source-code export.
+
+## 2026-06-11 - SQX144-CUSTOM-RESULTS3 Optional Manual Install Gate
+
+- Marker: `sqx144-custom-results3-optional-manual-install-gate-v1`.
+- Phase label: `SQX144-CUSTOM-RESULTS3 - Optional Manual Install Gate`.
+- Source-ready status: `custom_results3_optional_manual_install_gate_ready_no_install_no_launch_no_db_no_projects_no_databanks_no_tasks_no_migration_tool`.
+- Installed status: `custom_results3_all_modules_manual_install_completed_copy_only_no_launch_no_db_no_projects_no_databanks_no_tasks_no_migration_tool`.
+- Adds `docs/SQX144_CUSTOM_RESULTS3_OPTIONAL_MANUAL_INSTALL_GATE.md`, `backend/sqx-edge-tool/core/sqx144_custom_results3_install_gate.py`, `tools/sqx144_custom_results3_install_gate.ps1`, `backend/sqx-edge-tool/test_sqx144_custom_results3_install_gate.py` and `tests/js/contracts/sqx144_custom_results3_install_gate_contracts.mjs`.
+- Applies optional manual copy of the SQX Edge-owned `SQX Edge Custom Results All Modules` plugin from `integrations/sqx144/results_plugins/SQX Edge Custom Results All Modules` to `sqx144_full/user/extend/ResultsPlugins/SQX Edge Custom Results All Modules`.
+- Exact approval applied: `APRUEBO SQX144 CUSTOM RESULTS3 ALL MODULES MANUAL INSTALL host=sqx144_full plugin=sqx_edge_custom_results_all_modules sqx_closed backup_hash_rollback copy_only_sqx_edge_owned_plugin get_orders_runtime_acknowledged no_db_no_projects_no_databanks_no_tasks no_migration_tool no_downloaded_plugins no_source_code`.
+- `installExecuted=true`, `copiedFiles=3`, `targetMatchesSource=true`, SHA256 `4749A8393AE4418B0121962360C47B637031F171B7078EDFC93FC345B2B5077C`, `backupCreated=false` because the target plugin folder did not exist.
+- No SQX runtime, no data.db, no user/projects, no databank mutation, no tasks and no Migration Tool.
+- downloaded third-party ZIPs remain not installed directly; only the repo-owned bundle can be copied after exact approval.
+- `GET_ORDERS remains privacy/performance-gated`; any future apply requires `get_orders_runtime_acknowledged` and tooling keeps `rawOrdersReturnedByTooling=false`.
+- Evidence ref: `sqx144_custom_results3_install_apply_20260611_091433.json`.
+
+## 2026-06-11 - SQX144-CUSTOM-RESULTS2 All Custom Results Modules Bundle
+
+- Marker: `sqx144-custom-results2-all-custom-results-modules-bundle-v1`.
+- Read-only marker: `sqx144-custom-results2-readonly-all-modules-bundle-v1`.
+- Phase label: `SQX144-CUSTOM-RESULTS2 - All Custom Results Modules Bundle`.
+- Status: `custom_results2_all_modules_bundle_source_ready_no_install_no_launch_no_db_no_projects_no_databanks_no_tasks_no_migration_tool`.
+- Adds `docs/SQX144_CUSTOM_RESULTS2_ALL_CUSTOM_RESULTS_MODULES_BUNDLE.md`, `backend/sqx-edge-tool/core/sqx144_custom_results2_all_modules.py`, `tools/sqx144_custom_results2_all_modules_bundle.ps1`, `backend/sqx-edge-tool/test_sqx144_custom_results2_all_modules_bundle.py`, `tests/js/contracts/sqx144_custom_results2_all_modules_bundle_contracts.mjs` and `integrations/sqx144/results_plugins/SQX Edge Custom Results All Modules`.
+- Implements all studied module families in a repo-side SQX Edge-owned bundle: `RobustnessScorecard`, `OOSDegradationScorecard`, `Edge Decay Analyzer`, `WinRateEdge + RandomEntry` and `2-Step Challenge Analyzer`.
+- Message policy: `STRATEGY_DATA`, `SET_THEME`, `SET_LANGUAGE`, `GET_STATS`, `STATS_RESPONSE`; `GET_ORDERS remains privacy/performance-gated` and `ORDERS_RESPONSE fixture-only until exact future gate`.
+- `installExecuted=false`: No se instala en SQX144, No SQX runtime, no data.db, no user/projects, no databank mutation and no Migration Tool.
+- Future manual install is deferred to `SQX144-CUSTOM-RESULTS3 optional manual install gate`.
+
+## 2026-06-11 - SQX144-CUSTOM-RESULTS1 Read-Only Results Plugin Template
+
+- Marker: `sqx144-custom-results1-results-plugin-template-v1`.
+- Read-only marker: `sqx144-custom-results1-readonly-results-plugin-template-v1`.
+- Phase label: `SQX144-CUSTOM-RESULTS1 - Read-Only Results Plugin Template`.
+- Status: `custom_results1_template_source_ready_no_install_no_launch_no_db_no_projects_no_databanks_no_tasks_no_migration_tool`.
+- Adds `docs/SQX144_CUSTOM_RESULTS1_READONLY_RESULTS_PLUGIN_TEMPLATE.md`, `backend/sqx-edge-tool/core/sqx144_custom_results1_study.py`, `tools/sqx144_custom_results1_results_plugin_template.ps1`, `tools/sqx144_custom_results1_study.ps1`, `backend/sqx-edge-tool/test_sqx144_custom_results1_results_plugin_template.py`, `tests/js/contracts/sqx144_custom_results1_results_plugin_template_contracts.mjs` and `integrations/sqx144/results_plugins/SQX Edge Custom Results Template`.
+- Template default messages: `STRATEGY_DATA`, `SET_THEME`, `SET_LANGUAGE`, `GET_STATS`, `STATS_RESPONSE`.
+- Future gated messages: `GET_LAST_SETTINGS_XML`, `GET_SYMBOL_INFO`, `LAST_SETTINGS_XML_RESPONSE`, `SYMBOL_INFO_RESPONSE`.
+- Candidate matrix: immediate fit `RobustnessScorecard` and `OOSDegradationScorecard`; gated research `Edge Decay Analyzer`; research-only `WinRateEdge + RandomEntry`; optional/commercial `2-Step Challenge Analyzer`.
+- `installExecuted=false`: No se instala en SQX144, No SQX runtime, no data.db, no user/projects, no databank mutation, no Migration Tool, no MCP calls, no run_project/stop_project, no browser persistence and no plugin create/rename/delete.
+- Verification planned/executed for this phase: Python scanner tests, JS contracts, offline template smoke, docs state consistency and git diff check.
+
 ## 2026-06-10 - BS-AI21 Asset Broker Instrument Review
 
 - Marker: `bs-ai21-asset-broker-instrument-review-v1`.

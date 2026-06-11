@@ -1,0 +1,12 @@
+{
+  "title": "SQX Edge Gate",
+  "subtitle": "Trading Radar",
+  "verdict": "Verdict",
+  "context": "Context",
+  "radar": "Radar",
+  "reasons": "Reasons",
+  "nextAction": "Next action",
+  "orderRadar": "Order Radar",
+  "activateOrders": "Activate Order Radar",
+  "disclaimer": "Diagnostic decision panel only. No pass-state promotion and no host mutation."
+}
