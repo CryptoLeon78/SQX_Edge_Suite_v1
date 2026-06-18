@@ -162,3 +162,5 @@ desktop.ini
 
 # ── Local assistant/tooling config ──────────────────
 .claude/
+
+.coverage
