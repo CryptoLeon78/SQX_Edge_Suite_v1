@@ -1,6 +1,7 @@
 import hashlib
 import hmac
 import json
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -217,6 +218,7 @@ class FulfillmentRequestTestCase(unittest.TestCase):
             self.assertEqual(bundle["provider"], "lemon")
             self.assertIn("Relay signature:", result.stdout)
 
+    @unittest.skipUnless(shutil.which("powershell"), "requires Windows PowerShell (fulfill_from_request.ps1)")
     def test_fulfill_from_request_prepares_delivery(self):
         with tempfile.TemporaryDirectory() as tmp:
             request_path = Path(tmp) / "fulfillment_request_test.json"
