@@ -32,8 +32,11 @@ Convencion: el repo **publico** mantiene el contenido operativo; la capa comerci
 ## Gobernanza y decisiones
 | Doc | Para que |
 |---|---|
-| [PROJECT_GOVERNANCE.md](PROJECT_GOVERNANCE.md) | Documento vivo de coordinacion de agentes especializados. |
+| [../AGENTS.md](../AGENTS.md) | Entry point neutral de modelo (leer primero): enruta a governance + PROJECT_STATE + INDEX antes de trabajar. |
+| [PROJECT_GOVERNANCE.md](PROJECT_GOVERNANCE.md) | Documento vivo de coordinacion de agentes especializados; baselines G1-G7 (G7 = Multi-Model Orchestration Gate). |
+| [PROJECT_STATE.md](PROJECT_STATE.md) | Routing/handoff cross-model (single-source) + decisiones recientes; el phase state sigue en governance. |
 | [decisions/ADR-0001-specialist-agent-governance.md](decisions/ADR-0001-specialist-agent-governance.md) | ADR-0001 - Gobernanza de agentes especialistas (2026-05-07). |
+| [decisions/ADR-0002-multi-model-orchestration.md](decisions/ADR-0002-multi-model-orchestration.md) | ADR-0002 - Orquestacion multi-modelo (2026-06-18); registra el septimo rol especialista + G7. |
 | [PUBLIC_ROADMAP.md](PUBLIC_ROADMAP.md) | Roadmap publico. |
 
 ## Verticales por fase (series con contenido real)
