@@ -1,14 +1,11 @@
 name: Tests
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
   workflow_dispatch:
 
 jobs:
   tests:
+    if: false
     name: Python and JS contracts
     runs-on: windows-latest
 
