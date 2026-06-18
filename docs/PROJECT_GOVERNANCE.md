@@ -7,12 +7,14 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 - Current phase completed: T10ah - Next Proxy Migration Gate.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
 - Next implementation phase: T10ai - prepare the Cloudflare provider-project preflight without deployment or tester URL, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
-- Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
-- Previous governance baseline: G5 - Institutional Core Synchronized Gate.
+- Governance baseline: G7 - Multi-Model Orchestration Gate.
+- Previous governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
+- Earlier governance baseline: G5 - Institutional Core Synchronized Gate.
 - Earlier governance baseline: G4 - Institutional Core Repository Gate.
 - Earlier governance baseline: G3 - Internal Automation and Agent Gate.
 - Earlier governance baseline: G2 - Governance Lookup Before Work.
 - Historical governance baseline: G1 - Specialist Agent Operating Model.
+- Cross-model routing/handoff: see `docs/PROJECT_STATE.md` (phase state stays authoritative here).
 
 ## Historical State Anchors
 
@@ -133,6 +135,17 @@ G6 - Institutional Dashboard Quick Actions Gate:
 - Pipeline State includes a compact operational health panel and graph-style funnel visualization while preserving editable counts and local-only state.
 - Required checks: JS syntax/contracts, static dashboard tests, backend pytest, `git diff --check` and E2E screenshots for Pipeline State and Project Generator prefill flow.
 
+G7 - Multi-Model Orchestration Gate:
+
+- The repository is operated by interchangeable model-orchestrators (Claude, Codex/GPT, future); model identity is orthogonal to specialist-agent ownership, so any model may act as any role while ADR-0001 ownership and required checks still apply.
+- The user is the router: a model may suggest a handoff but never self-assigns; only the user decides the owner and merges to `main`.
+- Single source per concern: cross-model routing/handoff lives in `docs/PROJECT_STATE.md`, while phase state stays authoritative in this document's "Current State" (test-locked by `test_dashboard_static.py`); `PROJECT_STATE.md` points to it and never duplicates it.
+- `AGENTS.md` at the repository root is the model-neutral entry point; at session start read `docs/PROJECT_GOVERNANCE.md`, `docs/PROJECT_STATE.md` and `docs/INDEX.md` before work.
+- Session ritual: at the close of a work unit the model proposes the `docs/PROJECT_STATE.md` diff (routing/handoff plus signed decisions, `model + date`); the user approves before it is committed.
+- Branch conventions: model-specific working branches such as `codex/*` (Codex/GPT) follow `DISCIPLINA_OPERATIVA.md` alongside the standard `feature/*`, `fix/*`, `refactor/*` and `experiment/*`; working branches never push to `main`.
+- Roster of record: the seven specialist roles defined in this document (ADR-0001's six plus `Access/Security Gatekeeper`), recorded by `docs/decisions/ADR-0002-multi-model-orchestration.md`.
+- Required checks: governance docs are test-locked, so `test_dashboard_static.py` must stay green, with the MODULARIZATION baseline and its matching test assertion updated together.
+
 ## Internal Automation Risk Levels
 
 | Level | Allowed By Default | Examples | Extra Gate |
@@ -199,9 +212,10 @@ M46 is accepted when these criteria are true:
 - Portable distribution: `package_portable.ps1`, `audit_distribution.ps1`, `release_checklist.ps1`.
 - Commercial gates: `backend/sqx-edge-tool/tools/*` and `docs/sales/*`.
 - Internal automation gate: this document, especially G3 risk levels, agent matrix and local tooling notes.
-- CI baseline: `.github/workflows/tests.yml` and `requirements-dev.txt`.
+- CI baseline: `.gitlab-ci.yml` (primary, GitLab Linux runners; the `e2e` job is `allow_failure` until promoted) and `requirements-dev.txt`; `.github/workflows/tests.yml` is a dormant GitHub mirror.
 - Public application repository: `https://github.com/CryptoLeon78/SQX_Edge_Suite_v1.git` (local remote `origin`).
 - Institutional Core repository: `https://github.com/CryptoLeon78/SQX_Institutional_Core.git` (local remote `institutional`; synced by G5 merge, preserving institutional-only files and analyzer assets).
+- Git remotes (decided 2026-06-18): GitLab `git@gitlab.com:rafael_cto/sqx_pro.git` is primary (private, SSH; local remote `gitlab`; `main` tracks `gitlab/main`); GitHub `origin` (`https://github.com/CryptoLeon78/SQX_Edge_Suite_v1.git`) is a dormant mirror with push 403-blocked for the active account; `institutional` is not configured locally and its G4/G5 baselines are historical (text preserved).
 - Private commercial boundary: `docs/PRIVATE_COMMERCIAL_DOCS.md`, `docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md`, `docs/private_commercial_manifest.json` and `private_commercial_split.py`.
 - Private commercial repository: `https://github.com/CryptoLeon78/sqx-edge-commercial-private` (private, baseline commit `ed79719`).
 - Public commercial pointers: `docs/PUBLIC_COMMERCIAL_POINTERS.md`; public `docs/MONETIZATION_*`, `docs/sales/*` and Pro resource packs are redacted pointers.

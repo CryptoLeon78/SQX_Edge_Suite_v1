@@ -5,7 +5,7 @@
 ## Phase state -> governance is authoritative
 Current phase, governance baseline, commercial/product state and next-phase candidates live in `PROJECT_GOVERNANCE.md` "## Current State" (pinned by `test_dashboard_static.py`). This file does **not** duplicate them.
 
-## Repository / CI reality (decided 2026-06-18; to be reflected in governance Living Contracts Index - Phase B)
+## Repository / CI reality (decided 2026-06-18; reflected in governance Living Contracts Index by Phase B / `docs/G7-phase-b`)
 - **GitLab = primary** (work + CI): `git@gitlab.com:rafael_cto/sqx_pro.git` (private, SSH). `main` tracks `gitlab/main`. CI = `.gitlab-ci.yml` (Linux); the `e2e` job is `allow_failure` until promoted.
 - **GitHub `origin` = mirror/publication**; push 403-blocked for the active account. `.github/workflows/tests.yml` dormant.
 - **`institutional`** remote not configured locally -> governance `G4/G5` are historical baselines (text preserved; pinned by the static test).
@@ -16,12 +16,13 @@ Current phase, governance baseline, commercial/product state and next-phase cand
 - 2026-06-18 - Remote topology decided: GitLab primary, GitHub mirror, institutional historical. - user / Claude
 - 2026-06-18 - Adopting multi-model orchestration (ADR-0002 Proposed + G7 pending). PROJECT_STATE owns routing; governance stays authoritative for phase state (test-locked). - Claude + GPT
 - 2026-06-18 - MCP parked: original mandate was MicroStrategy/Strategy One, not SQX. - Claude
+- 2026-06-18 - Phase B applied: `G7 - Multi-Model Orchestration Gate` baselined in `PROJECT_GOVERNANCE.md` (Current State + Operational Rule + Living Contracts CI/remotes) with MODULARIZATION baseline and the paired `test_dashboard_static.py` assert; full suite green (290 passed, 3 skipped); on `docs/G7-phase-b` (MR open). - Claude
 
 ## Routing / handoff queue (a model suggests; the user decides owner)
 | Task | Status | Suggested | Owner (user) | Notes |
 |---|---|---|---|---|
-| Phase A (additive): AGENTS.md + ADR-0002 + PROJECT_STATE.md | in-progress | claude | - | 3 new files; `docs/INDEX.md` already exists (MR !4), untouched; -> flip to done on merge |
-| Phase B (governance edit): G7 + baseline bump + CI/remote reality | pending | claude | - | edits test-locked docs -> gate = `test_dashboard_static.py` green before push |
+| Phase A (additive): AGENTS.md + ADR-0002 + PROJECT_STATE.md | done (MR !5) | claude | user | merged to main; `docs/INDEX.md` already exists (MR !4), untouched |
+| Phase B (governance edit): G7 + baseline bump + CI/remote reality | done (MR open) | claude | user | applied on `docs/G7-phase-b`; gate + full suite green; user merges |
 | Cross-ref AGENTS.md/PROJECT_STATE.md/ADR-0002 in existing `docs/INDEX.md` | pending | claude | - | Phase B; INDEX already maps verticals well |
 | Decide GitHub workflow retention/removal | pending | either | - | mini Gxx/Qxx; `.github` is mirror/history, not casual cleanup |
 | Configurable `:5050` port | pending | either | - | server.py + 2 configs + ~6 JS literals + relay + tests |

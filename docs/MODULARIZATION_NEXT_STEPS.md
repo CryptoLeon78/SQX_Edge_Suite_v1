@@ -7,7 +7,7 @@ Persistent planning note for the next SQX Edge phases.
 - Last updated: 2026-05-09.
 - Current completed phase: T10ah - Next Proxy Migration Gate.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
-- Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
+- Governance baseline: G7 - Multi-Model Orchestration Gate.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - Latest ZIP SHA256: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
