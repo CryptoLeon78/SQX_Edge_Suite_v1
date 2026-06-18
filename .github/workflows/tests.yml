@@ -38,7 +38,7 @@ jobs:
 
       - name: Run Python tests
         run: |
-          python -m pytest
+          python -m pytest --cov=backend --cov-report=term-missing
 
       - name: Run JS contracts
         shell: pwsh
@@ -49,6 +49,18 @@ jobs:
               exit $LASTEXITCODE
             }
           }
+
+      - name: Install JS dependencies
+        run: |
+          npm ci
+
+      - name: Install Playwright browser
+        run: |
+          npx playwright install chromium
+
+      - name: Run dashboard e2e smoke
+        run: |
+          node tests/ui_e2e/dashboard_smoke.mjs
 
       - name: Check whitespace
         run: |
