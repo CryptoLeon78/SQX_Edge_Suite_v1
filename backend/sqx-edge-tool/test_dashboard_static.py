@@ -343,7 +343,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Phase G4: add Institutional Core as first-class repository discipline with separate non-destructive push rules. Done.", next_steps)
         self.assertIn("Phase G5: reconcile `institutional/main` with current `main`", next_steps)
         self.assertIn("Phase G6: selectively integrate `institutional/feat/dashboard-quick-actions`", next_steps)
-        self.assertIn("Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.", next_steps)
+        self.assertIn("Governance baseline: G7 - Multi-Model Orchestration Gate.", next_steps)
         self.assertIn("Phase T1: define the Vercel-hosted tester architecture contract", next_steps)
         self.assertIn("Phase T2: create/private-bootstrap `SQX_Edge_Tester_Portal`", next_steps)
         self.assertIn("Phase T3: define tester auth data contract", next_steps)
