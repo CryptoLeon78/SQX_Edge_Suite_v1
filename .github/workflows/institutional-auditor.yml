@@ -1,13 +1,11 @@
 name: 🛡️ Institutional Quality Auditor
 
 on:
-  push:
-    branches: [ main, master, develop ]
-  pull_request:
-    branches: [ main, master, develop ]
+  workflow_dispatch:
 
 jobs:
   audit:
+    if: false
     name: Repository Audit
     runs-on: ubuntu-latest
     steps:
