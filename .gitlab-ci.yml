@@ -1,6 +1,6 @@
 # .gitlab-ci.yml — port de .github/workflows/tests.yml a GitLab (runners Linux)
 # Paridad: compileall -> pytest+cobertura -> contratos JS -> e2e dashboard (allow_failure) -> whitespace
-stages: [build, test, e2e]
+stages: [build, test, e2e, portal]
 
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
@@ -56,3 +56,23 @@ e2e:
     - npm ci
     - npx playwright install --with-deps chromium
     - node tests/ui_e2e/dashboard_smoke.mjs
+
+# OpenNext build validation del Tester Portal (sin deploy).
+# Prueba que templates/SQX_Edge_Tester_Portal compila para Cloudflare Workers.
+portal-build:
+  stage: portal
+  image: node:22
+  variables:
+    NODE_OPTIONS: "--max-old-space-size=4096"
+  rules:
+    - changes:
+        - templates/SQX_Edge_Tester_Portal/**/*
+        - .gitlab-ci.yml
+  cache:
+    key: "npm-portal-$CI_COMMIT_REF_SLUG"
+    paths: [templates/SQX_Edge_Tester_Portal/.npm]
+  before_script:
+    - cd templates/SQX_Edge_Tester_Portal
+    - npm ci --cache .npm --prefer-offline
+  script:
+    - npx opennextjs-cloudflare build
