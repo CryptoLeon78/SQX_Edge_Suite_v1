@@ -1,6 +1,6 @@
 # .gitlab-ci.yml — port de .github/workflows/tests.yml a GitLab (runners Linux)
 # Paridad: compileall -> pytest+cobertura -> contratos JS -> e2e dashboard (allow_failure) -> whitespace
-stages: [build, test, e2e, portal]
+stages: [build, test, e2e, portal, deploy]
 
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
@@ -76,3 +76,29 @@ portal-build:
     - npm ci --cache .npm --prefer-offline
   script:
     - npx opennextjs-cloudflare build
+
+# Deploy del Tester Portal a Cloudflare Workers (cuenta trading@).
+# `when: manual` para el primer corte; quítalo para auto-on-main.
+deploy-portal:
+  stage: deploy
+  image: node:22
+  variables:
+    NODE_OPTIONS: "--max-old-space-size=4096"
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+      changes:
+        - templates/SQX_Edge_Tester_Portal/**/*
+        - .gitlab-ci.yml
+      when: manual
+  before_script:
+    - cd templates/SQX_Edge_Tester_Portal
+    - npm ci --cache .npm --prefer-offline
+  script:
+    - npm run cf:deploy
+    - sleep 5
+    - curl -fsS "https://sqx-edge-tester-portal-preview.rafael-fernandez-trading.workers.dev/api/health" -o health.json
+    - cat health.json
+    - grep -q '"ok":true' health.json
+  environment:
+    name: cloudflare-preview
+    url: https://sqx-edge-tester-portal-preview.rafael-fernandez-trading.workers.dev
