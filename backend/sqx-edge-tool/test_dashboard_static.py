@@ -8130,7 +8130,10 @@ class DashboardStaticTestCase(unittest.TestCase):
             package["scripts"]["cf:typegen"],
             "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
         )
-        self.assertNotIn("cf:deploy", package["scripts"])
+        self.assertEqual(
+            package["scripts"]["cf:deploy"],
+            "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
+        )
         self.assertNotIn("deploy", package["scripts"])
         self.assertEqual(package["devDependencies"]["@opennextjs/cloudflare"], "latest")
         self.assertEqual(package["devDependencies"]["wrangler"], "latest")
