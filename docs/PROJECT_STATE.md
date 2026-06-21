@@ -12,6 +12,8 @@ Current phase, governance baseline, commercial/product state and next-phase cand
 - Pushes via PowerShell on Windows (SSH key on Windows). Never git over the Cowork mount.
 
 ## Decisions / deltas (append-only, signed)
+- 2026-06-21 - Portal hardened: `wrangler.jsonc` gets `workers_dev=true` + `preview_urls=false`; Cloudflare Access now enforced on `trading@`; per-version preview URL bypass closed (`fix/portal-preview-urls`, MR merged). - Claude
+- 2026-06-19 - CI Cloudflare deploy circuit landed (bootstrap §11, previously unapplied): `deploy-portal` job (manual, on `main`) + `cf:deploy` npm script + `test_gitlab_ci_portal_deploy.py` smoke gate; OpenNext build-validate job added same day (`portal-build`, scoped to portal path). - Claude
 - 2026-06-18 - GitLab migration done: 4 MRs merged to `main`; GitLab CI primary (e2e `allow_failure` until promoted). - Claude
 - 2026-06-18 - Remote topology decided: GitLab primary, GitHub mirror, institutional historical. - user / Claude
 - 2026-06-18 - Adopting multi-model orchestration (ADR-0002 Proposed + G7 pending). PROJECT_STATE owns routing; governance stays authoritative for phase state (test-locked). - Claude + GPT
