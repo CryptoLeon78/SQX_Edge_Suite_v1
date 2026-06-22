@@ -7,11 +7,12 @@ Current phase, governance baseline, commercial/product state and next-phase cand
 
 ## Repository / CI reality (decided 2026-06-18; reflected in governance Living Contracts Index by Phase B / `docs/G7-phase-b`)
 - **GitLab = primary** (work + CI): `git@gitlab.com:rafael_cto/sqx_pro.git` (private, SSH). `main` tracks `gitlab/main`. CI = `.gitlab-ci.yml` (Linux); the `e2e` job is `allow_failure` until promoted.
-- **GitHub `origin` = mirror/publication**; push 403-blocked for the active account. `.github/workflows/tests.yml` dormant.
+- **GitHub `origin` = mirror/publication** (passive); push works via the permitted GCM account — the 403 was a wrong cached account, fixed 2026-06-18; mirror synced to `main` (latest `eb473c5`). `.github/workflows/*` archived (`workflow_dispatch` + `if:false`), dormant.
 - **`institutional`** remote not configured locally -> governance `G4/G5` are historical baselines (text preserved; pinned by the static test).
 - Pushes via PowerShell on Windows (SSH key on Windows). Never git over the Cowork mount.
 
 ## Decisions / deltas (append-only, signed)
+- 2026-06-21 - CF deploy token rotated: leaked `CLOUDFLARE_API_TOKEN` revoked, replaced with a fresh account-scoped token (GitLab CI var, masked+protected); deploy re-verified green with the old token revoked. GitHub mirror re-synced to `main` (`eb473c5`). - Claude
 - 2026-06-21 - Portal hardened: `wrangler.jsonc` gets `workers_dev=true` + `preview_urls=false`; Cloudflare Access now enforced on `trading@`; per-version preview URL bypass closed (`fix/portal-preview-urls`, MR merged). - Claude
 - 2026-06-19 - CI Cloudflare deploy circuit landed (bootstrap §11, previously unapplied): `deploy-portal` job (manual, on `main`) + `cf:deploy` npm script + `test_gitlab_ci_portal_deploy.py` smoke gate; OpenNext build-validate job added same day (`portal-build`, scoped to portal path). - Claude
 - 2026-06-18 - GitLab migration done: 4 MRs merged to `main`; GitLab CI primary (e2e `allow_failure` until promoted). - Claude
@@ -29,6 +30,8 @@ Current phase, governance baseline, commercial/product state and next-phase cand
 | Decide GitHub workflow retention/removal | pending | either | - | mini Gxx/Qxx; `.github` is mirror/history, not casual cleanup |
 | Configurable `:5050` port | pending | either | - | server.py + 2 configs + ~6 JS literals + relay + tests |
 | Marker tagging `smoke`/`integration` (~280 tests) | pending | either | - | incremental |
+| Flip `deploy-portal` to auto-on-main | pending | claude | - | remove `when: manual`; user decided auto-on-main |
+| Author T10ai provider/preflight proof | pending | claude | - | `proof:cloudflare-provider-project-preflight` (current preflight is Vercel-era) |
 
 ## Suggested handoffs (pending the user's routing decision)
 - (none)
