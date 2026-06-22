@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-06-22 - T10ai Cloudflare Provider-Project Preflight
+
+- Prepares the Cloudflare provider-project preflight without creating any project, deployment, Access policy or tester URL.
+- Confirms runtime `cloudflare_workers_opennext_nextjs_runtime`, proposes project name `sqx-edge-tester-portal-preview`, branch `tester-preview`.
+- Adds `proof:cloudflare-provider-project-preflight` with result `GO_CLOUDFLARE_PROVIDER_PROJECT_PREFLIGHT_READY_NO_DEPLOY`.
+- Gates all tester rollout provider actions behind explicit approval (`nextGate: create_or_link_tester_rollout_provider_project_only_after_explicit_approval`).
+
 ## 2026-05-10 - T10ah Next Proxy Migration Gate
 
 - Evaluates the tester portal request gate migration from deprecated `middleware.ts` to `proxy.ts`.

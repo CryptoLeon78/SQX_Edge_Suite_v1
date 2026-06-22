@@ -90,6 +90,7 @@ T10AE_CLOUDFLARE_RUNTIME_COMPATIBILITY_DOC = PROJECT_ROOT / "docs" / "T10AE_CLOU
 T10AF_OPENNEXT_CLOUDFLARE_ADAPTER_PACKAGE_DOC = PROJECT_ROOT / "docs" / "T10AF_OPENNEXT_CLOUDFLARE_ADAPTER_PACKAGE.md"
 T10AG_OPENNEXT_LOCAL_SMOKE_DOC = PROJECT_ROOT / "docs" / "T10AG_OPENNEXT_LOCAL_SMOKE.md"
 T10AH_NEXT_PROXY_MIGRATION_DOC = PROJECT_ROOT / "docs" / "T10AH_NEXT_PROXY_MIGRATION.md"
+T10AI_CLOUDFLARE_PROVIDER_PROJECT_PREFLIGHT_DOC = PROJECT_ROOT / "docs" / "T10AI_CLOUDFLARE_PROVIDER_PROJECT_PREFLIGHT.md"
 TESTER_PORTAL_TEMPLATE_ROOT = PROJECT_ROOT / "templates" / "SQX_Edge_Tester_Portal"
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
 R47_CONTROLLED_COMMERCIAL_RELEASE_DOC = PROJECT_ROOT / "docs" / "R47_CONTROLLED_COMMERCIAL_RELEASE.md"
@@ -8520,7 +8521,7 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for pattern in (
             "T10ah anade `proof:next-proxy-migration`",
-            "T10ai para preparar el preflight de proyecto Cloudflare",
+            "T10ai anade `proof:cloudflare-provider-project-preflight`",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, readme)
@@ -8541,6 +8542,13 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, template_readme)
 
+        for pattern in (
+            "Current phase completed: T10ah - Next Proxy Migration Gate. Historical anchor only; superseded by T10ai.",
+            "Next implementation phase: T10ai - prepare the Cloudflare provider-project preflight without deployment or tester URL. Historical anchor only; superseded by",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
         combined_t10ah_text = "\n".join([t10ah, governance, next_steps, readme, changelog, template_readme, proof, middleware])
         for pattern in (
             "@gmail.com",
@@ -8557,6 +8565,116 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_t10ah_text)
+
+    def test_t10ai_cloudflare_provider_project_preflight_is_documented_and_safe(self):
+        t10ai = T10AI_CLOUDFLARE_PROVIDER_PROJECT_PREFLIGHT_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "cloudflare-provider-project-preflight-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10AI_CLOUDFLARE_PROVIDER_PROJECT_PREFLIGHT_DOC.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:cloudflare-provider-project-preflight"],
+            "node scripts/cloudflare-provider-project-preflight-proof.mjs",
+        )
+
+        for pattern in (
+            "T10ai Cloudflare Provider-Project Preflight",
+            "GO_CLOUDFLARE_PROVIDER_PROJECT_PREFLIGHT_READY_NO_DEPLOY",
+            "sqx-edge-tester-portal-preview",
+            "No Cloudflare project was created.",
+            "No Cloudflare deployment was created.",
+            "No tester URL was shared.",
+            "create_or_link_tester_rollout_provider_project_only_after_explicit_approval",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10ai)
+
+        for pattern in (
+            'phase: "T10ai"',
+            'result: "GO_CLOUDFLARE_PROVIDER_PROJECT_PREFLIGHT_READY_NO_DEPLOY"',
+            'selectedRuntime: "cloudflare_workers_opennext_nextjs_runtime"',
+            'providerProjectNameProposal: "sqx-edge-tester-portal-preview"',
+            'productionBranch: "main"',
+            'testerBranch: "tester-preview"',
+            "accessPolicyRequiredBeforeTesterUrl: true",
+            "wranglerConfigPresent:",
+            "openNextConfigPresent:",
+            "packageScriptReady:",
+            "buildPreviewWorkerExistsForCiVerification: true",
+            "demoAccessApplicationAlreadyLiveOnTradingAccount: true",
+            "testerRolloutProjectCreated: false",
+            "testerUrlPublished: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            "renewalEmailsSent: false",
+            "productionDatabaseConnected: false",
+            'nextGate: "create_or_link_tester_rollout_provider_project_only_after_explicit_approval"',
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+
+        for pattern in (
+            "Current phase completed: T10ai - Cloudflare Provider-Project Preflight (no deploy, no tester URL).",
+            "create_or_link_tester_rollout_provider_project_only_after_explicit_approval",
+            "docs/T10AI_CLOUDFLARE_PROVIDER_PROJECT_PREFLIGHT.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10ai - Cloudflare Provider-Project Preflight (no deploy, no tester URL).",
+            "Phase T10ah: evaluate and block the Next.js middleware-to-proxy migration for the current Cloudflare route. Done",
+            "Phase T10ai: prepare the Cloudflare provider-project preflight without deployment or tester URL. Done",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10ai anade `proof:cloudflare-provider-project-preflight`",
+            "create_or_link_tester_rollout_provider_project_only_after_explicit_approval",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10ai Cloudflare Provider-Project Preflight",
+            "proof:cloudflare-provider-project-preflight",
+            "GO_CLOUDFLARE_PROVIDER_PROJECT_PREFLIGHT_READY_NO_DEPLOY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/cloudflare-provider-project-preflight-proof.mjs",
+            "T10ai proof",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10ai_text = "\n".join([t10ai, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE_API_TOKEN=",
+            "CLOUDFLARE_ACCOUNT_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10ai_text)
 
     def test_phase46_operational_visual_polish_is_present(self):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")

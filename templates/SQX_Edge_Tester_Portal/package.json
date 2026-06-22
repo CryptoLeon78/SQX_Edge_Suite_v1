@@ -42,6 +42,7 @@
     "proof:opennext-cloudflare-adapter": "node scripts/opennext-cloudflare-adapter-proof.mjs",
     "proof:opennext-local-smoke": "node scripts/opennext-local-smoke-proof.mjs",
     "proof:next-proxy-migration": "node scripts/next-proxy-migration-proof.mjs",
+    "proof:cloudflare-provider-project-preflight": "node scripts/cloudflare-provider-project-preflight-proof.mjs",
     "cf:build": "opennextjs-cloudflare build",
     "cf:deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
     "cf:preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
