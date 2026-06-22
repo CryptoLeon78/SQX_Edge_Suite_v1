@@ -109,6 +109,7 @@ This template is safe to keep in the public/core repository because it contains 
 - `scripts/opennext-cloudflare-adapter-proof.mjs`: T10af local OpenNext/Cloudflare adapter package proof that verifies safe scripts, `wrangler.jsonc`, `open-next.config.ts`, `.dev.vars.example` and no deploy surface.
 - `scripts/opennext-local-smoke-proof.mjs`: T10ag local smoke proof that records native Windows preview NO-GO and WSL/Linux preview GO.
 - `scripts/next-proxy-migration-proof.mjs`: T10ah proof that blocks migration to `proxy.ts` while OpenNext Cloudflare does not support Node Middleware.
+- `scripts/cloudflare-provider-project-preflight-proof.mjs`: T10ai proof that validates runtime config, proposes project name `sqx-edge-tester-portal-preview`, and gates all provider action behind explicit approval.
 
 ## Local Preflight
 
