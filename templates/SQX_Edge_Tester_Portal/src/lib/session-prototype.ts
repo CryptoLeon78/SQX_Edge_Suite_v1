@@ -81,6 +81,13 @@ export function createPrototypeSessionId(): string {
   return crypto.randomUUID();
 }
 
+export async function hashSessionId(sessionId: string): Promise<string> {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(sessionId));
+  return Array.from(new Uint8Array(buf))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
 export function buildAuditEvent(type: TesterAuditEvent["type"], outcome: TesterAuditEvent["outcome"], reasonCode: string | null): TesterAuditEvent {
   return {
     eventId: crypto.randomUUID(),
