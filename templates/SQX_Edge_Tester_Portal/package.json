@@ -47,6 +47,7 @@
     "cf:deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
     "cf:preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "cf:typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
+    "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
@@ -55,13 +56,14 @@
     "react-dom": "latest"
   },
   "devDependencies": {
+    "@opennextjs/cloudflare": "latest",
     "@types/node": "latest",
     "@types/react": "latest",
     "@types/react-dom": "latest",
-    "@opennextjs/cloudflare": "latest",
     "eslint": "latest",
     "eslint-config-next": "latest",
     "typescript": "latest",
+    "vitest": "^4.1.9",
     "wrangler": "latest"
   }
 }

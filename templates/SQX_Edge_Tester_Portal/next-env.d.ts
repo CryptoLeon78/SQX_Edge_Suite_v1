@@ -1,6 +1,6 @@
 /// <reference types="next" />
 /// <reference types="next/image-types/global" />
+import "./.next/types/routes.d.ts";
 
-// This file is kept in the bootstrap template so the private repo starts with
-// the same TypeScript shape that Next.js will maintain after installation.
-
+// NOTE: This file should not be edited
+// see https://nextjs.org/docs/app/api-reference/config/typescript for more information.
