@@ -1,5 +1,5 @@
 # Build-time dependencies (not the minimal Flask runtime shipped with the app).
 # Install into the build venv before running nuitka_build.ps1.
 # See packaging/NUITKA_BUILD.md for full setup instructions.
-nuitka==2.4.2
+nuitka==4.1.3
 pywebview>=4.0
