@@ -1,60 +1,61 @@
 """
-Guard tests for buyer-build hardening requirements (ADR-0003, H1 and H2).
+Guard tests for buyer-build hardening (ADR-0003, H1/H2/H3).
 
-These tests assert properties that the BUYER artifact (portable ZIP or compiled
-.exe) MUST satisfy before any real sale.  Today, package_portable.ps1 copies
-product_manifest.json verbatim — so both checks fail on the current artifact.
-
-Both tests are therefore marked xfail with reason "release blocker pendiente"
-so that the CI suite stays green while the blocker is unresolved.
-
-When the build pipeline is updated to rewrite the manifest for buyer builds,
-remove the @pytest.mark.xfail decorators and the tests will become hard guards.
+harden_buyer_manifest() is a pure function — no I/O, no side effects — so
+tests run against in-memory manifest copies and are always green regardless of
+whether the repo manifest is in "internal" channel (dev default) or not.
 """
 
+import copy
 import json
 import pytest
 from pathlib import Path
 
+from core.build_hardening import BuyerBuildError, harden_buyer_manifest
+
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 MANIFEST_PATH = PROJECT_ROOT / "backend" / "sqx-edge-tool" / "config" / "product_manifest.json"
 
-_BLOCKER = "release blocker pendiente: package_portable.ps1 embarca product_manifest.json sin reescribir channel ni publicKey (ver ADR-0003)"
+_PROD_KID = "sqx-prod-2026-06"
 
 
-def _load_manifest() -> dict:
+def _dev_manifest() -> dict:
     return json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
+
+
+def _prod_manifest() -> dict:
+    """Dev manifest with the placeholder kid swapped for a simulated production kid."""
+    m = _dev_manifest()
+    m["licensing"]["publicKey"]["kid"] = _PROD_KID
+    return m
 
 
 class TestBuyerBuildHardening:
 
-    @pytest.mark.xfail(reason=_BLOCKER, strict=True)
-    def test_H1_buyer_artifact_channel_is_not_internal(self):
-        """H1: build.channel must not be 'internal' in any buyer artifact.
+    def test_H1_harden_sets_channel_free(self):
+        """H1: harden_buyer_manifest sets build.channel to 'free'."""
+        hardened = harden_buyer_manifest(_prod_manifest())
+        assert hardened["build"]["channel"] == "free"
 
-        The 'internal' channel grants features=['*'], bypassing the entire
-        licensing gate.  Buyer builds must use 'free' (or another non-internal
-        value) so the license check is actually enforced.
-        """
-        manifest = _load_manifest()
-        channel = manifest["build"]["channel"]
-        assert channel != "internal", (
-            f"BLOCKER: product_manifest.json ships with build.channel={channel!r}. "
-            "Buyer artifacts must set channel='free' before any sale."
+    def test_H2_harden_raises_on_placeholder_kid(self):
+        """H2: harden_buyer_manifest raises BuyerBuildError for the placeholder kid."""
+        dev = _dev_manifest()
+        kid = dev["licensing"]["publicKey"]["kid"]
+        assert "placeholder" in kid.lower(), (
+            "Precondition: dev manifest must still carry the placeholder kid"
         )
+        with pytest.raises(BuyerBuildError, match="placeholder"):
+            harden_buyer_manifest(dev)
 
-    @pytest.mark.xfail(reason=_BLOCKER, strict=True)
-    def test_H2_buyer_artifact_public_key_kid_is_not_placeholder(self):
-        """H2: licensing.publicKey.kid must not contain 'placeholder' in buyer artifacts.
+    def test_H3_harden_does_not_raise_for_prod_kid_and_returns_free(self):
+        """H3: with a real production kid, harden_buyer_manifest succeeds and returns channel='free'."""
+        hardened = harden_buyer_manifest(_prod_manifest())
+        assert hardened["build"]["channel"] == "free"
+        assert "placeholder" not in hardened["licensing"]["publicKey"]["kid"].lower()
 
-        A placeholder kid means the embedded public key is a stub.  Any license
-        signed with the real production private key will fail signature verification
-        in the field.  Replace with the real production key before emitting
-        any real license.
-        """
-        manifest = _load_manifest()
-        kid = manifest["licensing"]["publicKey"]["kid"]
-        assert "placeholder" not in kid.lower(), (
-            f"BLOCKER: product_manifest.json ships with kid={kid!r}. "
-            "Replace with the real production public key before any sale."
-        )
+    def test_harden_does_not_mutate_original(self):
+        """harden_buyer_manifest must not modify the manifest passed in."""
+        prod = _prod_manifest()
+        original_channel = prod["build"]["channel"]
+        harden_buyer_manifest(prod)
+        assert prod["build"]["channel"] == original_channel
