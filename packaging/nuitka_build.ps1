@@ -88,8 +88,12 @@ if ($Dev) {
 Write-Host "==> Compiling with Nuitka --standalone..."
 New-Item -ItemType Directory -Path $AbsOutputDir -Force | Out-Null
 
+# Fix PYTHONPATH so Nuitka can resolve `from api.server import app` and core.*
+$env:PYTHONPATH = $ToolRoot
+
 & python -m nuitka `
     --standalone `
+    --assume-yes-for-downloads `
     --output-dir="$AbsOutputDir" `
     --output-filename="SQX_Edge_Tool.exe" `
     --enable-console `
@@ -113,7 +117,14 @@ if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
 
-$DistDir = Join-Path $AbsOutputDir "SQX_Edge_Tool.exe.dist"
+# Locate the compiled exe rather than hardcoding the .dist folder name
+$exe = Get-ChildItem -Recurse -Filter "SQX_Edge_Tool.exe" $AbsOutputDir | Select-Object -First 1
+if (-not $exe) {
+    Write-Error "No se encontró SQX_Edge_Tool.exe tras la compilación en $AbsOutputDir."
+    exit 1
+}
+$DistDir = $exe.Directory.FullName
+
 Write-Host ""
 if ($Dev) {
     Write-Host "Dev build complete : $DistDir" -ForegroundColor Yellow

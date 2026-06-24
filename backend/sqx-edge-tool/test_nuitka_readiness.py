@@ -224,6 +224,31 @@ class NuikaDevSwitchTest(unittest.TestCase):
         """Both modes pass $ManifestToBundle to the Nuitka --include-data-files flag."""
         self.assertIn("$ManifestToBundle=config/product_manifest.json", self._source())
 
+    def test_pythonpath_set_to_tool_root_before_nuitka(self):
+        """PYTHONPATH is set to $ToolRoot so Nuitka resolves api/core imports."""
+        source = self._source()
+        self.assertIn("$env:PYTHONPATH = $ToolRoot", source)
+        # Must appear before the Nuitka invocation
+        pythonpath_pos = source.index("$env:PYTHONPATH = $ToolRoot")
+        nuitka_pos = source.index("python -m nuitka")
+        self.assertLess(pythonpath_pos, nuitka_pos,
+                        "$env:PYTHONPATH must be set before the Nuitka invocation")
+
+    def test_no_hardcoded_dist_folder_name(self):
+        """The .dist folder must be located dynamically, not hardcoded as a PS string."""
+        source = self._source()
+        # The name may appear in prose comments, but must not appear as a quoted PS string
+        # (i.e. "$DistDir = '...exe.dist'" or Join-Path "...exe.dist").
+        self.assertNotIn('"SQX_Edge_Tool.exe.dist"', source)
+        self.assertNotIn("'SQX_Edge_Tool.exe.dist'", source)
+        # The dynamic lookup must use Get-ChildItem with the exe filter
+        self.assertIn('Get-ChildItem -Recurse -Filter "SQX_Edge_Tool.exe"', source)
+        self.assertIn("$exe.Directory.FullName", source)
+
+    def test_assume_yes_for_downloads_flag_present(self):
+        """Nuitka is invoked with --assume-yes-for-downloads to avoid interactive prompts."""
+        self.assertIn("--assume-yes-for-downloads", self._source())
+
 
 if __name__ == "__main__":
     unittest.main()
