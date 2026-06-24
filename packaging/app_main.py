@@ -66,6 +66,7 @@ from dashboard_routes import register_dashboard_routes  # noqa: E402
 register_dashboard_routes(app, DASHBOARD_ROOT)
 
 from browser_finder import find_chromium  # noqa: E402
+from _watchdog import start_parent_watchdog  # noqa: E402
 
 # Headless guard -- read once at import so tests can inspect the flag.
 _NO_WINDOW = os.environ.get("SQX_NO_WINDOW", "").strip() not in ("", "0")
@@ -120,6 +121,7 @@ def _open_app_window(url: str) -> None:
 # ---- entry point ------------------------------------------------------------
 
 def main() -> None:
+    start_parent_watchdog()
     host = os.environ.get("SQX_HOST", str(DEFAULT_HOST))
     raw_port = os.environ.get("SQX_PORT", "").strip()
     port = int(raw_port) if raw_port else _free_port()

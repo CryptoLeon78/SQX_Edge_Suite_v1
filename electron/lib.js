@@ -53,8 +53,9 @@ function pickFreePort() {
  */
 function sidecarCommand({ packaged, port, resourcesPath, repoRoot }) {
   const env = Object.assign({}, process.env, {
-    SQX_NO_WINDOW: '1',
-    SQX_PORT: String(port),
+    SQX_NO_WINDOW:  '1',
+    SQX_PORT:       String(port),
+    SQX_PARENT_PID: String(process.pid),
   });
 
   if (packaged) {
