@@ -58,6 +58,7 @@
   },
   "devDependencies": {
     "@cloudflare/vitest-pool-workers": "^0.16.19",
+    "@cloudflare/workers-types": "^4.20260624.1",
     "@opennextjs/cloudflare": "latest",
     "@types/node": "latest",
     "@types/react": "latest",
