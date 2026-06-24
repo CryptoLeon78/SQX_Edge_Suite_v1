@@ -91,17 +91,8 @@ New-Item -ItemType Directory -Path $AbsOutputDir -Force | Out-Null
 # Set PYTHONPATH so Nuitka resolves `from api.server import app` and core.*
 $env:PYTHONPATH = $ToolRoot
 
-# pywebview / pythonnet flags:
-#   --enable-plugin=pywebview        Nuitka built-in plugin: selects the correct Windows
-#                                    backend (EdgeChromium), bundles webview/lib/ DLLs and
-#                                    .NET assemblies, excludes irrelevant platform backends.
-#                                    Do NOT combine with a manual --include-package for
-#                                    webview -- the plugin manages inclusion; mixing conflicts.
-#   --include-package=clr            pythonnet CLR bridge; not managed by the plugin.
-# If Nuitka reports "clr not found" during compilation, try one of these alternatives
-# by replacing the --include-package=clr line:
-#   --include-module=clr             (single-module form, some Nuitka versions prefer this)
-#   --include-package=pythonnet      (alternative package name for the CLR bridge)
+# Native window: the app opens Edge/Chrome in --app mode (see packaging/app_main.py).
+# No pywebview, pythonnet, or extra Nuitka plugins required.
 
 & python -m nuitka `
     --standalone `
@@ -109,7 +100,6 @@ $env:PYTHONPATH = $ToolRoot
     --output-dir="$AbsOutputDir" `
     --output-filename="SQX_Edge_Tool.exe" `
     --enable-console `
-    --enable-plugin=pywebview `
     --include-package=flask `
     --include-package=jinja2 `
     --include-package=werkzeug `
@@ -119,7 +109,6 @@ $env:PYTHONPATH = $ToolRoot
     --include-package=markupsafe `
     --include-package=core `
     --include-package=api `
-    --include-package=clr `
     --include-data-dir="$ProjectRoot\app=app" `
     --include-data-dir="$ToolRoot\templates=templates" `
     --include-data-dir="$ToolRoot\config=config" `

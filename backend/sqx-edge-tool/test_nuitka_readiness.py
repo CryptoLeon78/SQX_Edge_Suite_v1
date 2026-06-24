@@ -254,28 +254,14 @@ class NuikaDevSwitchTest(unittest.TestCase):
         """Nuitka is invoked with --assume-yes-for-downloads to avoid interactive prompts."""
         self.assertIn("--assume-yes-for-downloads", self._source())
 
-    def test_pywebview_plugin_enabled(self):
-        """Nuitka call must use --enable-plugin=pywebview (not --include-package=webview).
-
-        The built-in plugin selects the correct Windows backend, bundles webview/lib/
-        DLLs and .NET assemblies, and excludes irrelevant platform backends.
-        Using --include-package=webview alongside the plugin conflicts with it.
-        """
+    def test_no_pywebview_or_clr_flags(self):
+        """Native window now uses Edge/Chrome --app mode; no pywebview/clr in Nuitka call."""
         source = self._source()
-        self.assertIn("--enable-plugin=pywebview", source)
+        self.assertNotIn("--enable-plugin=pywebview", source)
         self.assertNotIn("--include-package=webview", source)
         self.assertNotIn("--include-package-data=webview", source)
-
-    def test_clr_package_included(self):
-        """Nuitka call must include --include-package=clr for the pythonnet CLR bridge."""
-        self.assertIn("--include-package=clr", self._source())
-
-    def test_clr_alternatives_documented_in_comments(self):
-        """Alternatives for clr (--include-module=clr, --include-package=pythonnet)
-        must be present as comments so the developer can swap quickly if needed."""
-        source = self._source()
-        self.assertIn("--include-module=clr", source)
-        self.assertIn("--include-package=pythonnet", source)
+        self.assertNotIn("--include-package=clr", source)
+        self.assertNotIn("--include-module=clr", source)
 
 
 class DashboardRoutesTest(unittest.TestCase):
@@ -326,9 +312,14 @@ class DashboardRoutesTest(unittest.TestCase):
     def test_dashboard_routes_module_compiles_clean(self):
         py_compile.compile(str(PACKAGING_ROOT / "dashboard_routes.py"), doraise=True)
 
-    def test_requirements_build_txt_mentions_pywebview(self):
+    def test_requirements_build_txt_has_no_pywebview(self):
+        """requirements-build.txt must NOT list pywebview (Edge app-mode needs no extra deps)."""
         req = (PACKAGING_ROOT / "requirements-build.txt").read_text(encoding="utf-8")
-        self.assertIn("pywebview", req)
+        self.assertNotIn("pywebview", req)
+        self.assertNotIn("pythonnet", req)
+
+    def test_browser_finder_module_compiles_clean(self):
+        py_compile.compile(str(PACKAGING_ROOT / "browser_finder.py"), doraise=True)
 
 
 class AppMainWebviewTest(unittest.TestCase):
@@ -355,21 +346,21 @@ class AppMainWebviewTest(unittest.TestCase):
     def test_wait_for_health_helper_present(self):
         self.assertIn("_wait_for_health", self._source())
 
-    def test_webview_import_is_lazy_not_top_level(self):
-        """pywebview must be imported inside main(), not at module level.
+    def test_no_webview_import(self):
+        """pywebview is no longer used; no import of webview in app_main."""
+        self.assertNotIn("import webview", self._source())
 
-        A top-level import would crash on systems without a display (CI / Linux).
-        """
+    def test_uses_browser_finder(self):
+        """app_main imports find_chromium from browser_finder for the app-mode window."""
         source = self._source()
-        self.assertIn("import webview", source)
-        # Must not appear as a module-level import (i.e. not at column 0 outside
-        # a function).  We check that the line is indented (inside a function).
-        for line in source.splitlines():
-            if "import webview" in line:
-                self.assertTrue(
-                    line.startswith(" ") or line.startswith("\t"),
-                    "import webview must be inside a function (indented), not at module level",
-                )
+        self.assertIn("from browser_finder import find_chromium", source)
+
+    def test_open_app_window_function_present(self):
+        """app_main defines _open_app_window() to launch Edge/Chrome in --app mode."""
+        source = self._source()
+        self.assertIn("def _open_app_window(", source)
+        self.assertIn("--app=", source)
+        self.assertIn("--window-size=", source)
 
     def test_registers_dashboard_routes(self):
         """app_main must import and call register_dashboard_routes."""
@@ -389,6 +380,54 @@ class AppMainWebviewTest(unittest.TestCase):
         """In headless mode (SQX_NO_WINDOW), Flask blocks in the main thread."""
         self.assertIn("_NO_WINDOW", self._source())
         self.assertIn("threaded=True", self._source())
+
+
+class ChromiumFinderTest(unittest.TestCase):
+    """Unit-test find_chromium() without launching a real browser.
+
+    browser_finder.py is imported directly (no Flask side-effects) so we can
+    pass explicit candidate lists and test the selection logic in isolation.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        from browser_finder import find_chromium
+        cls.find = staticmethod(find_chromium)
+
+    def test_returns_none_when_candidate_list_is_empty(self):
+        self.assertIsNone(self.find(candidates=[]))
+
+    def test_returns_none_when_no_candidates_exist_on_disk(self):
+        result = self.find(candidates=["/nonexistent/msedge.exe", "/nonexistent/chrome.exe"])
+        self.assertIsNone(result)
+
+    def test_returns_first_existing_path(self):
+        import tempfile
+        with tempfile.NamedTemporaryFile(suffix=".exe", delete=False) as f:
+            fake_exe = f.name
+        try:
+            result = self.find(candidates=["/nonexistent/msedge.exe", fake_exe])
+            self.assertEqual(result, fake_exe)
+        finally:
+            os.unlink(fake_exe)
+
+    def test_skips_nonexistent_before_existing(self):
+        import tempfile
+        with tempfile.NamedTemporaryFile(suffix=".exe", delete=False) as f:
+            good = f.name
+        try:
+            result = self.find(candidates=["/nope/a.exe", "/nope/b.exe", good])
+            self.assertEqual(result, good)
+        finally:
+            os.unlink(good)
+
+    def test_browser_finder_compiles_clean(self):
+        py_compile.compile(str(PACKAGING_ROOT / "browser_finder.py"), doraise=True)
+
+    def test_candidates_parameter_allows_override(self):
+        """Passing candidates= bypasses filesystem search (no winreg, no Path.home())."""
+        result = self.find(candidates=[])
+        self.assertIsNone(result)  # deterministic: no disk hit
 
 
 class PackagingScriptsAsciiTest(unittest.TestCase):

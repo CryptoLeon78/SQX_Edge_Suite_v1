@@ -11,6 +11,13 @@ In dev (python packaging/app_main.py), __compiled__ raises NameError, the guard
 is a no-op, and core.app_paths falls back to the standard __file__-based
 resolution -- identical behaviour to running the app normally.
 
+Native window strategy (Phase 4a-iii):
+  Flask runs in a daemon thread.  The dashboard is opened in Edge or Chrome
+  in --app mode (no tabs/address bar) using packaging/browser_finder.py.
+  This requires no extra Python packages or .NET runtimes.
+  Fallback: webbrowser.open() when no Chromium is found.
+  Electron integration is planned for a later phase.
+
 Environment variables:
   SQX_HOST         Override Flask listen host (default: 127.0.0.1)
   SQX_PORT         Override Flask listen port (default: random free port)
@@ -21,11 +28,13 @@ from __future__ import annotations
 
 import os
 import socket
+import subprocess
 import sys
+import tempfile
 import threading
 import time
-import urllib.error
 import urllib.request
+import webbrowser
 from pathlib import Path
 
 
@@ -56,6 +65,8 @@ from api.server import app, DEFAULT_HOST, DEFAULT_PORT, DASHBOARD_ROOT  # noqa: 
 from dashboard_routes import register_dashboard_routes  # noqa: E402
 register_dashboard_routes(app, DASHBOARD_ROOT)
 
+from browser_finder import find_chromium  # noqa: E402
+
 # Headless guard -- read once at import so tests can inspect the flag.
 _NO_WINDOW = os.environ.get("SQX_NO_WINDOW", "").strip() not in ("", "0")
 
@@ -82,6 +93,30 @@ def _wait_for_health(host: str, port: int, timeout: float = 15.0) -> bool:
     return False
 
 
+def _open_app_window(url: str) -> None:
+    """Open url in Edge/Chrome --app mode and block until the window closes.
+
+    When the user closes the browser window, this function returns and the
+    process exits naturally (Flask thread is daemon; it dies with the process).
+    Falls back to webbrowser.open() when no Chromium is found.
+    """
+    browser = find_chromium()
+    if browser is None:
+        print("[SQX] No Edge or Chrome found. Opening in default browser.", flush=True)
+        print(f"[SQX] URL: {url}", flush=True)
+        webbrowser.open(url)
+        return
+
+    with tempfile.TemporaryDirectory(prefix="sqx_edge_") as user_data_dir:
+        proc = subprocess.Popen([
+            browser,
+            f"--app={url}",
+            "--window-size=1280,860",
+            f"--user-data-dir={user_data_dir}",
+        ])
+        proc.wait()
+
+
 # ---- entry point ------------------------------------------------------------
 
 def main() -> None:
@@ -90,12 +125,13 @@ def main() -> None:
     port = int(raw_port) if raw_port else _free_port()
 
     if _NO_WINDOW:
-        # Headless: block in the main thread (test / API spike mode).
+        # Headless: block in the main thread (test / API spike / CI mode).
         print(f"SQX Edge (headless) at http://{host}:{port}")
         app.run(host=host, port=port, debug=False, use_reloader=False, threaded=True)
         return
 
-    # Window mode: run Flask in a daemon thread, wait for it, then open webview.
+    # Window mode: run Flask in a daemon thread, wait for it, then open the
+    # app window in the main thread and block until the user closes it.
     flask_thread = threading.Thread(
         target=lambda: app.run(
             host=host, port=port, debug=False, use_reloader=False, threaded=True
@@ -108,9 +144,8 @@ def main() -> None:
         print(f"[SQX] Flask did not become ready on port {port} within 15 s", flush=True)
         sys.exit(1)
 
-    import webview  # only import when we actually need the native window
-    webview.create_window("SQX Edge", f"http://{host}:{port}/")
-    webview.start()
+    _open_app_window(f"http://{host}:{port}/")
+    # Browser window closed -- Flask daemon thread exits with the process.
 
 
 if __name__ == "__main__":
