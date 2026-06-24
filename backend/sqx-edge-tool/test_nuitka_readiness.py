@@ -254,6 +254,25 @@ class NuikaDevSwitchTest(unittest.TestCase):
         """Nuitka is invoked with --assume-yes-for-downloads to avoid interactive prompts."""
         self.assertIn("--assume-yes-for-downloads", self._source())
 
+    def test_webview_package_included(self):
+        """Nuitka call must include --include-package=webview for pywebview."""
+        self.assertIn("--include-package=webview", self._source())
+
+    def test_webview_package_data_included(self):
+        """Nuitka call must include --include-package-data=webview to bundle lib/ DLLs."""
+        self.assertIn("--include-package-data=webview", self._source())
+
+    def test_clr_package_included(self):
+        """Nuitka call must include --include-package=clr for the pythonnet CLR bridge."""
+        self.assertIn("--include-package=clr", self._source())
+
+    def test_clr_alternatives_documented_in_comments(self):
+        """Alternatives for clr (--include-module=clr, --include-package=pythonnet)
+        must be present as comments so the developer can swap quickly if needed."""
+        source = self._source()
+        self.assertIn("--include-module=clr", source)
+        self.assertIn("--include-package=pythonnet", source)
+
 
 class DashboardRoutesTest(unittest.TestCase):
     """Verify dashboard_routes.py in isolation using a dedicated fresh Flask app.

@@ -91,6 +91,15 @@ New-Item -ItemType Directory -Path $AbsOutputDir -Force | Out-Null
 # Set PYTHONPATH so Nuitka resolves `from api.server import app` and core.*
 $env:PYTHONPATH = $ToolRoot
 
+# pywebview / pythonnet flags:
+#   --include-package=webview        pywebview Python package (import name)
+#   --include-package-data=webview   bundles webview/lib/ DLLs + .NET assemblies (EdgeChromium)
+#   --include-package=clr            pythonnet CLR bridge used by webview EdgeChromium backend
+# If Nuitka reports "clr not found" during compilation, try one of these alternatives
+# by replacing the --include-package=clr line above:
+#   --include-module=clr             (single-module form, some Nuitka versions prefer this)
+#   --include-package=pythonnet      (alternative package name for the CLR bridge)
+
 & python -m nuitka `
     --standalone `
     --assume-yes-for-downloads `
@@ -106,6 +115,9 @@ $env:PYTHONPATH = $ToolRoot
     --include-package=markupsafe `
     --include-package=core `
     --include-package=api `
+    --include-package=webview `
+    --include-package-data=webview `
+    --include-package=clr `
     --include-data-dir="$ProjectRoot\app=app" `
     --include-data-dir="$ToolRoot\templates=templates" `
     --include-data-dir="$ToolRoot\config=config" `

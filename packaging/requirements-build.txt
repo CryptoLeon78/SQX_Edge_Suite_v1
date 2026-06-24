@@ -3,3 +3,4 @@
 # See packaging/NUITKA_BUILD.md for full setup instructions.
 nuitka==4.1.3
 pywebview>=4.0
+pythonnet>=3.0
