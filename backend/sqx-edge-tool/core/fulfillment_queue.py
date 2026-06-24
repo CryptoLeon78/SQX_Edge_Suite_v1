@@ -11,7 +11,9 @@ from typing import Any
 from core.fulfillment_normalizer import normalize_payload, verify_lemon_signature
 
 
-ROOT = Path(__file__).resolve().parents[1]
+from core.app_paths import app_root
+
+ROOT = app_root()
 QUEUE_ROOT = ROOT / "fulfillment_requests"
 EVENTS_DIR = QUEUE_ROOT / "events"
 REQUESTS_DIR = QUEUE_ROOT / "requests"

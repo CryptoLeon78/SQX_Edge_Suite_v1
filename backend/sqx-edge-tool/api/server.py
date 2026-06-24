@@ -27,10 +27,15 @@ from datetime import datetime
 from pathlib import Path
 
 # Permitir ejecución directa o vía -m
-ROOT = Path(__file__).resolve().parent.parent
-PROJECT_ROOT = ROOT.parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
+_API_DIR = Path(__file__).resolve().parent
+_BOOTSTRAP_ROOT = _API_DIR.parent          # sqx-edge-tool/ — only for sys.path bootstrap
+if str(_BOOTSTRAP_ROOT) not in sys.path:
+    sys.path.insert(0, str(_BOOTSTRAP_ROOT))
+
+from core.app_paths import app_root, project_root  # noqa: E402
+
+ROOT = app_root()
+PROJECT_ROOT = project_root()
 
 from flask import Flask, abort, jsonify, request  # type: ignore
 

@@ -13,7 +13,9 @@ from pathlib import Path
 from typing import Any
 
 
-ROOT = Path(__file__).resolve().parent.parent
+from core.app_paths import app_root
+
+ROOT = app_root()
 CONFIG_DIR = ROOT / "config"
 
 

@@ -6,7 +6,9 @@ from pathlib import Path
 from typing import Any
 
 
-PROJECT_ROOT = Path(__file__).resolve().parents[3]
+from core.app_paths import project_root
+
+PROJECT_ROOT = project_root()
 DEFAULT_REPORT_PATH = PROJECT_ROOT / "analysis_output" / "real_mtf_pipeline_run" / "a56_real_mtf_pipeline_run.json"
 MAX_ITEMS = 12
 

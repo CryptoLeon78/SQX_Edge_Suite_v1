@@ -22,9 +22,13 @@ from pathlib import Path
 from typing import Optional
 
 # Permitir ejecución directa o vía -m
-ROOT = Path(__file__).resolve().parent.parent
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
+_CLI_BOOTSTRAP = Path(__file__).resolve().parent.parent  # sqx-edge-tool/ — sys.path only
+if str(_CLI_BOOTSTRAP) not in sys.path:
+    sys.path.insert(0, str(_CLI_BOOTSTRAP))
+
+from core.app_paths import app_root  # noqa: E402
+
+ROOT = app_root()
 
 from core import all_minings, generate_project, get_mining
 from core.project_generator import DEFAULT_BROKER_POSTFIX

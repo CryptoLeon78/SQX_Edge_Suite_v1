@@ -6,7 +6,9 @@ from pathlib import Path
 from typing import Any
 
 
-TOOL_ROOT = Path(__file__).resolve().parents[1]
+from core.app_paths import app_root
+
+TOOL_ROOT = app_root()
 DEFAULT_CONFIG_PATH = TOOL_ROOT / "config" / "customer_cockpit.json"
 DEFAULT_SUCCESS_DIR = TOOL_ROOT / "data" / "customer_success_renewal"
 DEFAULT_LIMIT = 12

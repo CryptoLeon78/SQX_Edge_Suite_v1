@@ -9,7 +9,9 @@ from pathlib import Path
 from typing import Any
 
 
-ROOT = Path(__file__).resolve().parents[1]
+from core.app_paths import app_root
+
+ROOT = app_root()
 CONFIG_DIR = ROOT / "config"
 PRODUCT_MANIFEST_PATH = CONFIG_DIR / "product_manifest.json"
 DIGESTINFO_SHA256_PREFIX = bytes.fromhex("3031300d060960864801650304020105000420")
