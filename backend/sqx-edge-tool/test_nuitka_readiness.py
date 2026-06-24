@@ -254,13 +254,17 @@ class NuikaDevSwitchTest(unittest.TestCase):
         """Nuitka is invoked with --assume-yes-for-downloads to avoid interactive prompts."""
         self.assertIn("--assume-yes-for-downloads", self._source())
 
-    def test_webview_package_included(self):
-        """Nuitka call must include --include-package=webview for pywebview."""
-        self.assertIn("--include-package=webview", self._source())
+    def test_pywebview_plugin_enabled(self):
+        """Nuitka call must use --enable-plugin=pywebview (not --include-package=webview).
 
-    def test_webview_package_data_included(self):
-        """Nuitka call must include --include-package-data=webview to bundle lib/ DLLs."""
-        self.assertIn("--include-package-data=webview", self._source())
+        The built-in plugin selects the correct Windows backend, bundles webview/lib/
+        DLLs and .NET assemblies, and excludes irrelevant platform backends.
+        Using --include-package=webview alongside the plugin conflicts with it.
+        """
+        source = self._source()
+        self.assertIn("--enable-plugin=pywebview", source)
+        self.assertNotIn("--include-package=webview", source)
+        self.assertNotIn("--include-package-data=webview", source)
 
     def test_clr_package_included(self):
         """Nuitka call must include --include-package=clr for the pythonnet CLR bridge."""
