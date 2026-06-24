@@ -7,12 +7,12 @@
     See packaging/NUITKA_BUILD.md for full prerequisites and validation steps.
 
     Pipeline (default / release):
-    1. packaging/build_inputs.py  — harden product_manifest.json (channel=free,
-       real public key required — exits with code 2 if placeholder detected).
+    1. packaging/build_inputs.py - harden product_manifest.json (channel=free,
+       real public key required - exits with code 2 if placeholder detected).
     2. Nuitka --standalone compilation.
 
     Pipeline (-Dev / toolchain spike):
-    1. SKIP harden — uses repo product_manifest.json as-is (channel=internal).
+    1. SKIP harden - uses repo product_manifest.json as-is (channel=internal).
     2. Prints an INSECURE DEV BUILD warning (red) and continues.
     3. Nuitka --standalone compilation with the raw repo manifest.
     -Dev builds MUST NOT be distributed to buyers.
@@ -48,19 +48,19 @@ $ToolRoot      = Join-Path $ProjectRoot "backend\sqx-edge-tool"
 $EntryPoint    = Join-Path $ProjectRoot "packaging\app_main.py"
 $AbsOutputDir  = Join-Path $ProjectRoot $OutputDir
 
-# ── Manifest selection ─────────────────────────────────────────────────────────
+# ---- Manifest selection ------------------------------------------------------
 if ($Dev) {
     Write-Host ""
     Write-Host "################################################################" -ForegroundColor Red
-    Write-Host "#  INSECURE DEV BUILD — NO DISTRIBUIR                         #" -ForegroundColor Red
-    Write-Host "#  channel=internal  |  placeholder public key                #" -ForegroundColor Red
-    Write-Host "#  Use only for local toolchain spikes. Never ship to buyers. #" -ForegroundColor Red
+    Write-Host "#  INSECURE DEV BUILD - NO DISTRIBUIR                          #" -ForegroundColor Red
+    Write-Host "#  channel=internal  |  placeholder public key                 #" -ForegroundColor Red
+    Write-Host "#  Use only for local toolchain spikes. Never ship to buyers.  #" -ForegroundColor Red
     Write-Host "################################################################" -ForegroundColor Red
     Write-Host ""
     $ManifestToBundle = Join-Path $ToolRoot "config\product_manifest.json"
     Write-Host "==> Dev mode: using repo manifest as-is ($ManifestToBundle)"
 } else {
-    # ── Step 1: harden manifest ────────────────────────────────────────────────
+    # ---- Step 1: harden manifest ---------------------------------------------
     $AbsStagingDir = Join-Path $ProjectRoot $StagingDir
     Write-Host "==> Hardening buyer manifest..."
     & python (Join-Path $ProjectRoot "packaging\build_inputs.py") --staging-dir $AbsStagingDir
@@ -73,22 +73,22 @@ if ($Dev) {
         exit 1
     }
 
-    # ── Step 2: verify hardened manifest ──────────────────────────────────────
+    # ---- Step 2: verify hardened manifest ------------------------------------
     $HardenedManifest = Join-Path $AbsStagingDir "product_manifest.json"
     $manifest = Get-Content $HardenedManifest -Raw | ConvertFrom-Json
     if ($manifest.build.channel -ne "free") {
-        Write-Error "Hardened manifest has channel='$($manifest.build.channel)' — expected 'free'. Aborting."
+        Write-Error "Hardened manifest has channel='$($manifest.build.channel)' - expected 'free'. Aborting."
         exit 1
     }
     Write-Host "    channel = $($manifest.build.channel)   kid = $($manifest.licensing.publicKey.kid)"
     $ManifestToBundle = $HardenedManifest
 }
 
-# ── Step 3: compile with Nuitka ───────────────────────────────────────────────
+# ---- Step 3: compile with Nuitka --------------------------------------------
 Write-Host "==> Compiling with Nuitka --standalone..."
 New-Item -ItemType Directory -Path $AbsOutputDir -Force | Out-Null
 
-# Fix PYTHONPATH so Nuitka can resolve `from api.server import app` and core.*
+# Set PYTHONPATH so Nuitka resolves `from api.server import app` and core.*
 $env:PYTHONPATH = $ToolRoot
 
 & python -m nuitka `
@@ -120,7 +120,7 @@ if ($LASTEXITCODE -ne 0) {
 # Locate the compiled exe rather than hardcoding the .dist folder name
 $exe = Get-ChildItem -Recurse -Filter "SQX_Edge_Tool.exe" $AbsOutputDir | Select-Object -First 1
 if (-not $exe) {
-    Write-Error "No se encontró SQX_Edge_Tool.exe tras la compilación en $AbsOutputDir."
+    Write-Error "SQX_Edge_Tool.exe not found after compilation in $AbsOutputDir."
     exit 1
 }
 $DistDir = $exe.Directory.FullName
@@ -128,7 +128,7 @@ $DistDir = $exe.Directory.FullName
 Write-Host ""
 if ($Dev) {
     Write-Host "Dev build complete : $DistDir" -ForegroundColor Yellow
-    Write-Host "REMINDER: channel=internal, placeholder key — DO NOT DISTRIBUTE." -ForegroundColor Red
+    Write-Host "REMINDER: channel=internal, placeholder key - DO NOT DISTRIBUTE." -ForegroundColor Red
 } else {
     Write-Host "Build complete : $DistDir"
     Write-Host "Default port   : $Port (override at runtime: set SQX_PORT=$Port)"

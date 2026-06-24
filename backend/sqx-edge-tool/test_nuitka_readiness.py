@@ -250,5 +250,35 @@ class NuikaDevSwitchTest(unittest.TestCase):
         self.assertIn("--assume-yes-for-downloads", self._source())
 
 
+class PackagingScriptsAsciiTest(unittest.TestCase):
+    """All *.ps1 files under packaging/ must be pure ASCII (every byte < 128).
+
+    PowerShell 5.1 on Windows reads files without BOM as CP1252.  Any byte
+    above 127 (em-dash, box-drawing, accented char, etc.) will cause a parse
+    error before the script executes.
+    """
+
+    def _ps1_files(self):
+        return list(PACKAGING_ROOT.glob("*.ps1"))
+
+    def test_at_least_one_ps1_exists(self):
+        self.assertGreater(len(self._ps1_files()), 0,
+                           "No *.ps1 files found in packaging/ - check PACKAGING_ROOT")
+
+    def test_all_packaging_ps1_are_pure_ascii(self):
+        failures = []
+        for ps1 in self._ps1_files():
+            data = ps1.read_bytes()
+            bad = [(i + 1, b) for i, b in enumerate(data) if b > 127]
+            if bad:
+                sample = bad[:3]
+                failures.append(
+                    f"{ps1.name}: {len(bad)} non-ASCII byte(s); "
+                    f"first offsets: {[(off, hex(b)) for off, b in sample]}"
+                )
+        self.assertEqual(failures, [],
+                         "packaging/ PS1 files with non-ASCII bytes:\n" + "\n".join(failures))
+
+
 if __name__ == "__main__":
     unittest.main()
