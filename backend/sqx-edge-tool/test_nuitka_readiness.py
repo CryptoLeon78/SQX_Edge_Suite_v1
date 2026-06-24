@@ -180,5 +180,50 @@ class DataDirsExistTest(unittest.TestCase):
         self.assertIn("licensing", data)
 
 
+class NuikaDevSwitchTest(unittest.TestCase):
+    """nuitka_build.ps1 -Dev switch: present in source, release mode still requires harden."""
+
+    PS1 = PACKAGING_ROOT / "nuitka_build.ps1"
+
+    def _source(self) -> str:
+        return self.PS1.read_text(encoding="utf-8-sig")
+
+    def test_dev_param_is_declared(self):
+        """The script declares a [switch]$Dev parameter."""
+        self.assertIn("[switch]$Dev", self._source())
+
+    def test_dev_branch_prints_insecure_warning(self):
+        """When -Dev is taken, script prints the INSECURE DEV BUILD string."""
+        self.assertIn("INSECURE DEV BUILD", self._source())
+        self.assertIn("NO DISTRIBUIR", self._source())
+
+    def test_dev_branch_skips_build_inputs(self):
+        """In the -Dev branch, build_inputs.py is NOT called (it's in the else branch)."""
+        source = self._source()
+        # The actual invocation uses Join-Path + the script path — only in else block.
+        # Comments may also contain "build_inputs.py", so we look for the call expression.
+        call_marker = '"packaging\\build_inputs.py"'
+        else_pos = source.index("} else {")
+        call_pos = source.index(call_marker)
+        self.assertGreater(call_pos, else_pos,
+                           "build_inputs.py invocation must be inside the else (non-Dev) branch")
+
+    def test_release_mode_calls_build_inputs(self):
+        """Without -Dev, the script calls build_inputs.py for hardening."""
+        self.assertIn("build_inputs.py", self._source())
+
+    def test_release_mode_verifies_channel_free(self):
+        """Without -Dev, the script checks channel == 'free' before compiling."""
+        self.assertIn("-ne \"free\"", self._source())
+
+    def test_dev_mode_uses_repo_manifest(self):
+        """In -Dev mode, the script uses the repo config/product_manifest.json."""
+        self.assertIn("config\\product_manifest.json", self._source())
+
+    def test_manifest_to_bundle_variable_used_in_nuitka_call(self):
+        """Both modes pass $ManifestToBundle to the Nuitka --include-data-files flag."""
+        self.assertIn("$ManifestToBundle=config/product_manifest.json", self._source())
+
+
 if __name__ == "__main__":
     unittest.main()
