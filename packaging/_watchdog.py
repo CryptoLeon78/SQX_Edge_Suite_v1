@@ -15,6 +15,21 @@ import time
 _log = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
+# WFSO result interpreter -- module-level so any platform can import + test it
+# ---------------------------------------------------------------------------
+
+_WAIT_OBJECT_0 = 0x00000000  # handle signaled = process terminated
+
+
+def _wfso_alive(res: int) -> bool:
+    # Alive unless we get the unambiguous termination signal.
+    # WAIT_FAILED (0xFFFFFFFF) or any other code -> assume alive:
+    # the watchdog is a backstop, it must never kill a live session
+    # due to a transient API error.
+    return res != _WAIT_OBJECT_0
+
+
+# ---------------------------------------------------------------------------
 # Platform: liveness probe
 # ---------------------------------------------------------------------------
 
@@ -26,7 +41,6 @@ if sys.platform == "win32":
     # Open the handle once so PID reuse between polls cannot produce a false
     # "alive" reading.  SYNCHRONIZE is the minimum right needed for WFSO.
     _SYNCHRONIZE = 0x00100000
-    _WAIT_TIMEOUT = 0x00000102  # still running
 
     _k32.OpenProcess.restype  = ctypes.wintypes.HANDLE
     _k32.OpenProcess.argtypes = [
@@ -49,7 +63,7 @@ if sys.platform == "win32":
             if not handle:
                 return False  # process gone or PID never existed
             _handle_cache[pid] = handle
-        return _k32.WaitForSingleObject(handle, 0) == _WAIT_TIMEOUT
+        return _wfso_alive(_k32.WaitForSingleObject(handle, 0))
 
 else:
     def _parent_alive(pid: int) -> bool:  # type: ignore[misc]

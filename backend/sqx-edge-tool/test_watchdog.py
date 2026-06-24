@@ -15,7 +15,20 @@ _PACKAGING = Path(__file__).resolve().parents[2] / "packaging"
 if str(_PACKAGING) not in sys.path:
     sys.path.insert(0, str(_PACKAGING))
 
-from _watchdog import _parent_alive, start_parent_watchdog  # noqa: E402
+from _watchdog import _parent_alive, _wfso_alive, start_parent_watchdog  # noqa: E402
+
+
+class TestWfsoAlive(unittest.TestCase):
+    """Cross-platform: _wfso_alive is module-level and runs on any OS."""
+
+    def test_wait_object_0_is_dead(self):
+        self.assertFalse(_wfso_alive(0x00000000))  # WAIT_OBJECT_0 -> terminated
+
+    def test_wait_timeout_is_alive(self):
+        self.assertTrue(_wfso_alive(0x00000102))   # WAIT_TIMEOUT -> still running
+
+    def test_wait_failed_is_alive(self):
+        self.assertTrue(_wfso_alive(0xFFFFFFFF))   # WAIT_FAILED -> assume alive (fail-safe)
 
 
 class TestParentAlive(unittest.TestCase):
