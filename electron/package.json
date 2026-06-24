@@ -1,0 +1,13 @@
+{
+  "name": "sqx-edge",
+  "version": "0.2.0",
+  "description": "SQX Edge desktop shell (Electron + Nuitka sidecar)",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test tests/lib.test.js"
+  },
+  "dependencies": {
+    "electron": "^33.0.0"
+  }
+}
