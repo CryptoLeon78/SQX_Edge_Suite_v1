@@ -1,7 +1,8 @@
 """
-test_nuitka_readiness.py — Nuitka packaging readiness tests (ADR-0003, Phase 2).
+test_nuitka_readiness.py — Nuitka packaging readiness tests (ADR-0003, Phase 2+).
 
 Tests run on any OS (CI / Linux sandbox); no Nuitka binary required.
+SQX_NO_WINDOW=1 is set before any app_main import to suppress GUI code.
 """
 from __future__ import annotations
 
@@ -12,6 +13,10 @@ import py_compile
 import sys
 import unittest
 from pathlib import Path
+
+# Headless guard must be set before any import of app_main so that the module-level
+# _NO_WINDOW flag is True from the start.
+os.environ.setdefault("SQX_NO_WINDOW", "1")
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 TOOL_ROOT = PROJECT_ROOT / "backend" / "sqx-edge-tool"
@@ -248,6 +253,119 @@ class NuikaDevSwitchTest(unittest.TestCase):
     def test_assume_yes_for_downloads_flag_present(self):
         """Nuitka is invoked with --assume-yes-for-downloads to avoid interactive prompts."""
         self.assertIn("--assume-yes-for-downloads", self._source())
+
+
+class DashboardRoutesTest(unittest.TestCase):
+    """Verify dashboard_routes.py in isolation using a dedicated fresh Flask app.
+
+    We do NOT import app_main here -- other test files (e.g. test_api.py) may
+    already have made requests against the shared api.server.app instance.
+    Flask 3.x raises an AssertionError if you try to register routes on an app
+    that has already handled a request.  A fresh app sidesteps this entirely.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        from flask import Flask
+        from dashboard_routes import register_dashboard_routes
+
+        dashboard_dir = PROJECT_ROOT / "app"   # same as DASHBOARD_ROOT in server.py
+        fresh_app = Flask(__name__)
+        fresh_app.config["TESTING"] = True
+        register_dashboard_routes(fresh_app, dashboard_dir)
+        cls.client = fresh_app.test_client()
+
+    def test_root_returns_200(self):
+        """GET / must return HTTP 200 (dashboard served from Flask)."""
+        r = self.client.get("/")
+        self.assertEqual(r.status_code, 200)
+
+    def test_root_content_type_is_html(self):
+        r = self.client.get("/")
+        self.assertIn("text/html", r.content_type)
+
+    def test_root_injects_sqx_api_base_meta(self):
+        """Flask injects <meta name='sqx-api-base' content='/api'> for same-origin JS."""
+        r = self.client.get("/")
+        self.assertIn(b'name="sqx-api-base"', r.data)
+        self.assertIn(b'content="/api"', r.data)
+
+    def test_root_contains_dashboard_title(self):
+        """GET / serves the actual dashboard HTML, not a blank page."""
+        r = self.client.get("/")
+        self.assertIn(b"SQX", r.data)
+
+    def test_static_css_served(self):
+        """Static files from app/ are served under their relative path."""
+        r = self.client.get("/css/dashboard.css")
+        self.assertEqual(r.status_code, 200)
+
+    def test_dashboard_routes_module_compiles_clean(self):
+        py_compile.compile(str(PACKAGING_ROOT / "dashboard_routes.py"), doraise=True)
+
+    def test_requirements_build_txt_mentions_pywebview(self):
+        req = (PACKAGING_ROOT / "requirements-build.txt").read_text(encoding="utf-8")
+        self.assertIn("pywebview", req)
+
+
+class AppMainWebviewTest(unittest.TestCase):
+    """Verify app_main.py structure via source inspection (no actual import).
+
+    Importing app_main triggers route registration on the shared api.server.app.
+    Source inspection gives us the same guarantees without side-effects.
+    """
+
+    APP_MAIN = PACKAGING_ROOT / "app_main.py"
+
+    def _source(self) -> str:
+        return self.APP_MAIN.read_text(encoding="utf-8")
+
+    def test_no_window_guard_reads_env_var(self):
+        """app_main must check SQX_NO_WINDOW and expose _NO_WINDOW flag."""
+        source = self._source()
+        self.assertIn("SQX_NO_WINDOW", source)
+        self.assertIn("_NO_WINDOW", source)
+
+    def test_free_port_helper_present(self):
+        self.assertIn("_free_port", self._source())
+
+    def test_wait_for_health_helper_present(self):
+        self.assertIn("_wait_for_health", self._source())
+
+    def test_webview_import_is_lazy_not_top_level(self):
+        """pywebview must be imported inside main(), not at module level.
+
+        A top-level import would crash on systems without a display (CI / Linux).
+        """
+        source = self._source()
+        self.assertIn("import webview", source)
+        # Must not appear as a module-level import (i.e. not at column 0 outside
+        # a function).  We check that the line is indented (inside a function).
+        for line in source.splitlines():
+            if "import webview" in line:
+                self.assertTrue(
+                    line.startswith(" ") or line.startswith("\t"),
+                    "import webview must be inside a function (indented), not at module level",
+                )
+
+    def test_registers_dashboard_routes(self):
+        """app_main must import and call register_dashboard_routes."""
+        source = self._source()
+        self.assertIn("from dashboard_routes import register_dashboard_routes", source)
+        self.assertIn("register_dashboard_routes(", source)
+
+    def test_imports_dashboard_root_from_server(self):
+        """app_main must import DASHBOARD_ROOT to know where the app/ dir is."""
+        self.assertIn("DASHBOARD_ROOT", self._source())
+
+    def test_flask_runs_in_daemon_thread_in_window_mode(self):
+        """When opening a native window, Flask runs in a daemon thread."""
+        self.assertIn("daemon=True", self._source())
+
+    def test_headless_mode_runs_flask_in_main_thread(self):
+        """In headless mode (SQX_NO_WINDOW), Flask blocks in the main thread."""
+        self.assertIn("_NO_WINDOW", self._source())
+        self.assertIn("threaded=True", self._source())
 
 
 class PackagingScriptsAsciiTest(unittest.TestCase):
