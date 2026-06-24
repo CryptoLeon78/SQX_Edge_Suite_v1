@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { clearSessionCookie, hashSessionId, LOGIN_ROUTE } from "@/lib/session-prototype";
 import { SESSION_COOKIE_CONTRACT } from "@/lib/auth-data-contract";
 import { getTesterStore } from "@/lib/tester-store-factory";
@@ -9,7 +10,8 @@ export async function POST(request: Request) {
   const cookieValue = cookieStore.get(SESSION_COOKIE_CONTRACT.name)?.value;
 
   if (cookieValue) {
-    const store = getTesterStore();
+    const { env } = await getCloudflareContext({ async: true });
+    const store = getTesterStore(env);
     const sessionIdHash = await hashSessionId(cookieValue);
     await store.revokeSession(sessionIdHash);
   }

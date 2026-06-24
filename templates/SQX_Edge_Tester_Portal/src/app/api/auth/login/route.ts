@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 import {
   applySessionCookie,
   evaluatePrototypeLogin,
@@ -18,7 +19,8 @@ export async function POST(request: Request) {
     return NextResponse.redirect(loginUrl, { status: 303 });
   }
 
-  const store = getTesterStore();
+  const { env } = await getCloudflareContext({ async: true });
+  const store = getTesterStore(env);
   const sessionIdHash = await hashSessionId(result.sessionId);
   const now = new Date();
   await store.createSession({

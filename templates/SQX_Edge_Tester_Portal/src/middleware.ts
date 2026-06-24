@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { SECURITY_HEADERS } from "@/lib/security-headers";
 import {
   buildRateLimitKey,
@@ -19,6 +20,7 @@ function applySecurityHeaders(response: NextResponse): NextResponse {
 
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
+  const { env } = await getCloudflareContext({ async: true });
 
   if (isGlobalKillSwitchEnabled() && !isKillSwitchExemptPath(pathname)) {
     if (pathname.startsWith("/api/")) {
@@ -50,7 +52,7 @@ export async function middleware(request: NextRequest) {
   const cookieValue = request.cookies.get(SESSION_COOKIE_CONTRACT.name)?.value;
   if (cookieValue) {
     const sessionIdHash = await hashSessionId(cookieValue);
-    const session = await getTesterStore().getSession(sessionIdHash);
+    const session = await getTesterStore(env).getSession(sessionIdHash);
     hasValidSession = session !== null;
   }
 

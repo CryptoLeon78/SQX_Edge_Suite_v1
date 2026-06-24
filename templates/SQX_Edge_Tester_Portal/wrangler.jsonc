@@ -16,6 +16,17 @@
       "service": "sqx-edge-tester-portal-preview"
     }
   ],
+  "d1_databases": [
+    {
+      "binding": "TESTER_DB",
+      "database_name": "sqx-tester",
+      "database_id": "00000000-0000-0000-0000-000000000001",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "vars": {
+    "TESTER_STORE_DRIVER": "demo"
+  },
   "observability": {
     "enabled": true
   }

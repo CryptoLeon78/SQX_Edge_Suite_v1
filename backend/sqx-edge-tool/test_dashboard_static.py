@@ -3101,7 +3101,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         for pattern in (
             "SECURITY_HEADERS",
             "isProtectedPath",
-            "getTesterStore().getSession",
+            ".getSession(",
             "buildLoginUrl",
         ):
             with self.subTest(pattern=pattern):
@@ -3339,7 +3339,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("NextResponse.redirect", login_route)
         self.assertIn("clearSessionCookie", logout_route)
         self.assertIn("buildLoginUrl", middleware)
-        self.assertIn("getTesterStore().getSession", middleware)
+        self.assertIn(".getSession(", middleware)
         self.assertIn("isProtectedPath", middleware)
         self.assertNotIn("new URL(\"/expired\"", middleware)
 
@@ -8444,7 +8444,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "export const config",
             "SECURITY_HEADERS",
             "isProtectedPath",
-            "getTesterStore().getSession",
+            ".getSession(",
             "buildLoginUrl",
             "global_kill_switch_enabled",
             "rate_limit_exceeded",
