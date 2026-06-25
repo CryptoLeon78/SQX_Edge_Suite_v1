@@ -32,10 +32,11 @@ _BOOTSTRAP_ROOT = _API_DIR.parent          # sqx-edge-tool/ — only for sys.pat
 if str(_BOOTSTRAP_ROOT) not in sys.path:
     sys.path.insert(0, str(_BOOTSTRAP_ROOT))
 
-from core.app_paths import app_root, project_root  # noqa: E402
+from core.app_paths import app_root, project_root, user_data_dir  # noqa: E402
 
 ROOT = app_root()
 PROJECT_ROOT = project_root()
+_USER_DATA = user_data_dir()
 
 from flask import Flask, abort, jsonify, request  # type: ignore
 
@@ -69,7 +70,7 @@ from core.customer_cockpit import cockpit_overview as customer_cockpit_overview
 app = Flask(__name__)
 
 VERSION = "0.2.0"
-CONFIG_PATH = ROOT / "config.json"
+CONFIG_PATH = _USER_DATA / "config.json"
 DASHBOARD_ROOT = PROJECT_ROOT / "app"
 STATE_BACKUP_DIR = PROJECT_ROOT / "analysis" / "analysis_output"
 STATE_BACKUP_RETENTION = int(os.environ.get("SQX_STATE_BACKUP_RETENTION", "30"))
@@ -151,9 +152,11 @@ def resolve_template(cfg: dict, capa: int) -> str:
 
 
 def resolve_output_dir(cfg: dict) -> str:
-    val = cfg.get("output_dir") or "output"
-    if not os.path.isabs(val):
-        val = str(ROOT / val)
+    val = cfg.get("output_dir") or ""
+    if not val:
+        val = str(_USER_DATA / "output")
+    elif not os.path.isabs(val):
+        val = str(_USER_DATA / val)
     os.makedirs(val, exist_ok=True)
     return val
 

@@ -9,11 +9,12 @@ from pathlib import Path
 from typing import Any
 
 
-from core.app_paths import app_root
+from core.app_paths import app_root, user_data_dir
 
 ROOT = app_root()
 CONFIG_DIR = ROOT / "config"
 PRODUCT_MANIFEST_PATH = CONFIG_DIR / "product_manifest.json"
+_USER_DATA = user_data_dir()
 DIGESTINFO_SHA256_PREFIX = bytes.fromhex("3031300d060960864801650304020105000420")
 
 
@@ -39,7 +40,7 @@ def _license_path(product: dict[str, Any]) -> Path:
     configured = product.get("licensing", {}).get("licenseFile", "config/license.json")
     path = Path(configured)
     if not path.is_absolute():
-        path = ROOT / path
+        path = _USER_DATA / path
     return path
 
 

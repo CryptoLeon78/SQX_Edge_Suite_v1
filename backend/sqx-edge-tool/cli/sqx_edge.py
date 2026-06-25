@@ -26,16 +26,17 @@ _CLI_BOOTSTRAP = Path(__file__).resolve().parent.parent  # sqx-edge-tool/ — sy
 if str(_CLI_BOOTSTRAP) not in sys.path:
     sys.path.insert(0, str(_CLI_BOOTSTRAP))
 
-from core.app_paths import app_root  # noqa: E402
+from core.app_paths import app_root, user_data_dir  # noqa: E402
 
 ROOT = app_root()
+_USER_DATA = user_data_dir()
 
 from core import all_minings, generate_project, get_mining
 from core.project_generator import DEFAULT_BROKER_POSTFIX
 
 
 def load_config() -> dict:
-    cfg_path = ROOT / "config.json"
+    cfg_path = _USER_DATA / "config.json"
     if not cfg_path.exists():
         return {}
     try:
@@ -125,11 +126,14 @@ def cmd_generate_all(args) -> int:
 
 def cmd_info(args) -> int:
     cfg = load_config()
+    cfg_path = _USER_DATA / "config.json"
+    output_default = str(_USER_DATA / "output")
     print(f"SQX Edge Tool v0.2.0")
     print(f"  Project root: {ROOT}")
-    print(f"  Config: {ROOT / 'config.json'} ({'present' if (ROOT / 'config.json').exists() else 'missing'})")
+    print(f"  User data:    {_USER_DATA}")
+    print(f"  Config: {cfg_path} ({'present' if cfg_path.exists() else 'missing'})")
     print(f"  SQX path: {cfg.get('sqx_path', '(not set)')}")
-    print(f"  Output dir: {cfg.get('output_dir', str(ROOT / 'output'))}")
+    print(f"  Output dir: {cfg.get('output_dir', output_default)}")
     print(f"  Templates dir: {ROOT / 'templates'}")
     for tpl in (ROOT / "templates").glob("*.cfx"):
         print(f"    - {tpl.name}")

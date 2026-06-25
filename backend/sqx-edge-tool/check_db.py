@@ -9,10 +9,9 @@ _HERE = Path(__file__).resolve().parent
 if str(_HERE) not in sys.path:
     sys.path.insert(0, str(_HERE))
 
-from core.app_paths import app_root  # noqa: E402
+from core.app_paths import user_data_dir  # noqa: E402
 
-ROOT = app_root()
-CONFIG_PATH = ROOT / "config.json"
+CONFIG_PATH = user_data_dir() / "config.json"
 
 
 def configured_db_path() -> Path:
