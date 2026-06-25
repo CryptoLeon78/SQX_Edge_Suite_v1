@@ -93,6 +93,28 @@ test('sidecarCommand does not mutate process.env', () => {
   assert.equal(process.env.SQX_PORT, before);
 });
 
+test('sidecarCommand: env includes SQX_PARENT_PID equal to process.pid', () => {
+  const { env } = sidecarCommand({
+    packaged: false, port: 5100, repoRoot: '/repo', resourcesPath: '/res',
+  });
+  assert.equal(env.SQX_PARENT_PID, String(process.pid),
+    'sidecar must receive the Electron PID so its Python watchdog can poll it');
+});
+
+test('sidecarCommand: SQX_PARENT_PID is present in packaged mode too', () => {
+  const { env } = sidecarCommand({
+    packaged: true, port: 5200, repoRoot: '/repo', resourcesPath: '/res',
+  });
+  assert.equal(env.SQX_PARENT_PID, String(process.pid));
+});
+
+test('sidecarCommand: double call does not mutate process.env SQX_PARENT_PID', () => {
+  const before = process.env.SQX_PARENT_PID;
+  sidecarCommand({ packaged: false, port: 1111, repoRoot: '/r', resourcesPath: '/p' });
+  sidecarCommand({ packaged: false, port: 2222, repoRoot: '/r', resourcesPath: '/p' });
+  assert.equal(process.env.SQX_PARENT_PID, before);
+});
+
 test('sidecarCommand packaged path is under resourcesPath', () => {
   const resourcesPath = path.join('/', 'custom', 'resources');
   const { cmd } = sidecarCommand({

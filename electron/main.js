@@ -76,3 +76,14 @@ app.on('before-quit', () => {
   quitting = true;
   killSidecar();
 });
+
+// SIGINT (Ctrl+C in terminal) and SIGTERM (systemd/launchd) give us a chance
+// to kill the sidecar before this process exits.  killSidecar() is idempotent
+// (guards on sidecarProc != null), so concurrent calls from before-quit and a
+// signal are safe.
+//
+// NOTE: Windows cannot deliver SIGTERM to a native process, and a hard main
+// crash runs none of these handlers -- the Python watchdog (SQX_PARENT_PID)
+// is the backstop for those scenarios.
+process.on('SIGINT',  () => { killSidecar(); process.exit(0); });
+process.on('SIGTERM', () => { killSidecar(); process.exit(0); });
